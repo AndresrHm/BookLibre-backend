@@ -1,13 +1,14 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    kotlin("jvm") version "2.3.0"
+    id("org.springframework.boot") version "3.3.1"
+    id("io.spring.dependency-management") version "1.1.5"
+    kotlin("jvm") version "1.9.24"
+    kotlin("plugin.spring") version "1.9.24"
     jacoco
+    war
 }
 
 group = "ar.edu.unsam.phm"
-version = "1.0-SNAPSHOT"
+version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
@@ -19,20 +20,30 @@ repositories {
     mavenCentral()
 }
 
-val kotestVersion = "6.1.3"
-
 dependencies {
-    implementation(kotlin("stdlib"))
-    testImplementation("io.mockk:mockk:1.14.9")
+    val kotestVersion = "5.8.0"
+
+    // básicos de cualquier proyecto Spring Boot
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-hateoas")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+
+    // testing
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.mockk:mockk:1.13.9")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
 }
 
-tasks.withType<KotlinCompile> {
+kotlin {
     compilerOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget.set(JvmTarget.JVM_21)
+        freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }
 
@@ -49,19 +60,26 @@ tasks.jacocoTestReport {
 }
 
 jacoco {
-    toolVersion = "0.8.14"
+    toolVersion = "0.8.12"
 }
 
 tasks.jacocoTestReport {
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude("**/config/**", "**/entity/**", "**/*Application*.*", "**/ServletInitializer.*")
+            }
+        })
+    )
     reports {
         xml.required.set(true)
-        csv.required.set(false)
+        csv.required.set(true)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+tasks.register("runOnGitHub") {
+    dependsOn("jacocoTestReport")
+    group = "custom"
+    description = "$ ./gradlew runOnGitHub # runs on GitHub Action"
 }
