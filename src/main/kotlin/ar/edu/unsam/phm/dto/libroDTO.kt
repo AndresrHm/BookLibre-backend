@@ -1,9 +1,10 @@
 package ar.edu.unsam.phm.dto
 
+import ar.edu.unsam.phm.domain.Calificacion
 import java.time.LocalDate
 
 data class Libro(
-    val id: Long,
+    val id: Int,
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
@@ -11,11 +12,11 @@ data class Libro(
 )
 
 data class LibroPrestadoDTO(
-    val reservaId: Long,
+    val reservaId: Int,
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
-    val ratingLibro: Double,
+    val calificacion: Calificacion,
     val prestadoPor: String,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,

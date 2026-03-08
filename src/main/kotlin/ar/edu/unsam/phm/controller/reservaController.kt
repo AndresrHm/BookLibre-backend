@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @CrossOrigin("*")
 class ReservaController(val reservaService: ReservaService) {
-    @GetMapping
+    @GetMapping("/reservas")
     fun getReservas(
         @RequestParam userID: Int = 1,
         @RequestParam tipoReserva: TipoReserva,

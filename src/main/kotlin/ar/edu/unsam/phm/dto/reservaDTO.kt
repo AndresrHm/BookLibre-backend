@@ -1,16 +1,17 @@
 package ar.edu.unsam.phm.dto
 
+import ar.edu.unsam.phm.domain.Calificacion
 import java.time.LocalDate
 
-data class Reserva(
-    val id: Long,
-    val libroId: Long,
-    val prestadorId: Long,
-    val lectorId: Long,
+data class ReservaDTO(
+    val id: Int,
+    val libroId: Int,
+    val prestadorId: Int,
+    val lectorId: Int,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
     val fechaDevolucion: LocalDate,
-    val rating: Double,
+    val calificacion: Calificacion,
 )
 
 enum class TipoReserva {
@@ -22,8 +23,4 @@ enum class EstadoReserva {
     ACTIVO,
     PROXIMO_A_VENCER,
     DEVUELTO,
-}
-
-fun Reserva.toDTO() {
-
 }

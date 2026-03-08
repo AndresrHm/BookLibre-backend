@@ -3,8 +3,11 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.dto.LibroPrestadoDTO
 import ar.edu.unsam.phm.dto.PageResponse
 import ar.edu.unsam.phm.dto.TipoReserva
+import ar.edu.unsam.phm.mapper.toLibroPrestadoDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
+import org.springframework.stereotype.Service
 
+@Service
 class ReservaService(
     var reservaRepository: ReservaRepository
 ) {
@@ -22,7 +25,17 @@ class ReservaService(
             TipoReserva.BY_ME -> reservaRepository.findByPrestadorID(userID, page, size)
         }
 
-        val dtos = reservas.content
+        val dtos = reservas.content.map { it.toLibroPrestadoDTO(userID) }
+
+        val totalPages = ((reservas.totalElements + size - 1) / size)
+
+        return PageResponse(
+            content = dtos,
+            page = page,
+            size = size,
+            totalElements = reservas.totalElements,
+            totalPages = totalPages,
+        )
     }
 
 //    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
