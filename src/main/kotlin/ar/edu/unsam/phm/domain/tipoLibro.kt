@@ -8,11 +8,9 @@ interface TipoLibro {
 
 object Comun : TipoLibro {
     override fun darKarma(reserva: reserva): Int {
-        if (reserva.usuarioLector.biblioKarma > 1000) {
-            return reserva.libro.cantidadPaginas * 5
-        } else {
-            return reserva.libro.cantidadPaginas * 2
-        }
+        val coefPorLector = if (reserva.usuarioLector.biblioKarma > 1000) 5 else 2
+
+        return reserva.libro.cantidadPaginas  * coefPorLector
     }
 }
 
