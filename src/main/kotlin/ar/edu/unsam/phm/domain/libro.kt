@@ -12,7 +12,7 @@ class Libro(
     var genero: Genero,
     var autor: String,
     var cantidadPaginas: Int,
-    var isbn13: Int,
+    var isbn13: Long,
     var idioma: Idioma,
     var editorial: String,
     var fechaPublicacion: LocalDate,

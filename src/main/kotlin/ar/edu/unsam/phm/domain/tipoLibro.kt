@@ -6,7 +6,7 @@ interface TipoLibro {
     fun darKarma(reserva: reserva): Int
 }
 
-object Comun : TipoLibro {
+object comun : TipoLibro {
     override fun darKarma(reserva: reserva): Int {
         val coefPorLector = if (reserva.usuarioLector.biblioKarma > 1000) 5 else 2
 
@@ -14,13 +14,13 @@ object Comun : TipoLibro {
     }
 }
 
-object ConDedicatoria : TipoLibro {
+object conDedicatoria : TipoLibro {
     override fun darKarma(reserva: reserva): Int {
         return reserva.libro.cantidadReservas * 10 + 200
     }
 }
 
-object Coleccionable : TipoLibro {
+object coleccionable : TipoLibro {
     override fun darKarma(reserva: reserva): Int {
         return ceil(reserva.usuarioLector.biblioKarma / 5.0).toInt() + reserva.libro.cantidadPaginas
     }
