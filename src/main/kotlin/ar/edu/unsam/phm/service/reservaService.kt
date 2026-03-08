@@ -1,27 +1,28 @@
 package ar.edu.unsam.phm.service
 
-import ar.edu.unsam.phm.controller.LibroPrestadoDTO
-import ar.edu.unsam.phm.controller.PageResponse
-import ar.edu.unsam.phm.controller.TipoReserva
-import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.dto.LibroPrestadoDTO
+import ar.edu.unsam.phm.dto.PageResponse
+import ar.edu.unsam.phm.dto.TipoReserva
 import ar.edu.unsam.phm.repository.ReservaRepository
-import java.time.LocalDate
 
 class ReservaService(
-    var reservaRepository: ReservaRepository,
-     var libroRepository: LibroRepository,
-//     var repositorioUsuario: UsuarioRepository
+    var reservaRepository: ReservaRepository
 ) {
 
     fun getReservas(
         userID: Int,
-        tipo: TipoReserva,
+        tipoReserva: TipoReserva,
         page: Int,
         size: Int
-    ): PageResponse<LibroPrestadoDTO>{
+    ): PageResponse<LibroPrestadoDTO> {
 
+        val reservas = when (tipoReserva) {
+            TipoReserva.TO_ME -> reservaRepository.findByLectorID(userID, page, size)
+
+            TipoReserva.BY_ME -> reservaRepository.findByPrestadorID(userID, page, size)
+        }
+
+        val dtos = reservas.content
     }
 
 //    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {

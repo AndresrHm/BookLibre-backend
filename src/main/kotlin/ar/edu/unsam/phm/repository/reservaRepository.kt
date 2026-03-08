@@ -3,7 +3,7 @@ import ar.edu.unsam.phm.domain.Reserva
 import org.springframework.stereotype.Component
 
 @Component
-open class RepositorioReserva : Repositorio<Reserva>() {
+open class ReservaRepository : Repositorio<Reserva>() {
 
     fun findByLectorID(
         userID: Int,
