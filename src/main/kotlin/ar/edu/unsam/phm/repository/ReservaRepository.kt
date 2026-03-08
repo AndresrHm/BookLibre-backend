@@ -1,4 +1,7 @@
 package ar.edu.unsam.phm.repository
 
-class ReservaRepository {
+import ar.edu.unsam.phm.domain.Reserva
+
+class ReservaRepository: Repositorio<Reserva>() {
+
 }

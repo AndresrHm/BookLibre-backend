@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.domain
 
+import ar.edu.unsam.phm.repository.RepositorioDatos
 import java.time.LocalDate
 
 //Obviamente vamos a tener libros para prestar o que nos presten. De ellos conocemos
@@ -29,7 +30,8 @@ class Libro(
     val editorial: String,
     val fechaPublicacion: LocalDate,
     val estadoLibro: EstadoLibro
-) {
+) :RepositorioDatos {
+    override var id: Int = 0
     val listaDeResenias = mutableListOf<Resenias>()
     var cantidadReservas = 0
 
@@ -37,6 +39,10 @@ class Libro(
 
     fun reservar() {
         cantidadReservas += 1
+    }
+
+    override fun searchCondition(texto: String): Boolean {
+        TODO("Aun sin implementar")
     }
 }
 
