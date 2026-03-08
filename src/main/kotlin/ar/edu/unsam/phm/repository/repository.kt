@@ -17,6 +17,7 @@ open class Repositorio<T : RepositorioDatos> {
         elementos.clear()
         idCounter = 1
     }
+
     fun allInstances(): List<T> {
         return elementos
     }

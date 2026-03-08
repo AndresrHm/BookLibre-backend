@@ -4,7 +4,7 @@ import ar.edu.unsam.phm.repository.RepositorioDatos
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-class Reserva(
+class reserva(
     val libro: Libro,
     val usuarioPrestador: Usuario,
     val usuarioLector: Usuario,

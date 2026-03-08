@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.reserva
 import ar.edu.unsam.phm.repository.ReservaRepository
 import java.time.LocalDate
 
@@ -10,7 +10,7 @@ class ReservaService(
     // var repositorioLibro: LibroRepository
     // var repositorioUsuario: UsuarioRepository
 ) {
-    fun getReservas(): List<Reserva> {
+    fun getReservas(): List<reserva> {
         return repositorioReserva.allInstances()
     }
     fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
@@ -21,7 +21,7 @@ class ReservaService(
             }
             .map { it.libro }
     }
-    fun crearReserva(reserva: Reserva) {
+    fun crearReserva(reserva: reserva) {
         // 1. verificamos fechas
         //try {repositorioReserva.reservar(reserva)}
         //catch {}

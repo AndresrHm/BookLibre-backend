@@ -1,10 +1,10 @@
 package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.domain.Genero
+import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.repository.LibroRepository
 import java.time.LocalDate
-import ar.edu.unsam.phm.domain.Libro
 
-class LibroService(
+class libroService(
     var repositorioLibro: LibroRepository,
     var serviceReservas: ReservaService
 ) {

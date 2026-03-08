@@ -1,13 +1,6 @@
 package ar.edu.unsam.phm.domain
-//En primer lugar tenemos a los usuarios. De los mismos se sabe que tienen
-//Nombre completo (nombre y apellido)
-//Una breve descripción de un renglón (por ejemplo “Lector intrépido”)
-//Su email
-//Su nro de celular
-//La ciudad donde reside
-//El tipo de usuario (o rol dentro de la aplicación que puede ser: lector, publicador o lector / publicador) Por el momento no tiene comportamiento asociado.
 
-class Usuario(
+class Usuario (
     val nombre: String,
     val apellido: String,
     var descripcion: String,

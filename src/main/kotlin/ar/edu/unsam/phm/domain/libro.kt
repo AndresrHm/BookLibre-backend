@@ -3,21 +3,6 @@ package ar.edu.unsam.phm.domain
 import ar.edu.unsam.phm.repository.RepositorioDatos
 import java.time.LocalDate
 
-//Obviamente vamos a tener libros para prestar o que nos presten. De ellos conocemos
-//
-//
-//Título
-//Tipo (puede ser común, con dedicatoria y coleccionable)
-//Descripción
-//Género (Drama, Ciencia ficción, Romance, Autoayuda, diseño y literatura clásica)
-//Autor
-//Cantidad de páginas
-//ISBN-13 (código unívoco para identificar libros)
-//Idioma (Español, Inglés, Francés y Portugués)
-//Editorial
-//Fecha de publicación
-//Estado del libro (Se refiere a las condiciones que se encuentra el libro que pueden ser Excelente, Muy bueno, Bueno, malo y regular)
-
 class Libro(
     val titulo: String,
     val tipoLibro: TipoLibro,
@@ -35,7 +20,7 @@ class Libro(
     val listaDeResenias = mutableListOf<Resenias>()
     var cantidadReservas = 0
 
-    fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
+    fun darKarma(reserva: reserva): Int = tipoLibro.darKarma(reserva)
 
     fun reservar() {
         cantidadReservas += 1
