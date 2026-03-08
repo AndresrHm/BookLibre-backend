@@ -1,68 +1,46 @@
 package ar.edu.unsam.phm.repository
 
-import ar.edu.unsam.phm.ErrorMessages
-import ar.edu.unsam.phm.errors.NotFoundException
+import ar.edu.unsam.phm.domain.Reserva
+import org.springframework.stereotype.Component
 
-interface RepositorioDatos {
-    var id : Int
-    fun searchCondition(texto: String): Boolean
+interface Identificable {
+    var id: Int
 }
 
-open class Repositorio<T : RepositorioDatos> {
+abstract class Repositorio<T : Identificable> {
+    private val elementos = mutableListOf<T>()
+    private var idIncremental = 1
 
-    val elementos: MutableList<T> = mutableListOf()
-    private var idCounter = 1
-
-    fun clearAll(){
-        elementos.clear()
-        idCounter = 1
-    }
-
-    fun allInstances(): List<T> {
-        return elementos
-    }
-
-    fun create(elemento : T) : T{
+    open fun create(elemento: T) {
+        elemento.id = idIncremental
+        idIncremental += 1
         elementos.add(elemento)
-        elemento.id = idCounter++
-        return elemento
     }
 
-    fun delete(elemento: T) {
-        elementos.remove(elemento)
+    fun delete(elemento: T) = elementos.removeIf { it.id == elemento.id }
+
+    fun update(elemento: T) {
+        if (!elementosID().contains(elemento.id)) throw ElementoNoEncontrado("No existe elemento con dicha ID.")
+        delete(elemento)
+        elementos.add(elemento)
     }
 
-    fun massiveDelete(list: List<T>){
-        list.forEach{this.delete(it)}
-    }
+    fun getById(id: Int): T? = elementos.firstOrNull { it.id == id }
 
-    fun agregarTodos(list: List<T>){
-        list.forEach{this.create(it)}
-    }
+//    abstract fun search(string: String): List<T> Por el momento no se especifica un search()
 
-    fun update(elementoActualizado : T) {
-        idDoesNotExist(elementoActualizado.id)
-        val elementoAEliminar = getById(elementoActualizado.id)
-        elementos.remove(elementoAEliminar)
-        elementos.add(elementoActualizado)
-    }
+    fun getElementos(): List<T> = elementos.toList()
 
-    fun getById(id: Int): T {
-        idDoesNotExist(id)
-        return elementos.first{it.id == id}
-    }
+    fun elementosID() = elementos.map { it.id }
 
-    fun search(texto: String): List<T> {
-        return elementos.filter {it.searchCondition(texto)}
-    }
-
-    private fun idExist(id: Int): Boolean {
-        return elementos.any{it.id == id}
-    }
-
-    private fun idDoesNotExist(id: Int) {
-        if(!idExist(id)){
-            throw NotFoundException(ErrorMessages.ID_INEXISTENTE)
-        }
+    fun clearInit() {
+        elementos.clear()
+        idIncremental = 1
     }
 }
+
+@Component
+open class RepositorioReserva : Repositorio<Reserva>() {
+}
+
+class ElementoNoEncontrado(msg: String) : RuntimeException(msg)
