@@ -12,12 +12,12 @@ import java.time.LocalDate
 class ReservaController(val reservaService: ReservaService) {
     @GetMapping
     fun getReservas(
+        @RequestParam userID: Int = 1,
         @RequestParam tipo: TipoReserva,
         @RequestParam page: Int,
-        @RequestParam size: Int,
+        @RequestParam size: Int = 6,
     ): PageResponse<LibroPrestadoDTO> {
-        val userID = 1 // mock
-        return 1
+        return reservaService.getReservas(userID, tipo, page, size)
     }
 }
 
@@ -30,8 +30,8 @@ data class Reserva(
     val lectorId: Long,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
-    val fechaDevolucion: LocalDate?,
-    val rating: Double?
+    val fechaDevolucion: LocalDate,
+    val rating: Double,
 )
 
 data class Libro(
@@ -39,7 +39,7 @@ data class Libro(
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
-    val ratingPromedio: Double
+    val ratingPromedio: Double,
 )
 
 data class LibroPrestadoDTO(
@@ -52,7 +52,7 @@ data class LibroPrestadoDTO(
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
     val estado: EstadoReserva,
-    val puedeCalificar: Boolean
+    val puedeCalificar: Boolean,
 )
 
 data class PageResponse<T>(
@@ -60,7 +60,7 @@ data class PageResponse<T>(
     val page: Int,
     val size: Int,
     val totalElements: Long,
-    val totalPages: Int
+    val totalPages: Int,
 )
 
 enum class TipoReserva {
@@ -71,5 +71,5 @@ enum class TipoReserva {
 enum class EstadoReserva {
     ACTIVO,
     PROXIMO_A_VENCER,
-    DEVUELTO
+    DEVUELTO,
 }

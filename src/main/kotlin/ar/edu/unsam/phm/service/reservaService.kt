@@ -15,7 +15,14 @@ class ReservaService(
 //     var repositorioUsuario: UsuarioRepository
 ) {
 
-    fun getReservas(){}
+    fun getReservas(
+        userID: Int,
+        tipo: TipoReserva,
+        page: Int,
+        size: Int
+    ): PageResponse<LibroPrestadoDTO>{
+
+    }
 
 //    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
 //        return repositorioReserva.allInstances()

@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
-import ar.edu.unsam.phm.repository.RepositorioDatos
 import java.time.LocalDate
 
 class Libro(
@@ -15,9 +14,9 @@ class Libro(
     val idioma: Idioma,
     val editorial: String,
     val fechaPublicacion: LocalDate,
-    val estadoLibro: EstadoLibro
+    val estadoLibro: EstadoLibro,
+    override var id: Int = -1,
 ) : Identificable {
-    override var id: Int = 0
     var cantidadReservas = 0
     fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
 
