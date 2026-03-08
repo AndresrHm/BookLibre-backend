@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.domain
 
+import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
-import ar.edu.unsam.phm.repository.RepositorioDatos
 import java.time.LocalDate
 
 class Libro(
@@ -17,9 +17,8 @@ class Libro(
     var editorial: String,
     var fechaPublicacion: LocalDate,
     var estadoLibro: EstadoLibro
-) : RepositorioDatos {
+) : Identificable {
     override var id: Int = 0
-    val listaDeResenias = mutableListOf<Resenias>()
     var cantidadReservas = 0
 
     fun init() {
@@ -31,14 +30,10 @@ class Libro(
         verficarCodigo()
     }
 
-    fun darKarma(reserva: reserva): Int = tipoLibro.darKarma(reserva)
+    fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
 
     fun reservar() {
         cantidadReservas += 1
-    }
-
-    override fun searchCondition(texto: String): Boolean {
-        TODO("Aun sin implementar")
     }
 
     private fun verficarTitulo() {
