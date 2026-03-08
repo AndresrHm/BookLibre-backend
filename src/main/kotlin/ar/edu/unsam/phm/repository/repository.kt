@@ -4,7 +4,7 @@ import ar.edu.unsam.phm.ErrorMessages
 import ar.edu.unsam.phm.errors.NotFoundException
 
 interface RepositorioDatos {
-    var id : Int
+    var id: Int
     fun searchCondition(texto: String): Boolean
 }
 
@@ -13,7 +13,7 @@ open class Repositorio<T : RepositorioDatos> {
     val elementos: MutableList<T> = mutableListOf()
     private var idCounter = 1
 
-    fun clearAll(){
+    fun clearAll() {
         elementos.clear()
         idCounter = 1
     }
@@ -22,7 +22,7 @@ open class Repositorio<T : RepositorioDatos> {
         return elementos
     }
 
-    fun create(elemento : T) : T{
+    fun create(elemento: T): T {
         elementos.add(elemento)
         elemento.id = idCounter++
         return elemento
@@ -32,15 +32,15 @@ open class Repositorio<T : RepositorioDatos> {
         elementos.remove(elemento)
     }
 
-    fun massiveDelete(list: List<T>){
-        list.forEach{this.delete(it)}
+    fun massiveDelete(list: List<T>) {
+        list.forEach { this.delete(it) }
     }
 
-    fun agregarTodos(list: List<T>){
-        list.forEach{this.create(it)}
+    fun agregarTodos(list: List<T>) {
+        list.forEach { this.create(it) }
     }
 
-    fun update(elementoActualizado : T) {
+    fun update(elementoActualizado: T) {
         idDoesNotExist(elementoActualizado.id)
         val elementoAEliminar = getById(elementoActualizado.id)
         elementos.remove(elementoAEliminar)
@@ -49,19 +49,19 @@ open class Repositorio<T : RepositorioDatos> {
 
     fun getById(id: Int): T {
         idDoesNotExist(id)
-        return elementos.first{it.id == id}
+        return elementos.first { it.id == id }
     }
 
     fun search(texto: String): List<T> {
-        return elementos.filter {it.searchCondition(texto)}
+        return elementos.filter { it.searchCondition(texto) }
     }
 
     private fun idExist(id: Int): Boolean {
-        return elementos.any{it.id == id}
+        return elementos.any { it.id == id }
     }
 
     private fun idDoesNotExist(id: Int) {
-        if(!idExist(id)){
+        if (!idExist(id)) {
             throw NotFoundException(ErrorMessages.ID_INEXISTENTE)
         }
     }

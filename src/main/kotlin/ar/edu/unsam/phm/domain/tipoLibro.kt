@@ -10,7 +10,7 @@ object Comun : TipoLibro {
     override fun darKarma(reserva: reserva): Int {
         val coefPorLector = if (reserva.usuarioLector.biblioKarma > 1000) 5 else 2
 
-        return reserva.libro.cantidadPaginas  * coefPorLector
+        return reserva.libro.cantidadPaginas * coefPorLector
     }
 }
 
