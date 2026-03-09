@@ -20,7 +20,8 @@ data class LibroEdicionDTO(
     val fechaPublicacion: LocalDate,
     val cantidadPaginas: Int,
     val isbn13: Long,
-    val descripcion: String
+    val descripcion: String,
+    val idPropietario: Int
 )
 
 fun LibroEdicionDTO.toLibro(): Libro {
@@ -36,7 +37,8 @@ fun LibroEdicionDTO.toLibro(): Libro {
         idioma = this.idioma,
         editorial = this.editorial,
         fechaPublicacion = this.fechaPublicacion,
-        estadoLibro = this.estado
+        estadoLibro = this.estado,
+        idPropietario = this.idPropietario
     )
     return libro
 }
@@ -55,7 +57,8 @@ fun Libro.toLibroEdicionDTO(): LibroEdicionDTO {
         idioma = this.idioma,
         editorial = this.editorial,
         fechaPublicacion = this.fechaPublicacion,
-        estado = this.estadoLibro
+        estado = this.estadoLibro,
+        idPropietario = this.idPropietario
     )
     return libro
 }

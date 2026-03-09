@@ -1,4 +1,5 @@
 package ar.edu.unsam.phm.service
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
@@ -19,11 +20,14 @@ class LibroService(
         return nuevoLibro
     }
 
-    fun obtenerLibroParaEdicion(id: Int): Libro {
-        val libroParaEdicion = repositorioLibro.getById(id)
+    fun obtenerLibroParaEdicion(idLibro: Int, idUsuario: Int): Libro {
+        val libroParaEdicion = repositorioLibro.getById(idLibro)
 
         if (libroParaEdicion == null) {
-            throw NotFoundException("No existe un libro con el id $id")
+            throw NotFoundException("No existe un libro con el id $idLibro")
+        }
+        if (libroParaEdicion.idPropietario != idUsuario) {
+            throw BusinessException("El libro con id $idLibro no pertenece al usuario $idUsuario")
         }
         //Debería verificar que el usuario que pide el libro para editar sea su dueño
 

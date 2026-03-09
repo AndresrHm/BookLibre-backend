@@ -16,8 +16,8 @@ class Libro(
     var idioma: Idioma,
     var editorial: String,
     var fechaPublicacion: LocalDate,
-    var estadoLibro: EstadoLibro
-    //El libro debería conocer a su dueño
+    var estadoLibro: EstadoLibro,
+    val idPropietario: Int
 ) : Identificable {
     override var id: Int = 0
     var cantidadReservas = 0
