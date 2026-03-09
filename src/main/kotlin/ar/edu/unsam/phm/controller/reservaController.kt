@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.dto.LibroPrestadoDTO
 import ar.edu.unsam.phm.dto.PageResponse
+import ar.edu.unsam.phm.dto.TipoReserva
 import ar.edu.unsam.phm.service.ReservaService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,7 +19,7 @@ class ReservaController(val reservaService: ReservaService) {
         @RequestParam size: Int,
     ): PageResponse<LibroPrestadoDTO> {
         val userID = 1 // mock
-        return 1
+        return PageResponse(emptyList(), page, size, 0, 0)
     }
 }
 
