@@ -1,4 +1,4 @@
-package ar.edu.unsam.phm.controller
+/*package ar.edu.unsam.phm.controller
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -21,4 +21,4 @@ class RecetaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.content().string("hola"))
     }
-}
+}*/

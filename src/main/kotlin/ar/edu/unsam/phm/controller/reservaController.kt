@@ -1,7 +1,5 @@
 package ar.edu.unsam.phm.controller
 
-import ar.edu.unsam.phm.dto.LibroPrestadoDTO
-import ar.edu.unsam.phm.dto.PageResponse
 import ar.edu.unsam.phm.dto.TipoReserva
 import ar.edu.unsam.phm.service.ReservaService
 import org.springframework.web.bind.annotation.CrossOrigin

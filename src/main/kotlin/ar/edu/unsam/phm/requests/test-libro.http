@@ -1,0 +1,19 @@
+POST http://localhost:9000/libro/crear
+Content-Type: application/json
+
+{
+  "titulo": "Rayuela",
+  "autor": "Julio Cortázar",
+  "tipoLibro": {
+    "tipoLibro": "conDedicatoria"
+  },
+  "cantidadPaginas": 600,
+  "imagenUrl": "http://imagen.com/tapa.jpg",
+  "genero": "AUTOAYUDA",
+  "idioma": "ESPANOL",
+  "estado": "BUENO",
+  "editorial": "Alfaguara",
+  "fechaPublicacion": "1963-06-28",
+  "isbn13": 9788420471006,
+  "descripcion": "Una obra maestra."
+}
