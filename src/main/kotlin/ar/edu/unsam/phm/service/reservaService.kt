@@ -1,10 +1,12 @@
 package ar.edu.unsam.phm.service
 
+import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.dto.LibroPrestadoDTO
 import ar.edu.unsam.phm.dto.PageResponse
 import ar.edu.unsam.phm.mapper.toLibroPrestadoDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class ReservaService(
@@ -46,5 +48,16 @@ class ReservaService(
             totalElements = reservas.totalElements,
             totalPages = totalPages,
         )
+    }
+
+    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
+        require(!fechaInicio.isAfter(fechaFin)) { "fechaInicio no puede ser mayor a fechaFin" }
+
+        return reservaRepository.getElementos()
+            .filter { reserva ->
+                // Verificamos que la reserva este entre el rango de fechas a buscar
+                !reserva.fechaRecogida.isAfter(fechaFin) && !reserva.fechaDevolucion.isBefore(fechaInicio)
+            }
+            .map { it.libro }
     }
 }
