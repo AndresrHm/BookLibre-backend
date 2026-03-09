@@ -17,13 +17,20 @@ fun Reserva.  toLibroPrestadoDTO(userID: Int): LibroPrestadoDTO {
         usuarioLector.id == userID &&
         estado == EstadoReserva.DEVUELTO
 
+    val usuario =
+        if (usuarioLector.id == userID) {
+            usuarioPrestador.nombre
+        } else {
+            usuarioLector.nombre
+        }
+
     return LibroPrestadoDTO(
         reservaId = id,
         titulo = libro.titulo,
         autor = libro.autor,
         imagenUrl = libro.imagenURL,
         calificacion = libro.calificacion,
-        prestadoPor = usuarioPrestador.nombre,
+        usuario = usuario,
         fechaInicio = fechaRecogida,
         fechaFin = fechaDevolucion,
         estado = estado,

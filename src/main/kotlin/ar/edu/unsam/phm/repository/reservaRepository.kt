@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository
 @Repository
 open class ReservaRepository : Repositorio<Reserva>() {
 
+    // reservas donde el user es lector
     fun findByLectorID(
         userID: Int,
         page: Int,
@@ -16,6 +17,7 @@ open class ReservaRepository : Repositorio<Reserva>() {
         return paginate(page, size, filtered)
     }
 
+    // reservas donde el user es prestador
     fun findByPrestadorID(
         userID: Int,
         page: Int,
