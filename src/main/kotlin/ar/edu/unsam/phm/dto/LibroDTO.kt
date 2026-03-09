@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.dto
 
 import java.time.LocalDate
 import ar.edu.unsam.phm.domain.Genero
-import org.apache.catalina.User
+import ar.edu.unsam.phm.domain.Usuario
 
 data class LibroDTO(
     val id: Long,
@@ -32,7 +32,7 @@ data class FiltrosDeLibrosDTO(
     val fechaDesde: LocalDate?,
     val fechaHasta: LocalDate?,
     val isbn13: String?,
-    val usuarioPrestador: User?
+    val usuarioPrestador: Usuario?
 
 )
 
