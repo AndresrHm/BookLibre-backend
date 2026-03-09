@@ -17,3 +17,7 @@ Content-Type: application/json
   "isbn13": 9788420471006,
   "descripcion": "Una obra maestra."
 }
+
+###
+
+GET http://localhost:9000/libro/editar/1

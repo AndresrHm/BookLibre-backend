@@ -1,21 +1,29 @@
 package ar.edu.unsam.phm.controller
 
-import ar.edu.unsam.phm.dto.LibroEditadoDTO
-import ar.edu.unsam.phm.dto.toLibroEditadoDTO
+import ar.edu.unsam.phm.dto.LibroEdicionDTO
+import ar.edu.unsam.phm.dto.toLibroEdicionDTO
 import ar.edu.unsam.phm.service.LibroService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
 class libroController(val libroService: LibroService) {
     @PostMapping("libro/crear")
-    fun crearLibro(@RequestBody libro: LibroEditadoDTO): LibroEditadoDTO {
+    fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
         val nuevoLibro = libroService.crearLibro(libro)
-        return nuevoLibro.toLibroEditadoDTO()
+        return nuevoLibro.toLibroEdicionDTO()
+    }
+
+    @GetMapping("libro/editar/{id}")
+    fun obtenerLibroParaEdicion(@PathVariable id: Int): LibroEdicionDTO {
+        val libroParaEdicion = libroService.obtenerLibroParaEdicion(id)
+        return libroParaEdicion.toLibroEdicionDTO()
     }
 
 //    @PostMapping("client/register")

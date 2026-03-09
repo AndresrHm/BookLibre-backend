@@ -7,7 +7,7 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.TipoLibro
 import java.time.LocalDate
 
-data class LibroEditadoDTO(
+data class LibroEdicionDTO(
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
@@ -23,7 +23,7 @@ data class LibroEditadoDTO(
     val descripcion: String
 )
 
-fun LibroEditadoDTO.toLibro(): Libro {
+fun LibroEdicionDTO.toLibro(): Libro {
     val libro = Libro(
         titulo = this.titulo,
         tipoLibro = this.tipoLibro,
@@ -41,8 +41,8 @@ fun LibroEditadoDTO.toLibro(): Libro {
     return libro
 }
 
-fun Libro.toLibroEditadoDTO(): LibroEditadoDTO {
-    val libro = LibroEditadoDTO(
+fun Libro.toLibroEdicionDTO(): LibroEdicionDTO {
+    val libro = LibroEdicionDTO(
         id = this.id,
         titulo = this.titulo,
         tipoLibro = this.tipoLibro,
