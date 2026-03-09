@@ -2,23 +2,33 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Reserva
+import org.springframework.stereotype.Service
+import java.time.LocalDate
 
+@Service
 class ReservaService(
     var reservaRepository: ReservaRepository,
-     var libroRepository: LibroRepository,
-//     var repositorioUsuario: UsuarioRepository
+    //var libroRepository: LibroRepository
 ) {
 
-    fun getReservas(){}
+    fun getReservas(): List<Reserva> = reservaRepository.getElementos()
 
-//    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
-//        return repositorioReserva.allInstances()
-//            .filter { reserva ->
-//                // Verificamos que la reserva este entre el rango de fechas a buscar
-//                reserva.fechaRecogida <= fechaFin && reserva.fechaDevolucion >= fechaInicio
-//            }
-//            .map { it. libro }
-//    }
+    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
+        require(!fechaInicio.isAfter(fechaFin)) { "fechaInicio no puede ser mayor a fechaFin" }
+
+        return reservaRepository.getElementos()
+            .filter { reserva ->
+                // Verificamos que la reserva este entre el rango de fechas a buscar
+                !reserva.fechaRecogida.isAfter(fechaFin) && !reserva.fechaDevolucion.isBefore(fechaInicio)
+            }
+            .map { it.libro }
+    }
+    fun createReserva(reserva: Reserva){
+        //Creacion simple, mejorar dependiendo los requerimientos y validaciones necesarias
+        reservaRepository.create(reserva)
+    }
 //
 //    fun crearReserva(reserva: reserva) {
 //        // 1. verificamos fechas

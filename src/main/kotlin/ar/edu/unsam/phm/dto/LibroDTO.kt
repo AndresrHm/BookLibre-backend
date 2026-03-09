@@ -1,7 +1,8 @@
 package ar.edu.unsam.phm.dto
 
-import ar.edu.unsam.phm.controller.EstadoReserva
 import java.time.LocalDate
+import ar.edu.unsam.phm.domain.Genero
+import org.apache.catalina.User
 
 data class LibroDTO(
     val id: Long,
@@ -22,6 +23,17 @@ data class LibroPrestadoDTO(
     val fechaFin: LocalDate,
     val estado: EstadoReserva,
     val puedeCalificar: Boolean
+)
+
+data class FiltrosDeLibrosDTO(
+    val genero: Genero?,
+    val paginasMin: Int?,
+    val paginasMax: Int?,
+    val fechaDesde: LocalDate?,
+    val fechaHasta: LocalDate?,
+    val isbn13: String?,
+    val usuarioPrestador: User?
+
 )
 
 data class PageResponse<T>(

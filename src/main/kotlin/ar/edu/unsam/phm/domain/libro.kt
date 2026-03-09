@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
-import ar.edu.unsam.phm.repository.RepositorioDatos
 import java.time.LocalDate
 
 class Libro(
