@@ -116,7 +116,7 @@ data class LibroPrestadoDTO(
     val autor: String,
     val imagenUrl: String,
     val ratingLibro: Double,
-    val prestadoPor: String,
+    val usuario: String,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
     val estado: EstadoReserva,

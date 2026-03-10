@@ -30,7 +30,7 @@ fun Reserva.toLibroPrestadoDTO(userID: Int): LibroPrestadoDTO {
         autor = libro.autor,
         imagenUrl = libro.portada,
         ratingLibro = libro.rating(),
-        prestadoPor = usuarioPrestador.nombre,
+        usuario = usuario,
         fechaInicio = fechaRecogida,
         fechaFin = fechaDevolucion,
         estado = estado,
