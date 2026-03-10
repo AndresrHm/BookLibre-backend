@@ -1,14 +1,13 @@
 package ar.edu.unsam.phm.bootstrap
 
-import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.Lector
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.TipoLibro
-import ar.edu.unsam.phm.domain.TipoLibroStrategy
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.repository.ReservaRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
@@ -30,7 +29,8 @@ class BootstrapData(
             "juan@mail.com",
             "111111",
             "Buenos Aires",
-            id = 1
+            id = 1,
+            tipoUsuario = Lector
         )
 
         val usuario2 = Usuario(
@@ -40,26 +40,26 @@ class BootstrapData(
             "ana@mail.com",
             "222222",
             "Buenos Aires",
-            id = 2
+            id = 2,
+            tipoUsuario = Lector
         )
 
         val libros = (1..17).map {
             Libro(
                 titulo = "Libro $it",
-                tipoLibro = TipoLibro.COMUN,
+                tipoLibro = comun,
                 descripcion = "Descripción libro $it",
                 genero = Genero.CIENCIA_FICCION,
                 autor = "Autor $it",
                 cantidadPaginas = 200 + it,
-                isbn13 = 100000 + it,
+                isbn13 = 100000000000,
                 idioma = Idioma.ESPANOL,
                 editorial = "Editorial $it",
                 fechaPublicacion = LocalDate.now().minusYears(2),
                 estadoLibro = EstadoLibro.EXCELENTE,
-                imagenURL = "https://www.giantfreakinrobot.com/wp-content/uploads/2022/08/rick-astley.jpg"
-            ).apply {
-                calificacion = Calificacion.entries.toTypedArray().random()
-            }
+                portada = "https://www.giantfreakinrobot.com/wp-content/uploads/2022/08/rick-astley.jpg",
+                idPropietario = 1
+            )
         }
 
         libros.forEachIndexed { index, libro ->

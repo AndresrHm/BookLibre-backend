@@ -1,0 +1,50 @@
+POST http://localhost:9000/libro/crear
+Content-Type: application/json
+
+{
+  "id": 0,
+  "titulo": "Rayuela",
+  "autor": "Julio Cortázar",
+  "tipoLibro": {
+    "tipoLibro": "conDedicatoria"
+  },
+  "cantidadPaginas": 600,
+  "imagenUrl": "http://imagen.com/tapa.jpg",
+  "genero": "AUTOAYUDA",
+  "idioma": "ESPANOL",
+  "estado": "BUENO",
+  "editorial": "Alfaguara",
+  "fechaPublicacion": "1963-06-28",
+  "isbn13": 9788420471006,
+  "descripcion": "Una obra maestra.",
+  "idPropietario": 1
+}
+
+###
+GET http://localhost:9000/libro/editar/1/1
+
+###
+GET http://localhost:9000/libro/detalle/1
+
+###
+PUT http://localhost:9000/libro/editar/1/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "titulo": "RayuelaRecontraEditada",
+  "autor": "Julio Cortázar",
+  "tipoLibro": {
+    "tipoLibro": "conDedicatoria"
+  },
+  "cantidadPaginas": 600,
+  "imagenUrl": "http://imagen.com/tapa.jpg",
+  "genero": "AUTOAYUDA",
+  "idioma": "ESPANOL",
+  "estado": "BUENO",
+  "editorial": "Alfaguara",
+  "fechaPublicacion": "1963-06-28",
+  "isbn13": 9788420471006,
+  "descripcion": "Una obra maestra.",
+  "idPropietario": 1
+}
