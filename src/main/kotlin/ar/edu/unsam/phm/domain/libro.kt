@@ -20,6 +20,7 @@ class Libro(
     val idPropietario: Int
 ) : Identificable {
     override var id: Int = 0
+    val resenias = mutableListOf<Resenia>()
     var cantidadReservas = 0
 
     fun init() {
@@ -36,6 +37,17 @@ class Libro(
     fun reservar() {
         cantidadReservas += 1
     }
+
+    //Para página de detalle
+    fun rating(): Double {
+        return 1.0; TODO()
+    }
+
+    fun ultimasResenias(): List<Resenia> {
+        return resenias // Falta decidir el criterio de muestra de reseñas (recientes, más altas, etc.)
+    }
+
+    fun cantidadResenias(): Int = resenias.size
 
     private fun verficarTitulo() {
         if (titulo.isBlank()) {
@@ -89,5 +101,3 @@ enum class Idioma {
 enum class EstadoLibro {
     EXCELENTE, MUY_BUENO, BUENO, MALO, REGULAR
 }
-
-data class Resenias(val idUsuario: Int, val puntuacion: Double, val comentario: String)

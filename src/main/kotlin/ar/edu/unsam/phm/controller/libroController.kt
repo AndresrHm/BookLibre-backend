@@ -1,6 +1,8 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
+import ar.edu.unsam.phm.dto.toLibroDetalleDTO
 import ar.edu.unsam.phm.dto.toLibroEdicionDTO
 import ar.edu.unsam.phm.service.LibroService
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -13,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
-class libroController(val libroService: LibroService) {
+class LibroController(val libroService: LibroService) {
     @PostMapping("libro/crear")
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
         val nuevoLibro = libroService.crearLibro(libro)
@@ -26,8 +28,18 @@ class libroController(val libroService: LibroService) {
         return libroParaEdicion.toLibroEdicionDTO()
     }
 
+    @GetMapping("libro/detalle/{idLibro}")
+    fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
+        val libroDetalle = libroService.obtenerLibroDetalle(idLibro)
+        return libroDetalle.toLibroDetalleDTO()
+    }
+
     @PutMapping("libro/editar/{idLibro}/{idUsuario}")//Debería poder hacerse sin idLibro
-    fun editarLibro(@RequestBody libro: LibroEdicionDTO, @PathVariable idLibro: Int, @PathVariable idUsuario: Int): LibroEdicionDTO {
+    fun editarLibro(
+        @RequestBody libro: LibroEdicionDTO,
+        @PathVariable idLibro: Int,
+        @PathVariable idUsuario: Int
+    ): LibroEdicionDTO {
         val libroParaEdicion = libroService.editarLibro(libro, idLibro, idUsuario)
         return libroParaEdicion.toLibroEdicionDTO()
     }
