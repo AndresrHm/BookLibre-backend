@@ -101,7 +101,8 @@ fun crearLibro(
     idioma: Idioma = Idioma.ESPANOL,
     editorial: String = "Editorial de libro",
     fechaPublicacion: LocalDate = LocalDate.now(),
-    estadoLibro: EstadoLibro = EstadoLibro.BUENO
+    estadoLibro: EstadoLibro = EstadoLibro.BUENO,
+    idPropietario: Int = 0
 ): Libro {
     return Libro(
         titulo,
@@ -116,5 +117,6 @@ fun crearLibro(
         editorial,
         fechaPublicacion,
         estadoLibro,
+        idPropietario
     )
 }
