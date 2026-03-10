@@ -4,6 +4,8 @@ import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
 import java.time.LocalDate
 
+val MAX_CARACTERES_DESCRIPCION = 500
+
 class Libro(
     var titulo: String,
     val tipoLibro: TipoLibro,
@@ -58,6 +60,9 @@ class Libro(
     private fun verficarDescripcion() {
         if (descripcion.isBlank()) {
             throw BusinessException("El libro debe tener una descripción")
+        }
+        if (descripcion.length > MAX_CARACTERES_DESCRIPCION) {
+            throw BusinessException("La descripción no puede superar los $MAX_CARACTERES_DESCRIPCION caracteres")
         }
     }
 

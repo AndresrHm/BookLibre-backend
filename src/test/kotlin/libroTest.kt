@@ -39,6 +39,15 @@ class LibroSpec : DescribeSpec({
             }
         }
 
+        it("Un libro no puede tener una descripción excesivamente larga") {
+            val libroSinDescripcion =
+                crearLibro(descripcion = "A".repeat(501))
+
+            shouldThrow<BusinessException> {
+                libroSinDescripcion.init()
+            }
+        }
+
         it("Un libro no puede no tener autor") {
             val libroSinAutor = crearLibro(autor = "")
 
