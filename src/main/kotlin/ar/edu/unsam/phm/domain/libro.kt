@@ -42,7 +42,7 @@ class Libro(
 
     //Para página de detalle
     fun rating(): Double {
-        return 1.0; TODO()
+        return 1.0; //TODO()
     }
 
     fun ultimasResenias(): List<Resenia> {

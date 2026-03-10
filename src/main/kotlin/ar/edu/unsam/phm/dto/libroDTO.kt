@@ -6,6 +6,7 @@ import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Resenia
 import ar.edu.unsam.phm.domain.TipoLibro
+import ar.edu.unsam.phm.domain.Usuario
 import java.time.LocalDate
 
 data class LibroEdicionDTO(
@@ -109,17 +110,8 @@ fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
     return libro
 }
 
-/*
-data class LibroDTO(
-    val id: Long,
-    val titulo: String,
-    val autor: String,
-    val imagenUrl: String,
-    val ratingPromedio: Double
-)
-
 data class LibroPrestadoDTO(
-    val reservaId: Long,
+    val reservaId: Int,
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
@@ -131,12 +123,12 @@ data class LibroPrestadoDTO(
     val puedeCalificar: Boolean
 )
 
-data class PageResponse<T>(
-    val content: List<T>,
-    val page: Int,
-    val size: Int,
-    val totalElements: Long,
-    val totalPages: Int
+data class FiltrosDeLibrosDTO(
+    val genero: Genero?,
+    val paginasMin: Int?,
+    val paginasMax: Int?,
+    val fechaDesde: LocalDate?,
+    val fechaHasta: LocalDate?,
+    val isbn13: String?,
+    val usuarioPrestador: Usuario?
 )
-
-*/

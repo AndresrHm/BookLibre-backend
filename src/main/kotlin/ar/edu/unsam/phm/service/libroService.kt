@@ -1,7 +1,12 @@
 package ar.edu.unsam.phm.service
+import ar.edu.unsam.phm.domain.EntreFechasFiltro
+import ar.edu.unsam.phm.domain.FiltroDeLibro
+import ar.edu.unsam.phm.domain.GeneroFiltro
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
+import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.toLibro
 import ar.edu.unsam.phm.repository.LibroRepository
@@ -68,5 +73,13 @@ class LibroService(
     fun getLibrosPorRangoDePaginas(min: Int, max: Int): List<Libro> {
         return repositorioLibro.allInstances().filter { it.cantidadPaginas in min..max }
     }*/
+    private val filtrosAplicables: List<FiltroDeLibro> = listOf(
+        EntreFechasFiltro(serviceReservas),
+        GeneroFiltro(repositorioLibro),
+        RangoDePaginasFiltro(repositorioLibro)
+    )
+    fun getLibrosPorFiltros(filtros: FiltrosDeLibrosDTO): List<Libro> =
+        filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
+            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+        }
 }
-

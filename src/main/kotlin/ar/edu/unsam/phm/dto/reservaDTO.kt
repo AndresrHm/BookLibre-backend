@@ -3,14 +3,14 @@ package ar.edu.unsam.phm.dto
 import java.time.LocalDate
 
 data class ReservaDTO(
-    val id: Long,
-    val libroId: Long,
-    val prestadorId: Long,
-    val lectorId: Long,
+    val id: Int,
+    val libroId: Int,
+    val prestadorId: Int,
+    val lectorId: Int,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
-    val fechaDevolucion: LocalDate?,
-    val rating: Double?
+    val fechaDevolucion: LocalDate,
+    val calificacion: Int,
 )
 
 enum class TipoReserva {
@@ -21,5 +21,5 @@ enum class TipoReserva {
 enum class EstadoReserva {
     ACTIVO,
     PROXIMO_A_VENCER,
-    DEVUELTO
+    DEVUELTO,
 }

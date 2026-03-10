@@ -9,10 +9,9 @@ class Reserva(
     val usuarioPrestador: Usuario,
     val usuarioLector: Usuario,
     val fechaRecogida: LocalDate,
-    val fechaDevolucion: LocalDate
+    val fechaDevolucion: LocalDate,
+    override var id: Int = -1,
 ) : Identificable {
-    override var id: Int = 0
-
     fun darKarma(): Int {
         return daysBetween(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
     }
