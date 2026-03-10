@@ -3,6 +3,7 @@ package ar.edu.unsam.phm.bootstrap
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.Lector
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
@@ -28,7 +29,8 @@ class BootstrapData(
             "juan@mail.com",
             "111111",
             "Buenos Aires",
-            id = 1
+            id = 1,
+            tipoUsuario = Lector
         )
 
         val usuario2 = Usuario(
@@ -38,7 +40,8 @@ class BootstrapData(
             "ana@mail.com",
             "222222",
             "Buenos Aires",
-            id = 2
+            id = 2,
+            tipoUsuario = Lector
         )
 
         val libros = (1..17).map {
