@@ -39,8 +39,4 @@ abstract class Repositorio<T : Identificable> {
     }
 }
 
-@Component
-open class RepositorioReserva : Repositorio<Reserva>() {
-}
-
 class ElementoNoEncontrado(msg: String) : RuntimeException(msg)

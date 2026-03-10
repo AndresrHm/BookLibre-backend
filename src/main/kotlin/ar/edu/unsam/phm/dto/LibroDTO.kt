@@ -40,6 +40,9 @@ fun LibroEdicionDTO.toLibro(): Libro {
         estadoLibro = this.estado,
         idPropietario = this.idPropietario
     )
+
+    libro.id = this.id
+
     return libro
 }
 

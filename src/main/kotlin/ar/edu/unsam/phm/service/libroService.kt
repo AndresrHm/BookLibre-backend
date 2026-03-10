@@ -29,9 +29,23 @@ class LibroService(
         if (libroParaEdicion.idPropietario != idUsuario) {
             throw BusinessException("El libro con id $idLibro no pertenece al usuario $idUsuario")
         }
-        //Debería verificar que el usuario que pide el libro para editar sea su dueño
 
         return libroParaEdicion
+    }
+
+    fun editarLibro(libroParaEdicion: LibroEdicionDTO, idLibro: Int, idUsuario: Int): Libro {
+        val libroEditado = libroParaEdicion.toLibro()
+
+        libroEditado.init()
+
+        val libroOriginal = repositorioLibro.getById(libroEditado.id)
+        if (libroOriginal?.idPropietario != idUsuario) {
+            throw BusinessException("El libro con id $idLibro no pertenece al usuario $idUsuario")
+        }
+
+        repositorioLibro.update(libroEditado)
+
+        return libroEditado
     }
     /*
     fun getLibrosDisponiblesPorFecha(desde: LocalDate, hasta: LocalDate): List<Libro> {

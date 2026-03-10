@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
@@ -19,9 +20,15 @@ class libroController(val libroService: LibroService) {
         return nuevoLibro.toLibroEdicionDTO()
     }
 
-    @GetMapping("libro/editar/{idLibro}/{idUsuario}")
+    @GetMapping("libro/editar/{idLibro}/{idUsuario}") //Debería poder hacerse sin idLibro
     fun obtenerLibroParaEdicion(@PathVariable idLibro: Int, @PathVariable idUsuario: Int): LibroEdicionDTO {
         val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro, idUsuario)
+        return libroParaEdicion.toLibroEdicionDTO()
+    }
+
+    @PutMapping("libro/editar/{idLibro}/{idUsuario}")//Debería poder hacerse sin idLibro
+    fun editarLibro(@RequestBody libro: LibroEdicionDTO, @PathVariable idLibro: Int, @PathVariable idUsuario: Int): LibroEdicionDTO {
+        val libroParaEdicion = libroService.editarLibro(libro, idLibro, idUsuario)
         return libroParaEdicion.toLibroEdicionDTO()
     }
 
