@@ -4,7 +4,7 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import java.time.LocalDate
 import io.kotest.matchers.shouldBe
-import ar.edu.unsam.phm.domain.Comun
+import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
@@ -18,6 +18,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.Lector
 import ar.edu.unsam.phm.domain.Publicador
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import crearLibro
 
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
@@ -48,12 +49,75 @@ class EspecTest : DescribeSpec({
             tipoUsuario = Publicador
         )
 
-        val libro1 = Libro("El Aleph", Comun, "Cuentos", Genero.DRAMA, "Jorge Luis Borges", 180, 9780307474728.toInt(), Idioma.ESPANOL, "Losada", LocalDate.of(1949, 6, 1), EstadoLibro.BUENO)
-        val libro2 = Libro("Dune", Comun, "Sci-fi clasica", Genero.CIENCIA_FICCION, "Frank Herbert", 412, 9780441172719.toInt(), Idioma.INGLES, "Chilton Books", LocalDate.of(1965, 8, 1), EstadoLibro.MUY_BUENO)
-        val libro3 = Libro("Orgullo y Prejuicio", Comun, "Novela romantica", Genero.ROMANCE, "Jane Austen", 279, 9780141439518.toInt(), Idioma.INGLES, "T. Egerton", LocalDate.of(1813, 1, 28), EstadoLibro.REGULAR)
-        val libro4 = Libro("Habitos Atomicos", Comun, "Mejora personal", Genero.AUTOAYUDA, "James Clear", 320, 9780735211292.toInt(), Idioma.ESPANOL, "Penguin", LocalDate.of(2018, 10, 16), EstadoLibro.EXCELENTE)
-        val libro5 = Libro("Rayuela", Comun, "Literatura latinoamericana", Genero.LITERATURA_CLASICA, "Julio Cortazar", 736, 9788437604578.toInt(), Idioma.ESPANOL, "Sudamericana", LocalDate.of(1963, 6, 28), EstadoLibro.BUENO)
+        val libro1 = crearLibro(
+            titulo = "El Aleph",
+            tipoLibro = comun,
+            descripcion = "Cuentos",
+            genero = Genero.DRAMA,
+            autor = "Jorge Luis Borges",
+            cantidadPaginas = 180,
+            isbn13 = 9780307474728L,
+            idioma = Idioma.ESPANOL,
+            editorial = "Losada",
+            fechaPublicacion = LocalDate.of(1949, 6, 1),
+            estadoLibro = EstadoLibro.BUENO
+        )
 
+        val libro2 = crearLibro(
+            titulo = "Dune",
+            tipoLibro = comun,
+            descripcion = "Sci-fi clasica",
+            genero = Genero.CIENCIA_FICCION,
+            autor = "Frank Herbert",
+            cantidadPaginas = 412,
+            isbn13 = 9780441172719L,
+            idioma = Idioma.INGLES,
+            editorial = "Chilton Books",
+            fechaPublicacion = LocalDate.of(1965, 8, 1),
+            estadoLibro = EstadoLibro.MUY_BUENO
+        )
+
+        val libro3 = crearLibro(
+            titulo = "Orgullo y Prejuicio",
+            tipoLibro = comun,
+            descripcion = "Novela romantica",
+            genero = Genero.ROMANCE,
+            autor = "Jane Austen",
+            cantidadPaginas = 279,
+            isbn13 = 9780141439518L,
+            idioma = Idioma.INGLES,
+            editorial = "T. Egerton",
+            fechaPublicacion = LocalDate.of(1813, 1, 28),
+            estadoLibro = EstadoLibro.REGULAR
+        )
+
+        val libro4 = crearLibro(
+            titulo = "Habitos Atomicos",
+            tipoLibro = comun,
+            descripcion = "Mejora personal",
+            genero = Genero.AUTOAYUDA,
+            autor = "James Clear",
+            cantidadPaginas = 320,
+            isbn13 = 9780735211292L,
+            idioma = Idioma.ESPANOL,
+            editorial = "Penguin",
+            fechaPublicacion = LocalDate.of(2018, 10, 16),
+            estadoLibro = EstadoLibro.EXCELENTE
+        )
+
+        val libro5 = crearLibro(
+            titulo = "Rayuela",
+            tipoLibro = comun,
+            descripcion = "Literatura latinoamericana",
+            genero = Genero.LITERATURA_CLASICA,
+            autor = "Julio Cortazar",
+            cantidadPaginas = 736,
+            isbn13 = 9788437604578L,
+            idioma = Idioma.ESPANOL,
+            editorial = "Sudamericana",
+            fechaPublicacion = LocalDate.of(1963, 6, 28),
+            estadoLibro = EstadoLibro.BUENO
+        )
         it( "se crea un libro"){
             repositoryLibros.create(libro1)
             repositoryLibros.getById(libro1.id) shouldBe libro1
