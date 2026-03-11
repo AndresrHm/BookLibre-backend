@@ -1,8 +1,8 @@
 package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.LibroPrestadoDTO
-import ar.edu.unsam.phm.dto.PageResponse
 import ar.edu.unsam.phm.mapper.toLibroPrestadoDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
 import org.springframework.stereotype.Service
@@ -18,17 +18,16 @@ class ReservaService(
         size: Int
     ): PageResponse<LibroPrestadoDTO> {
 
-        val reservas = reservaRepository.findByLectorID(userID, page, size)
+        val pageResult = reservaRepository.findByLectorID(userID, page, size)
 
-        val reservasDTO = reservas.content.map { it.toLibroPrestadoDTO(userID) }
-
-        val totalPages = ((reservas.totalElements + size - 1) / size)
+//        val pageResult = reservas.content.map { it.toLibroPrestadoDTO(userID) }
+        val totalPages = ((pageResult.content.size + size - 1) / size)
 
         return PageResponse(
-            content = reservasDTO,
+            content = pageResult.content.map { it.toLibroPrestadoDTO(userID) },
             page = page,
             size = size,
-            totalElements = reservas.totalElements,
+            totalElements = pageResult.totalElements,
             totalPages = totalPages,
         )
     }

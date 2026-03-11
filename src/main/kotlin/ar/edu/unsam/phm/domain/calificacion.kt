@@ -1,13 +1,15 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.BusinessException
+import java.time.LocalDate
 
 data class Calificacion(
     val usuarioID: Int,
     val nombreUsuario: String,
     val imagenURL: String? = "",
     val puntuacion: Double,
-    val comentario: String
+    val comentario: String,
+    val fecha: LocalDate,
 ) {
     init {
         validarNombre()

@@ -3,8 +3,9 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CalificacionDTO
-import ar.edu.unsam.phm.dto.PageResponse
+import ar.edu.unsam.phm.dto.OrdenCalificacion
 import ar.edu.unsam.phm.mapper.toCalificacion
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -35,21 +36,22 @@ class CalificacionService(
 
     fun obtenerCalificaciones(
         libroID: Int,
+        orden: OrdenCalificacion,
         page: Int,
         size: Int,
     ): PageResponse<Calificacion> {
 
-        val libro = libroRepository.getById(libroID) ?: throw NotFoundException("No existe libro con el id $libroID.")
+        val libro = libroRepository.getById(libroID)
+            ?: throw NotFoundException("No existe libro con el id $libroID.")
 
-        val calificaciones = libro.obtenerCalificaciones()
-
-        val totalPages = (calificaciones.size + size - 1) / size
+        val pageResult = libroRepository.findRatings(libro, orden, page, size)
+        val totalPages = (pageResult.totalElements / size - 1) / size
 
         return PageResponse(
-            content = calificaciones,
+            content = pageResult.content,
             page = page,
             size = size,
-            totalElements = calificaciones.size,
+            totalElements = pageResult.totalElements,
             totalPages = totalPages
         )
     }

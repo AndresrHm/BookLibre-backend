@@ -10,5 +10,6 @@ fun CalificacionDTO.toCalificacion(): Calificacion {
         imagenURL = this.imagenURL,
         puntuacion = this.puntuacion,
         comentario = this.comentario,
+        fecha = this.fecha,
     )
 }

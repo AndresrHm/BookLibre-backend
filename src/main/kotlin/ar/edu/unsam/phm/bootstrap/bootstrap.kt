@@ -67,12 +67,13 @@ class BootstrapData(
 
         libros.forEachIndexed { index, libro ->
 
+            // como está hecho, el usuario 2 es lector de los 17 libros del usuario 1, puede calificar cualquiera.
             val reserva = Reserva(
                 libro = libro,
                 usuarioPrestador = usuario1,
                 usuarioLector = usuario2,
-                fechaRecogida = LocalDate.now().minusDays((index + 1).toLong()),
-                fechaDevolucion = LocalDate.now().plusDays((10 - index).toLong())
+                fechaRecogida = LocalDate.now().minusMonths((index + 1).toLong()),
+                fechaDevolucion = LocalDate.now().minusDays((10 - index).toLong())
             )
 
             reservaRepository.create(reserva)
@@ -83,15 +84,18 @@ class BootstrapData(
             nombreUsuario = "Juan",
             puntuacion = 5.0,
             comentario = "10/10",
+            fecha = LocalDate.now().minusDays(7),
         )
 
         val calificacion1 = Calificacion(
             usuarioID = 2,
             nombreUsuario = "Juan",
-            puntuacion = 5.0,
-            comentario = "10/10 papá papá lo mejor que existe papá!",
+            puntuacion = 3.2,
+            comentario = "10/10 muy bueno!",
+            fecha = LocalDate.now().minusDays(3),
         )
 
+        // calificaciones forzadas (mejorar esto)
         libros[0].calificar(calificacion0)
         libros[0].calificar(calificacion1)
 
