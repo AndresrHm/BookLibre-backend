@@ -10,6 +10,7 @@ class Usuario (
     var celular: String,
     var ciudad: String,
     var tipoUsuario: TipoUsuario,
+    var urlImagen: String,
     override var id: Int = -1
 ): Identificable {
     var biblioKarma: Int = 0

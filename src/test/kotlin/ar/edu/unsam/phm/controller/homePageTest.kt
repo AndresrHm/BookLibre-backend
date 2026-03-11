@@ -36,7 +36,8 @@ class EspecTest : DescribeSpec({
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
             ciudad = "Buenos Aires",
-            tipoUsuario = Lector
+            tipoUsuario = Lector,
+            urlImagen = "https://www.grupocos.org"
         )
 
         val usuario2 = Usuario(
@@ -46,7 +47,8 @@ class EspecTest : DescribeSpec({
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
             ciudad = "Cordoba",
-            tipoUsuario = Publicador
+            tipoUsuario = Publicador,
+            urlImagen = "https://www.grupocos.org"
         )
 
         val libro1 = crearLibro(

@@ -1,5 +1,8 @@
 package ar.edu.unsam.phm.repository
+
+import ar.edu.unsam.phm.domain.PageResult
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.paginate
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 
@@ -28,26 +31,10 @@ open class ReservaRepository : Repositorio<Reserva>() {
         return paginate(page, size, filtered)
     }
 
-    private fun paginate(
-        page: Int,
-        size: Int,
-        filtered: List<Reserva>
-    ): PageResult<Reserva> {
-        val start = page * size
-        val end = minOf(start + size, filtered.size)
-
-        val pageContent =
-            if (start >= filtered.size) emptyList()
-            else filtered.subList(start, end)
-
-        return PageResult(
-            content = pageContent,
-            totalElements = filtered.size
-        )
+    // obtenemos última reseña (userID + libroID)
+    fun obtenerUltimaReserva(usuarioID: Int, libroID: Int): Reserva? {
+        return getElementos()
+            .filter { it.usuarioLector.id == usuarioID && it.libro.id == libroID }
+            .maxByOrNull { it.fechaDevolucion }
     }
-
-    data class PageResult<T>(
-        val content: List<T>,
-        val totalElements: Int,
-    )
 }
