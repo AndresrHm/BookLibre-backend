@@ -1,6 +1,5 @@
 package ar.edu.unsam.phm.bootstrap
 
-import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
@@ -11,6 +10,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,6 +19,7 @@ import java.time.LocalDate
 @Configuration
 class BootstrapData(
     val reservaRepository: ReservaRepository,
+    val usuarioRepository: UsuarioRepository,
     val libroRepository: LibroRepository
 ) {
 
@@ -26,26 +27,34 @@ class BootstrapData(
     fun initData() = CommandLineRunner {
 
         val usuario1 = Usuario(
-            "Juan",
-            "Perez",
-            "Lector de ciencia ficción",
-            "juan@mail.com",
-            "111111",
-            "Buenos Aires",
-            id = 1,
-            tipoUsuario = Lector
+            nombre = "Juan",
+            apellido = "Perez",
+            descripcion = "Lector de ciencia ficción",
+            email = "juan@mail.com",
+            celular = "111111",
+            ciudad = "Buenos Aires",
+            tipoUsuario = Lector,
+            urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez",
+            id = 1
         )
 
         val usuario2 = Usuario(
-            "Ana",
-            "Gomez",
-            "Fan de novelas",
-            "ana@mail.com",
-            "222222",
-            "Buenos Aires",
-            id = 2,
-            tipoUsuario = Lector
+            nombre = "Ana",
+            apellido = "Gomez",
+            descripcion = "Fan de novelas",
+            email = "ana@mail.com",
+            celular = "222222",
+            ciudad = "Buenos Aires",
+            tipoUsuario = Lector,
+            urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez",
+            id = 2
         )
+
+        usuarioRepository.create(usuario1)
+        usuarioRepository.create(usuario2)
+
+        usuario1.biblioKarma = 2000
+        usuario2.biblioKarma = 4000
 
         val libros = (1..17).map {
             Libro(
@@ -78,26 +87,6 @@ class BootstrapData(
 
             reservaRepository.create(reserva)
         }
-
-        val calificacion0 = Calificacion(
-            usuarioID = 1,
-            nombreUsuario = "Juan",
-            puntuacion = 5.0,
-            comentario = "10/10",
-            fecha = LocalDate.now().minusDays(7),
-        )
-
-        val calificacion1 = Calificacion(
-            usuarioID = 2,
-            nombreUsuario = "Juan",
-            puntuacion = 3.2,
-            comentario = "10/10 muy bueno!",
-            fecha = LocalDate.now().minusDays(3),
-        )
-
-        // calificaciones forzadas (mejorar esto)
-        libros[0].calificar(calificacion0)
-        libros[0].calificar(calificacion1)
 
         libroRepository.create(libros[0])
     }
