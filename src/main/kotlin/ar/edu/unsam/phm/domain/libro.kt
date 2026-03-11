@@ -23,7 +23,7 @@ class Libro(
 ) : Identificable {
     override var id: Int = 0
     private val calificaciones = mutableListOf<Calificacion>()
-    private var cantidadReservas = 0
+    var cantidadReservas = 0
 
     fun init() {
         verficarTitulo()
@@ -40,8 +40,16 @@ class Libro(
         cantidadReservas += 1
     }
 
-    fun agregarCalificacion(calificacion: Calificacion) {
-        calificaciones.add(calificacion)
+    fun calificar(calificacion: Calificacion) {
+        val index = calificaciones.indexOfFirst {
+            it.usuarioID == calificacion.usuarioID
+        }
+
+        if (index != -1) {
+            calificaciones[index] = calificacion
+        } else {
+            calificaciones.add(calificacion)
+        }
     }
 
     fun obtenerCalificaciones(): List<Calificacion> {

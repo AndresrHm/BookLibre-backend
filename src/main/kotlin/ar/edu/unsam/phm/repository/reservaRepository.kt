@@ -28,6 +28,13 @@ open class ReservaRepository : Repositorio<Reserva>() {
         return paginate(page, size, filtered)
     }
 
+    // obtenemos última reseña (userID + libroID)
+    fun obtenerUltimaReserva(usuarioID: Int, libroID: Int): Reserva? {
+        return getElementos()
+            .filter { it.usuarioLector.id == usuarioID && it.libro.id == libroID }
+            .maxByOrNull { it.fechaDevolucion }
+    }
+
     private fun paginate(
         page: Int,
         size: Int,

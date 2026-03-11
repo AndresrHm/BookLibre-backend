@@ -3,8 +3,9 @@ package ar.edu.unsam.phm.domain
 import ar.edu.unsam.phm.BusinessException
 
 data class Calificacion(
+    val usuarioID: Int,
     val nombreUsuario: String,
-    val imagenURL: String?,
+    val imagenURL: String? = "",
     val puntuacion: Double,
     val comentario: String
 ) {

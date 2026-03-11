@@ -18,15 +18,16 @@ class CalificacionController(val calificacionService: CalificacionService) {
 
     @PostMapping("/libro/{id}/calificar")
     fun calificarLibro(
-        @PathVariable libroID: Int,
+        @PathVariable("id") libroID: Int,
+        @RequestParam usuarioID: Int, // En el futuro esto vuela
         @RequestBody calificacionDTO: CalificacionDTO
     ) {
-        return calificacionService.calificarLibro(libroID, calificacionDTO)
+        return calificacionService.calificarLibro(usuarioID, libroID, calificacionDTO)
     }
 
     @GetMapping("libro/{id}/calificaciones")
     fun calificacionesLibro(
-        @PathVariable libroID: Int,
+        @PathVariable("id") libroID: Int,
         @RequestParam page: Int,
         @RequestParam size: Int = 6,
     ): PageResponse<Calificacion> {
