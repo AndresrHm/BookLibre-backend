@@ -8,7 +8,7 @@ data class Calificacion(
     val puntuacion: Double,
     val comentario: String
 ) {
-    fun init() {
+    init {
         validarNombre()
         validarPuntuacion()
         validarComentario()

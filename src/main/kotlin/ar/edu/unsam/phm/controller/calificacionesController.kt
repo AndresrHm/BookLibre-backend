@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.PageResponse
 import ar.edu.unsam.phm.service.CalificacionService
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -13,13 +14,15 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
-class CalificacionesController(val calificacionesService: CalificacionService) {
+class CalificacionController(val calificacionService: CalificacionService) {
 
     @PostMapping("/libro/{id}/calificar")
     fun calificarLibro(
-        @PathVariable id: Int,
-        @RequestBody calificacion: CalificacionDTO
-    )
+        @PathVariable libroID: Int,
+        @RequestBody calificacionDTO: CalificacionDTO
+    ) {
+        return calificacionService.calificarLibro(libroID, calificacionDTO)
+    }
 
     @GetMapping("libro/{id}/calificaciones")
     fun calificacionesLibro(
@@ -27,6 +30,6 @@ class CalificacionesController(val calificacionesService: CalificacionService) {
         @RequestParam page: Int,
         @RequestParam size: Int = 6,
     ): PageResponse<Calificacion> {
-        return calificacionesService.obtenerCalificaciones(libroID, page, size)
+        return calificacionService.obtenerCalificaciones(libroID, page, size)
     }
 }
