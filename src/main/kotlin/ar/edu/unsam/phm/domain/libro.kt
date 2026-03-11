@@ -22,8 +22,8 @@ class Libro(
     val idPropietario: Int
 ) : Identificable {
     override var id: Int = 0
-    val resenias = mutableListOf<Resenia>()
-    var cantidadReservas = 0
+    private val calificaciones = mutableListOf<Calificacion>()
+    private var cantidadReservas = 0
 
     fun init() {
         verficarTitulo()
@@ -40,16 +40,24 @@ class Libro(
         cantidadReservas += 1
     }
 
+    fun agregarCalificacion(calificacion: Calificacion) {
+        calificaciones.add(calificacion)
+    }
+
+    fun obtenerCalificaciones(): List<Calificacion> {
+        return this.calificaciones.toList()
+    }
+
     //Para página de detalle
     fun rating(): Double {
         return 1.0; //TODO()
     }
 
-    fun ultimasResenias(): List<Resenia> {
-        return resenias // Falta decidir el criterio de muestra de reseñas (recientes, más altas, etc.)
+    fun ultimasResenias(): List<Calificacion> {
+        return calificaciones // Falta decidir el criterio de muestra de reseñas (recientes, más altas, etc.)
     }
 
-    fun cantidadResenias(): Int = resenias.size
+    fun cantidadResenias(): Int = calificaciones.size
 
     private fun verficarTitulo() {
         if (titulo.isBlank()) {

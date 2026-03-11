@@ -13,7 +13,9 @@ class ReservaService(
     var reservaRepository: ReservaRepository
 ) {
     fun getReservasRealizadas(
-        userID: Int, page: Int, size: Int
+        userID: Int,
+        page: Int,
+        size: Int
     ): PageResponse<LibroPrestadoDTO> {
 
         val reservas = reservaRepository.findByLectorID(userID, page, size)
@@ -32,7 +34,9 @@ class ReservaService(
     }
 
     fun getReservasRecibidas(
-        userID: Int, page: Int, size: Int
+        userID: Int,
+        page: Int,
+        size: Int
     ): PageResponse<LibroPrestadoDTO> {
 
         val reservas = reservaRepository.findByPrestadorID(userID, page, size)
