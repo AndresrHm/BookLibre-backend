@@ -4,7 +4,7 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.Resenia
+import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
 import java.time.LocalDate
@@ -84,7 +84,7 @@ data class LibroDetalleDTO (
     val descripcion: String,
     val rating: Double,
     val cantidadResenias: Int,
-    val reseniasRecientes: List<Resenia> //NIY
+    val reseniasRecientes: List<Calificacion> //NIY
 )
 
 

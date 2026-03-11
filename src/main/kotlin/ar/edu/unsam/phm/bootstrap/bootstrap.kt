@@ -8,6 +8,7 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
+import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
@@ -18,7 +19,8 @@ import java.time.LocalDate
 @Configuration
 class BootstrapData(
     val reservaRepository: ReservaRepository,
-    val usuarioRepository: UsuarioRepository
+    val usuarioRepository: UsuarioRepository,
+    val libroRepository: LibroRepository
 ) {
 
     @Bean
@@ -74,15 +76,18 @@ class BootstrapData(
 
         libros.forEachIndexed { index, libro ->
 
+            // como está hecho, el usuario 2 es lector de los 17 libros del usuario 1, puede calificar cualquiera.
             val reserva = Reserva(
                 libro = libro,
                 usuarioPrestador = usuario1,
                 usuarioLector = usuario2,
-                fechaRecogida = LocalDate.now().minusDays((index + 1).toLong()),
-                fechaDevolucion = LocalDate.now().plusDays((10 - index).toLong())
+                fechaRecogida = LocalDate.now().minusMonths((index + 1).toLong()),
+                fechaDevolucion = LocalDate.now().minusDays((10 - index).toLong())
             )
 
             reservaRepository.create(reserva)
         }
+
+        libroRepository.create(libros[0])
     }
 }
