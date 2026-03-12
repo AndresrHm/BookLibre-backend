@@ -47,6 +47,10 @@ class LibroController(val libroService: LibroService) {
 
     @PostMapping("/homePage/user/{id}/filter")
     fun getLibrosFilter(@RequestBody filtros: FiltrosDeLibrosDTO, @PathVariable id: Int): List<LibroDetalleDTO> {
+        // TODO: Utilizar mappers para pasa de DTO's a objetos de dominio y viceversa
+        // Obtener filtros
+        // val filtros = filtrosMapper.DTOsAObjeto(filtrosDtos)
+
         val librosFiltrados = libroService.getLibrosPorFiltros(filtros)
         return librosFiltrados.map { it.toLibroDetalleDTO() }
     }

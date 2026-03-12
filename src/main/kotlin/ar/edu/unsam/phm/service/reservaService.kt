@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.service
 
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
@@ -18,6 +19,8 @@ class ReservaService(
         page: Int,
         size: Int
     ): PageResponse<ReservaDTO> {
+
+        // validar que exista usuario
 
         val pageResult = reservaRepository.findByLectorID(userID, page, size)
 
