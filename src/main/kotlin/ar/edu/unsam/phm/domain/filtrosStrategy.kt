@@ -85,5 +85,6 @@ class UsuarioPrestadorFiltro(
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val usuarioPrestador= queFiltrar.usuarioPrestador!!
         return reservaService.getLibrosPrestadosPorUsuario(usuarioPrestador)
+
     }
 }
