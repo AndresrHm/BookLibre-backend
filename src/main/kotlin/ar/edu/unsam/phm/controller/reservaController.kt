@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.dto.LibroPrestadoDTO
+import ar.edu.unsam.phm.dto.ReservaDTO
 import ar.edu.unsam.phm.service.ReservaService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,7 +18,7 @@ class ReservaController(val reservaService: ReservaService) {
         @PathVariable id: Int = 1, // test
         @RequestParam page: Int,
         @RequestParam size: Int = 6,
-    ): PageResponse<LibroPrestadoDTO> {
+    ): PageResponse<ReservaDTO> {
         return reservaService.getReservasRealizadas(id, page, size)
     }
 
@@ -27,7 +27,7 @@ class ReservaController(val reservaService: ReservaService) {
         @PathVariable id: Int = 1, // test
         @RequestParam page: Int,
         @RequestParam size: Int = 6,
-    ): PageResponse<LibroPrestadoDTO> {
+    ): PageResponse<ReservaDTO> {
         return reservaService.getReservasRecibidas(id, page, size)
     }
 
