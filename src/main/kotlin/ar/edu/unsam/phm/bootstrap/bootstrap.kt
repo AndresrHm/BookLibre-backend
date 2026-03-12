@@ -76,6 +76,102 @@ class BootstrapData(
             )
         }
 
+        val librosHomePageTest = listOf(
+            Libro(
+                titulo = "El Aleph",
+                tipoLibro = comun,
+                descripcion = "Cuentos",
+                genero = Genero.DRAMA,
+                autor = "Jorge Luis Borges",
+                cantidadPaginas = 180,
+                isbn13 = 9780307474728L,
+                idioma = Idioma.ESPANOL,
+                editorial = "Losada",
+                fechaPublicacion = LocalDate.of(1949, 6, 1),
+                estadoLibro = EstadoLibro.BUENO,
+                portada = "Portada de libro",
+                idPropietario = 1
+            ),
+            Libro(
+                titulo = "Dune",
+                tipoLibro = comun,
+                descripcion = "Sci-fi clasica",
+                genero = Genero.CIENCIA_FICCION,
+                autor = "Frank Herbert",
+                cantidadPaginas = 412,
+                isbn13 = 9780441172719L,
+                idioma = Idioma.INGLES,
+                editorial = "Chilton Books",
+                fechaPublicacion = LocalDate.of(1965, 8, 1),
+                estadoLibro = EstadoLibro.MUY_BUENO,
+                portada = "Portada de libro",
+                idPropietario = 1
+            ),
+            Libro(
+                titulo = "Orgullo y Prejuicio",
+                tipoLibro = comun,
+                descripcion = "Novela romantica",
+                genero = Genero.ROMANCE,
+                autor = "Jane Austen",
+                cantidadPaginas = 279,
+                isbn13 = 9780141439518L,
+                idioma = Idioma.INGLES,
+                editorial = "T. Egerton",
+                fechaPublicacion = LocalDate.of(1813, 1, 28),
+                estadoLibro = EstadoLibro.REGULAR,
+                portada = "Portada de libro",
+                idPropietario = 1
+            ),
+            Libro(
+                titulo = "Habitos Atomicos",
+                tipoLibro = comun,
+                descripcion = "Mejora personal",
+                genero = Genero.AUTOAYUDA,
+                autor = "James Clear",
+                cantidadPaginas = 320,
+                isbn13 = 9780735211292L,
+                idioma = Idioma.ESPANOL,
+                editorial = "Penguin",
+                fechaPublicacion = LocalDate.of(2018, 10, 16),
+                estadoLibro = EstadoLibro.EXCELENTE,
+                portada = "Portada de libro",
+                idPropietario = 1
+            ),
+            Libro(
+                titulo = "Rayuela",
+                tipoLibro = comun,
+                descripcion = "Literatura latinoamericana",
+                genero = Genero.LITERATURA_CLASICA,
+                autor = "Julio Cortazar",
+                cantidadPaginas = 736,
+                isbn13 = 9788437604578L,
+                idioma = Idioma.ESPANOL,
+                editorial = "Sudamericana",
+                fechaPublicacion = LocalDate.of(1963, 6, 28),
+                estadoLibro = EstadoLibro.BUENO,
+                portada = "Portada de libro",
+                idPropietario = 1
+            ),
+            Libro(
+                titulo = "Dune Messiah",
+                tipoLibro = comun,
+                descripcion = "Segunda parte de Dune",
+                genero = Genero.CIENCIA_FICCION,
+                autor = "Frank Herbert",
+                cantidadPaginas = 688,
+                isbn13 = 9780441172726L,
+                idioma = Idioma.INGLES,
+                editorial = "Chilton Books",
+                fechaPublicacion = LocalDate.of(1969, 6, 1),
+                estadoLibro = EstadoLibro.MUY_BUENO,
+                portada = "Portada de libro",
+                idPropietario = 1
+            )
+        )
+
+        libros.forEach { libroRepository.create(it) }
+        librosHomePageTest.forEach { libroRepository.create(it) }
+
         libros.forEachIndexed { index, libro ->
 
             // como está hecho, el usuario 2 es lector de los 17 libros del usuario 1, puede calificar cualquiera.
@@ -92,6 +188,6 @@ class BootstrapData(
 
         libroRepository.create(libros[0])
     }
-    
+
 
 }
