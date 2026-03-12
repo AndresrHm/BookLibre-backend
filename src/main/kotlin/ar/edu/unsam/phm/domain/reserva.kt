@@ -1,8 +1,8 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
+import ar.edu.unsam.phm.utils.daysBetween
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 
 class Reserva(
     val libro: Libro,
@@ -13,6 +13,6 @@ class Reserva(
     override var id: Int = -1,
 ) : Identificable {
     fun darKarma(): Int {
-        return ChronoUnit.DAYS.between(fechaDevolucion, fechaRecogida).toInt() * 5 + libro.darKarma(this)
+        return daysBetween(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
     }
 }

@@ -1,31 +1,97 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
+import ar.edu.unsam.phm.BusinessException
 import java.time.LocalDate
 
-class Libro(
-    val titulo: String,
-    val tipoLibro: TipoLibro,
-    val tipoLibroStrategy: TipoLibroStrategy = Comun,
-    val descripcion: String,
-    val genero: Genero,
-    val autor: String,
-    val cantidadPaginas: Int,
-    val isbn13: Long,
-    val idioma: Idioma,
-    val editorial: String,
-    val fechaPublicacion: LocalDate,
-    val estadoLibro: EstadoLibro,
-    val imagenURL: String,
-    override var id: Int = -1,
-) : Identificable {
-    var cantidadReservas = 0
-    lateinit var calificacion: Calificacion
+val MAX_CARACTERES_DESCRIPCION = 500
 
-    fun darKarma(reserva: Reserva): Int = tipoLibroStrategy.darKarma(reserva)
+class Libro(
+    var titulo: String,
+    val tipoLibro: TipoLibro,
+    var descripcion: String,
+    var portada: String,
+    var genero: Genero,
+    var autor: String,
+    var cantidadPaginas: Int,
+    var isbn13: Long,
+    var idioma: Idioma,
+    var editorial: String,
+    var fechaPublicacion: LocalDate,
+    var estadoLibro: EstadoLibro,
+    val idPropietario: Int
+) : Identificable {
+    override var id: Int = 0
+    val resenias = mutableListOf<Resenia>()
+    var cantidadReservas = 0
+
+    fun init() {
+        verficarTitulo()
+        verficarDescripcion()
+        verficarAutor()
+        verficarEditorial()
+        verficarPaginas()
+        verficarCodigo()
+    }
+
+    fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
 
     fun reservar() {
         cantidadReservas += 1
+    }
+
+    //Para página de detalle
+    fun rating(): Double {
+        return 1.0; //TODO()
+    }
+
+    fun ultimasResenias(): List<Resenia> {
+        return resenias // Falta decidir el criterio de muestra de reseñas (recientes, más altas, etc.)
+    }
+
+    fun cantidadResenias(): Int = resenias.size
+
+    private fun verficarTitulo() {
+        if (titulo.isBlank()) {
+            throw BusinessException("El libro debe tener un título")
+        }
+    }
+
+    private fun verficarDescripcion() {
+        if (descripcion.isBlank()) {
+            throw BusinessException("El libro debe tener una descripción")
+        }
+        if (descripcion.length > MAX_CARACTERES_DESCRIPCION) {
+            throw BusinessException("La descripción no puede superar los $MAX_CARACTERES_DESCRIPCION caracteres")
+        }
+    }
+
+    private fun verficarAutor() {
+        if (autor.isBlank()) {
+            throw BusinessException("El libro debe tener un autor")
+        }
+    }
+
+    private fun verficarEditorial() {
+        if (editorial.isBlank()) {
+            throw BusinessException("El libro debe ser de una editorial")
+        }
+    }
+
+    private fun verficarPaginas() {
+        if (cantidadPaginas <= 0) {
+            throw BusinessException("La cantidad de páginas del libro debe ser positiva")
+        }
+    }
+
+    private fun verficarCodigo() {
+        if (isbn13 <= 0) {
+            throw BusinessException("El código ISBN-13 debe ser positivo")
+        }
+
+        if (isbn13.toString().length != 13) {
+            throw BusinessException("El código ISBN-13 debe contener 13 dígitos")
+        }
     }
 }
 
@@ -40,17 +106,3 @@ enum class Idioma {
 enum class EstadoLibro {
     EXCELENTE, MUY_BUENO, BUENO, MALO, REGULAR
 }
-
-enum class TipoLibro {
-    COMUN, DEDICATORIA, COLECCIONABLE
-}
-
-enum class Calificacion(val valor: Int) {
-    UNO(1),
-    DOS(2),
-    TRES(3),
-    CUATRO(4),
-    CINCO(5)
-}
-
-data class Resenias(val idUsuario: Int, val puntuacion: Calificacion, val comentario: String)

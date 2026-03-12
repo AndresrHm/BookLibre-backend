@@ -5,7 +5,7 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import java.time.LocalDate
 import io.kotest.matchers.shouldBe
-import ar.edu.unsam.phm.domain.Comun
+import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
@@ -18,6 +18,7 @@ import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import crearLibro
 
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
@@ -46,97 +47,75 @@ class EspecTest : DescribeSpec({
             ciudad = "Cordoba"
         )
 
-        val libro1 = Libro(
+        val libro1 = crearLibro(
             titulo = "El Aleph",
-            tipoLibro = TipoLibro.COMUN,
-            tipoLibroStrategy = Comun,
+            tipoLibro = comun,
             descripcion = "Cuentos",
             genero = Genero.DRAMA,
             autor = "Jorge Luis Borges",
             cantidadPaginas = 180,
-            isbn13 = 978030747,
+            isbn13 = 9780307474728L,
             idioma = Idioma.ESPANOL,
             editorial = "Losada",
             fechaPublicacion = LocalDate.of(1949, 6, 1),
-            estadoLibro = EstadoLibro.BUENO,
-            imagenURL = "https://example.com/aleph.jpg"
+            estadoLibro = EstadoLibro.BUENO
         )
-        val libro2 = Libro(
+
+        val libro2 = crearLibro(
             titulo = "Dune",
-            tipoLibro = TipoLibro.COMUN,
-            tipoLibroStrategy = Comun,
+            tipoLibro = comun,
             descripcion = "Sci-fi clasica",
             genero = Genero.CIENCIA_FICCION,
             autor = "Frank Herbert",
             cantidadPaginas = 412,
-            isbn13 = 978044117,
+            isbn13 = 9780441172719L,
             idioma = Idioma.INGLES,
             editorial = "Chilton Books",
             fechaPublicacion = LocalDate.of(1965, 8, 1),
-            estadoLibro = EstadoLibro.MUY_BUENO,
-            imagenURL = "https://example.com/dune.jpg"
+            estadoLibro = EstadoLibro.MUY_BUENO
         )
-        val libro3 = Libro(
+
+        val libro3 = crearLibro(
             titulo = "Orgullo y Prejuicio",
-            tipoLibro = TipoLibro.COMUN,
-            tipoLibroStrategy = Comun,
+            tipoLibro = comun,
             descripcion = "Novela romantica",
             genero = Genero.ROMANCE,
             autor = "Jane Austen",
             cantidadPaginas = 279,
-            isbn13 = 978014143,
+            isbn13 = 9780141439518L,
             idioma = Idioma.INGLES,
             editorial = "T. Egerton",
             fechaPublicacion = LocalDate.of(1813, 1, 28),
-            estadoLibro = EstadoLibro.REGULAR,
-            imagenURL = "https://example.com/orgullo-prejuicio.jpg"
+            estadoLibro = EstadoLibro.REGULAR
         )
-        val libro4 = Libro(
+
+        val libro4 = crearLibro(
             titulo = "Habitos Atomicos",
-            tipoLibro = TipoLibro.COMUN,
-            tipoLibroStrategy = Comun,
+            tipoLibro = comun,
             descripcion = "Mejora personal",
             genero = Genero.AUTOAYUDA,
             autor = "James Clear",
             cantidadPaginas = 320,
-            isbn13 = 978073521,
+            isbn13 = 9780735211292L,
             idioma = Idioma.ESPANOL,
             editorial = "Penguin",
             fechaPublicacion = LocalDate.of(2018, 10, 16),
-            estadoLibro = EstadoLibro.EXCELENTE,
-            imagenURL = "https://example.com/habitos-atomicos.jpg"
+            estadoLibro = EstadoLibro.EXCELENTE
         )
-        val libro5 = Libro(
+
+        val libro5 = crearLibro(
             titulo = "Rayuela",
-            tipoLibro = TipoLibro.COMUN,
-            tipoLibroStrategy = Comun,
+            tipoLibro = comun,
             descripcion = "Literatura latinoamericana",
             genero = Genero.LITERATURA_CLASICA,
             autor = "Julio Cortazar",
             cantidadPaginas = 736,
-            isbn13 = 978843760,
+            isbn13 = 9788437604578L,
             idioma = Idioma.ESPANOL,
             editorial = "Sudamericana",
             fechaPublicacion = LocalDate.of(1963, 6, 28),
-            estadoLibro = EstadoLibro.BUENO,
-            imagenURL = "https://example.com/rayuela.jpg"
+            estadoLibro = EstadoLibro.BUENO
         )
-        val libro6 = Libro(
-            titulo = "Dune, la antologia",
-            tipoLibro = TipoLibro.COLECCIONABLE,
-            tipoLibroStrategy = Coleccionable,
-            descripcion = "Sci-fi clasica",
-            genero = Genero.CIENCIA_FICCION,
-            autor = "Frank Herbert",
-            cantidadPaginas = 420,
-            isbn13 = 978044117,
-            idioma = Idioma.ESPANOL,
-            editorial = "Chilton Books",
-            fechaPublicacion = LocalDate.of(1965, 8, 1),
-            estadoLibro = EstadoLibro.MUY_BUENO,
-            imagenURL = "https://example.com/dune.jpg"
-        )
-
         it( "se crea un libro"){
             repositoryLibros.create(libro1)
             repositoryLibros.getById(libro1.id) shouldBe libro1
