@@ -21,6 +21,7 @@ import java.time.LocalDate
 @Configuration
 class BootstrapData(
     val reservaRepository: ReservaRepository,
+    val usuarioRepository: UsuarioRepository,
     val libroRepository: LibroRepository
 ) {
 
