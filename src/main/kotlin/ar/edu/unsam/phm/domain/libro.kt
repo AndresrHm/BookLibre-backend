@@ -2,7 +2,9 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 val MAX_CARACTERES_DESCRIPCION = 500
 
@@ -22,8 +24,11 @@ class Libro(
     val idPropietario: Int
 ) : Identificable {
     override var id: Int = 0
+    val fechaAgregado = LocalDate.now()
     private val calificaciones = mutableListOf<Calificacion>()
     var cantidadReservas = 0
+    private val DATE_PATTERN = "dd/MM/yyyy"
+    private val formatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
 
     fun init() {
         verficarTitulo()
@@ -108,6 +113,17 @@ class Libro(
         if (isbn13.toString().length != 13) {
             throw BusinessException("El código ISBN-13 debe contener 13 dígitos")
         }
+    }
+    fun getFechaAsString(): String = formatter.format(fechaAgregado)
+    fun toLibroPerfilUsuarioDTO(): LibroUsuarioPerfilDTO {
+        return LibroUsuarioPerfilDTO(
+            id = this.id,
+            titulo = this.titulo,
+            portada = this.portada,
+            genero = this.genero,
+            autor = this.autor,
+            fechaAgregado = this.getFechaAsString()
+        )
     }
 }
 

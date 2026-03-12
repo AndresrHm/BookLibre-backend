@@ -134,8 +134,10 @@ data class FiltrosDeLibrosDTO(
 )
 
 data class LibroUsuarioPerfilDTO(
+    val id: Int,
     val titulo: String,
     val autor: String,
     val portada: String,
-    val genero: Genero
+    val genero: Genero,
+    val fechaAgregado: String
 )

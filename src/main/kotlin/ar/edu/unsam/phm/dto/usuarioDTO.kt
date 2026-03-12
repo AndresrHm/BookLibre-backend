@@ -18,3 +18,13 @@ data class UsuarioEdicionDTO(
     val tipoUsuario: MutableSet<TipoUsuario> = mutableSetOf<TipoUsuario>(),
     val urlImagen: String
 )
+
+data class UsarioPerfilDTO(
+    val id: Int,
+    val nombre: String,
+    val apellido: String,
+    val descripcion: String,
+    val ciudad: String,
+    val tipoUsuario: MutableSet<TipoUsuario> = mutableSetOf<TipoUsuario>(),
+    val urlImagen: String,
+    val libros: List<Libro>)
