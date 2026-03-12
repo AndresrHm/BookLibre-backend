@@ -168,6 +168,49 @@ class BootstrapData(
             Reserva(libros[18], u2, u1, hoy.minusDays(7), hoy.plusDays(3))
         )
 
-        reservas.forEach(reservaRepository::create)
+        usuarioRepository.create(usuario1)
+        usuarioRepository.create(usuario2)
+
+        usuario1.biblioKarma = 2000
+        usuario2.biblioKarma = 4000
+
+        val libros = (1..17).map {
+            Libro(
+                titulo = "Libro $it",
+                tipoLibro = comun,
+                descripcion = "Descripción libro $it",
+                genero = Genero.CIENCIA_FICCION,
+                autor = "Autor $it",
+                cantidadPaginas = 200 + it,
+                isbn13 = 100000000000,
+                idioma = Idioma.ESPANOL,
+                editorial = "Editorial $it",
+                fechaPublicacion = LocalDate.now().minusYears(2),
+                estadoLibro = EstadoLibro.EXCELENTE,
+                portada = "https://www.giantfreakinrobot.com/wp-content/uploads/2022/08/rick-astley.jpg",
+                idPropietario = 1
+            )
+        }
+
+        libros.forEachIndexed { index, libro ->
+
+            // como está hecho, el usuario 2 es lector de los 17 libros del usuario 1, puede calificar cualquiera.
+            val reserva = Reserva(
+                libro = libro,
+                usuarioPrestador = usuario1,
+                usuarioLector = usuario2,
+                fechaRecogida = LocalDate.now().minusMonths((index + 1).toLong()),
+                fechaDevolucion = LocalDate.now().minusDays((10 - index).toLong())
+            )
+
+            reservaRepository.create(reserva)
+        }
+
+        libroRepository.create(libros[0])
+
+        for (i in 1..3) {
+            usuario1.agregarLibroParaPrestar(libros[i])
+        }
+
     }
 }

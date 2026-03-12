@@ -24,5 +24,8 @@ class UsuarioController (
         @PathVariable usuarioId: Int,
         @RequestBody usuario: UsuarioEdicionDTO
     ) = usuarioService.updateUsuario(usuario,usuarioId)
+    
+    @GetMapping("/usuario/{usuarioId}")
+    fun getUsuario(@PathVariable usuarioId : Int) = usuarioService.usuarioById(usuarioId)
 
 }

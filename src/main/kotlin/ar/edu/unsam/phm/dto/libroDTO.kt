@@ -121,3 +121,9 @@ data class FiltrosDeLibrosDTO(
     val search : String?
 )
 
+data class LibroUsuarioPerfilDTO(
+    val titulo: String,
+    val autor: String,
+    val portada: String,
+    val genero: Genero
+)
