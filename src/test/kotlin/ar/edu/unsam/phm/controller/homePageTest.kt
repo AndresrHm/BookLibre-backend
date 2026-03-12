@@ -17,6 +17,7 @@ import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.Lector
 import ar.edu.unsam.phm.domain.Publicador
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import crearLibro
 
@@ -36,7 +37,7 @@ class EspecTest : DescribeSpec({
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
             ciudad = "Buenos Aires",
-            tipoUsuario = Lector,
+            tipoUsuario = mutableSetOf<TipoUsuario>(Lector),
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -47,7 +48,7 @@ class EspecTest : DescribeSpec({
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
             ciudad = "Cordoba",
-            tipoUsuario = Publicador,
+            tipoUsuario = mutableSetOf<TipoUsuario>(Publicador),
             urlImagen = "https://www.grupocos.org"
         )
 

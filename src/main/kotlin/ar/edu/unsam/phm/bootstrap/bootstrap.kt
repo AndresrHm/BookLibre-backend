@@ -35,7 +35,7 @@ class BootstrapData(
             email = "juan@mail.com",
             celular = "111111",
             ciudad = "Buenos Aires",
-            tipoUsuario = mutableSetOf(Lector, Publicador),
+            tipoUsuario = mutableSetOf<TipoUsuario>(Lector, Publicador),
             urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez",
             id = 1
         )
@@ -47,7 +47,7 @@ class BootstrapData(
             email = "ana@mail.com",
             celular = "222222",
             ciudad = "Buenos Aires",
-            tipoUsuario = mutableSetOf(Publicador),
+            tipoUsuario = mutableSetOf<TipoUsuario>(Publicador),
             urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez",
             id = 2
         )
