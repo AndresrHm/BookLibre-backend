@@ -1,15 +1,17 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
+import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 
 class Usuario (
-    val nombre: String,
-    val apellido: String,
+    var nombre: String,
+    var apellido: String,
     var descripcion: String,
     var email: String,
     var celular: String,
     var ciudad: String,
-    var tipoUsuario: TipoUsuario,
+    var tipoUsuario: MutableSet<TipoUsuario> = mutableSetOf<TipoUsuario>(),
+    var urlImagen: String,
     override var id: Int = -1
 ): Identificable {
     var biblioKarma: Int = 0
@@ -22,6 +24,15 @@ class Usuario (
 
     fun sumaKarma(karma: Int) {
         biblioKarma += karma
+    }
+
+    fun update (usuarioNuevo: UsuarioEdicionDTO) {
+        nombre = usuarioNuevo.nombre
+        apellido = usuarioNuevo.apellido
+        descripcion = usuarioNuevo.descripcion
+        ciudad = usuarioNuevo.ciudad
+        tipoUsuario = usuarioNuevo.tipoUsuario
+        urlImagen = usuarioNuevo.urlImagen
     }
 }
 

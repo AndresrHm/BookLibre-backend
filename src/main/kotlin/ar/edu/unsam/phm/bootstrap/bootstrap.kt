@@ -4,12 +4,15 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Lector
+import ar.edu.unsam.phm.domain.Publicador
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -25,26 +28,34 @@ class BootstrapData(
     fun initData() = CommandLineRunner {
 
         val usuario1 = Usuario(
-            "Juan",
-            "Perez",
-            "Lector de ciencia ficción",
-            "juan@mail.com",
-            "111111",
-            "Buenos Aires",
-            id = 1,
-            tipoUsuario = Lector
+            nombre = "Juan",
+            apellido = "Perez",
+            descripcion = "Lector de ciencia ficción",
+            email = "juan@mail.com",
+            celular = "111111",
+            ciudad = "Buenos Aires",
+            tipoUsuario = mutableSetOf<TipoUsuario>(Lector, Publicador),
+            urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez",
+            id = 1
         )
 
         val usuario2 = Usuario(
-            "Ana",
-            "Gomez",
-            "Fan de novelas",
-            "ana@mail.com",
-            "222222",
-            "Buenos Aires",
-            id = 2,
-            tipoUsuario = Lector
+            nombre = "Ana",
+            apellido = "Gomez",
+            descripcion = "Fan de novelas",
+            email = "ana@mail.com",
+            celular = "222222",
+            ciudad = "Buenos Aires",
+            tipoUsuario = mutableSetOf<TipoUsuario>(Publicador),
+            urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez",
+            id = 2
         )
+
+        usuarioRepository.create(usuario1)
+        usuarioRepository.create(usuario2)
+
+        usuario1.biblioKarma = 2000
+        usuario2.biblioKarma = 4000
 
         val libros = (1..17).map {
             Libro(
@@ -66,108 +77,19 @@ class BootstrapData(
 
         libros.forEachIndexed { index, libro ->
 
+            // como está hecho, el usuario 2 es lector de los 17 libros del usuario 1, puede calificar cualquiera.
             val reserva = Reserva(
                 libro = libro,
                 usuarioPrestador = usuario1,
                 usuarioLector = usuario2,
-                fechaRecogida = LocalDate.now().minusDays((index + 1).toLong()),
-                fechaDevolucion = LocalDate.now().plusDays((10 - index).toLong())
+                fechaRecogida = LocalDate.now().minusMonths((index + 1).toLong()),
+                fechaDevolucion = LocalDate.now().minusDays((10 - index).toLong())
             )
 
             reservaRepository.create(reserva)
         }
 
-        libroRepository.create(Libro(
-            titulo = "El Aleph",
-            tipoLibro = comun,
-            descripcion = "Cuentos",
-            genero = Genero.DRAMA,
-            autor = "Jorge Luis Borges",
-            cantidadPaginas = 180,
-            isbn13 = 9780307474728L,
-            idioma = Idioma.ESPANOL,
-            editorial = "Losada",
-            fechaPublicacion = LocalDate.of(1949, 6, 1),
-            estadoLibro = EstadoLibro.BUENO,
-            portada = "",
-            idPropietario = 1
-        ))
-        libroRepository.create(Libro(
-            titulo = "Dune",
-            tipoLibro = comun,
-            descripcion = "Sci-fi clasica",
-            genero = Genero.CIENCIA_FICCION,
-            autor = "Frank Herbert",
-            cantidadPaginas = 412,
-            isbn13 = 9780441013593L,
-            idioma = Idioma.ESPANOL,
-            editorial = "Debolsillo",
-            fechaPublicacion = LocalDate.of(1965, 8, 1),
-            estadoLibro = EstadoLibro.BUENO,
-            portada = "",
-            idPropietario = 1
-        ))
-        libroRepository.create(Libro(
-            titulo = "Orgullo y Prejuicio",
-            tipoLibro = comun,
-            descripcion = "Novela romantica",
-            genero = Genero.ROMANCE,
-            autor = "Jane Austen",
-            cantidadPaginas = 279,
-            isbn13 = 9780141439518L,
-            idioma = Idioma.INGLES,
-            editorial = "T. Egerton",
-            fechaPublicacion = LocalDate.of(1813, 1, 28),
-            estadoLibro = EstadoLibro.REGULAR,
-            portada = "",
-            idPropietario = 1
-        ))
-        libroRepository.create(Libro(
-            titulo = "Habitos Atomicos",
-            tipoLibro = comun,
-            descripcion = "Mejora personal",
-            genero = Genero.AUTOAYUDA,
-            autor = "James Clear",
-            cantidadPaginas = 320,
-            isbn13 = 9780735211292L,
-            idioma = Idioma.ESPANOL,
-            editorial = "Penguin",
-            fechaPublicacion = LocalDate.of(2018, 10, 16),
-            estadoLibro = EstadoLibro.EXCELENTE,
-            portada = "",
-            idPropietario = 1
-        ))
-        libroRepository.create(Libro(
-            titulo = "Rayuela",
-            tipoLibro = comun,
-            descripcion = "Novela experimental",
-            genero = Genero.DRAMA,
-            autor = "Julio Cortázar",
-            cantidadPaginas = 300,
-            isbn13 = 9789875800000L,
-            idioma = Idioma.ESPANOL,
-            editorial = "Sudamericana",
-            fechaPublicacion = LocalDate.of(1963, 6, 28),
-            estadoLibro = EstadoLibro.BUENO,
-            portada = "",
-            idPropietario = 1
-        ))
-        libroRepository.create(Libro(
-            titulo = "Dune Messiah",
-            tipoLibro = comun,
-            descripcion = "Segunda parte de Dune",
-            genero = Genero.CIENCIA_FICCION,
-            autor = "Frank Herbert",
-            cantidadPaginas = 688,
-            isbn13 = 9780441172726L,
-            idioma = Idioma.INGLES,
-            editorial = "Chilton Books",
-            fechaPublicacion = LocalDate.of(1969, 6, 1),
-            estadoLibro = EstadoLibro.MUY_BUENO,
-            portada = "",
-            idPropietario = 1
-        ))
-        
+        libroRepository.create(libros[0])
     }
     
 
