@@ -132,3 +132,10 @@ data class FiltrosDeLibrosDTO(
     val isbn13: String?,
     val usuarioPrestador: Usuario?
 )
+
+data class LibroUsuarioPerfilDTO(
+    val titulo: String,
+    val autor: String,
+    val portada: String,
+    val genero: Genero
+)

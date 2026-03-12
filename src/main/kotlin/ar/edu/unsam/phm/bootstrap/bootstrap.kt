@@ -91,5 +91,10 @@ class BootstrapData(
         }
 
         libroRepository.create(libros[0])
+
+        for (i in 1..3) {
+            usuario1.agregarLibroParaPrestar(libros[i])
+        }
+
     }
 }
