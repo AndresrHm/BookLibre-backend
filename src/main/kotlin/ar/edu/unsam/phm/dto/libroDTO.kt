@@ -19,7 +19,7 @@ data class FiltrosDeLibrosDTO(
     val paginasMax: Int?,
     val fechaDesde: LocalDate?,
     val fechaHasta: LocalDate?,
-    val isbn13: Int?,
+    val isbn13: Long?,
     val usuarioPrestador: Usuario?,
     val search : String?
 )

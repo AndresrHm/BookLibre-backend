@@ -11,7 +11,7 @@ class Libro(
     val genero: Genero,
     val autor: String,
     val cantidadPaginas: Int,
-    val isbn13: Int,
+    val isbn13: Long,
     val idioma: Idioma,
     val editorial: String,
     val fechaPublicacion: LocalDate,
