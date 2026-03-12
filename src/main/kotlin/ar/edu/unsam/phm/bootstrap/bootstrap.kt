@@ -3,13 +3,13 @@ package ar.edu.unsam.phm.bootstrap
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Lector
-import ar.edu.unsam.phm.domain.Publicador
+import ar.edu.unsam.phm.domain.lector
+import ar.edu.unsam.phm.domain.publicador
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
+import ar.edu.unsam.phm.domain.lectorPublicador
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -48,7 +48,7 @@ class BootstrapData(
                 email = "juan@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = mutableSetOf(Lector, Publicador),
+                tipoUsuario = lectorPublicador,
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
             ).apply { biblioKarma = 2000 },
 
@@ -60,7 +60,7 @@ class BootstrapData(
                 email = "ana@mail.com",
                 celular = "222222",
                 ciudad = "Buenos Aires",
-                tipoUsuario = mutableSetOf(Lector, Publicador),
+                tipoUsuario = lectorPublicador,
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
             ).apply { biblioKarma = 4000 }
 
@@ -168,49 +168,22 @@ class BootstrapData(
             Reserva(libros[18], u2, u1, hoy.minusDays(7), hoy.plusDays(3))
         )
 
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
+        reservas.forEach(reservaRepository::create)
 
-        usuario1.biblioKarma = 2000
-        usuario2.biblioKarma = 4000
+        val usuario = Usuario(
+            id = 1,
+            nombre = "Juan",
+            apellido = "Perez",
+            descripcion = "Lector de ciencia ficción",
+            email = "juan@mail.com",
+            celular = "111111",
+            ciudad = "Buenos Aires",
+            tipoUsuario = lectorPublicador,
+            urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
+        ).apply { biblioKarma = 2000 }
 
-        val libros = (1..17).map {
-            Libro(
-                titulo = "Libro $it",
-                tipoLibro = comun,
-                descripcion = "Descripción libro $it",
-                genero = Genero.CIENCIA_FICCION,
-                autor = "Autor $it",
-                cantidadPaginas = 200 + it,
-                isbn13 = 100000000000,
-                idioma = Idioma.ESPANOL,
-                editorial = "Editorial $it",
-                fechaPublicacion = LocalDate.now().minusYears(2),
-                estadoLibro = EstadoLibro.EXCELENTE,
-                portada = "https://www.giantfreakinrobot.com/wp-content/uploads/2022/08/rick-astley.jpg",
-                idPropietario = 1
-            )
-        }
-
-        libros.forEachIndexed { index, libro ->
-
-            // como está hecho, el usuario 2 es lector de los 17 libros del usuario 1, puede calificar cualquiera.
-            val reserva = Reserva(
-                libro = libro,
-                usuarioPrestador = usuario1,
-                usuarioLector = usuario2,
-                fechaRecogida = LocalDate.now().minusMonths((index + 1).toLong()),
-                fechaDevolucion = LocalDate.now().minusDays((10 - index).toLong())
-            )
-
-            reservaRepository.create(reserva)
-        }
-
-        libroRepository.create(libros[0])
-
-        for (i in 1..3) {
-            usuario1.agregarLibroParaPrestar(libros[i])
-        }
-
+        usuarioRepository.create(usuario)
     }
+
+
 }

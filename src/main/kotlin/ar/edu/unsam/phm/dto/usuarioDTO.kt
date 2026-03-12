@@ -15,6 +15,6 @@ data class UsuarioEdicionDTO(
     val apellido: String,
     val descripcion: String,
     val ciudad: String,
-    val tipoUsuario: MutableSet<TipoUsuario> = mutableSetOf<TipoUsuario>(),
+    val tipoUsuario: TipoUsuario,
     val urlImagen: String
 )

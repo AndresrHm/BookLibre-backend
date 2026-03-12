@@ -10,7 +10,7 @@ class Usuario (
     var email: String,
     var celular: String,
     var ciudad: String,
-    var tipoUsuario: MutableSet<TipoUsuario> = mutableSetOf<TipoUsuario>(),
+    var tipoUsuario: TipoUsuario = lector,
     var urlImagen: String,
     override var id: Int = -1
 ): Identificable {
