@@ -2,11 +2,11 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.EstadoReserva
-import ar.edu.unsam.phm.dto.LibroPrestadoDTO
+import ar.edu.unsam.phm.dto.ReservaDTO
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-fun Reserva.toLibroPrestadoDTO(userID: Int): LibroPrestadoDTO {
+fun Reserva.toReservaDTO(userID: Int): ReservaDTO {
     val estado = when {
         LocalDate.now().isAfter(fechaDevolucion) -> EstadoReserva.DEVUELTO
         ChronoUnit.DAYS.between(LocalDate.now(), fechaDevolucion) <= 3 -> EstadoReserva.PROXIMO_A_VENCER
@@ -24,7 +24,7 @@ fun Reserva.toLibroPrestadoDTO(userID: Int): LibroPrestadoDTO {
             usuarioLector.nombre
         }
 
-    return LibroPrestadoDTO(
+    return ReservaDTO(
         reservaId = id,
         titulo = libro.titulo,
         autor = libro.autor,
