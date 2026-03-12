@@ -50,3 +50,41 @@ class RangoDePaginasFiltro(
         return repositorioLibro.getElementos().filter { it.cantidadPaginas in min..max }
     }
 }
+
+class BusquedaPorNombreFiltro(
+    val repositorioLibro: LibroRepository
+): FiltroDeLibro {
+    override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
+        return queFiltrar.search != null
+    }
+    override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
+        val search= queFiltrar.search!!
+        return repositorioLibro.getElementos().filter { it.titulo.contains(search, ignoreCase = true) }
+    }
+}
+
+class ISBN13Filtro(
+    val repositorioLibro: LibroRepository
+): FiltroDeLibro {
+    override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
+        return queFiltrar.isbn13 != null
+    }
+    override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
+        val isbn13= queFiltrar.isbn13!!
+        return repositorioLibro.getElementos().filter { it.isbn13 == isbn13 }
+    }
+}
+
+class UsuarioPrestadorFiltro(
+    val repositorioLibro: LibroRepository,
+    val reservaService: ReservaService
+): FiltroDeLibro {
+    override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
+        return queFiltrar.usuarioPrestador != null
+    }
+    override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
+        val usuarioPrestador= queFiltrar.usuarioPrestador!!
+        return reservaService.getLibrosPrestadosPorUsuario(usuarioPrestador)
+
+    }
+}
