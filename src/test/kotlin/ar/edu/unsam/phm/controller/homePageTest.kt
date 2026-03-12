@@ -1,6 +1,5 @@
 package ar.edu.unsam.phm.controller
 
-import ar.edu.unsam.phm.domain.Coleccionable
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import java.time.LocalDate
@@ -17,8 +16,8 @@ import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.domain.Lector
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
-import crearLibro
 
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
@@ -35,7 +34,8 @@ class EspecTest : DescribeSpec({
             descripcion = "Lector apasionado de ciencia ficcion",
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
-            ciudad = "Buenos Aires"
+            ciudad = "Buenos Aires",
+            tipoUsuario = Lector
         )
 
         val usuario2 = Usuario(
@@ -44,7 +44,8 @@ class EspecTest : DescribeSpec({
             descripcion = "Coleccionista de libros clasicos",
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
-            ciudad = "Cordoba"
+            ciudad = "Cordoba",
+            tipoUsuario = Lector
         )
 
         val libro1 = crearLibro(
@@ -115,6 +116,20 @@ class EspecTest : DescribeSpec({
             editorial = "Sudamericana",
             fechaPublicacion = LocalDate.of(1963, 6, 28),
             estadoLibro = EstadoLibro.BUENO
+        )
+
+        val libro6 = crearLibro(
+            titulo = "Dune Messiah",
+            tipoLibro = comun,
+            descripcion = "Segunda parte de Dune",
+            genero = Genero.CIENCIA_FICCION,
+            autor = "Frank Herbert",
+            cantidadPaginas = 688,
+            isbn13 = 9780441172726L,
+            idioma = Idioma.INGLES,
+            editorial = "Chilton Books",
+            fechaPublicacion = LocalDate.of(1969, 6, 1),
+            estadoLibro = EstadoLibro.MUY_BUENO
         )
         it( "se crea un libro"){
             repositoryLibros.create(libro1)
@@ -229,3 +244,35 @@ class EspecTest : DescribeSpec({
 
     }
 })
+
+fun crearLibro(
+    titulo: String = "Título de libro",
+    tipoLibro: TipoLibro = comun,
+    descripcion: String = "Descripción de libro",
+    portada: String = "Portada de libro",
+    genero: Genero = Genero.CIENCIA_FICCION,
+    autor: String = "Autor de libro",
+    cantidadPaginas: Int = 10,
+    isbn13: Long = 1111111111111,
+    idioma: Idioma = Idioma.ESPANOL,
+    editorial: String = "Editorial de libro",
+    fechaPublicacion: LocalDate = LocalDate.now(),
+    estadoLibro: EstadoLibro = EstadoLibro.BUENO,
+    idPropietario: Int = 0
+): Libro {
+    return Libro(
+        titulo,
+        tipoLibro,
+        descripcion,
+        portada,
+        genero,
+        autor,
+        cantidadPaginas,
+        isbn13,
+        idioma,
+        editorial,
+        fechaPublicacion,
+        estadoLibro,
+        idPropietario
+    )
+}

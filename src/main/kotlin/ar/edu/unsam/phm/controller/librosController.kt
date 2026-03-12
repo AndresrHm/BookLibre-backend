@@ -14,10 +14,5 @@ import org.springframework.web.bind.annotation.RestController
 @CrossOrigin("*")
 class LibrosController(val libroService: LibroService) {
 
-    //Refactorizar para que devuelva los parametros a travez de un DTO
-    @GetMapping ("/homePage/user/{id}/filter")
-    //@ApiOperation(value = "Devuelve los libros con filtro de un usuario en especifico")
-    fun getLibrosFilter(@RequestBody filtros: FiltrosDeLibrosDTO, @PathVariable id: Int): List<Libro> {
-        return libroService.getLibrosPorFiltros(filtros)
-    }
+
 }

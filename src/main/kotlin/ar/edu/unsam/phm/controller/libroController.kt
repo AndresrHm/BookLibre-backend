@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.toLibroDetalleDTO
@@ -42,6 +43,12 @@ class LibroController(val libroService: LibroService) {
     ): LibroEdicionDTO {
         val libroParaEdicion = libroService.editarLibro(libro, idLibro, idUsuario)
         return libroParaEdicion.toLibroEdicionDTO()
+    }
+
+    @PostMapping("/homePage/user/{id}/filter")
+    fun getLibrosFilter(@RequestBody filtros: FiltrosDeLibrosDTO, @PathVariable id: Int): List<LibroDetalleDTO> {
+        val librosFiltrados = libroService.getLibrosPorFiltros(filtros)
+        return librosFiltrados.map { it.toLibroDetalleDTO() }
     }
 
 //    @PostMapping("client/register")
