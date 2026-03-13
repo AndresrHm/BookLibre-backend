@@ -34,6 +34,7 @@ class Usuario (
         tipoUsuario = usuarioNuevo.tipoUsuario
         urlImagen = usuarioNuevo.urlImagen
     }
+
 }
 
 

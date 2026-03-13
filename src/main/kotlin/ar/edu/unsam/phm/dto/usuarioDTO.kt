@@ -18,3 +18,14 @@ data class UsuarioEdicionDTO(
     val tipoUsuario: TipoUsuario,
     val urlImagen: String
 )
+
+data class UsarioPerfilDTO(
+    val id: Int,
+    val nombre: String,
+    val apellido: String,
+    val descripcion: String,
+    val ciudad: String,
+    val tipoUsuario: TipoUsuario,
+    val urlImagen: String,
+    val libros: List<LibroUsuarioPerfilDTO>
+)
