@@ -3,8 +3,6 @@ package ar.edu.unsam.phm.bootstrap
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.lector
-import ar.edu.unsam.phm.domain.publicador
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
@@ -170,19 +168,12 @@ class BootstrapData(
 
         reservas.forEach(reservaRepository::create)
 
-        val usuario = Usuario(
-            id = 1,
-            nombre = "Juan",
-            apellido = "Perez",
-            descripcion = "Lector de ciencia ficción",
-            email = "juan@mail.com",
-            celular = "111111",
-            ciudad = "Buenos Aires",
-            tipoUsuario = lectorPublicador,
-            urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
-        ).apply { biblioKarma = 2000 }
-
-        usuarioRepository.create(usuario)
+        // Vincula cada libro al usuario propietario persistido en memoria.
+        usuarios.forEach { usuario ->
+            libros
+                .filter { it.idPropietario == usuario.id }
+                .forEach(usuario::agregarLibroParaPrestar)
+        }
     }
 
 

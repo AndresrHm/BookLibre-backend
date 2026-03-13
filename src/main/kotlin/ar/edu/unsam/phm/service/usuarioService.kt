@@ -1,13 +1,11 @@
 package ar.edu.unsam.phm.service
 
-import ar.edu.unsam.phm.BusinessException
-import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.LibroEdicionDTO
+import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
-import ar.edu.unsam.phm.dto.toLibro
 import ar.edu.unsam.phm.errors.NotFoundException
+import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 
@@ -19,11 +17,7 @@ class UsuarioService (
 
     fun usuarioHeaderInfo(id: Int): UsuarioHeaderDTO {
         val usuario = usuarioById(id)
-        return UsuarioHeaderDTO(
-            id = usuario.id,
-            urlImagen = usuario.urlImagen,
-            karma = usuario.biblioKarma
-            )
+        return UsuarioMapper.toUsuarioHeaderDTO(usuario)
     }
 
     fun updateUsuario(datosUsuario: UsuarioEdicionDTO, idUsuario: Int): Usuario {
@@ -31,6 +25,11 @@ class UsuarioService (
         usuario.update(datosUsuario)
         usuarioRepositorio.update(usuario)
         return usuario
+    }
+
+    fun usuarioPerfil(id: Int): UsarioPerfilDTO {
+        val usuario = usuarioById(id)
+        return UsuarioMapper.toUsuarioPerfilDTO(usuario)
     }
 }
 
