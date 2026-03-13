@@ -6,34 +6,36 @@ import ar.edu.unsam.phm.dto.ReservaDTO
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-fun Reserva.toReservaDTO(userID: Int): ReservaDTO {
-    val estado = when {
-        LocalDate.now().isAfter(fechaDevolucion) -> EstadoReserva.DEVUELTO
-        ChronoUnit.DAYS.between(LocalDate.now(), fechaDevolucion) <= 3 -> EstadoReserva.PROXIMO_A_VENCER
-        else -> EstadoReserva.ACTIVO
-    }
-
-    val puedeCalificar =
-        usuarioLector.id == userID &&
-        estado == EstadoReserva.DEVUELTO
-
-    val usuario =
-        if (usuarioLector.id == userID) {
-            usuarioPrestador.nombre
-        } else {
-            usuarioLector.nombre
+object ReservaMapper {
+    fun toDTO(obj: Reserva, userID: Int): ReservaDTO {
+        val estado = when {
+            LocalDate.now().isAfter(obj.fechaDevolucion) -> EstadoReserva.DEVUELTO
+            ChronoUnit.DAYS.between(LocalDate.now(), obj.fechaDevolucion) <= 3 -> EstadoReserva.PROXIMO_A_VENCER
+            else -> EstadoReserva.ACTIVO
         }
 
-    return ReservaDTO(
-        reservaId = id,
-        titulo = libro.titulo,
-        autor = libro.autor,
-        imagenUrl = libro.portada,
-        ratingLibro = libro.rating(),
-        usuario = usuario,
-        fechaInicio = fechaRecogida,
-        fechaFin = fechaDevolucion,
-        estado = estado,
-        puedeCalificar = puedeCalificar,
-    )
+        val puedeCalificar =
+            obj.usuarioLector.id == userID &&
+                    estado == EstadoReserva.DEVUELTO
+
+        val usuario =
+            if (obj.usuarioLector.id == userID) {
+                obj.usuarioPrestador.nombre
+            } else {
+                obj.usuarioLector.nombre
+            }
+
+        return ReservaDTO(
+            reservaId = obj.id,
+            titulo = obj.libro.titulo,
+            autor = obj.libro.autor,
+            imagenUrl = obj.libro.portada,
+            ratingLibro = obj.libro.rating(),
+            usuario = usuario,
+            fechaInicio = obj.fechaRecogida,
+            fechaFin = obj.fechaDevolucion,
+            estado = estado,
+            puedeCalificar = puedeCalificar,
+        )
+    }
 }

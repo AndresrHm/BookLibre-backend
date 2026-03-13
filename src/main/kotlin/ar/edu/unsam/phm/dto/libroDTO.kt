@@ -124,7 +124,7 @@ fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
         estado = this.estadoLibro,
         rating = this.rating(),
         cantidadResenias = 2,
-        reseniasRecientes = mutableListOf(calificacion1, calificacion2), // Dejo dos reseñas hardcodeadas. Probablemente en el front lo que se tenga que hacer es pedir n reseñas por separado.
+        reseniasRecientes = mutableListOf(calificacion1, calificacion2), // TODO: Dejo dos reseñas hardcodeadas. Probablemente en el front lo que se tenga que hacer es pedir n reseñas por separado.
     )
     return libro
 }
