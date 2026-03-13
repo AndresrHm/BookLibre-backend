@@ -37,7 +37,7 @@ class EspecTest : DescribeSpec({
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
             ciudad = "Buenos Aires",
-            tipoUsuario = mutableSetOf<TipoUsuario>(lector),
+            tipoUsuario = lector,
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -48,7 +48,7 @@ class EspecTest : DescribeSpec({
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
             ciudad = "Cordoba",
-            tipoUsuario = mutableSetOf<TipoUsuario>(publicador),
+            tipoUsuario = lector,
             urlImagen = "https://www.grupocos.org"
         )
 
