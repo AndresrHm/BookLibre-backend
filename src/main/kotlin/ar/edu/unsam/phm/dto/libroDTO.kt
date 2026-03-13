@@ -110,27 +110,15 @@ fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
     return libro
 }
 
-data class LibroPrestadoDTO(
-    val reservaId: Int,
-    val titulo: String,
-    val autor: String,
-    val imagenUrl: String,
-    val ratingLibro: Double,
-    val usuario: String,
-    val fechaInicio: LocalDate,
-    val fechaFin: LocalDate,
-    val estado: EstadoReserva,
-    val puedeCalificar: Boolean
-)
-
 data class FiltrosDeLibrosDTO(
     val genero: Genero?,
     val paginasMin: Int?,
     val paginasMax: Int?,
     val fechaDesde: LocalDate?,
     val fechaHasta: LocalDate?,
-    val isbn13: String?,
-    val usuarioPrestador: Usuario?
+    val isbn13: Long?,
+    val usuarioPrestador: Usuario?,
+    val search : String?
 )
 
 data class LibroUsuarioPerfilDTO(

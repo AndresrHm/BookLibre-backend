@@ -3,20 +3,17 @@ package ar.edu.unsam.phm.dto
 import java.time.LocalDate
 
 data class ReservaDTO(
-    val id: Int,
-    val libroId: Int,
-    val prestadorId: Int,
-    val lectorId: Int,
+    val reservaId: Int,
+    val titulo: String,
+    val autor: String,
+    val imagenUrl: String,
+    val ratingLibro: Double,
+    val usuario: String,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
-    val fechaDevolucion: LocalDate,
-    val calificacion: Int,
+    val estado: EstadoReserva,
+    val puedeCalificar: Boolean
 )
-
-enum class TipoReserva {
-    TO_ME,
-    BY_ME,
-}
 
 enum class EstadoReserva {
     ACTIVO,

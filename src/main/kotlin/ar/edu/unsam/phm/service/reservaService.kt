@@ -1,9 +1,11 @@
 package ar.edu.unsam.phm.service
 
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.dto.LibroPrestadoDTO
-import ar.edu.unsam.phm.mapper.toLibroPrestadoDTO
+import ar.edu.unsam.phm.dto.ReservaDTO
+import ar.edu.unsam.phm.mapper.toReservaDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -16,7 +18,9 @@ class ReservaService(
         userID: Int,
         page: Int,
         size: Int
-    ): PageResponse<LibroPrestadoDTO> {
+    ): PageResponse<ReservaDTO> {
+
+        // validar que exista usuario
 
         val pageResult = reservaRepository.findByLectorID(userID, page, size)
 
@@ -24,7 +28,7 @@ class ReservaService(
         val totalPages = ((pageResult.content.size + size - 1) / size)
 
         return PageResponse(
-            content = pageResult.content.map { it.toLibroPrestadoDTO(userID) },
+            content = pageResult.content.map { it.toReservaDTO(userID) },
             page = page,
             size = size,
             totalElements = pageResult.totalElements,
@@ -36,11 +40,11 @@ class ReservaService(
         userID: Int,
         page: Int,
         size: Int
-    ): PageResponse<LibroPrestadoDTO> {
+    ): PageResponse<ReservaDTO> {
 
         val reservas = reservaRepository.findByPrestadorID(userID, page, size)
 
-        val reservasDTO = reservas.content.map { it.toLibroPrestadoDTO(userID) }
+        val reservasDTO = reservas.content.map { it.toReservaDTO(userID) }
 
         val totalPages = ((reservas.totalElements + size - 1) / size)
 
@@ -61,6 +65,12 @@ class ReservaService(
                 // Verificamos que la reserva este entre el rango de fechas a buscar
                 !reserva.fechaRecogida.isAfter(fechaFin) && !reserva.fechaDevolucion.isBefore(fechaInicio)
             }
+            .map { it.libro }
+    }
+
+    fun getLibrosPrestadosPorUsuario(usuarioPrestador: Usuario): List<Libro>{
+        return reservaRepository.getElementos()
+            .filter { it.usuarioPrestador.id == usuarioPrestador.id }
             .map { it.libro }
     }
 }

@@ -9,17 +9,17 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.Lector
-import ar.edu.unsam.phm.domain.Publicador
+import ar.edu.unsam.phm.domain.lector
+import ar.edu.unsam.phm.domain.publicador
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
-import crearLibro
 
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
@@ -37,7 +37,7 @@ class EspecTest : DescribeSpec({
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
             ciudad = "Buenos Aires",
-            tipoUsuario = mutableSetOf<TipoUsuario>(Lector),
+            tipoUsuario = lector,
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -48,7 +48,7 @@ class EspecTest : DescribeSpec({
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
             ciudad = "Cordoba",
-            tipoUsuario = mutableSetOf<TipoUsuario>(Publicador),
+            tipoUsuario = lector,
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -79,6 +79,7 @@ class EspecTest : DescribeSpec({
             fechaPublicacion = LocalDate.of(1965, 8, 1),
             estadoLibro = EstadoLibro.MUY_BUENO
         )
+
 
         val libro3 = crearLibro(
             titulo = "Orgullo y Prejuicio",
@@ -121,6 +122,20 @@ class EspecTest : DescribeSpec({
             fechaPublicacion = LocalDate.of(1963, 6, 28),
             estadoLibro = EstadoLibro.BUENO
         )
+
+        val libro6 = crearLibro(
+            titulo = "Dune Messiah",
+            tipoLibro = comun,
+            descripcion = "Segunda parte de Dune",
+            genero = Genero.CIENCIA_FICCION,
+            autor = "Frank Herbert",
+            cantidadPaginas = 688,
+            isbn13 = 9780441172726L,
+            idioma = Idioma.INGLES,
+            editorial = "Chilton Books",
+            fechaPublicacion = LocalDate.of(1969, 6, 1),
+            estadoLibro = EstadoLibro.MUY_BUENO
+        )
         it( "se crea un libro"){
             repositoryLibros.create(libro1)
             repositoryLibros.getById(libro1.id) shouldBe libro1
@@ -158,7 +173,8 @@ class EspecTest : DescribeSpec({
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
-                usuarioPrestador = null
+                usuarioPrestador = null,
+                search = null
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
@@ -199,14 +215,69 @@ class EspecTest : DescribeSpec({
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
-                usuarioPrestador = null
+                usuarioPrestador = null,
+                search = null
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
             librosFiltrados shouldBe listOf(libro2)
+        }
+        it ("devuelve libros por nombre") {
+            repositoryLibros.create(libro1)
+            repositoryLibros.create(libro2)
+            repositoryLibros.create(libro3)
+            repositoryLibros.create(libro4)
+            repositoryLibros.create(libro5)
+            repositoryLibros.create(libro6)
+
+            val filtroDeLibros = FiltrosDeLibrosDTO(
+                fechaDesde = null,
+                fechaHasta = null,
+                genero = null,
+                paginasMin = null,
+                paginasMax = null,
+                isbn13 = null,
+                usuarioPrestador = null,
+                search = "Dune"
+            )
+
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            librosFiltrados shouldBe listOf(libro2, libro6)
         }
 
 
 
     }
 })
+
+fun crearLibro(
+    titulo: String = "Título de libro",
+    tipoLibro: TipoLibro = comun,
+    descripcion: String = "Descripción de libro",
+    portada: String = "Portada de libro",
+    genero: Genero = Genero.CIENCIA_FICCION,
+    autor: String = "Autor de libro",
+    cantidadPaginas: Int = 10,
+    isbn13: Long = 1111111111111,
+    idioma: Idioma = Idioma.ESPANOL,
+    editorial: String = "Editorial de libro",
+    fechaPublicacion: LocalDate = LocalDate.now(),
+    estadoLibro: EstadoLibro = EstadoLibro.BUENO,
+    idPropietario: Int = 0
+): Libro {
+    return Libro(
+        titulo,
+        tipoLibro,
+        descripcion,
+        portada,
+        genero,
+        autor,
+        cantidadPaginas,
+        isbn13,
+        idioma,
+        editorial,
+        fechaPublicacion,
+        estadoLibro,
+        idPropietario
+    )
+}

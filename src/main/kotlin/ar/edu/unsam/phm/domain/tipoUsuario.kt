@@ -10,28 +10,28 @@ import com.fasterxml.jackson.annotation.JsonTypeName
     property = "tipoUsuario"
 )
 @JsonSubTypes(
-    JsonSubTypes.Type(value = Publicador::class, name = "publicador"),
-    JsonSubTypes.Type(value = Lector::class, name = "lector"),
-    JsonSubTypes.Type(value = LectorPublicador::class, name = "lectorPublicador")
+    JsonSubTypes.Type(value = publicador::class, name = "publicador"),
+    JsonSubTypes.Type(value = lector::class, name = "lector"),
+    JsonSubTypes.Type(value = lectorPublicador::class, name = "lectorPublicador")
 )
 interface TipoUsuario {
     fun esUsuario(usuario: Usuario)
 }
 
 @JsonTypeName("publicador")
-object Publicador : TipoUsuario {
+object publicador : TipoUsuario {
     override fun esUsuario(usuario: Usuario) {
     }
 }
 
 @JsonTypeName("lector")
-object Lector : TipoUsuario {
+object lector : TipoUsuario {
     override fun esUsuario(usuario: Usuario) {
     }
 }
 
 @JsonTypeName("lectorPublicador")
-object LectorPublicador : TipoUsuario {
+object lectorPublicador : TipoUsuario {
     override fun esUsuario(usuario: Usuario) {
     }
 }
