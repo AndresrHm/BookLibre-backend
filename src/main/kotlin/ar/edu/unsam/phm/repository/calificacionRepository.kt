@@ -38,4 +38,10 @@ class CalificacionRepository : Repositorio<Calificacion>() {
             update(calificacion)
         }
     }
+
+    fun obtenerPromedio(libroID: Int): Double {
+        val calificaciones = getElementos().filter { it.libroID == libroID }
+
+        return (calificaciones.sumOf { it.puntuacion } / calificaciones.size)
+    }
 }

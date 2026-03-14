@@ -28,6 +28,9 @@ class CalificacionService(
         if (reserva.fechaDevolucion > LocalDate.now()) throw BusinessException("Podrá calificar el libro cuando termine su reserva.")
 
         calificacionRepository.agregarCalificacion(calificacion)
+
+        // mantenemos el rating actualizado y guardado en el libro por una cuestión de simplicidad
+        libroRepository.actualizarRating(libroID, calificacionRepository.obtenerPromedio(libroID))
     }
 
     fun obtenerCalificaciones(

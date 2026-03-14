@@ -8,15 +8,9 @@ import java.time.temporal.ChronoUnit
 
 object ReservaMapper {
     fun toDTO(obj: Reserva, userID: Int): ReservaDTO {
-        val estado = when {
-            LocalDate.now().isAfter(obj.fechaDevolucion) -> EstadoReserva.DEVUELTO
-            ChronoUnit.DAYS.between(LocalDate.now(), obj.fechaDevolucion) <= 3 -> EstadoReserva.PROXIMO_A_VENCER
-            else -> EstadoReserva.ACTIVO
-        }
-
         val puedeCalificar =
             obj.usuarioLector.id == userID &&
-                    estado == EstadoReserva.DEVUELTO
+                    obj.estado() == EstadoReserva.DEVUELTO
 
         val usuario =
             if (obj.usuarioLector.id == userID) {
@@ -34,7 +28,7 @@ object ReservaMapper {
             usuario = usuario,
             fechaInicio = obj.fechaRecogida,
             fechaFin = obj.fechaDevolucion,
-            estado = estado,
+            estado = obj.estado(),
             puedeCalificar = puedeCalificar,
         )
     }
