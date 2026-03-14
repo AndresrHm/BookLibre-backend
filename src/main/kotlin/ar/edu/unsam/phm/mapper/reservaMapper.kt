@@ -30,6 +30,7 @@ object ReservaMapper {
             fechaFin = obj.fechaDevolucion,
             estado = obj.estado(),
             puedeCalificar = puedeCalificar,
+            biblioKarma = obj.libro.darKarma(obj),
         )
     }
 }
