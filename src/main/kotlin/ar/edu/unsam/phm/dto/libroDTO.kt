@@ -7,13 +7,16 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.domain.coleccionable
+import ar.edu.unsam.phm.domain.comun
+import ar.edu.unsam.phm.domain.conDedicatoria
 import java.time.LocalDate
 
 data class LibroEdicionDTO(
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
-    val tipoLibro: TipoLibro,
+    val tipoLibro: String,
     val genero: Genero,
     val autor: String,
     val idioma: Idioma,
@@ -29,7 +32,7 @@ data class LibroEdicionDTO(
 fun LibroEdicionDTO.toLibro(): Libro {
     val libro = Libro(
         titulo = this.titulo,
-        tipoLibro = this.tipoLibro,
+        tipoLibro = if (this.tipoLibro == "conDedicatoria") conDedicatoria else if (this.tipoLibro == "coleccionable") coleccionable else comun,
         descripcion = this.descripcion,
         portada = this.imagenUrl,
         genero = this.genero,
@@ -52,7 +55,7 @@ fun Libro.toLibroEdicionDTO(): LibroEdicionDTO {
     val libro = LibroEdicionDTO(
         id = this.id,
         titulo = this.titulo,
-        tipoLibro = this.tipoLibro,
+        tipoLibro = if (this.tipoLibro == conDedicatoria) "conDedicatoria" else if (this.tipoLibro == coleccionable) "coleccionable" else "comun",
         descripcion = this.descripcion,
         imagenUrl = this.portada,
         genero = this.genero,
@@ -72,7 +75,7 @@ data class LibroDetalleDTO (
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
-    val tipoLibro: TipoLibro,
+    val tipoLibro: String,
     val genero: Genero,
     val autor: String,
     val idioma: Idioma,
@@ -87,7 +90,7 @@ data class LibroDetalleDTO (
     val reseniasRecientes: List<Calificacion> //NIY
 )
 
-
+/*
 fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
     val libro = LibroDetalleDTO(
         id = this.id,
@@ -109,7 +112,7 @@ fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
     )
     return libro
 }
-
+*/
 data class FiltrosDeLibrosDTO(
     val genero: Genero?,
     val paginasMin: Int?,
