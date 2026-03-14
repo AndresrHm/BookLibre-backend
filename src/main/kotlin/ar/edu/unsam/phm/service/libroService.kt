@@ -7,13 +7,19 @@ import ar.edu.unsam.phm.domain.ISBN13Filtro
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
 import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
+import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
+import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
+import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.toLibro
+import ar.edu.unsam.phm.mapper.toLibroPerfilUsuarioDTO
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class LibroService(
@@ -88,4 +94,41 @@ class LibroService(
         filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
             if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
         }
+    
+    
+    /////agrega aqui lo necesario para filtrar en perfilUsuario sin tocar lo anterior
+    fun obtenerLibrosDeUsuario(
+        usuarioId: Int,
+        page: Int,
+        size: Int,
+        orden: OrdenLibroPerfil,
+        direccion: DireccionOrden
+    ): PageResponse<LibroUsuarioPerfilDTO> {
+        require(page >= 0) { "page debe ser mayor o igual a 0" }
+        require(size > 0) { "size debe ser mayor a 0" }
+
+        val idsLibrosPrestados = serviceReservas
+            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
+            .map { it.id }
+            .toSet()
+
+        val resultadoPagina = repositorioLibro.buscarPorIdPropietario(
+            propietarioId = usuarioId,
+            page = page,
+            size = size,
+            orden = orden,
+            direccion = direccion,
+            librosPrestadosIds = idsLibrosPrestados
+        )
+
+        val totalPaginas = if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
+
+        return PageResponse(
+            content = resultadoPagina.content.map { it.toLibroPerfilUsuarioDTO() },
+            page = page,
+            size = size,
+            totalElements = resultadoPagina.totalElements,
+            totalPages = totalPaginas,
+        )
+    }
 }

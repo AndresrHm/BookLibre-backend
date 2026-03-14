@@ -129,3 +129,15 @@ data class LibroUsuarioPerfilDTO(
     val genero: Genero,
     val fechaAgregado: String
 )
+
+enum class OrdenLibroPerfil {
+    TITULO,
+    DISPONIBLE_PRESTADO,
+    FECHA_AGREGADO
+}
+
+enum class DireccionOrden {
+    ASCENDENTE,
+    DESCENDENTE
+}
+

@@ -1,8 +1,12 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
+import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
+import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.toLibroDetalleDTO
 import ar.edu.unsam.phm.dto.toLibroEdicionDTO
 import ar.edu.unsam.phm.service.LibroService
@@ -12,11 +16,25 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
 class LibroController(val libroService: LibroService) {
+    @GetMapping("/usuarios/{usuarioId}/libros")
+    fun obtenerLibrosDeUsuario(
+        @PathVariable usuarioId: Int,
+        @RequestParam page: Int = 0,
+        @RequestParam size: Int = 3, // 3 libros por página, igual que la tabla del front
+        @RequestParam orden: OrdenLibroPerfil = OrdenLibroPerfil.FECHA_AGREGADO,
+        @RequestParam direccion: DireccionOrden = DireccionOrden.DESCENDENTE,
+    ): PageResponse<LibroUsuarioPerfilDTO> {
+        // React: guardar content/page/size/totalElements/totalPages en estado.
+        // Luego reenviar page/size/orden/direccion cuando cambie tabla o paginado.
+        return libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion)
+    }
+
     @PostMapping("libro/crear")
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
         val nuevoLibro = libroService.crearLibro(libro)

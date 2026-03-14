@@ -1,13 +1,12 @@
 package ar.edu.unsam.phm.dto
 
-import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.TipoUsuario
-import ar.edu.unsam.phm.domain.Usuario
+import java.time.LocalDateTime
 
 data class UsuarioHeaderDTO(
     val id: Int,
     val urlImagen: String,
-    val karma: Int
+    val biblioKarma: Int
 )
 
 data class UsuarioEdicionDTO(
@@ -27,5 +26,9 @@ data class UsarioPerfilDTO(
     val ciudad: String,
     val tipoUsuario: TipoUsuario,
     val urlImagen: String,
-    val libros: List<LibroUsuarioPerfilDTO>
+    val biblioKarma: Int,
+    val celular: String,
+    val email: String,
+    val fechaCreacion: String
 )
+

@@ -14,15 +14,15 @@ object UsuarioMapper {
         ciudad = usuario.ciudad,
         tipoUsuario = usuario.tipoUsuario,
         urlImagen = usuario.urlImagen,
-        libros = usuario.listaDeLibrosParaPrestar.map { libroParaPrestar ->
-            val libroPerfil = libroParaPrestar.toLibroPerfilUsuarioDTO()
-            libroPerfil
-        }.toMutableList()
+        email = usuario.email,
+        celular = usuario.celular,
+        biblioKarma = usuario.biblioKarma,
+        fechaCreacion = usuario.getFechaCreacionAsString()
     )
 
     fun toUsuarioHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(
         id = usuario.id,
         urlImagen = usuario.urlImagen,
-        karma = usuario.biblioKarma
+        biblioKarma = usuario.biblioKarma
     )
 }

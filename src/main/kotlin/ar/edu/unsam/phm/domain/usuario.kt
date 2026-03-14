@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
+import java.time.LocalDate
 
 class Usuario (
     var nombre: String,
@@ -17,6 +18,7 @@ class Usuario (
     var biblioKarma: Int = 0
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
     val listaDeLibrosPedidos = mutableListOf<Libro>()
+    val fechaDeCreacion = LocalDate.now()
 
     fun agregarLibroParaPrestar(libro: Libro) {
         listaDeLibrosParaPrestar.add(libro)
@@ -34,6 +36,8 @@ class Usuario (
         tipoUsuario = usuarioNuevo.tipoUsuario
         urlImagen = usuarioNuevo.urlImagen
     }
+
+    fun getFechaCreacionAsString() : String = fechaDeCreacion.formatear()
 
 }
 
