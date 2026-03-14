@@ -4,9 +4,7 @@ import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.OrdenCalificacion
-import ar.edu.unsam.phm.mapper.toCalificacion
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -22,10 +20,8 @@ class CalificacionService(
     fun calificarLibro(
         usuarioID: Int,
         libroID: Int,
-        calificacionDTO: CalificacionDTO
+        calificacion: Calificacion
     ) {
-        val calificacion = calificacionDTO.toCalificacion() // mal, tiene que venir directamente como objeto de dominio desde el controller.
-
         libroRepository.getById(libroID) ?: throw NotFoundException("No existe un libro con el id $libroID.")
 
         val reserva = reservaRepository.obtenerUltimaReserva(usuarioID, libroID) ?: throw NotFoundException("El usuario no puede calificar este libro.")

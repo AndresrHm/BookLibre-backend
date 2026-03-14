@@ -3,14 +3,16 @@ package ar.edu.unsam.phm.mapper
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.dto.CalificacionDTO
 
-fun CalificacionDTO.toCalificacion(): Calificacion {
-    return Calificacion(
-        libroID = libroID,
-        usuarioID = usuarioID,
-        nombreUsuario = this.nombreUsuario,
-        imagenUsuario = this.imagenUsuario,
-        puntuacion = this.puntuacion,
-        comentario = this.comentario,
-        fecha = this.fecha,
-    )
+object CalificacionMapper {
+    fun toDomain(dto: CalificacionDTO): Calificacion {
+        return Calificacion(
+            libroID = dto.libroID,
+            usuarioID = dto.usuarioID,
+            nombreUsuario = dto.nombreUsuario,
+            imagenUsuario = dto.imagenUsuario,
+            puntuacion = dto.puntuacion,
+            comentario = dto.comentario,
+            fecha = dto.fecha,
+        )
+    }
 }

@@ -4,6 +4,7 @@ import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.OrdenCalificacion
+import ar.edu.unsam.phm.mapper.CalificacionMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -23,7 +24,7 @@ class CalificacionController(val calificacionService: CalificacionService) {
         @RequestParam usuarioID: Int, // En el futuro esto vuela
         @RequestBody calificacionDTO: CalificacionDTO
     ) {
-        return calificacionService.calificarLibro(usuarioID, libroID, calificacionDTO)
+        return calificacionService.calificarLibro(usuarioID, libroID, CalificacionMapper.toDomain(calificacionDTO))
     }
 
     @GetMapping("libro/{id}/calificaciones")
