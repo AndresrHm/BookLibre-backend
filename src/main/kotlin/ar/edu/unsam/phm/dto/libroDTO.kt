@@ -29,48 +29,6 @@ data class LibroEdicionDTO(
     val idPropietario: Int
 )
 
-fun LibroEdicionDTO.toLibro(): Libro {
-    val libro = Libro(
-        titulo = this.titulo,
-        tipoLibro = if (this.tipoLibro == "conDedicatoria") conDedicatoria else if (this.tipoLibro == "coleccionable") coleccionable else comun,
-        descripcion = this.descripcion,
-        portada = this.imagenUrl,
-        genero = this.genero,
-        autor = this.autor,
-        cantidadPaginas = this.cantidadPaginas,
-        isbn13 = this.isbn13,
-        idioma = this.idioma,
-        editorial = this.editorial,
-        fechaPublicacion = this.fechaPublicacion,
-        estadoLibro = this.estado,
-        idPropietario = this.idPropietario
-    )
-
-    libro.id = this.id
-
-    return libro
-}
-
-fun Libro.toLibroEdicionDTO(): LibroEdicionDTO {
-    val libro = LibroEdicionDTO(
-        id = this.id,
-        titulo = this.titulo,
-        tipoLibro = if (this.tipoLibro == conDedicatoria) "conDedicatoria" else if (this.tipoLibro == coleccionable) "coleccionable" else "comun",
-        descripcion = this.descripcion,
-        imagenUrl = this.portada,
-        genero = this.genero,
-        autor = this.autor,
-        cantidadPaginas = this.cantidadPaginas,
-        isbn13 = this.isbn13,
-        idioma = this.idioma,
-        editorial = this.editorial,
-        fechaPublicacion = this.fechaPublicacion,
-        estado = this.estadoLibro,
-        idPropietario = this.idPropietario
-    )
-    return libro
-}
-
 data class LibroDetalleDTO (
     val id: Int,
     val imagenUrl: String,
@@ -90,29 +48,6 @@ data class LibroDetalleDTO (
     val reseniasRecientes: List<Calificacion> //NIY
 )
 
-/*
-fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
-    val libro = LibroDetalleDTO(
-        id = this.id,
-        titulo = this.titulo,
-        tipoLibro = this.tipoLibro,
-        descripcion = this.descripcion,
-        imagenUrl = this.portada,
-        genero = this.genero,
-        autor = this.autor,
-        cantidadPaginas = this.cantidadPaginas,
-        isbn13 = this.isbn13,
-        idioma = this.idioma,
-        editorial = this.editorial,
-        fechaPublicacion = this.fechaPublicacion,
-        estado = this.estadoLibro,
-        rating = this.rating(),
-        cantidadResenias = this.cantidadResenias(),
-        reseniasRecientes = this.ultimasResenias()
-    )
-    return libro
-}
-*/
 data class FiltrosDeLibrosDTO(
     val genero: Genero?,
     val paginasMin: Int?,

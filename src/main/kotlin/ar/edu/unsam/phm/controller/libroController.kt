@@ -3,8 +3,7 @@ package ar.edu.unsam.phm.controller
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.toLibroDetalleDTO
-import ar.edu.unsam.phm.dto.toLibroEdicionDTO
+import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.LibroService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,33 +15,35 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
-class LibroController(val libroService: LibroService) {
+class LibroController(val libroService: LibroService, val libroMapper: LibroMapper) {
     @PostMapping("libro/crear")
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
-        val nuevoLibro = libroService.crearLibro(libro)
-        return nuevoLibro.toLibroEdicionDTO()
+        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+        val nuevoLibro = libroService.crearLibro(libroConvertido)
+        return this.libroMapper.libroToLibroEdicionDTO(nuevoLibro)
     }
 
     @GetMapping("libro/editar/{idLibro}/{idUsuario}") //Debería poder hacerse sin idLibro
     fun obtenerLibroParaEdicion(@PathVariable idLibro: Int, @PathVariable idUsuario: Int): LibroEdicionDTO {
         val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro, idUsuario)
-        return libroParaEdicion.toLibroEdicionDTO()
+        return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
-
+/*
     @GetMapping("libro/detalle/{idLibro}")
     fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
         val libroDetalle = libroService.obtenerLibroDetalle(idLibro)
         return libroDetalle.toLibroDetalleDTO()
     }
-
+*/
     @PutMapping("libro/editar/{idLibro}/{idUsuario}")//Debería poder hacerse sin idLibro
     fun editarLibro(
         @RequestBody libro: LibroEdicionDTO,
         @PathVariable idLibro: Int,
         @PathVariable idUsuario: Int
     ): LibroEdicionDTO {
-        val libroParaEdicion = libroService.editarLibro(libro, idLibro, idUsuario)
-        return libroParaEdicion.toLibroEdicionDTO()
+        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+        val libroParaEdicion = libroService.editarLibro(libroConvertido, idLibro, idUsuario)
+        return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
 
     @PostMapping("/homePage/user/{id}/filter")
@@ -52,7 +53,7 @@ class LibroController(val libroService: LibroService) {
         // val filtros = filtrosMapper.DTOsAObjeto(filtrosDtos)
 
         val librosFiltrados = libroService.getLibrosPorFiltros(filtros)
-        return librosFiltrados.map { it.toLibroDetalleDTO() }
+        return librosFiltrados.map { libroMapper.libroToLibroDetalleDTO(it) }
     }
 
 //    @PostMapping("client/register")
