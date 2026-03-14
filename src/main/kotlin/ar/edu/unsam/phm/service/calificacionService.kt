@@ -43,14 +43,13 @@ class CalificacionService(
             ?: throw NotFoundException("No existe libro con el id $libroID.")
 
         val pageResult = calificacionRepository.obtenerCalificaciones(libro, orden, page, size)
-        val totalPages = (pageResult.totalElements / size - 1) / size
 
         return PageResponse(
             content = pageResult.content,
             page = page,
             size = size,
             totalElements = pageResult.totalElements,
-            totalPages = totalPages
+            totalPages = (pageResult.totalElements + size - 1) / size
         )
     }
 }

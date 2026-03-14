@@ -1,12 +1,9 @@
 package ar.edu.unsam.phm.service
 
-import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.dto.ReservaDTO
-import ar.edu.unsam.phm.mapper.ReservaMapper
 import ar.edu.unsam.phm.repository.ReservaRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -23,16 +20,14 @@ class ReservaService(
 
         // validar que exista usuario
 
-        val pageResult = reservaRepository.findByLectorID(userID, page, size)
-
-        val totalPages = ((pageResult.content.size + size - 1) / size)
+        val pageResponse = reservaRepository.findByLectorID(userID, page, size)
 
         return PageResponse(
-            content = pageResult.content,
+            content = pageResponse.content,
             page = page,
             size = size,
-            totalElements = pageResult.content.size,
-            totalPages = totalPages,
+            totalElements = pageResponse.content.size,
+            totalPages = (pageResponse.totalElements + size - 1) / size,
         )
     }
 
@@ -44,14 +39,12 @@ class ReservaService(
 
         val pageResponse = reservaRepository.findByPrestadorID(userID, page, size)
 
-        val totalPages = ((pageResponse.content.size + size - 1) / size)
-
         return PageResponse(
             content = pageResponse.content,
             page = page,
             size = size,
             totalElements = pageResponse.content.size,
-            totalPages = totalPages,
+            totalPages = (pageResponse.totalElements + size - 1) / size,
         )
     }
 
