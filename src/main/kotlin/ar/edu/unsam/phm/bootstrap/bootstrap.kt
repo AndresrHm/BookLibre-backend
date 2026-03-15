@@ -101,15 +101,15 @@ class BootstrapData(
 
             // ---------------- u2 presta a u1 ----------------
 
-            Libro("u2 presta a u1", comun, "Distopía política", "https://covers.openlibrary.org/b/id/12693610-L.jpg", Genero.CIENCIA_FICCION, "George Orwell", 328, 9780451524935L, Idioma.INGLES, "Secker & Warburg", LocalDate.of(1949,6,8), EstadoLibro.BUENO,2),
+            Libro("1984", comun, "Distopía política", "https://covers.openlibrary.org/b/id/12693610-L.jpg", Genero.CIENCIA_FICCION, "George Orwell", 328, 9780451524935L, Idioma.INGLES, "Secker & Warburg", LocalDate.of(1949,6,8), EstadoLibro.BUENO,2),
 
-            Libro("u2 presta a u1", comun, "Sátira política", "https://covers.openlibrary.org/b/id/15139354-L.jpg", Genero.DRAMA, "George Orwell", 112, 9780451526342L, Idioma.INGLES, "Secker & Warburg", LocalDate.of(1945,8,17), EstadoLibro.BUENO,2),
+            Libro("Animal Farm", comun, "Sátira política", "https://covers.openlibrary.org/b/id/15139354-L.jpg", Genero.DRAMA, "George Orwell", 112, 9780451526342L, Idioma.INGLES, "Secker & Warburg", LocalDate.of(1945,8,17), EstadoLibro.BUENO,2),
 
-            Libro("u2 presta a u1", comun, "Cuentos", "https://covers.openlibrary.org/b/id/14826417-L.jpg", Genero.DRAMA, "Jorge Luis Borges", 180, 9780307474728L, Idioma.ESPANOL, "Losada", LocalDate.of(1949,6,1), EstadoLibro.BUENO,2),
+            Libro("El Aleph", comun, "Cuentos", "https://covers.openlibrary.org/b/id/14826417-L.jpg", Genero.DRAMA, "Jorge Luis Borges", 180, 9780307474728L, Idioma.ESPANOL, "Losada", LocalDate.of(1949,6,1), EstadoLibro.BUENO,2),
 
-            Libro("u2 presta a u1", comun, "Literatura latinoamericana", "https://covers.openlibrary.org/b/id/15103307-L.jpg", Genero.LITERATURA_CLASICA, "Julio Cortázar", 736, 9788437604578L, Idioma.ESPANOL, "Sudamericana", LocalDate.of(1963,6,28), EstadoLibro.BUENO,2),
+            Libro("Rayuela", comun, "Literatura latinoamericana", "https://covers.openlibrary.org/b/id/15103307-L.jpg", Genero.LITERATURA_CLASICA, "Julio Cortázar", 736, 9788437604578L, Idioma.ESPANOL, "Sudamericana", LocalDate.of(1963,6,28), EstadoLibro.BUENO,2),
 
-            Libro("u2 presta a u1", comun, "Clásico español", "https://covers.openlibrary.org/b/id/13990987-L.jpg", Genero.LITERATURA_CLASICA, "Miguel de Cervantes", 863, 9780060934347L, Idioma.ESPANOL, "Francisco de Robles", LocalDate.of(1605,1,16), EstadoLibro.REGULAR,2),
+            Libro("Don Quijote de la Mancha", comun, "Clásico español", "https://covers.openlibrary.org/b/id/13990987-L.jpg", Genero.LITERATURA_CLASICA, "Miguel de Cervantes", 863, 9780060934347L, Idioma.ESPANOL, "Francisco de Robles", LocalDate.of(1605,1,16), EstadoLibro.REGULAR,2),
 
             Libro("Cien años de soledad", comun, "Realismo mágico", "https://covers.openlibrary.org/b/id/14831384-L.jpg", Genero.LITERATURA_CLASICA, "Gabriel García Márquez", 417, 9780307474728L, Idioma.ESPANOL, "Sudamericana", LocalDate.of(1967,5,30), EstadoLibro.EXCELENTE,2),
 
