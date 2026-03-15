@@ -12,7 +12,8 @@ data class ReservaDTO(
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
     val estado: EstadoReserva,
-    val puedeCalificar: Boolean
+    val puedeCalificar: Boolean,
+    val biblioKarma: Int,
 )
 
 enum class EstadoReserva {

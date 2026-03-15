@@ -87,6 +87,25 @@ data class LibroDetalleDTO (
     val reseniasRecientes: List<Calificacion> //NIY
 )
 
+val calificacion1 = Calificacion(
+    usuarioID = 1,
+    nombreUsuario = "Juan Perez",
+    imagenUsuario = "juan.png",
+    libroID = 10,
+    puntuacion = 4.5,
+    comentario = "Muy buen libro, la historia engancha desde el principio.",
+    fecha = LocalDate.of(2024, 5, 10)
+)
+
+val calificacion2 = Calificacion(
+    usuarioID = 2,
+    nombreUsuario = "Maria Gomez",
+    imagenUsuario = "Maria.png",
+    libroID = 10,
+    puntuacion = 3.8,
+    comentario = "Interesante, aunque algunas partes se hacen un poco largas.",
+    fecha = LocalDate.of(2024, 5, 12)
+)
 
 fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
     val libro = LibroDetalleDTO(
@@ -104,8 +123,8 @@ fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
         fechaPublicacion = this.fechaPublicacion,
         estado = this.estadoLibro,
         rating = this.rating(),
-        cantidadResenias = this.cantidadResenias(),
-        reseniasRecientes = this.ultimasResenias()
+        cantidadResenias = 2,
+        reseniasRecientes = mutableListOf(calificacion1, calificacion2), // TODO: Dejo dos reseñas hardcodeadas. Probablemente en el front lo que se tenga que hacer es pedir n reseñas por separado.
     )
     return libro
 }
