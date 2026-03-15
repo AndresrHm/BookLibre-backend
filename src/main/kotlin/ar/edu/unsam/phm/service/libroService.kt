@@ -26,8 +26,8 @@ class LibroService(
     var repositorioLibro: LibroRepository,
     var serviceReservas: ReservaService
 ) {
-    fun crearLibro(libro: LibroEdicionDTO): Libro {
-        val nuevoLibro = libro.toLibro()
+    fun crearLibro(libro: Libro): Libro {
+        val nuevoLibro = libro
         nuevoLibro.init()
 
         repositorioLibro.create(nuevoLibro)
@@ -47,8 +47,8 @@ class LibroService(
         return libroParaEdicion
     }
 
-    fun editarLibro(libroParaEdicion: LibroEdicionDTO, idLibro: Int, idUsuario: Int): Libro {
-        val libroEditado = libroParaEdicion.toLibro()
+    fun editarLibro(libroParaEdicion: Libro, idLibro: Int, idUsuario: Int): Libro {
+        val libroEditado = libroParaEdicion
 
         libroEditado.init()
 
@@ -94,8 +94,8 @@ class LibroService(
         filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
             if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
         }
-    
-    
+
+
     /////agrega aqui lo necesario para filtrar en perfilUsuario sin tocar lo anterior
     fun obtenerLibrosDeUsuario(
         usuarioId: Int,

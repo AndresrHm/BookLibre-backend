@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.repository
 
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResult
@@ -11,28 +12,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class LibroRepository : Repositorio<Libro>() {
-    fun findRatings(
-        libro: Libro,
-        orden: OrdenCalificacion,
-        page: Int,
-        size: Int
-    ): PageResult<Calificacion> {
-
-        val sorted = when (orden) {
-            OrdenCalificacion.DATE_ASC ->
-                libro.obtenerCalificaciones().sortedBy { it.fecha }
-
-            OrdenCalificacion.DATE_DESC ->
-                libro.obtenerCalificaciones().sortedByDescending { it.fecha }
-
-            OrdenCalificacion.RATING_ASC ->
-                libro.obtenerCalificaciones().sortedBy { it.puntuacion }
-
-            OrdenCalificacion.RATING_DESC ->
-                libro.obtenerCalificaciones().sortedByDescending { it.puntuacion }
-        }
-
-        return paginate(page, size, sorted)
+    fun actualizarRating(libroID: Int, rating: Double) {
+        val libro = getById(libroID)
+        if (libro != null) libro.actualizarRating(rating) else throw BusinessException("No existe el libro con id ${libroID}.")
     }
 
     fun buscarPorIdPropietario(

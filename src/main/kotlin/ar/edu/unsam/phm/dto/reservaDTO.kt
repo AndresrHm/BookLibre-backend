@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class ReservaDTO(
     val reservaId: Int,
+    val libroId: Int,
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
@@ -12,7 +13,8 @@ data class ReservaDTO(
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,
     val estado: EstadoReserva,
-    val puedeCalificar: Boolean
+    val puedeCalificar: Boolean,
+    val biblioKarma: Int,
 )
 
 enum class EstadoReserva {

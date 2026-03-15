@@ -3,9 +3,7 @@ package ar.edu.unsam.phm.dto
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Calificacion
-import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
 import java.time.LocalDate
 
@@ -13,7 +11,7 @@ data class LibroEdicionDTO(
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
-    val tipoLibro: TipoLibro,
+    val tipoLibro: String,
     val genero: Genero,
     val autor: String,
     val idioma: Idioma,
@@ -26,53 +24,11 @@ data class LibroEdicionDTO(
     val idPropietario: Int
 )
 
-fun LibroEdicionDTO.toLibro(): Libro {
-    val libro = Libro(
-        titulo = this.titulo,
-        tipoLibro = this.tipoLibro,
-        descripcion = this.descripcion,
-        portada = this.imagenUrl,
-        genero = this.genero,
-        autor = this.autor,
-        cantidadPaginas = this.cantidadPaginas,
-        isbn13 = this.isbn13,
-        idioma = this.idioma,
-        editorial = this.editorial,
-        fechaPublicacion = this.fechaPublicacion,
-        estadoLibro = this.estado,
-        idPropietario = this.idPropietario
-    )
-
-    libro.id = this.id
-
-    return libro
-}
-
-fun Libro.toLibroEdicionDTO(): LibroEdicionDTO {
-    val libro = LibroEdicionDTO(
-        id = this.id,
-        titulo = this.titulo,
-        tipoLibro = this.tipoLibro,
-        descripcion = this.descripcion,
-        imagenUrl = this.portada,
-        genero = this.genero,
-        autor = this.autor,
-        cantidadPaginas = this.cantidadPaginas,
-        isbn13 = this.isbn13,
-        idioma = this.idioma,
-        editorial = this.editorial,
-        fechaPublicacion = this.fechaPublicacion,
-        estado = this.estadoLibro,
-        idPropietario = this.idPropietario
-    )
-    return libro
-}
-
-data class LibroDetalleDTO (
+data class LibroDetalleDTO(
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
-    val tipoLibro: TipoLibro,
+    val tipoLibro: String,
     val genero: Genero,
     val autor: String,
     val idioma: Idioma,
@@ -84,31 +40,25 @@ data class LibroDetalleDTO (
     val descripcion: String,
     val rating: Double,
     val cantidadResenias: Int,
-    val reseniasRecientes: List<Calificacion> //NIY
+    val reseniasRecientes: List<Calificacion>
 )
 
-
-fun Libro.toLibroDetalleDTO(): LibroDetalleDTO {
-    val libro = LibroDetalleDTO(
-        id = this.id,
-        titulo = this.titulo,
-        tipoLibro = this.tipoLibro,
-        descripcion = this.descripcion,
-        imagenUrl = this.portada,
-        genero = this.genero,
-        autor = this.autor,
-        cantidadPaginas = this.cantidadPaginas,
-        isbn13 = this.isbn13,
-        idioma = this.idioma,
-        editorial = this.editorial,
-        fechaPublicacion = this.fechaPublicacion,
-        estado = this.estadoLibro,
-        rating = this.rating(),
-        cantidadResenias = this.cantidadResenias(),
-        reseniasRecientes = this.ultimasResenias()
-    )
-    return libro
-}
+data class LibroHomeUsuarioDTO(
+    val id: Int,
+    val imagenUrl: String,
+    val titulo: String,
+    val tipoLibro: String,
+    val genero: Genero,
+    val autor: String,
+    val idioma: Idioma,
+    val estado: EstadoLibro,
+    val editorial: String,
+    val fechaPublicacion: LocalDate,
+    val cantidadPaginas: Int,
+    val isbn13: Long,
+    val descripcion: String,
+    val rating: Double,
+)
 
 data class FiltrosDeLibrosDTO(
     val genero: Genero?,
@@ -118,7 +68,7 @@ data class FiltrosDeLibrosDTO(
     val fechaHasta: LocalDate?,
     val isbn13: Long?,
     val usuarioPrestador: Usuario?,
-    val search : String?
+    val search: String?
 )
 
 data class LibroUsuarioPerfilDTO(

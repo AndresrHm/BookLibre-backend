@@ -4,7 +4,7 @@ import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
 import java.time.LocalDate
 
-val MAX_CARACTERES_DESCRIPCION = 500
+const val MAX_CARACTERES_DESCRIPCION = 500
 
 class Libro(
     var titulo: String,
@@ -21,10 +21,11 @@ class Libro(
     var estadoLibro: EstadoLibro,
     val idPropietario: Int
 ) : Identificable {
-    override var id: Int = 0
+    override var id: Int = -1
     val fechaAgregado = LocalDate.now()
-    private val calificaciones = mutableListOf<Calificacion>()
     var cantidadReservas = 0
+    var cantidadResenias = 0
+    var rating: Double = 0.0
 
     fun init() {
         verficarTitulo()
@@ -41,32 +42,15 @@ class Libro(
         cantidadReservas += 1
     }
 
-    fun calificar(calificacion: Calificacion) {
-        val index = calificaciones.indexOfFirst {
-            it.usuarioID == calificacion.usuarioID
-        }
-
-        if (index != -1) {
-            calificaciones[index] = calificacion
-        } else {
-            calificaciones.add(calificacion)
-        }
-    }
-
-    fun obtenerCalificaciones(): List<Calificacion> {
-        return this.calificaciones.toList()
-    }
-
-    //Para página de detalle
+    // Para página de detalle
     fun rating(): Double {
-        return 1.0; //TODO()
+        return rating
     }
 
-    fun ultimasResenias(): List<Calificacion> {
-        return calificaciones // Falta decidir el criterio de muestra de reseñas (recientes, más altas, etc.)
+    fun actualizarRating(nuevoRating: Double) {
+        cantidadResenias += 1
+        rating = nuevoRating
     }
-
-    fun cantidadResenias(): Int = calificaciones.size
 
     private fun verficarTitulo() {
         if (titulo.isBlank()) {
