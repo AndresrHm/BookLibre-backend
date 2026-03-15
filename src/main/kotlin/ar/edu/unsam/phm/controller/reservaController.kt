@@ -19,8 +19,9 @@ class ReservaController(val reservaService: ReservaService) {
         @PathVariable id: Int,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
+        @RequestParam string: String?,
     ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservasRealizadas(id, page, size)
+        val result = reservaService.getReservasRealizadas(id, page, size, string)
 
         return PageResponse(
             content = result.content.map { it -> ReservaMapper.toDTO(it, id) },
@@ -36,8 +37,9 @@ class ReservaController(val reservaService: ReservaService) {
         @PathVariable id: Int,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
-    ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservasRecibidas(id, page, size)
+        @RequestParam string: String?,
+        ): PageResponse<ReservaDTO> {
+        val result = reservaService.getReservasRecibidas(id, page, size, string)
 
         return PageResponse(
             content = result.content.map { it -> ReservaMapper.toDTO(it, id) },
