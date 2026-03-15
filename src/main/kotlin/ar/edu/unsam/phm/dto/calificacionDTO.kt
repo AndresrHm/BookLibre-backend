@@ -2,22 +2,21 @@ package ar.edu.unsam.phm.dto
 
 import ar.edu.unsam.phm.BusinessException
 import java.time.LocalDate
-
-data class CalificacionDTO(
-    val libroID: Int,
-    val usuarioID: Int,
+// TODO: crear un calificacionDTO para el POST, asi recibo lo que mando desde el front
+data class CrearCalificacionDTO(
+    val libroId: Int,
+    val usuarioId: Int,
     val nombreUsuario: String,
-    val imagenUsuario: String = "",
+    val imagenUsuario: String = " ",
     val comentario: String,
     val puntuacion: Double,
-    val fecha: LocalDate,
 ) {
     init {
-        if (libroID <= 0) {
+        if (libroId <= 0) {
             throw BusinessException("libroID inválido")
         }
 
-        if (usuarioID <= 0) {
+        if (usuarioId <= 0) {
             throw BusinessException("usuarioID inválido")
         }
 
@@ -35,10 +34,6 @@ data class CalificacionDTO(
 
         if (puntuacion !in 0.0..5.0) {
             throw BusinessException("puntuacion debe estar entre 0.0 y 5.0")
-        }
-
-        if (fecha.isAfter(LocalDate.now())) {
-            throw BusinessException("fecha inválida")
         }
     }
 }

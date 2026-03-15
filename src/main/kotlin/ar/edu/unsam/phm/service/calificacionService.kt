@@ -22,6 +22,8 @@ class CalificacionService(
         libroID: Int,
         calificacion: Calificacion
     ) {
+        if (usuarioID != calificacion.usuarioID) throw BusinessException("El usuario no puede calificar este libro.")
+
         libroRepository.getById(libroID) ?: throw NotFoundException("No existe un libro con el id $libroID.")
 
         val reserva = reservaRepository.obtenerUltimaReserva(usuarioID, libroID) ?: throw NotFoundException("El usuario no puede calificar este libro.")

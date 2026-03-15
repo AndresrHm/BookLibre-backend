@@ -21,6 +21,7 @@ object ReservaMapper {
 
         return ReservaDTO(
             reservaId = obj.id,
+            libroId = obj.libro.id,  // para poder calificarlo fácilmente
             titulo = obj.libro.titulo,
             autor = obj.libro.autor,
             imagenUrl = obj.libro.portada,

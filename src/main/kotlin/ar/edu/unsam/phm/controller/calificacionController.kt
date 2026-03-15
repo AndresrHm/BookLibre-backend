@@ -2,9 +2,9 @@ package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.dto.CalificacionDTO
+import ar.edu.unsam.phm.dto.CrearCalificacionDTO
 import ar.edu.unsam.phm.dto.OrdenCalificacion
-import ar.edu.unsam.phm.mapper.CalificacionMapper
+import ar.edu.unsam.phm.mapper.CrearCalificacionMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,22 +18,23 @@ import org.springframework.web.bind.annotation.RestController
 @CrossOrigin("*")
 class CalificacionController(val calificacionService: CalificacionService) {
 
-    @PostMapping("/libro/{id}/calificar")
+    @PostMapping("/libros/{libroId}/calificaciones")
     fun calificarLibro(
-        @PathVariable("id") libroID: Int,
-        @RequestParam usuarioID: Int, // En el futuro esto vuela
-        @RequestBody calificacionDTO: CalificacionDTO
+        @PathVariable libroId: Int,
+        @RequestParam usuarioId: Int,
+        @RequestBody crearCalificacionDTO: CrearCalificacionDTO
     ) {
-        return calificacionService.calificarLibro(usuarioID, libroID, CalificacionMapper.toDomain(calificacionDTO))
+        println(crearCalificacionDTO)
+        return calificacionService.calificarLibro(usuarioId, libroId, CrearCalificacionMapper.toDomain(crearCalificacionDTO))
     }
 
-    @GetMapping("libro/{id}/calificaciones")
+    @GetMapping(    "libros/{libroId}/calificaciones")
     fun calificacionesLibro(
-        @PathVariable("id") libroID: Int,
+        @PathVariable libroId: Int,
         @RequestParam page: Int,
-        @RequestParam size: Int = 6,
+        @RequestParam size: Int = 2,
         @RequestParam orden: OrdenCalificacion = OrdenCalificacion.DATE_DESC,
     ): PageResponse<Calificacion> {
-        return calificacionService.obtenerCalificaciones(libroID, orden, page, size)
+        return calificacionService.obtenerCalificaciones(libroId, orden, page, size)
     }
 }
