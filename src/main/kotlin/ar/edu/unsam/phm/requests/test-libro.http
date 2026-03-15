@@ -32,9 +32,7 @@ Content-Type: application/json
   "id": 1,
   "titulo": "RayuelaRecontraEditada",
   "autor": "Julio Cortázar",
-  "tipoLibro": {
-    "tipoLibro": "conDedicatoria"
-  },
+  "tipoLibro": "conDedicatoria",
   "cantidadPaginas": 600,
   "imagenUrl": "http://imagen.com/tapa.jpg",
   "genero": "AUTOAYUDA",
