@@ -3,8 +3,9 @@ package ar.edu.unsam.phm.controller
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.toLibroDetalleDTO
-import ar.edu.unsam.phm.dto.toLibroEdicionDTO
+import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
+import ar.edu.unsam.phm.mapper.LibroMapper
+import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,23 +17,26 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
-class LibroController(val libroService: LibroService) {
+class LibroController(val libroService: LibroService, val libroMapper: LibroMapper, val calificacionService: CalificacionService) {
     @PostMapping("libro/crear")
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
-        val nuevoLibro = libroService.crearLibro(libro)
-        return nuevoLibro.toLibroEdicionDTO()
+        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+        val nuevoLibro = libroService.crearLibro(libroConvertido)
+        return this.libroMapper.libroToLibroEdicionDTO(nuevoLibro)
     }
 
     @GetMapping("libro/editar/{idLibro}/{idUsuario}") //Debería poder hacerse sin idLibro
     fun obtenerLibroParaEdicion(@PathVariable idLibro: Int, @PathVariable idUsuario: Int): LibroEdicionDTO {
         val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro, idUsuario)
-        return libroParaEdicion.toLibroEdicionDTO()
+        return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
+
 
     @GetMapping("libro/detalle/{idLibro}")
     fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
         val libroDetalle = libroService.obtenerLibroDetalle(idLibro)
-        return libroDetalle.toLibroDetalleDTO()
+        val ultimasCalificaciones = calificacionService.obtenerUltimasCalificaciones(idLibro)
+        return libroMapper.libroToLibroDetalleDTO(libroDetalle, ultimasCalificaciones)
     }
 
     @PutMapping("libro/editar/{idLibro}/{idUsuario}")//Debería poder hacerse sin idLibro
@@ -41,37 +45,18 @@ class LibroController(val libroService: LibroService) {
         @PathVariable idLibro: Int,
         @PathVariable idUsuario: Int
     ): LibroEdicionDTO {
-        val libroParaEdicion = libroService.editarLibro(libro, idLibro, idUsuario)
-        return libroParaEdicion.toLibroEdicionDTO()
+        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+        val libroParaEdicion = libroService.editarLibro(libroConvertido, idLibro, idUsuario)
+        return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
 
-    @PostMapping("/homePage/user/{id}/filter")
-    fun getLibrosFilter(@RequestBody filtros: FiltrosDeLibrosDTO, @PathVariable id: Int): List<LibroDetalleDTO> {
+    @PostMapping("/homePage/user/{idLibro}/filter")
+    fun getLibrosFilter(@RequestBody filtros: FiltrosDeLibrosDTO, @PathVariable idLibro: Int): List<LibroHomeUsuarioDTO> {
         // TODO: Utilizar mappers para pasa de DTO's a objetos de dominio y viceversa
         // Obtener filtros
         // val filtros = filtrosMapper.DTOsAObjeto(filtrosDtos)
 
         val librosFiltrados = libroService.getLibrosPorFiltros(filtros)
-        return librosFiltrados.map { it.toLibroDetalleDTO() }
+        return librosFiltrados.map { libroMapper.libroToLibroHomeUsuarioDTO(it) }
     }
-
-//    @PostMapping("client/register")
-//    fun register(@RequestBody request: ClientRegisterRequest): ClientLoginResponse {
-//        return clientService.register(request)
-//    }
-//
-//    @GetMapping("client/{clientID}")
-//    fun getUser(@PathVariable clientID: Int): ClientInfoDTO {
-//        return clientService.getUser(clientID).toClientInfoDTO()
-//    }
-//
-//    @PutMapping("client/{clientID}")
-//    fun updateUser(@PathVariable clientID: Int, @RequestBody updateRequest: ClientInfoDTO): ClientInfoDTO {
-//        return clientService.updateUser(clientID, updateRequest).toClientInfoDTO()
-//    }
-//
-//    @GetMapping("client/availableIngredients/{clientID}")
-//    fun getClientAvailableIngredients(@PathVariable clientID: Int): List<ClientIngredientDTO> {
-//        return clientService.getAvailableIngredients(clientID).map { it.toClientIngredientDTO() }
-//    }
 }

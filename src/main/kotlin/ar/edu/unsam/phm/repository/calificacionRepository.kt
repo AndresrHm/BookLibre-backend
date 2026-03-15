@@ -26,6 +26,12 @@ class CalificacionRepository : Repositorio<Calificacion>() {
         return paginate(page, size, calificacionesOrdenadas)
     }
 
+    fun obtenerUltimasCalificaciones(libro: Libro): List<Calificacion> {
+        val calificaciones = getElementos().filter { it.libroID == libro.id }.sortedBy { it.fecha }.take(2)
+
+        return calificaciones
+    }
+
     fun agregarCalificacion(calificacion: Calificacion) {
         val existente = getElementos().find {
             it.libroID == calificacion.libroID && it.usuarioID == calificacion.usuarioID

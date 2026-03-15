@@ -11,7 +11,6 @@ import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
 import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.toLibro
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Service
 
@@ -20,8 +19,8 @@ class LibroService(
     var repositorioLibro: LibroRepository,
     var serviceReservas: ReservaService
 ) {
-    fun crearLibro(libro: LibroEdicionDTO): Libro {
-        val nuevoLibro = libro.toLibro()
+    fun crearLibro(libro: Libro): Libro {
+        val nuevoLibro = libro
         nuevoLibro.init()
 
         repositorioLibro.create(nuevoLibro)
@@ -41,8 +40,8 @@ class LibroService(
         return libroParaEdicion
     }
 
-    fun editarLibro(libroParaEdicion: LibroEdicionDTO, idLibro: Int, idUsuario: Int): Libro {
-        val libroEditado = libroParaEdicion.toLibro()
+    fun editarLibro(libroParaEdicion: Libro, idLibro: Int, idUsuario: Int): Libro {
+        val libroEditado = libroParaEdicion
 
         libroEditado.init()
 

@@ -26,6 +26,7 @@ class Libro(
     override var id: Int = -1
     val fechaAgregado = LocalDate.now()
     var cantidadReservas = 0
+    var cantidadResenias = 0
     var rating: Double = 0.0
     private val DATE_PATTERN = "dd/MM/yyyy"
     private val formatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
@@ -51,6 +52,7 @@ class Libro(
     }
 
     fun actualizarRating(nuevoRating: Double) {
+        cantidadResenias += 1
         rating = nuevoRating
     }
 
