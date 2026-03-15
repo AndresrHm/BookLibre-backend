@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.dto
 
 import ar.edu.unsam.phm.BusinessException
 import java.time.LocalDate
-// TODO: crear un calificacionDTO para el POST, asi recibo lo que mando desde el front
 data class CrearCalificacionDTO(
     val libroId: Int,
     val usuarioId: Int,
