@@ -21,7 +21,7 @@ data class Calificacion(
         requireBusiness(libroID > 0, "libroID debe ser mayor a cero")
         requireBusiness(nombreUsuario.isNotBlank(), "nombreUsuario no puede estar vacío")
         requireBusiness(puntuacion in 0.0..5.0, "puntuacion debe estar entre 0.0 y 5.0")
-        requireBusiness(comentario.isNotBlank(), "comentario no puede estar vacío")
-        requireBusiness(!fecha.isAfter(LocalDate.now()), "fecha no puede ser futura")
+        requireBusiness(comentario.isNotBlank(), "comentario no debe estar vacío")
+        requireBusiness(comentario.length <= 500, "comentario no debe superar los 500 caracteres")
     }
 }

@@ -16,7 +16,7 @@ data class CrearCalificacionDTO(
         requireBusiness(usuarioId > 0, "usuarioID inválido")
         requireBusiness(nombreUsuario.isNotBlank(), "nombreUsuario no puede estar vacío")
         requireBusiness(comentario.isNotBlank(), "comentario no puede estar vacío")
-        requireBusiness(comentario.length < 500, "comentario no debe superar los 500 caracteres")
+        requireBusiness(comentario.length <= 500, "comentario no debe superar los 500 caracteres")
         requireBusiness(puntuacion in 0.0..5.0, "puntuacion debe estar entre 0.0 y 5.0")
     }
 }
