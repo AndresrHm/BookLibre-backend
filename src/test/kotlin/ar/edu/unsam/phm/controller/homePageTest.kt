@@ -178,7 +178,7 @@ class EspecTest : DescribeSpec({
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
-            librosFiltrados shouldBe listOf(libro2, libro4, libro5)
+            librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
 
 
         }
@@ -220,7 +220,7 @@ class EspecTest : DescribeSpec({
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
-            librosFiltrados shouldBe listOf(libro2)
+            librosFiltrados.content shouldBe listOf(libro2)
         }
         it ("devuelve libros por nombre") {
             repositoryLibros.create(libro1)
@@ -242,7 +242,7 @@ class EspecTest : DescribeSpec({
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
-            librosFiltrados shouldBe listOf(libro2, libro6)
+            librosFiltrados.content shouldBe listOf(libro2, libro6)
         }
 
 

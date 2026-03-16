@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -50,13 +52,20 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
         return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
 
-    @PostMapping("/homePage/user/{idLibro}/filter")
-    fun getLibrosFilter(@RequestBody filtros: FiltrosDeLibrosDTO, @PathVariable idLibro: Int): List<LibroHomeUsuarioDTO> {
-        // TODO: Utilizar mappers para pasa de DTO's a objetos de dominio y viceversa
-        // Obtener filtros
-        // val filtros = filtrosMapper.DTOsAObjeto(filtrosDtos)
+    @PostMapping("/homePage/user/filter")
+    fun getLibrosFilter(
+        @RequestBody filtros: FiltrosDeLibrosDTO,
+        @RequestParam page: Int = 0,
+        @RequestParam size: Int = 6
+        ): PageResponse<LibroHomeUsuarioDTO> {
+        val pageResult = libroService.getLibrosPorFiltros(filtros, page, size)
 
-        val librosFiltrados = libroService.getLibrosPorFiltros(filtros)
-        return librosFiltrados.map { libroMapper.libroToLibroHomeUsuarioDTO(it) }
+        return PageResponse(
+            content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it) },
+            page = pageResult.page,
+            size = pageResult.size,
+            totalElements = pageResult.totalElements,
+            totalPages = pageResult.totalPages
+        )
     }
 }
