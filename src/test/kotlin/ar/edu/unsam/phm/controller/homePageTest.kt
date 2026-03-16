@@ -28,12 +28,9 @@ class EspecTest : DescribeSpec({
 
     describe ("Test de Busqueda de libros Basico"){
         val repositoryReservas = ReservaRepository()
-        val repositoryLibros = LibroRepository()
+        val repositoryLibros = LibroRepository(repositoryReservas)
         val repositoryUsuario = UsuarioRepository()
         val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario)
-        val serviceLibros = LibroService(repositoryLibros, serviceReservas)
-        val repositoryLibros = LibroRepository(repositoryReservas)
-        val serviceReservas = ReservaService(repositoryReservas)
         val serviceLibros = LibroService(repositoryLibros, serviceReservas, LibroMapper(repositoryLibros))
 
         val usuario1 = Usuario(
