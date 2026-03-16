@@ -10,14 +10,15 @@ import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 
 @Service
-class UsuarioService (
-    val usuarioRepositorio: UsuarioRepository
-){
+class UsuarioService(
+    val usuarioRepositorio: UsuarioRepository,
+    val usuarioMapper: UsuarioMapper
+) {
     fun usuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario de id <$id>")
 
     fun usuarioHeaderInfo(id: Int): UsuarioHeaderDTO {
         val usuario = usuarioById(id)
-        return UsuarioMapper.toUsuarioHeaderDTO(usuario)
+        return usuarioMapper.toUsuarioHeaderDTO(usuario)
     }
 
     fun updateUsuario(datosUsuario: UsuarioEdicionDTO, idUsuario: Int): Usuario {
@@ -29,7 +30,6 @@ class UsuarioService (
 
     fun usuarioPerfil(id: Int): UsarioPerfilDTO {
         val usuario = usuarioById(id)
-        return UsuarioMapper.toUsuarioPerfilDTO(usuario)
+        return usuarioMapper.toUsuarioPerfilDTO(usuario)
     }
 }
-
