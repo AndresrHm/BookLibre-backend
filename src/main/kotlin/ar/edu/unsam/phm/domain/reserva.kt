@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.repository.Identificable
-import ar.edu.unsam.phm.utils.daysBetween
+import ar.edu.unsam.phm.utils.diasEntre
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -15,7 +15,7 @@ class Reserva(
     override var id: Int = -1,
 ) : Identificable {
     fun darKarma(): Int {
-        return daysBetween(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
+        return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
     }
 
     fun estado(hoy: LocalDate = LocalDate.now()): EstadoReserva {
