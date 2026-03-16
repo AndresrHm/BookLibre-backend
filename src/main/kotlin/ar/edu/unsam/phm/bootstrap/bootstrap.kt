@@ -153,6 +153,9 @@ class BootstrapData(
             Reserva(libros[5], u1, u2, hoy.minusDays(1), hoy.plusDays(15)),
             Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
             Reserva(libros[7], u1, u2, hoy.minusDays(6), hoy.plusDays(3)),
+            Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
+            Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
+            Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
 
             // -------- u2 presta a u1 --------
 

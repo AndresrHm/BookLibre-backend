@@ -11,12 +11,11 @@ import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
 import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
 import ar.edu.unsam.phm.dto.DireccionOrden
+import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
-import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-import ar.edu.unsam.phm.dto.toLibro
-import ar.edu.unsam.phm.mapper.toLibroPerfilUsuarioDTO
+import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -24,7 +23,8 @@ import java.time.LocalDate
 @Service
 class LibroService(
     var repositorioLibro: LibroRepository,
-    var serviceReservas: ReservaService
+    var serviceReservas: ReservaService,
+    var libroMapper: LibroMapper
 ) {
     fun crearLibro(libro: Libro): Libro {
         val nuevoLibro = libro
@@ -96,13 +96,13 @@ class LibroService(
         }
 
 
-    /////agrega aqui lo necesario para filtrar en perfilUsuario sin tocar lo anterior
     fun obtenerLibrosDeUsuario(
         usuarioId: Int,
         page: Int,
         size: Int,
         orden: OrdenLibroPerfil,
-        direccion: DireccionOrden
+        direccion: DireccionOrden,
+        filtro: FiltroDisponibilidadPerfil
     ): PageResponse<LibroUsuarioPerfilDTO> {
         require(page >= 0) { "page debe ser mayor o igual a 0" }
         require(size > 0) { "size debe ser mayor a 0" }
@@ -118,13 +118,14 @@ class LibroService(
             size = size,
             orden = orden,
             direccion = direccion,
+            filtro = filtro,
             librosPrestadosIds = idsLibrosPrestados
         )
 
         val totalPaginas = if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
 
         return PageResponse(
-            content = resultadoPagina.content.map { it.toLibroPerfilUsuarioDTO() },
+            content = resultadoPagina.content.map { libroMapper.libroToLibroPerfilUsuarioDTO(it) },
             page = page,
             size = size,
             totalElements = resultadoPagina.totalElements,

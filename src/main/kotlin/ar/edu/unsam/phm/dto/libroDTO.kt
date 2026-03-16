@@ -77,7 +77,8 @@ data class LibroUsuarioPerfilDTO(
     val autor: String,
     val portada: String,
     val genero: Genero,
-    val fechaAgregado: String
+    val fechaAgregado: String,
+    val disponibilidad: String
 )
 
 enum class OrdenLibroPerfil {
@@ -91,3 +92,8 @@ enum class DireccionOrden {
     DESCENDENTE
 }
 
+enum class FiltroDisponibilidadPerfil {
+    TODOS,
+    DISPONIBLES,
+    PRESTADOS
+}

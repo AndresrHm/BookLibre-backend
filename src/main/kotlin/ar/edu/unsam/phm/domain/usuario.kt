@@ -38,6 +38,7 @@ class Usuario (
     }
 
     fun getFechaCreacionAsString() : String = fechaDeCreacion.formatear()
+    fun getCantidadDeLibrosLeidos() : Int = listaDeLibrosPedidos.size
 
 }
 

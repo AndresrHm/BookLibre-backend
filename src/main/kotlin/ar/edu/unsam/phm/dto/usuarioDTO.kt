@@ -29,6 +29,8 @@ data class UsarioPerfilDTO(
     val biblioKarma: Int,
     val celular: String,
     val email: String,
-    val fechaCreacion: String
+    val fechaCreacion: String,
+    val cantidadDePrestamos: Int,
+    val cantidadDeLibrosLeidos: Int
 )
 

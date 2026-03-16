@@ -37,4 +37,10 @@ open class ReservaRepository : Repositorio<Reserva>() {
             .filter { it.usuarioLector.id == usuarioID && it.libro.id == libroID }
             .maxByOrNull { it.fechaDevolucion }
     }
+
+    // cantidad de reservas de un dueño
+    fun obtenerCantidadDeReservasDeAlgunDuenio(usuarioID: Int) : Int {
+        val listaDeReservasFiltradas = getElementos().filter { it.usuarioPrestador.id == usuarioID }
+        return listaDeReservasFiltradas.size
+    }
 }
