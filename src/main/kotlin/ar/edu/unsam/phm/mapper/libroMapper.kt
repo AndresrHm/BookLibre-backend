@@ -2,16 +2,20 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.domain.coleccionable
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.conDedicatoria
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
+import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Component
 
 @Component
-class LibroMapper {
+class LibroMapper(
+    private val libroRepository: LibroRepository
+) {
     fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
@@ -34,6 +38,15 @@ class LibroMapper {
         return libro
     }
 
+    fun libroToLibroPerfilUsuarioDTO(libro: Libro): LibroUsuarioPerfilDTO = LibroUsuarioPerfilDTO(
+        id = libro.id,
+        titulo = libro.titulo,
+        portada = libro.portada,
+        genero = libro.genero,
+        autor = libro.autor,
+        fechaAgregado = libro.getFechaAsString(),
+        disponibilidad = libroRepository.verDisponibilidadDelLibro(libro.id)
+    )
     fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
             id = libro.id,

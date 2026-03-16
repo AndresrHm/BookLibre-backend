@@ -1,26 +1,30 @@
 package ar.edu.unsam.phm.service
 
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class ReservaService(
-    var reservaRepository: ReservaRepository
+    var reservaRepository: ReservaRepository,
+    val usuarioRepository: UsuarioRepository,
 ) {
     fun getReservasRealizadas(
         userID: Int,
         page: Int,
-        size: Int
+        size: Int,
+        string: String?,
     ): PageResponse<Reserva> {
 
-        // validar que exista usuario
+        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario no existe.")
 
-        val pageResponse = reservaRepository.findByLectorID(userID, page, size)
+        val pageResponse = reservaRepository.findByLectorID(userID, page, size, string)
 
         return PageResponse(
             content = pageResponse.content,
@@ -34,10 +38,13 @@ class ReservaService(
     fun getReservasRecibidas(
         userID: Int,
         page: Int,
-        size: Int
+        size: Int,
+        string: String?,
     ): PageResponse<Reserva> {
 
-        val pageResponse = reservaRepository.findByPrestadorID(userID, page, size)
+        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario no existe.")
+
+        val pageResponse = reservaRepository.findByPrestadorID(userID, page, size, string)
 
         return PageResponse(
             content = pageResponse.content,
