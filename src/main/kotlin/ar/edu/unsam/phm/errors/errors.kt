@@ -8,3 +8,8 @@ class BusinessException(msg: String) : RuntimeException(msg)
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class NotFoundException(msg: String) : RuntimeException(msg)
+
+// Podemos usar esta función en los init para evitar tanto if(..) {..}
+fun requireBusiness(condition: Boolean, message: String) {
+    if (!condition) throw BusinessException(message)
+}
