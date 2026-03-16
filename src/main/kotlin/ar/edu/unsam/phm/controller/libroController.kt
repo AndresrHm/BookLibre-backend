@@ -63,6 +63,7 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
         @PathVariable idUsuario: Int
     ): LibroEdicionDTO {
         val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+        libroConvertido.init()
         val libroParaEdicion = libroService.editarLibro(libroConvertido, idLibro, idUsuario)
         return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }

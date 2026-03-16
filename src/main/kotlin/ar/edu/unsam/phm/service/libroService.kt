@@ -1,4 +1,5 @@
 package ar.edu.unsam.phm.service
+
 import ar.edu.unsam.phm.domain.BusquedaPorNombreFiltro
 import ar.edu.unsam.phm.domain.EntreFechasFiltro
 import ar.edu.unsam.phm.domain.FiltroDeLibro
@@ -50,8 +51,6 @@ class LibroService(
     fun editarLibro(libroParaEdicion: Libro, idLibro: Int, idUsuario: Int): Libro {
         val libroEditado = libroParaEdicion
 
-        libroEditado.init()
-
         val libroOriginal = repositorioLibro.getById(libroEditado.id)
         if (libroOriginal?.idPropietario != idUsuario) {
             throw BusinessException("El libro con id $idLibro no pertenece al usuario $idUsuario")
@@ -68,6 +67,7 @@ class LibroService(
 
         return libroDetalle
     }
+
     /*
     fun getLibrosDisponiblesPorFecha(desde: LocalDate, hasta: LocalDate): List<Libro> {
         val librosReservados= serviceReservas.getLibrosReservadosEntreFechas(desde, hasta)
@@ -87,6 +87,7 @@ class LibroService(
         ISBN13Filtro(repositorioLibro),
         UsuarioPrestadorFiltro(repositorioLibro, serviceReservas)
     )
+
     fun getLibrosPorFiltros(filtros: FiltrosDeLibrosDTO): List<Libro> =
         filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
             if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
@@ -119,7 +120,8 @@ class LibroService(
             librosPrestadosIds = idsLibrosPrestados
         )
 
-        val totalPaginas = if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
+        val totalPaginas =
+            if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
 
         return PageResponse(
             content = resultadoPagina.content.map { libroMapper.libroToLibroPerfilUsuarioDTO(it) },
