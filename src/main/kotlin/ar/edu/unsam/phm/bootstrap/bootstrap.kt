@@ -8,6 +8,8 @@ import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.lectorPublicador
+import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -20,7 +22,8 @@ import java.time.LocalDate
 class BootstrapData(
     val reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,
-    val libroRepository: LibroRepository
+    val libroRepository: LibroRepository,
+    val calificacionRepository: CalificacionRepository
 ) {
 
     @Bean
@@ -30,6 +33,7 @@ class BootstrapData(
         val libros = crearLibros()
 
         crearReservas(usuarios, libros)
+        crearCalificaciones()
     }
 
     // ---------------- USERS ----------------
@@ -153,9 +157,6 @@ class BootstrapData(
             Reserva(libros[5], u1, u2, hoy.minusDays(1), hoy.plusDays(15)),
             Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
             Reserva(libros[7], u1, u2, hoy.minusDays(6), hoy.plusDays(3)),
-            Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
-            Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
-            Reserva(libros[6], u1, u2, hoy.minusDays(9), hoy.minusDays(3)),
 
             // -------- u2 presta a u1 --------
 
@@ -179,5 +180,20 @@ class BootstrapData(
         }
     }
 
+    // ---------------- CALIFICACIONES ----------------
 
+    private fun crearCalificaciones() {
+        val calificacion = Calificacion(
+            usuarioID = 1,
+            libroID = 15, // "Don Quijote de la Mancha"
+            nombreUsuario = "Juan Pájaro",
+            imagenUsuario = "https://i.pinimg.com/originals/da/93/d1/da93d1478861be2fa3e2567b435543af.png",
+            comentario = "Muy bueno, me gustó",
+            puntuacion = 5.0,
+            fecha = LocalDate.now()
+        )
+
+        calificacionRepository.agregarCalificacion(calificacion)
+        libroRepository.actualizarRating(15, calificacionRepository.obtenerPromedio(15))
+    }
 }

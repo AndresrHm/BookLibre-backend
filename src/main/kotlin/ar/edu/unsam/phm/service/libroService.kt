@@ -64,10 +64,7 @@ class LibroService(
 
     fun obtenerLibroDetalle(idLibro: Int): Libro {
         val libroDetalle = repositorioLibro.getById(idLibro)
-
-        if (libroDetalle == null) {
-            throw NotFoundException("No existe un libro con el id $idLibro")
-        }
+            ?: throw NotFoundException("No existe un libro con el id $idLibro")
 
         return libroDetalle
     }
