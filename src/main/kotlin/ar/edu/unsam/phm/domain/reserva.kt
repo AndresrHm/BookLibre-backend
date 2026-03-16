@@ -17,11 +17,7 @@ class Reserva(
     override var id: Int = -1
 
     init {
-        requireBusiness(fechaDevolucion.isAfter(fechaDevolucion), "fechaDevolucion debe ser posterior a fechaRecogida")
-    }
-
-    fun darKarma(): Int {
-        return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
+        requireBusiness(fechaDevolucion.isAfter(fechaRecogida), "fechaDevolucion debe ser posterior a fechaRecogida")
     }
 
     fun estado(hoy: LocalDate = LocalDate.now()): EstadoReserva {
