@@ -1,11 +1,15 @@
 package ar.edu.unsam.phm.mapper
 
-
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
+import ar.edu.unsam.phm.repository.ReservaRepository
+import org.springframework.stereotype.Component
 
-object UsuarioMapper {
+@Component
+class UsuarioMapper(
+    private val reservaRepository: ReservaRepository
+) {
     fun toUsuarioPerfilDTO(usuario: Usuario): UsarioPerfilDTO = UsarioPerfilDTO(
         id = usuario.id,
         nombre = usuario.nombre,
@@ -14,15 +18,17 @@ object UsuarioMapper {
         ciudad = usuario.ciudad,
         tipoUsuario = usuario.tipoUsuario,
         urlImagen = usuario.urlImagen,
-        libros = usuario.listaDeLibrosParaPrestar.map { libroParaPrestar ->
-            val libroPerfil = libroParaPrestar.toLibroPerfilUsuarioDTO()
-            libroPerfil
-        }.toMutableList()
+        email = usuario.email,
+        celular = usuario.celular,
+        biblioKarma = usuario.biblioKarma,
+        fechaCreacion = usuario.getFechaCreacionAsString(),
+        cantidadDePrestamos = reservaRepository.obtenerCantidadDeReservasDeAlgunDuenio(usuario.id),
+        cantidadDeLibrosLeidos = usuario.getCantidadDeLibrosLeidos()
     )
 
     fun toUsuarioHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(
         id = usuario.id,
         urlImagen = usuario.urlImagen,
-        karma = usuario.biblioKarma
+        biblioKarma = usuario.biblioKarma
     )
 }

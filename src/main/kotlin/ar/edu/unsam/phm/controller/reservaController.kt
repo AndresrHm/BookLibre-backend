@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RestController
 @CrossOrigin("*")
 class ReservaController(val reservaService: ReservaService) {
 
-    @GetMapping("usuario/{id}/reservas/realizadas")
+    @GetMapping("usuarios/{id}/reservas/realizadas")
     fun getReservasRealizadas(
         @PathVariable id: Int,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
+        @RequestParam string: String?,
     ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservasRealizadas(id, page, size)
+        val result = reservaService.getReservasRealizadas(id, page, size, string)
 
         return PageResponse(
             content = result.content.map { it -> ReservaMapper.toDTO(it, id) },
@@ -31,13 +32,14 @@ class ReservaController(val reservaService: ReservaService) {
         )
     }
 
-    @GetMapping("usuario/{id}/reservas/recibidas")
+    @GetMapping("usuarios/{id}/reservas/recibidas")
     fun getReservasRecibidas(
         @PathVariable id: Int,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
-    ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservasRecibidas(id, page, size)
+        @RequestParam string: String?,
+        ): PageResponse<ReservaDTO> {
+        val result = reservaService.getReservasRecibidas(id, page, size, string)
 
         return PageResponse(
             content = result.content.map { it -> ReservaMapper.toDTO(it, id) },
