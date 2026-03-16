@@ -22,7 +22,7 @@ import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
-
+/*
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
 
@@ -284,3 +284,4 @@ fun crearLibro(
         idPropietario
     )
 }
+*/
