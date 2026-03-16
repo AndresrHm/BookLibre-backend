@@ -12,14 +12,13 @@ import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
 import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
-import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Service
 
 @Service
 class LibroService(
     var repositorioLibro: LibroRepository,
-    var serviceReservas: ReservaService
+    serviceReservas: ReservaService
 ) {
     fun crearLibro(libro: Libro): Libro {
         val nuevoLibro = libro
@@ -78,12 +77,12 @@ class LibroService(
         return repositorioLibro.allInstances().filter { it.cantidadPaginas in min..max }
     }*/
     private val filtrosAplicables: List<FiltroDeLibro> = listOf(
-        BusquedaPorNombreFiltro(repositorioLibro),
+        BusquedaPorNombreFiltro(),
         EntreFechasFiltro(serviceReservas),
-        GeneroFiltro(repositorioLibro),
-        RangoDePaginasFiltro(repositorioLibro),
-        ISBN13Filtro(repositorioLibro),
-        UsuarioPrestadorFiltro(repositorioLibro, serviceReservas)
+        GeneroFiltro(),
+        RangoDePaginasFiltro(),
+        ISBN13Filtro(),
+        UsuarioPrestadorFiltro(serviceReservas)
     )
 
     fun getLibrosPorFiltros(
