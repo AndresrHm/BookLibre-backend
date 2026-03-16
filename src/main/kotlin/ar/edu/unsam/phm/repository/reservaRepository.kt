@@ -14,9 +14,18 @@ open class ReservaRepository : Repositorio<Reserva>() {
         userID: Int,
         page: Int,
         size: Int,
+        string: String?,
     ): PageResult<Reserva> {
 
-        val filtered = getElementos().filter { it.usuarioLector.id == userID }
+        var filtered = getElementos().filter { it.usuarioLector.id == userID }
+
+        if (string != null) {
+            filtered = filtered.filter { r ->
+                r.libro.titulo.lowercase().contains(string.lowercase()) ||
+                r.libro.autor.lowercase().contains(string.lowercase())
+            }
+        }
+
         return paginate(page, size, filtered)
     }
 
@@ -25,9 +34,18 @@ open class ReservaRepository : Repositorio<Reserva>() {
         userID: Int,
         page: Int,
         size: Int,
+        string: String?,
     ): PageResult<Reserva> {
 
-        val filtered = getElementos().filter { it.usuarioPrestador.id == userID }
+        var filtered = getElementos().filter { it.usuarioPrestador.id == userID }
+
+        if (string != null) {
+            filtered = filtered.filter { r ->
+                r.libro.titulo.lowercase().contains(string.lowercase()) ||
+                        r.libro.autor.lowercase().contains(string.lowercase())
+            }
+        }
+
         return paginate(page, size, filtered)
     }
 
