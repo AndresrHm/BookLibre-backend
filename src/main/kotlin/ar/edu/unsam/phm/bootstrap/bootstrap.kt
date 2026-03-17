@@ -5,9 +5,9 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
-import ar.edu.unsam.phm.domain.lectorPublicador
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -46,7 +46,7 @@ class BootstrapData(
                 email = "juan@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
             ).apply { biblioKarma = 2000 },
 
@@ -58,7 +58,7 @@ class BootstrapData(
                 email = "ana@mail.com",
                 celular = "222222",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
             ).apply { biblioKarma = 4000 }
 
