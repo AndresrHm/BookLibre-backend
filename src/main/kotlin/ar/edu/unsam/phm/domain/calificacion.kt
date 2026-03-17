@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.domain
 
-import ar.edu.unsam.phm.BusinessException
-import ar.edu.unsam.phm.errors.requireBusiness
+import ar.edu.unsam.phm.requireBusiness
 import ar.edu.unsam.phm.repository.Identificable
 import java.time.LocalDate
 

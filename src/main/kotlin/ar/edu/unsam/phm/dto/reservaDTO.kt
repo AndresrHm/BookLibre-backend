@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.dto
 
 import java.time.LocalDate
 
-// No pongo validaciones porque es un DTO de salida
 data class ReservaDTO(
     val reservaId: Int,
     val libroId: Int,

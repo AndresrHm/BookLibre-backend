@@ -1,6 +1,6 @@
 package ar.edu.unsam.phm.domain
 
-import ar.edu.unsam.phm.errors.BusinessException
+import ar.edu.unsam.phm.BusinessException
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
