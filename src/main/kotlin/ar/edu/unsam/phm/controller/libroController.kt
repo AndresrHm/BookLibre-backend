@@ -71,12 +71,13 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
     fun getLibrosFilter(
         @RequestBody filtros: FiltrosDeLibrosDTO,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int = 6
+        @RequestParam size: Int = 6,
+        @RequestParam userId: Int
         ): PageResponse<LibroHomeUsuarioDTO> {
         val pageResult = libroService.getLibrosPorFiltros(filtros, page, size)
 
         return PageResponse(
-            content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it) },
+            content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it, libroService.bringKarma(it, userId)) },
             page = pageResult.page,
             size = pageResult.size,
             totalElements = pageResult.totalElements,
