@@ -82,11 +82,21 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
-        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
-        val reserva = usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
-
         if (fechaRecogida.isAfter(fechaDevolucion))
             throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
+
+        if (fechaRecogida <= LocalDate.now() || fechaDevolucion <= LocalDate.now())
+            throw BusinessException("No se puede realizar una reserva para una fecha anterior a la actual")
+
+        if (libro.id != usuarioPrestador.id)
+            throw BusinessException("El libro no pertenece al usuario prestador")
+
+        if (usuarioLector.id == libro.id)
+            throw BusinessException("Un usuario no puede reservar un libro que le pertenece")
+
+        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
+
+        val reserva = usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
 
         reservaRepository.create(reserva)
         usuarioRepository.update(usuarioLector)
