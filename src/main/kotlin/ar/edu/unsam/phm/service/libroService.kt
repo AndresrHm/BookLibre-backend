@@ -1,4 +1,5 @@
 package ar.edu.unsam.phm.service
+
 import ar.edu.unsam.phm.domain.BusquedaPorNombreFiltro
 import ar.edu.unsam.phm.domain.EntreFechasFiltro
 import ar.edu.unsam.phm.domain.FiltroDeLibro
@@ -10,6 +11,7 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
 import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
+import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
@@ -50,8 +52,6 @@ class LibroService(
     fun editarLibro(libroParaEdicion: Libro, idLibro: Int, idUsuario: Int): Libro {
         val libroEditado = libroParaEdicion
 
-        libroEditado.init()
-
         val libroOriginal = repositorioLibro.getById(libroEditado.id)
         if (libroOriginal?.idPropietario != idUsuario) {
             throw BusinessException("El libro con id $idLibro no pertenece al usuario $idUsuario")
@@ -68,6 +68,7 @@ class LibroService(
 
         return libroDetalle
     }
+
     /*
     fun getLibrosDisponiblesPorFecha(desde: LocalDate, hasta: LocalDate): List<Libro> {
         val librosReservados= serviceReservas.getLibrosReservadosEntreFechas(desde, hasta)
@@ -80,13 +81,40 @@ class LibroService(
         return repositorioLibro.allInstances().filter { it.cantidadPaginas in min..max }
     }*/
     private val filtrosAplicables: List<FiltroDeLibro> = listOf(
-        BusquedaPorNombreFiltro(repositorioLibro),
+        BusquedaPorNombreFiltro(),
         EntreFechasFiltro(serviceReservas),
-        GeneroFiltro(repositorioLibro),
-        RangoDePaginasFiltro(repositorioLibro),
-        ISBN13Filtro(repositorioLibro),
-        UsuarioPrestadorFiltro(repositorioLibro, serviceReservas)
+        GeneroFiltro(),
+        RangoDePaginasFiltro(),
+        ISBN13Filtro(),
+        UsuarioPrestadorFiltro(serviceReservas)
     )
+
+    fun getLibrosPorFiltros(
+        filtros: FiltrosDeLibrosDTO,
+        page: Int = 0,
+        size: Int = 6
+    ): PageResponse<Libro> {
+        require(page >= 0) { "page no puede ser negativo" }
+        require(size > 0) { "size debe ser mayor a 0" }
+
+        val librosFiltrados = filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
+            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+        }
+
+        val pageResult = paginate(page, size, librosFiltrados)
+        val totalPages = if (pageResult.totalElements == 0) 0 else (pageResult.totalElements + size - 1) / size
+
+        return PageResponse(
+            content = pageResult.content,
+            page = page,
+            size = size,
+            totalElements = pageResult.totalElements,
+            totalPages = totalPages
+        )
+    }
+//        filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
+//            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+//        }
     fun getLibrosPorFiltros(filtros: FiltrosDeLibrosDTO): List<Libro> =
         filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
             if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
@@ -119,7 +147,8 @@ class LibroService(
             librosPrestadosIds = idsLibrosPrestados
         )
 
-        val totalPaginas = if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
+        val totalPaginas =
+            if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
 
         return PageResponse(
             content = resultadoPagina.content.map { libroMapper.libroToLibroPerfilUsuarioDTO(it) },
