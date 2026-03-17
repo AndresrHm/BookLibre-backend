@@ -17,11 +17,6 @@ import kotlin.test.assertEquals
 @SpringBootTest
 @AutoConfigureMockMvc
 class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
-    @AnnotationSpec.BeforeEach
-    fun init() {
-        // todo
-    }
-
     // ----- Reservas Realizadas -----
     @Test
     fun `Un usuario puede obtener sus reservas realizadas correctamente (toMe)`() {
