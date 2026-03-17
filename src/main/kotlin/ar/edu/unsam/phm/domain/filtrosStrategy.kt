@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.service.ReservaService
-import ar.edu.unsam.phm.repository.LibroRepository
 
 
 interface FiltroDeLibro{
@@ -26,57 +25,52 @@ class EntreFechasFiltro(
     }
 }
 
-class GeneroFiltro(
-    val repositorioLibro: LibroRepository
-): FiltroDeLibro {
+class GeneroFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
         return queFiltrar.genero != null
     }
+
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
-        val genero= queFiltrar.genero!!
-        return repositorioLibro.getElementos().filter { it.genero == genero }
+        val genero = queFiltrar.genero!!
+        return libros.filter { it.genero == genero }
     }
 }
 
-class RangoDePaginasFiltro(
-    val repositorioLibro: LibroRepository
-): FiltroDeLibro {
+class RangoDePaginasFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
         return queFiltrar.paginasMin != null && queFiltrar.paginasMax != null
     }
+
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val min= queFiltrar.paginasMin!!
         val max= queFiltrar.paginasMax!!
-        return repositorioLibro.getElementos().filter { it.cantidadPaginas in min..max }
+        return libros.filter { it.cantidadPaginas in min..max }
     }
 }
 
-class BusquedaPorNombreFiltro(
-    val repositorioLibro: LibroRepository
-): FiltroDeLibro {
+class BusquedaPorNombreFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
-        return queFiltrar.search != null
+        return !queFiltrar.search.isNullOrBlank()
     }
+
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val search= queFiltrar.search!!
-        return repositorioLibro.getElementos().filter { it.titulo.contains(search, ignoreCase = true) }
+        return libros.filter { it.titulo.contains(search, ignoreCase = true) }
     }
 }
 
-class ISBN13Filtro(
-    val repositorioLibro: LibroRepository
-): FiltroDeLibro {
+class ISBN13Filtro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
         return queFiltrar.isbn13 != null
     }
+
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val isbn13= queFiltrar.isbn13!!
-        return repositorioLibro.getElementos().filter { it.isbn13 == isbn13 }
+        return libros.filter { it.isbn13 == isbn13 }
     }
 }
 
 class UsuarioPrestadorFiltro(
-    val repositorioLibro: LibroRepository,
     val reservaService: ReservaService
 ): FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
@@ -84,7 +78,8 @@ class UsuarioPrestadorFiltro(
     }
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val usuarioPrestador= queFiltrar.usuarioPrestador!!
-        return reservaService.getLibrosPrestadosPorUsuario(usuarioPrestador)
+        val prestadosPorUsuario= reservaService.getLibrosPrestadosPorUsuario(usuarioPrestador)
+        return libros.filter { it in prestadosPorUsuario }
 
     }
 }

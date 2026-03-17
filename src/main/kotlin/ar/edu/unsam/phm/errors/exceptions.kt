@@ -1,10 +1,16 @@
 package ar.edu.unsam.phm
 
-import java.lang.RuntimeException//agrego archivo de errores
-object ErrorMessages{
-    const val ID_INEXISTENTE = "El ID no corresponde con ningun elemento del repositorio"
-    const val PROC_NOT_FOUND = "No se encontraron procesos para ejecutar"
-}
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.ResponseStatus
+import java.lang.RuntimeException
 
-class BusinessException(msg : String): RuntimeException(msg)
-class NotFoundException(msg : String): RuntimeException(msg)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+class BusinessException(msg: String) : RuntimeException(msg)
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class NotFoundException(msg: String) : RuntimeException(msg)
+
+// Podemos usar esta función en los init para evitar tanto if(..) {..}
+fun requireBusiness(condition: Boolean, message: String) {
+    if (!condition) throw BusinessException(message)
+}
