@@ -57,3 +57,15 @@ Content-Type: application/json
   "descripcion": "Una obra maestra.",
   "idPropietario": 1
 }
+
+###
+POST http://localhost:9000/crearReserva
+Content-Type: application/json
+
+{
+  "libroId": 1,
+  "usuarioPrestadorId": 1,
+  "usuarioLectorId": 2,
+  "fechaRecogida": "2026-05-20",
+  "fechaDevolucion": "2026-05-29"
+}

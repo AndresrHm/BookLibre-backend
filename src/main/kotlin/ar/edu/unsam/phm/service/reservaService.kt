@@ -1,10 +1,12 @@
 package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
@@ -14,6 +16,7 @@ import java.time.LocalDate
 class ReservaService(
     var reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,
+    val libroRepository: LibroRepository,
 ) {
     fun getReservasRealizadas(
         userID: Int,
@@ -70,5 +73,35 @@ class ReservaService(
         return reservaRepository.getElementos()
             .filter { it.usuarioPrestador.id == usuarioPrestador.id }
             .map { it.libro }
+    }
+
+    fun crearReserva(
+        libro: Libro,
+        usuarioLector: Usuario,
+        usuarioPrestador: Usuario,
+        fechaRecogida: LocalDate,
+        fechaDevolucion: LocalDate
+    ): Reserva {
+        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
+        val reserva = usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
+
+        if (fechaRecogida.isAfter(fechaDevolucion))
+            throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
+
+        reservaRepository.create(reserva)
+        usuarioRepository.update(usuarioLector)
+
+        return reserva
+    }
+
+    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate,LocalDate>> {
+        if (libroRepository.getById(libroId) != null) {
+            val reservas = reservaRepository.findByLibroId(libroId)
+            return reservas.map{
+                it.fechaDevolucion to it.fechaRecogida
+            }
+        } else {
+            throw NotFoundException("No existe un libro con el id $libroId")
+        }
     }
 }

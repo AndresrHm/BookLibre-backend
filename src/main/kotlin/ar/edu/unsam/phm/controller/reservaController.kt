@@ -1,18 +1,47 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.dto.ReservaDTO
+import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.dto.CreacionReservaDTO
+import ar.edu.unsam.phm.dto.ReservaDetalleDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
+import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
+import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @CrossOrigin("*")
-class ReservaController(val reservaService: ReservaService) {
+class ReservaController(
+    val reservaService: ReservaService,
+    val usuarioService: UsuarioService,
+    val libroService: LibroService,
+    val reservaMapper: ReservaMapper,
+) {
+
+    @PostMapping("/crearReserva")
+    fun reservarLibro(
+        @RequestBody reserva: CreacionReservaDTO,
+    ): CreacionReservaDTO {
+        // Busco los objetos de dominio para poder armar el objeto de dominio
+        val libro = libroService.obtenerLibroDetalle(reserva.libroId)
+        val usuarioLector = usuarioService.usuarioById(reserva.usuarioLectorId)
+        val usuarioPrestador = usuarioService.usuarioById(reserva.usuarioPrestadorId)
+        val reserva = reservaService.crearReserva(
+            libro,
+            usuarioLector,
+            usuarioPrestador,
+            reserva.fechaRecogida,
+            reserva.fechaDevolucion
+        )
+        return reservaMapper.toCreacionReservaDTO(reserva)
+    }
 
     @GetMapping("usuarios/{id}/reservas/realizadas")
     fun getReservasRealizadas(
@@ -20,11 +49,11 @@ class ReservaController(val reservaService: ReservaService) {
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam string: String?,
-    ): PageResponse<ReservaDTO> {
+    ): PageResponse<ReservaDetalleDTO> {
         val result = reservaService.getReservasRealizadas(id, page, size, string)
 
         return PageResponse(
-            content = result.content.map { it -> ReservaMapper.toDTO(it, id) },
+            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, id) },
             page = result.page,
             size = result.size,
             totalElements = result.content.size,
@@ -38,11 +67,11 @@ class ReservaController(val reservaService: ReservaService) {
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam string: String?,
-        ): PageResponse<ReservaDTO> {
+    ): PageResponse<ReservaDetalleDTO> {
         val result = reservaService.getReservasRecibidas(id, page, size, string)
 
         return PageResponse(
-            content = result.content.map { it -> ReservaMapper.toDTO(it, id) },
+            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, id) },
             page = result.page,
             size = result.size,
             totalElements = result.content.size,

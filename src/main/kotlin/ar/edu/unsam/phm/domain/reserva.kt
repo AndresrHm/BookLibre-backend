@@ -12,8 +12,9 @@ class Reserva(
     val usuarioLector: Usuario,
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
-    override var id: Int = -1,
 ) : Identificable {
+    override var id: Int = -1
+
     fun darKarma(): Int {
         return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
     }
