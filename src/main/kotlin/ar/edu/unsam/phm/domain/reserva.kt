@@ -18,6 +18,9 @@ class Reserva(
 
     init {
         requireBusiness(fechaDevolucion.isAfter(fechaRecogida), "fechaDevolucion debe ser posterior a fechaRecogida")
+        requireBusiness(usuarioLector != usuarioPrestador, "El usuario prestador y el lector deben ser distintos")
+        requireBusiness(usuarioPrestador.id == libro.idPropietario, "El libro no pertenece al usuario prestador")
+        requireBusiness(usuarioLector.id != libro.idPropietario, "Un usuario no puede reservar su propio libro")
     }
 
     fun darKarma(): Int {

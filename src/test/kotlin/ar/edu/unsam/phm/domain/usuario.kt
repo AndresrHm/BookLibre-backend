@@ -59,6 +59,7 @@ fun crearUsuario(
     urlImagen: String = "imagenUsuario"
 ): Usuario {
     return Usuario(
+        id = id,
         nombre = nombre,
         apellido = apellido,
         descripcion = descripcion,
