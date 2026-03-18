@@ -18,9 +18,8 @@ data class CrearCalificacionDTO(
     val puntuacion: Double,
 ) {
     init {
-        requireBusiness(comentario.isNotBlank(), "comentario no puede estar vacío")
         requireBusiness(comentario.length <= 500, "comentario no debe superar los 500 caracteres")
-        requireBusiness(puntuacion in 0.0..5.0, "puntuacion debe estar entre 0.0 y 5.0")
+        requireBusiness(puntuacion in 0.5..5.0, "puntuacion debe estar entre 0.5 y 5.0")
     }
 }
 

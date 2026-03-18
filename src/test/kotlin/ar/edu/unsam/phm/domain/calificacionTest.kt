@@ -16,7 +16,7 @@ class CalificacionSpec : DescribeSpec({
             }
         }
 
-        it("calificación no se crea si puntuación no está entre 0.0 y 5.0") {
+        it("calificación no se crea si puntuación no está entre 0.5 y 5.0") {
             shouldThrow<BusinessException> {
                 crearCalificacion(puntuacion = 10.00)
             }
