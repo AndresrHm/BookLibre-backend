@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 
-@JsonTypeInfo(
+/*@JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
     include = JsonTypeInfo.As.PROPERTY,
     property = "tipoUsuario"
@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName
     JsonSubTypes.Type(value = lector::class, name = "lector"),
     JsonSubTypes.Type(value = lectorPublicador::class, name = "lectorPublicador")
 )
+
+
 interface TipoUsuario {
     fun esUsuario(usuario: Usuario)
 }
@@ -35,5 +37,5 @@ object lectorPublicador : TipoUsuario {
     override fun esUsuario(usuario: Usuario) {
     }
 }
-
+*/
 ///   aun no tienen ninguna accion en el enunciado

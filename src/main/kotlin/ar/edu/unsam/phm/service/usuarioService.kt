@@ -21,8 +21,13 @@ class UsuarioService(
         return usuarioMapper.toUsuarioHeaderDTO(usuario)
     }
 
-    fun updateUsuario(datosUsuario: UsuarioEdicionDTO, idUsuario: Int): Usuario {
-        val usuario = usuarioById(idUsuario)
+    fun getUsuarioUpdate(id: Int): UsuarioEdicionDTO {
+        val usuario = usuarioById(id)
+        return usuarioMapper.toUsuarioEdicionDTO(usuario)
+    }
+
+    fun usuarioUpdate(datosUsuario: UsuarioEdicionDTO): Usuario {
+        val usuario = usuarioById(datosUsuario.id)
         usuario.update(datosUsuario)
         usuarioRepositorio.update(usuario)
         return usuario

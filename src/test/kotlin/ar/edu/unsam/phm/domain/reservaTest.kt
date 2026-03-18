@@ -96,7 +96,7 @@ val usuarioPrestador = Usuario(
     email = "juan@mail.com",
     celular = "111111",
     ciudad = "Buenos Aires",
-    tipoUsuario = lectorPublicador,
+    tipoUsuario = TipoUsuario.LECTOR,
     urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
 ).apply { biblioKarma = 2000 }
 
@@ -108,6 +108,6 @@ val usuarioLector = Usuario(
     email = "ana@mail.com",
     celular = "222222",
     ciudad = "Buenos Aires",
-    tipoUsuario = lectorPublicador,
+    tipoUsuario = TipoUsuario.LECTOR,
     urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
 ).apply { biblioKarma = 4000 }
