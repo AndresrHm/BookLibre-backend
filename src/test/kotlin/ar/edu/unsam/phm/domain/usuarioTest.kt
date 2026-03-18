@@ -2,11 +2,13 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.BusinessException
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
 class UsuarioSpec : DescribeSpec({
+    isolationMode = IsolationMode.InstancePerTest
     describe("Test de Usuario") {
         val usuario = crearUsuario()
         it("un usuario puede sumar karma") {
@@ -54,7 +56,7 @@ fun crearUsuario(
     email: String = "emailusuario@gmail.com",
     celular: String = "1111111111",
     ciudad: String = "CiudadUsuario",
-    tipoUsuario: TipoUsuario = lector,
+    tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     urlImagen: String = "imagenUsuario"
 ): Usuario {
     return Usuario(
