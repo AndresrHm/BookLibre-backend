@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
+import org.apache.catalina.User
 import java.time.LocalDate
 
 const val MAX_CARACTERES_DESCRIPCION = 500
@@ -37,6 +38,8 @@ class Libro(
     }
 
     fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
+
+    fun calcularKarmaHomePage(usuarioLector : Usuario) : Int = tipoLibro.posibleKarmaALector( this, usuarioLector)
 
     fun reservar(
         fechaRecogida: LocalDate,
