@@ -1067,10 +1067,7 @@ class BootstrapData(
                 val seed = libro.id + usuario.id
 
                 Calificacion(
-                    usuarioID = usuario.id,
-                    nombreUsuario = "${usuario.nombre} ${usuario.apellido}",
-                    imagenUsuario = usuario.urlImagen,
-                    libroID = libro.id!!,
+                    reserva = reserva,
                     puntuacion = puntuaciones[seed % puntuaciones.size],
                     comentario = comentarios[seed % comentarios.size],
                     fecha = reserva.fechaDevolucion
@@ -1083,7 +1080,7 @@ class BootstrapData(
 
         // recalcular rating por libro
         calificaciones
-            .groupBy { it.libroID }
+            .groupBy { it.reserva.libro.id }
             .forEach { (libroID, _) ->
                 val promedio = calificacionRepository.obtenerPromedio(libroID)
                 libroRepository.actualizarRating(libroID, promedio)
