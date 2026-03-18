@@ -1,39 +1,26 @@
 package ar.edu.unsam.phm.dto
 
-import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.requireBusiness
 import java.time.LocalDate
-data class CrearCalificacionDTO(
-    val libroId: Int,
-    val usuarioId: Int,
+
+data class CalificacionDTO(
     val nombreUsuario: String,
-    val imagenUsuario: String = " ",
+    val imagenUsuario: String = "",
+    val comentario: String,
+    val puntuacion: Double,
+    val fecha: LocalDate,
+)
+
+data class CrearCalificacionDTO(
+    val reservaId: Int,
+    val usuarioId: Int,
     val comentario: String,
     val puntuacion: Double,
 ) {
     init {
-        if (libroId <= 0) {
-            throw BusinessException("libroID inválido")
-        }
-
-        if (usuarioId <= 0) {
-            throw BusinessException("usuarioID inválido")
-        }
-
-        if (nombreUsuario.isBlank()) {
-            throw BusinessException("nombreUsuario no puede estar vacío")
-        }
-
-        if (comentario.isBlank()) {
-            throw BusinessException("comentario no puede estar vacío")
-        }
-
-        if (comentario.length >= 500) {
-            throw BusinessException("comentario no debe superar los 500 caracteres")
-        }
-
-        if (puntuacion !in 0.0..5.0) {
-            throw BusinessException("puntuacion debe estar entre 0.0 y 5.0")
-        }
+        requireBusiness(comentario.isNotBlank(), "comentario no puede estar vacío")
+        requireBusiness(comentario.length <= 500, "comentario no debe superar los 500 caracteres")
+        requireBusiness(puntuacion in 0.0..5.0, "puntuacion debe estar entre 0.0 y 5.0")
     }
 }
 

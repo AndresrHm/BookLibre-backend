@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.dto
 
 import java.time.LocalDate
 
-data class ReservaDTO(
+data class ReservaDetalleDTO(
     val reservaId: Int,
     val libroId: Int,
     val titulo: String,
@@ -15,6 +15,14 @@ data class ReservaDTO(
     val estado: EstadoReserva,
     val puedeCalificar: Boolean,
     val biblioKarma: Int,
+)
+
+data class CreacionReservaDTO(
+    val libroId: Int,
+    val usuarioPrestadorId: Int,
+    val usuarioLectorId: Int,
+    val fechaRecogida: LocalDate,
+    val fechaDevolucion: LocalDate
 )
 
 enum class EstadoReserva {

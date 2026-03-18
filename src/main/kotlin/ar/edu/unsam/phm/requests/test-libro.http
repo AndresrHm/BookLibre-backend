@@ -19,6 +19,19 @@ Content-Type: application/json
 }
 
 ###
+POST http://localhost:9000/libros/15/calificaciones?usuarioId=1
+Content-Type: application/json
+
+{
+  "libroId": 15,
+  "usuarioId": 1,
+  "nombreUsuario": "Juan Pájaro",
+  "imagenUsuario": "https://i.pinimg.com/originals/da/93/d1/da93d1478861be2fa3e2567b435543af.png",
+  "comentario": "Muy bueno, me gustó",
+  "puntuacion": 5
+}
+
+###
 GET http://localhost:9000/libro/editar/1/1
 
 ###
@@ -43,4 +56,16 @@ Content-Type: application/json
   "isbn13": 9788420471006,
   "descripcion": "Una obra maestra.",
   "idPropietario": 1
+}
+
+###
+POST http://localhost:9000/crearReserva
+Content-Type: application/json
+
+{
+  "libroId": 1,
+  "usuarioPrestadorId": 1,
+  "usuarioLectorId": 2,
+  "fechaRecogida": "2026-05-20",
+  "fechaDevolucion": "2026-05-29"
 }

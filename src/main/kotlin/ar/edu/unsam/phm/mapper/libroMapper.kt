@@ -89,7 +89,7 @@ class LibroMapper(
         return libroDetalle
     }
 
-    fun libroToLibroHomeUsuarioDTO(libro: Libro): LibroHomeUsuarioDTO {
+    fun libroToLibroHomeUsuarioDTO(libro: Libro, karmaForUserLector : Int): LibroHomeUsuarioDTO {
         val libroDetalle = LibroHomeUsuarioDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -104,7 +104,8 @@ class LibroMapper(
             editorial = libro.editorial,
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
-            rating = libro.rating()
+            rating = libro.rating(),
+            biblioKarma = karmaForUserLector
         )
         return libroDetalle
     }

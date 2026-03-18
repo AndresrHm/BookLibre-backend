@@ -1,10 +1,10 @@
 package ar.edu.unsam.phm.service
 
+import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
-import ar.edu.unsam.phm.errors.NotFoundException
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
