@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.ReservaDetalleDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
@@ -25,7 +24,7 @@ class ReservaController(
     val reservaMapper: ReservaMapper,
 ) {
 
-    @PostMapping("/crearReserva")
+    @PostMapping("crearReserva")
     fun reservarLibro(
         @RequestBody reserva: CreacionReservaDTO,
     ): CreacionReservaDTO {
@@ -33,14 +32,14 @@ class ReservaController(
         val libro = libroService.obtenerLibroDetalle(reserva.libroId)
         val usuarioLector = usuarioService.usuarioById(reserva.usuarioLectorId)
         val usuarioPrestador = usuarioService.usuarioById(reserva.usuarioPrestadorId)
-        val reserva = reservaService.crearReserva(
+        val reservaObjeto = reservaService.crearReserva(
             libro,
             usuarioLector,
             usuarioPrestador,
             reserva.fechaRecogida,
             reserva.fechaDevolucion
         )
-        return reservaMapper.toCreacionReservaDTO(reserva)
+        return reservaMapper.toCreacionReservaDTO(reservaObjeto)
     }
 
     @GetMapping("usuarios/{id}/reservas/realizadas")

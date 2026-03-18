@@ -17,6 +17,8 @@ import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.domain.crearLibro
+import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -24,14 +26,15 @@ import ar.edu.unsam.phm.repository.UsuarioRepository
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
 
-    describe ("Test de Busqueda de libros Basico"){
+    describe("Test de Busqueda de libros Basico") {
         val repositoryReservas = ReservaRepository()
         val repositoryLibros = LibroRepository(repositoryReservas)
         val repositoryUsuario = UsuarioRepository()
         val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario, repositoryLibros)
         val serviceLibros = LibroService(repositoryLibros, serviceReservas, LibroMapper(repositoryLibros))
 
-        val usuario1 = Usuario(
+        val usuario1 = crearUsuario(
+            id = 1,
             nombre = "Juan",
             apellido = "Perez",
             descripcion = "Lector apasionado de ciencia ficcion",
@@ -43,6 +46,7 @@ class EspecTest : DescribeSpec({
         )
 
         val usuario2 = Usuario(
+            id = 2,
             nombre = "Maria",
             apellido = "Gomez",
             descripcion = "Coleccionista de libros clasicos",
@@ -64,7 +68,8 @@ class EspecTest : DescribeSpec({
             idioma = Idioma.ESPANOL,
             editorial = "Losada",
             fechaPublicacion = LocalDate.of(1949, 6, 1),
-            estadoLibro = EstadoLibro.BUENO
+            estadoLibro = EstadoLibro.BUENO,
+            idPropietario = 2,
         )
 
         val libro2 = crearLibro(
@@ -78,7 +83,8 @@ class EspecTest : DescribeSpec({
             idioma = Idioma.INGLES,
             editorial = "Chilton Books",
             fechaPublicacion = LocalDate.of(1965, 8, 1),
-            estadoLibro = EstadoLibro.MUY_BUENO
+            estadoLibro = EstadoLibro.MUY_BUENO,
+            idPropietario = 2
         )
 
 
@@ -93,7 +99,8 @@ class EspecTest : DescribeSpec({
             idioma = Idioma.INGLES,
             editorial = "T. Egerton",
             fechaPublicacion = LocalDate.of(1813, 1, 28),
-            estadoLibro = EstadoLibro.REGULAR
+            estadoLibro = EstadoLibro.REGULAR,
+            idPropietario = 2
         )
 
         val libro4 = crearLibro(
@@ -137,12 +144,12 @@ class EspecTest : DescribeSpec({
             fechaPublicacion = LocalDate.of(1969, 6, 1),
             estadoLibro = EstadoLibro.MUY_BUENO
         )
-        it( "se crea un libro"){
+        it("se crea un libro") {
             repositoryLibros.create(libro1)
             repositoryLibros.getById(libro1.id) shouldBe libro1
         }
 
-        it( "se devuelve libros solo con filtro de fechas"){
+        it("se devuelve libros solo con filtro de fechas") {
             repositoryLibros.create(libro1)
             repositoryLibros.create(libro2)
             repositoryLibros.create(libro3)
@@ -181,10 +188,8 @@ class EspecTest : DescribeSpec({
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
             librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
-
-
         }
-        it( "devuelve libros con filtro de genero y fechas"){
+        it("devuelve libros con filtro de genero y fechas") {
             repositoryLibros.create(libro1)
             repositoryLibros.create(libro2)
             repositoryLibros.create(libro3)
@@ -225,7 +230,7 @@ class EspecTest : DescribeSpec({
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
             librosFiltrados.content shouldBe listOf(libro2)
         }
-        it ("devuelve libros por nombre") {
+        it("devuelve libros por nombre") {
             repositoryLibros.create(libro1)
             repositoryLibros.create(libro2)
             repositoryLibros.create(libro3)
@@ -250,39 +255,5 @@ class EspecTest : DescribeSpec({
         }
 
 
-
     }
 })
-
-fun crearLibro(
-    titulo: String = "Título de libro",
-    tipoLibro: TipoLibro = comun,
-    descripcion: String = "Descripción de libro",
-    portada: String = "Portada de libro",
-    genero: Genero = Genero.CIENCIA_FICCION,
-    autor: String = "Autor de libro",
-    cantidadPaginas: Int = 10,
-    isbn13: Long = 1111111111111,
-    idioma: Idioma = Idioma.ESPANOL,
-    editorial: String = "Editorial de libro",
-    fechaPublicacion: LocalDate = LocalDate.now(),
-    estadoLibro: EstadoLibro = EstadoLibro.BUENO,
-    idPropietario: Int = 0
-): Libro {
-    return Libro(
-        titulo,
-        tipoLibro,
-        descripcion,
-        portada,
-        genero,
-        autor,
-        cantidadPaginas,
-        isbn13,
-        idioma,
-        editorial,
-        fechaPublicacion,
-        estadoLibro,
-        idPropietario
-    )
-}
-

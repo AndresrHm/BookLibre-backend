@@ -7,88 +7,150 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import java.time.LocalDate
 
+val HOY = LocalDate.now()
+
 class LibroSpec : DescribeSpec({
     describe(name = "Tests de Libros") {
-        val libroValido = crearLibro()
+        describe(name = "Creación de libros") {
+            val libroValido = crearLibro()
 
-        it("Un libro puede ser creado con normalidad") {
-            libroValido.titulo shouldBe "Título de libro"
+            it("Un libro puede ser creado con normalidad") {
+                libroValido.titulo shouldBe "Título de libro"
 
-            shouldNotThrow<BusinessException> {
-                libroValido.init()
+                shouldNotThrow<BusinessException> {
+                    libroValido.init()
+                }
+            }
+
+            it("Un libro no puede no tener título") {
+                val libroSinTitulo = crearLibro(titulo = "")
+
+                shouldThrow<BusinessException> {
+                    libroSinTitulo.init()
+                }
+            }
+
+            it("Un libro no puede no tener descripción") {
+                val libroSinDescripcion = crearLibro(descripcion = "")
+
+                shouldThrow<BusinessException> {
+                    libroSinDescripcion.init()
+                }
+            }
+
+            it("Un libro no puede tener una descripción excesivamente larga") {
+                val libroSinDescripcion =
+                    crearLibro(descripcion = "A".repeat(501))
+
+                shouldThrow<BusinessException> {
+                    libroSinDescripcion.init()
+                }
+            }
+
+            it("Un libro no puede no tener autor") {
+                val libroSinAutor = crearLibro(autor = "")
+
+                shouldThrow<BusinessException> {
+                    libroSinAutor.init()
+                }
+            }
+
+            it("Un libro no puede tener menos de 1 página") {
+                val libroSinPaginas = crearLibro(cantidadPaginas = -1)
+
+                shouldThrow<BusinessException> {
+                    libroSinPaginas.init()
+                }
+            }
+
+            it("Un libro no puede no tener páginas") {
+                val libroSinPaginas = crearLibro(cantidadPaginas = 0)
+
+                shouldThrow<BusinessException> {
+                    libroSinPaginas.init()
+                }
+            }
+
+            it("El código ISBN13 de un libro debe contener 13 dígitos") {
+                val libroISBN13Sin13 = crearLibro(isbn13 = 1)
+
+                shouldThrow<BusinessException> {
+                    libroISBN13Sin13.init()
+                }
+            }
+
+            it("El código ISBN13 de un libro debe ser positivo") {
+                val libroISBN13Negativo = crearLibro(isbn13 = -101010101010)
+
+                shouldThrow<BusinessException> {
+                    libroISBN13Negativo.init()
+                }
+            }
+
+            it("Un libro no puede no tener editorial") {
+                val libroSinEditorial = crearLibro(editorial = "")
+
+                shouldThrow<BusinessException> {
+                    libroSinEditorial.init()
+                }
             }
         }
 
-        it("Un libro no puede no tener título") {
-            val libroSinTitulo = crearLibro(titulo = "")
+        describe(name = "Validación de calificación y reserva") {
+            val libro = crearLibro()
 
-            shouldThrow<BusinessException> {
-                libroSinTitulo.init()
+            it("Si se actualiza el rating, aumenta la cantida de reseñas") {
+                libro.rating().shouldBe(0.0)
+                libro.cantidadResenias.shouldBe(0)
+
+                libro.actualizarRating(1.0)
+
+                libro.rating().shouldBe(1.0)
+                libro.cantidadResenias.shouldBe(1)
             }
-        }
 
-        it("Un libro no puede no tener descripción") {
-            val libroSinDescripcion = crearLibro(descripcion = "")
+            it("La calificación de un libro debe ubicarse en cierto rango") {
+                val libroSinResenias = crearLibro()
+                libroSinResenias.rating().shouldBe(0.0)
+                libroSinResenias.cantidadResenias.shouldBe(0)
 
-            shouldThrow<BusinessException> {
-                libroSinDescripcion.init()
+                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(-1.0) }
+                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(5.1) }
+
+                libroSinResenias.rating().shouldBe(0.0)
+                libroSinResenias.cantidadResenias.shouldBe(0)
             }
-        }
 
-        it("Un libro no puede tener una descripción excesivamente larga") {
-            val libroSinDescripcion =
-                crearLibro(descripcion = "A".repeat(501))
+            it("Un libro puede reservarse si las fechas estipuladas no pertenecen a reservas anteriores") {
+                val fechaRecogidaValida = HOY
+                val fechaDevolucionValida = HOY.plusDays(1)
+                val fechasDeReservasNulas = listOf<Pair<LocalDate, LocalDate>>()
 
-            shouldThrow<BusinessException> {
-                libroSinDescripcion.init()
+                libro.cantidadReservas.shouldBe(0)
+
+                libro.reservar(fechaRecogidaValida, fechaDevolucionValida, fechasDeReservasNulas)
+
+                libro.cantidadReservas.shouldBe(1)
             }
-        }
 
-        it("Un libro no puede no tener autor") {
-            val libroSinAutor = crearLibro(autor = "")
+            it("Un libro no puede reservarse si se solapan las fechas de reservas pasadas y actual") {
+                val libroSinReservas = crearLibro()
+                val fechaRecogidaInvalida = HOY
+                val fechaDevolucionInvalida = HOY.plusDays(1)
+                val fechasDeReservasOcupadas =
+                    listOf<Pair<LocalDate, LocalDate>>(Pair(HOY.minusDays(1), HOY.plusDays(1)))
 
-            shouldThrow<BusinessException> {
-                libroSinAutor.init()
-            }
-        }
+                libroSinReservas.cantidadReservas.shouldBe(0)
 
-        it("Un libro no puede tener menos de 1 página") {
-            val libroSinPaginas = crearLibro(cantidadPaginas = -1)
+                shouldThrow<BusinessException> {
+                    libroSinReservas.reservar(
+                        fechaRecogidaInvalida,
+                        fechaDevolucionInvalida,
+                        fechasDeReservasOcupadas
+                    )
+                }
 
-            shouldThrow<BusinessException> {
-                libroSinPaginas.init()
-            }
-        }
-
-        it("Un libro no puede no tener páginas") {
-            val libroSinPaginas = crearLibro(cantidadPaginas = 0)
-
-            shouldThrow<BusinessException> {
-                libroSinPaginas.init()
-            }
-        }
-
-        it("El código ISBN13 de un libro debe contener 13 dígitos") {
-            val libroISBN13Sin13 = crearLibro(isbn13 = 1)
-
-            shouldThrow<BusinessException> {
-                libroISBN13Sin13.init()
-            }
-        }
-
-        it("El código ISBN13 de un libro debe ser positivo") {
-            val libroISBN13Negativo = crearLibro(isbn13 = -101010101010)
-
-            shouldThrow<BusinessException> {
-                libroISBN13Negativo.init()
-            }
-        }
-
-        it("Un libro no puede no tener editorial") {
-            val libroSinEditorial = crearLibro(editorial = "")
-
-            shouldThrow<BusinessException> {
-                libroSinEditorial.init()
+                libroSinReservas.cantidadReservas.shouldBe(0)
             }
         }
     }

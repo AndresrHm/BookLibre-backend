@@ -3,7 +3,6 @@ package ar.edu.unsam.phm.dto
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Usuario
 import java.time.LocalDate
 
@@ -40,7 +39,7 @@ data class LibroDetalleDTO(
     val descripcion: String,
     val rating: Double,
     val cantidadResenias: Int,
-    val reseniasRecientes: List<Calificacion>
+    val reseniasRecientes: List<CalificacionDTO>
 )
 
 data class LibroHomeUsuarioDTO(

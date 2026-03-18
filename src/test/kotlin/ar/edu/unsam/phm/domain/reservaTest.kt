@@ -26,6 +26,56 @@ class ReservaSpec : DescribeSpec({
             }
         }
 
+        it("reserva no se crea si el usuario lector es el mismo que el prestador") {
+            val usuarioPersonalidadMultiple = crearUsuario()
+            shouldThrow<BusinessException> {
+                crearReserva(
+                    usuarioLector = usuarioPersonalidadMultiple,
+                    usuarioPrestador = usuarioPersonalidadMultiple
+                )
+            }
+        }
+
+        it("reserva no se crea si el usuario prestador no es el dueño del libro") {
+            val usuario = crearUsuario(id = 1)
+            val libro = crearLibro(idPropietario = 2)
+            shouldThrow<BusinessException> {
+                crearReserva(
+                    libro = libro,
+                    usuarioLector = usuario
+                )
+            }
+        }
+
+        it("reserva no se crea si el usuario lector es el dueño del libro") {
+            val usuario = crearUsuario()
+            val libro = crearLibro(idPropietario = usuario.id)
+            shouldThrow<BusinessException> {
+                crearReserva(
+                    libro = libro,
+                    usuarioLector = usuario
+                )
+            }
+        }
+
+        it("reserva calcula correctamente el karma que devuelve según fechas y libro asociados") {
+            val usuarioLectorSinKarma = crearUsuario(id = 1)
+            val usuarioPrestador = crearUsuario(id = 2)
+            val libroReservado = crearLibro(
+                idPropietario = 2,
+                tipoLibro = comun,
+            )
+            val reserva15Karma = crearReserva(
+                libro = libroReservado,
+                usuarioPrestador = usuarioPrestador,
+                usuarioLector = usuarioLectorSinKarma,
+                fechaRecogida = LocalDate.now(),
+                fechaDevolucion = LocalDate.now().plusDays(1),
+            )
+
+            reserva15Karma.darKarma().shouldBe(15)
+        }
+
         it("reserva calcula correctamente su estado en base a las fechas (estado devuelto)") {
             val reserva = crearReserva(
                 fechaRecogida = LocalDate.now().minusDays(3),

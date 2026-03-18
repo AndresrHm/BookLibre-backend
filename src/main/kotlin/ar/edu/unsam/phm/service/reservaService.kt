@@ -85,7 +85,7 @@ class ReservaService(
         if (fechaRecogida.isAfter(fechaDevolucion))
             throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
 
-        if (fechaRecogida <= LocalDate.now() || fechaDevolucion <= LocalDate.now())
+        if (fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now())
             throw BusinessException("No se puede realizar una reserva para una fecha anterior a la actual")
 
         if (libro.id != usuarioPrestador.id)
@@ -108,7 +108,7 @@ class ReservaService(
         if (libroRepository.getById(libroId) != null) {
             val reservas = reservaRepository.findByLibroId(libroId)
             return reservas.map{
-                it.fechaDevolucion to it.fechaRecogida
+                it.fechaRecogida to it.fechaDevolucion
             }
         } else {
             throw NotFoundException("No existe un libro con el id $libroId")

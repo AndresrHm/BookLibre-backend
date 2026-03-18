@@ -40,7 +40,7 @@ class BootstrapData(
     }
 
     // ---------------- Usuarios ----------------
-    // Tenemos 5 usuarios, con el último podemos entrar fácilmente (por el nombre)
+    // Tenemos 12 usuarios, con el quinto podemos entrar fácilmente (por el nombre)
 
     private fun crearUsuarios(): List<Usuario> {
 
@@ -105,6 +105,90 @@ class BootstrapData(
                 tipoUsuario = TipoUsuario.LECTOR,
                 urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3"
             ).apply { biblioKarma = 9999 },
+
+            Usuario(
+                id = 6,
+                nombre = "Pedro",
+                apellido = "Sosa",
+                descripcion = "Lector frecuente",
+                email = "pedro@mail.com",
+                celular = "666666",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa"
+            ).apply { biblioKarma = 2100 },
+
+            Usuario(
+                id = 7,
+                nombre = "Marina",
+                apellido = "Ruiz",
+                descripcion = "Le gusta la fantasia",
+                email = "marina@mail.com",
+                celular = "777777",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz"
+            ).apply { biblioKarma = 1800 },
+
+            Usuario(
+                id = 8,
+                nombre = "Diego",
+                apellido = "Fernandez",
+                descripcion = "Fan de novelas historicas",
+                email = "diego@mail.com",
+                celular = "888888",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez"
+            ).apply { biblioKarma = 2600 },
+
+            Usuario(
+                id = 9,
+                nombre = "Sofia",
+                apellido = "Acosta",
+                descripcion = "Lee de todo",
+                email = "sofia@mail.com",
+                celular = "999999",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta"
+            ).apply { biblioKarma = 1750 },
+
+            Usuario(
+                id = 10,
+                nombre = "Nicolas",
+                apellido = "Vega",
+                descripcion = "Interesado en ciencia ficcion",
+                email = "nicolas@mail.com",
+                celular = "101010",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega"
+            ).apply { biblioKarma = 1950 },
+
+            Usuario(
+                id = 11,
+                nombre = "Valentina",
+                apellido = "Mendez",
+                descripcion = "Colecciona clasicos",
+                email = "valentina@mail.com",
+                celular = "111110",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez"
+            ).apply { biblioKarma = 2300 },
+
+            Usuario(
+                id = 12,
+                nombre = "Tomas",
+                apellido = "Ibarra",
+                descripcion = "Lector nocturno",
+                email = "tomas@mail.com",
+                celular = "121212",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTOR,
+                urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra"
+            ).apply { biblioKarma = 2050 },
 
             )
 
@@ -942,6 +1026,13 @@ class BootstrapData(
         val u3 = usuarios.first { it.id == 3 }
         val u4 = usuarios.first { it.id == 4 }
         val u5 = usuarios.first { it.id == 5 }
+        val u6 = usuarios.first { it.id == 6 }
+        val u7 = usuarios.first { it.id == 7 }
+        val u8 = usuarios.first { it.id == 8 }
+        val u9 = usuarios.first { it.id == 9 }
+        val u10 = usuarios.first { it.id == 10 }
+        val u11 = usuarios.first { it.id == 11 }
+        val u12 = usuarios.first { it.id == 12 }
 
         val hoy = LocalDate.now()
 
@@ -1026,6 +1117,28 @@ class BootstrapData(
             Reserva(libros[43], u5, u4, hoy.minusDays(1), hoy.plusDays(13)),
             Reserva(libros[44], u5, u4, hoy.minusDays(9), hoy.minusDays(4)),
             Reserva(libros[45], u5, u4, hoy.minusDays(7), hoy.plusDays(3)),
+
+            // Reseñas extra para probar paginado sin lógica especial en bootstrap.
+            Reserva(libros[0], u1, u3, hoy.minusDays(32), hoy.minusDays(22)),
+            Reserva(libros[0], u1, u4, hoy.minusDays(28), hoy.minusDays(18)),
+            Reserva(libros[0], u1, u5, hoy.minusDays(24), hoy.minusDays(14)),
+            Reserva(libros[0], u1, u2, hoy.minusDays(40), hoy.minusDays(30)),
+            Reserva(libros[0], u1, u3, hoy.minusDays(39), hoy.minusDays(29)),
+            Reserva(libros[0], u1, u4, hoy.minusDays(38), hoy.minusDays(28)),
+            Reserva(libros[0], u1, u5, hoy.minusDays(37), hoy.minusDays(27)),
+            Reserva(libros[0], u1, u2, hoy.minusDays(36), hoy.minusDays(26)),
+            Reserva(libros[0], u1, u3, hoy.minusDays(35), hoy.minusDays(25)),
+            Reserva(libros[0], u1, u4, hoy.minusDays(34), hoy.minusDays(24)),
+            Reserva(libros[0], u1, u5, hoy.minusDays(33), hoy.minusDays(23)),
+            Reserva(libros[0], u1, u2, hoy.minusDays(31), hoy.minusDays(21)),
+            Reserva(libros[0], u1, u3, hoy.minusDays(30), hoy.minusDays(20)),
+            Reserva(libros[0], u1, u6, hoy.minusDays(29), hoy.minusDays(19)),
+            Reserva(libros[0], u1, u7, hoy.minusDays(27), hoy.minusDays(17)),
+            Reserva(libros[0], u1, u8, hoy.minusDays(26), hoy.minusDays(16)),
+            Reserva(libros[0], u1, u9, hoy.minusDays(25), hoy.minusDays(15)),
+            Reserva(libros[0], u1, u10, hoy.minusDays(23), hoy.minusDays(13)),
+            Reserva(libros[0], u1, u11, hoy.minusDays(22), hoy.minusDays(12)),
+            Reserva(libros[0], u1, u12, hoy.minusDays(21), hoy.minusDays(11)),
         )
 
         reservas.forEach(reservaRepository::create)
@@ -1044,7 +1157,6 @@ class BootstrapData(
         reservas: List<Reserva>,
     ) {
         val hoy = LocalDate.now()
-
         val comentarios = listOf(
             "Muy bueno",
             "Excelente lectura",
@@ -1054,18 +1166,13 @@ class BootstrapData(
             "No era lo que esperaba",
             "Volvería a leerlo"
         )
-
         val puntuaciones = listOf(2.5, 3.0, 3.5, 4.0, 4.5, 5.0)
-
         val calificaciones = reservas
             .filter { it.estado(hoy) == EstadoReserva.DEVUELTO }
             .map { reserva ->
-
                 val libro = reserva.libro
                 val usuario = reserva.usuarioLector
-
                 val seed = libro.id + usuario.id
-
                 Calificacion(
                     reserva = reserva,
                     puntuacion = puntuaciones[seed % puntuaciones.size],
@@ -1073,17 +1180,21 @@ class BootstrapData(
                     fecha = reserva.fechaDevolucion
                 )
             }
-
-        calificaciones.forEach {
+        val calificacionesUnicas = calificaciones
+            .sortedBy { it.fecha }
+            .associateBy { it.reserva.libro.id to it.reserva.usuarioLector.id }
+            .values
+            .toList()
+        calificacionesUnicas.forEach {
             calificacionRepository.agregarCalificacion(it)
         }
-
-        // recalcular rating por libro
-        calificaciones
+        calificacionesUnicas
             .groupBy { it.reserva.libro.id }
-            .forEach { (libroID, _) ->
+            .forEach { (libroID, reseniasLibro) ->
                 val promedio = calificacionRepository.obtenerPromedio(libroID)
-                libroRepository.actualizarRating(libroID, promedio)
+                repeat(reseniasLibro.size) {
+                    libroRepository.actualizarRating(libroID, promedio)
+                }
             }
     }
 }

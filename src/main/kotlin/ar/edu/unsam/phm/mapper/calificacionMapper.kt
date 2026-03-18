@@ -13,4 +13,8 @@ object CalificacionMapper {
             fecha = obj.fecha,
         )
     }
+
+    fun toDTO(calificaciones: List<Calificacion>): List<CalificacionDTO> {
+        return calificaciones.map { toDTO(it) }
+    }
 }
