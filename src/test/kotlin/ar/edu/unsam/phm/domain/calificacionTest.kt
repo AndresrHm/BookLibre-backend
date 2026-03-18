@@ -16,24 +16,6 @@ class CalificacionSpec : DescribeSpec({
             }
         }
 
-        it("calificación no se crea si usuarioID < 0") {
-            shouldThrow<BusinessException> {
-                crearCalificacion(usuarioID = -1)
-            }
-        }
-
-        it("calificación no se crea si nombreUsuario está vacío") {
-            shouldThrow<BusinessException> {
-                crearCalificacion(nombreUsuario = "")
-            }
-        }
-
-        it("calificación no se crea si libroID < 0") {
-            shouldThrow<BusinessException> {
-                crearCalificacion(libroID = -1)
-            }
-        }
-
         it("calificación no se crea si puntuación no está entre 0.0 y 5.0") {
             shouldThrow<BusinessException> {
                 crearCalificacion(puntuacion = 10.00)
@@ -51,21 +33,70 @@ class CalificacionSpec : DescribeSpec({
 })
 
 fun crearCalificacion(
-    usuarioID: Int = 1,
-    nombreUsuario: String = "Juan",
-    imagenUsuario: String = "/imagen/juan",
-    libroID: Int = 10,
     puntuacion: Double = 4.5,
     comentario: String = "Excelente libro, lo volvería a leer!",
     fecha: LocalDate = LocalDate.now(),
 ): Calificacion {
     return Calificacion(
-        usuarioID,
-        nombreUsuario,
-        imagenUsuario,
-        libroID,
-        puntuacion,
-        comentario,
-        fecha,
+        reserva = crearReserva_(),
+        puntuacion = puntuacion,
+        comentario = comentario,
+        fecha = fecha,
     )
 }
+
+fun crearReserva_(
+    libro: Libro = ar.edu.unsam.phm.domain.libro_,
+    usuarioPrestador: Usuario = ar.edu.unsam.phm.domain.usuarioPrestador_,
+    usuarioLector: Usuario = ar.edu.unsam.phm.domain.usuarioLector_,
+    fechaRecogida: LocalDate = LocalDate.now().plusDays(7),
+    fechaDevolucion: LocalDate = LocalDate.now().plusDays(14),
+): Reserva {
+    return Reserva(
+        libro = libro,
+        usuarioLector = usuarioLector,
+        usuarioPrestador = usuarioPrestador,
+        fechaRecogida = fechaRecogida,
+        fechaDevolucion = fechaDevolucion,
+    )
+}
+
+val libro_ = Libro(
+    titulo = "Dune",
+    tipoLibro = comun,
+    descripcion = "Sci-fi clásica",
+    portada = "https://covers.openlibrary.org/b/id/15092781-L.jpg",
+    genero = Genero.CIENCIA_FICCION,
+    autor = "Frank Herbert",
+    cantidadPaginas = 412,
+    isbn13 = 9780441172719L,
+    idioma = Idioma.INGLES,
+    editorial = "Chilton Books",
+    fechaPublicacion = LocalDate.of(1965, 8, 1),
+    estadoLibro = EstadoLibro.MUY_BUENO,
+    idPropietario = 1
+)
+
+val usuarioPrestador_ = Usuario(
+    id = 1,
+    nombre = "Juan",
+    apellido = "Perez",
+    descripcion = "Lector de ciencia ficción",
+    email = "juan@mail.com",
+    celular = "111111",
+    ciudad = "Buenos Aires",
+    tipoUsuario = lectorPublicador,
+    urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
+).apply { biblioKarma = 2000 }
+
+val usuarioLector_ = Usuario(
+    id = 2,
+    nombre = "Ana",
+    apellido = "Gomez",
+    descripcion = "Fan de novelas",
+    email = "ana@mail.com",
+    celular = "222222",
+    ciudad = "Buenos Aires",
+    tipoUsuario = lectorPublicador,
+    urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
+).apply { biblioKarma = 4000 }
