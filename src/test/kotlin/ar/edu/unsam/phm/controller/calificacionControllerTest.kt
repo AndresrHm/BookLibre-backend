@@ -26,7 +26,10 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             )
             .andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].nombreUsuario").value("Juan Perez"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].imagenUsuario").value("https://ui-avatars.com/api/?name=Juan+Perez"))
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$.content[0].imagenUsuario")
+                    .value("https://ui-avatars.com/api/?name=Juan+Perez")
+            )
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].puntuacion").value("4.5"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Me encantó"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].fecha").value("2026-03-16"))
@@ -38,7 +41,8 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el libro no existe, no se retorna ninguna calificación`() {
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/{libroId}/calificaciones", 69420)
-                .param("page", "0"))
+                .param("page", "0")
+        )
             .andExpect(status().isNotFound).andReturn().resolvedException?.message
 
         assertEquals(errorMessage, "No existe libro con el id 69420.")
@@ -49,13 +53,11 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario devolvió el libro, y es lector, puede calificarlo`() {
         // Libro[40] (ID 41) -> It, prestado por usuario con ID 5 a usuario con ID 3.
         // Tiene fecha de devolución como hoy - 1 día.
-
+        // Reserva ID 55.
         val requestBody = """
     {
-        "libroId": "41",
-        "usuarioId": "3",
-        "nombreUsuario": "Juan Pérez",
-        "imagenUsuario": "/JuanPerez",
+        "reservaId": 55,
+        "usuarioId": 3,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
@@ -73,13 +75,12 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario no es lector, no puede calificarlo`() {
         // Libro[40] (ID 41) -> It, prestado por usuario con ID 5 a usuario con ID 3.
         // Tiene fecha de devolución como hoy - 1 día.
+        // Reserva ID 55.
 
         val requestBody = """
     {
-        "libroId": 41,
-        "usuarioId": 1,
-        "nombreUsuario": "Juan Pérez",
-        "imagenUsuario": "/JuanPerez",
+        "reservaId": 55,
+        "usuarioId": 69420,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
@@ -91,23 +92,22 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
-            .andExpect(status().isNotFound)
+            .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario no puede calificar este libro.")
+        assertEquals(errorMessage, "El usuario no puede calificar este libro")
     }
 
     @Test
     fun `Si el usuario es lector pero aún no terminó la reserva, no puede calificarlo`() {
         // Libro[41] (ID 42) -> Carrie, prestado por usuario con ID 5 a usuario con ID 3.
         // Tiene fecha de devolución como hoy + 3 días.
+        // Reserva ID 56.
 
         val requestBody = """
     {
-        "libroId": 42,
+        "reservaId": 56,
         "usuarioId": 3,
-        "nombreUsuario": "Juan Pérez",
-        "imagenUsuario": "/JuanPerez",
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
@@ -122,6 +122,6 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "Podrá calificar el libro cuando termine su reserva.")
+        assertEquals(errorMessage, "Podrá calificar el libro cuando termine la reserva")
     }
 }

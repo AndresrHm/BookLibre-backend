@@ -14,27 +14,27 @@ class CalificacionRepository : Repositorio<Calificacion>() {
     ): PageResult<Calificacion> {
 
         val calificacionesOrdenadas = when (orden) {
-            OrdenCalificacion.DATE_ASC -> getElementos().filter { it.libroID == libro.id }.sortedBy { it.fecha }
+            OrdenCalificacion.DATE_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedBy { it.fecha }
 
-            OrdenCalificacion.DATE_DESC -> getElementos().filter { it.libroID == libro.id }.sortedByDescending { it.fecha }
+            OrdenCalificacion.DATE_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedByDescending { it.fecha }
 
-            OrdenCalificacion.RATING_ASC -> getElementos().filter { it.libroID == libro.id }.sortedBy { it.puntuacion }
+            OrdenCalificacion.RATING_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedBy { it.puntuacion }
 
-            OrdenCalificacion.RATING_DESC -> getElementos().filter { it.libroID == libro.id }.sortedByDescending { it.puntuacion }
+            OrdenCalificacion.RATING_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedByDescending { it.puntuacion }
         }
 
         return paginate(page, size, calificacionesOrdenadas)
     }
 
     fun obtenerUltimasCalificaciones(libro: Libro): List<Calificacion> {
-        val calificaciones = getElementos().filter { it.libroID == libro.id }.sortedBy { it.fecha }.take(2)
+        val calificaciones = getElementos().filter { it.reserva.libro.id == libro.id }.sortedBy { it.fecha }.take(2)
 
         return calificaciones
     }
 
     fun agregarCalificacion(calificacion: Calificacion) {
         val existente = getElementos().find {
-            it.libroID == calificacion.libroID && it.usuarioID == calificacion.usuarioID
+            (it.reserva.libro.id == calificacion.reserva.libro.id) && (it.reserva.usuarioLector.id == calificacion.reserva.usuarioLector.id)
         }
 
         if (existente == null) {
@@ -46,7 +46,7 @@ class CalificacionRepository : Repositorio<Calificacion>() {
     }
 
     fun obtenerPromedio(libroID: Int): Double {
-        val calificaciones = getElementos().filter { it.libroID == libroID }
+        val calificaciones = getElementos().filter { it.reserva.libro.id == libroID }
 
         return (calificaciones.sumOf { it.puntuacion } / calificaciones.size)
     }
