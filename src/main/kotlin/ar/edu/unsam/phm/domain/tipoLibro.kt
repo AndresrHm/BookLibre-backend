@@ -1,8 +1,5 @@
 package ar.edu.unsam.phm.domain
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeName
 import kotlin.math.ceil
 
 interface TipoLibro {

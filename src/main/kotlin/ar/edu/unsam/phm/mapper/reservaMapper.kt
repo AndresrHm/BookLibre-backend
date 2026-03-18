@@ -1,13 +1,14 @@
 package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
-import ar.edu.unsam.phm.dto.ReservaDTO
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import ar.edu.unsam.phm.dto.ReservaDetalleDTO
+import org.springframework.stereotype.Component
 
-object ReservaMapper {
-    fun toDTO(obj: Reserva, userID: Int): ReservaDTO {
+@Component
+class ReservaMapper {
+    fun toReservaDetalleDTO(obj: Reserva, userID: Int): ReservaDetalleDTO {
         val puedeCalificar =
             obj.usuarioLector.id == userID &&
                     obj.estado() == EstadoReserva.DEVUELTO
@@ -19,7 +20,7 @@ object ReservaMapper {
                 obj.usuarioLector.nombre
             }
 
-        return ReservaDTO(
+        return ReservaDetalleDTO(
             reservaId = obj.id,
             libroId = obj.libro.id,  // para poder calificarlo fácilmente
             titulo = obj.libro.titulo,
@@ -32,6 +33,16 @@ object ReservaMapper {
             estado = obj.estado(),
             puedeCalificar = puedeCalificar,
             biblioKarma = obj.libro.darKarma(obj),
+        )
+    }
+
+    fun toCreacionReservaDTO(reserva: Reserva): CreacionReservaDTO {
+        return CreacionReservaDTO(
+            libroId = reserva.libro.id,
+            usuarioPrestadorId = reserva.usuarioPrestador.id,
+            usuarioLectorId = reserva.usuarioLector.id,
+            fechaRecogida = reserva.fechaRecogida,
+            fechaDevolucion = reserva.fechaDevolucion
         )
     }
 }

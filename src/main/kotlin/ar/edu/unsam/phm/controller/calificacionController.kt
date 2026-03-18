@@ -24,7 +24,6 @@ class CalificacionController(val calificacionService: CalificacionService) {
         @RequestParam usuarioId: Int,
         @RequestBody crearCalificacionDTO: CrearCalificacionDTO
     ) {
-        println(crearCalificacionDTO)
         return calificacionService.calificarLibro(usuarioId, libroId, CrearCalificacionMapper.toDomain(crearCalificacionDTO))
     }
 
