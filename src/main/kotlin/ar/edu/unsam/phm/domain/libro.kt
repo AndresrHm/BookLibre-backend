@@ -41,8 +41,27 @@ class Libro(
 
     fun calcularKarmaHomePage(usuarioLector : Usuario) : Int = tipoLibro.posibleKarmaALector(this, usuarioLector)
 
-    fun reservar() {
+    fun reservar(
+        fechaRecogida: LocalDate,
+        fechaDevolucion: LocalDate,
+        fechasDeReservas: List<Pair<LocalDate, LocalDate>>
+    ) {
+        validarReserva(fechaRecogida, fechaDevolucion, fechasDeReservas)
         cantidadReservas += 1
+    }
+
+    fun validarReserva(
+        fechaRecogida: LocalDate,
+        fechaDevolucion: LocalDate,
+        fechasDeReserva: List<Pair<LocalDate, LocalDate>>
+    ) {
+        val haySolapamiento = (fechasDeReserva.any {
+            // first: Inicio de reserva existente
+            // second: Fin de reserva existente
+            fechaRecogida <= it.second && fechaDevolucion >= it.first
+        })
+
+        if (haySolapamiento) throw BusinessException("Existe una reserva en la fecha estipulada")
     }
 
     // Para página de detalle
@@ -55,6 +74,7 @@ class Libro(
         rating = nuevoRating
     }
 
+    // Validaciones de creación/edición
     private fun verficarTitulo() {
         if (titulo.isBlank()) {
             throw BusinessException("El libro debe tener un título")
@@ -97,6 +117,7 @@ class Libro(
             throw BusinessException("El código ISBN-13 debe contener 13 dígitos")
         }
     }
+
     fun getFechaAsString(): String = fechaAgregado.formatear()
 }
 

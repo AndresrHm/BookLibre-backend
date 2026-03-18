@@ -3,7 +3,6 @@ package ar.edu.unsam.phm.repository
 import ar.edu.unsam.phm.domain.PageResult
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.paginate
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -49,7 +48,13 @@ open class ReservaRepository : Repositorio<Reserva>() {
         return paginate(page, size, filtered)
     }
 
-    // obtenemos última reseña (userID + libroID)
+    // obtener reservas asociadas a un libro
+    fun findByLibroId(libroID: Int) : List<Reserva> {
+        val listaDeReservas = getElementos().filter { it.libro.id == libroID }
+        return listaDeReservas
+    }
+
+    // obtenemos última reserva (userID + libroID)
     fun obtenerUltimaReserva(usuarioID: Int, libroID: Int): Reserva? {
         return getElementos()
             .filter { it.usuarioLector.id == usuarioID && it.libro.id == libroID }
