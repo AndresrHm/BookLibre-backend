@@ -84,7 +84,7 @@ class LibroMapper(
             estado = libro.estadoLibro,
             rating = libro.rating(),
             cantidadResenias = libro.cantidadResenias,
-            reseniasRecientes = libroReseniasRecientes
+            reseniasRecientes = CalificacionMapper.toDTO(libroReseniasRecientes)
         )
         return libroDetalle
     }

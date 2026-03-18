@@ -1157,7 +1157,6 @@ class BootstrapData(
         reservas: List<Reserva>,
     ) {
         val hoy = LocalDate.now()
-
         val comentarios = listOf(
             "Muy bueno",
             "Excelente lectura",
@@ -1167,18 +1166,13 @@ class BootstrapData(
             "No era lo que esperaba",
             "Volvería a leerlo"
         )
-
         val puntuaciones = listOf(2.5, 3.0, 3.5, 4.0, 4.5, 5.0)
-
         val calificaciones = reservas
             .filter { it.estado(hoy) == EstadoReserva.DEVUELTO }
             .map { reserva ->
-
                 val libro = reserva.libro
                 val usuario = reserva.usuarioLector
-
                 val seed = libro.id + usuario.id
-
                 Calificacion(
                     reserva = reserva,
                     puntuacion = puntuaciones[seed % puntuaciones.size],
@@ -1186,17 +1180,21 @@ class BootstrapData(
                     fecha = reserva.fechaDevolucion
                 )
             }
-
-        calificaciones.forEach {
+        val calificacionesUnicas = calificaciones
+            .sortedBy { it.fecha }
+            .associateBy { it.reserva.libro.id to it.reserva.usuarioLector.id }
+            .values
+            .toList()
+        calificacionesUnicas.forEach {
             calificacionRepository.agregarCalificacion(it)
         }
-
-        // recalcular rating por libro
-        calificaciones
+        calificacionesUnicas
             .groupBy { it.reserva.libro.id }
-            .forEach { (libroID, _) ->
+            .forEach { (libroID, reseniasLibro) ->
                 val promedio = calificacionRepository.obtenerPromedio(libroID)
-                libroRepository.actualizarRating(libroID, promedio)
+                repeat(reseniasLibro.size) {
+                    libroRepository.actualizarRating(libroID, promedio)
+                }
             }
     }
 }
