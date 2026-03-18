@@ -67,6 +67,8 @@ class Libro(
     }
 
     fun actualizarRating(nuevoRating: Double) {
+        if (nuevoRating < 0.0 || nuevoRating > 5.0)
+            throw BusinessException("La calificación del libro debe ser un número entre 0 y 5")
         cantidadResenias += 1
         rating = nuevoRating
     }
