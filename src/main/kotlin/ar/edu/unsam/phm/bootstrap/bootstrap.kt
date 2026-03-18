@@ -7,8 +7,8 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
-import ar.edu.unsam.phm.domain.lectorPublicador
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.coleccionable
 import ar.edu.unsam.phm.domain.conDedicatoria
 import ar.edu.unsam.phm.dto.EstadoReserva
@@ -54,7 +54,7 @@ class BootstrapData(
                 email = "juan@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
             ).apply { biblioKarma = 2000 },
 
@@ -66,7 +66,7 @@ class BootstrapData(
                 email = "ana@mail.com",
                 celular = "222222",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
             ).apply { biblioKarma = 4000 },
 
@@ -78,7 +78,7 @@ class BootstrapData(
                 email = "carlos@mail.com",
                 celular = "333333",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez"
             ).apply { biblioKarma = 1500 },
 
@@ -90,7 +90,7 @@ class BootstrapData(
                 email = "lucia@mail.com",
                 celular = "444444",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez"
             ).apply { biblioKarma = 3200 },
 
@@ -102,7 +102,7 @@ class BootstrapData(
                 email = "email123@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = lectorPublicador,
+                tipoUsuario = TipoUsuario.LECTOR,
                 urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3"
             ).apply { biblioKarma = 9999 },
 
