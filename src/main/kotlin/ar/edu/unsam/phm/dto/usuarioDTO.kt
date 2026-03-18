@@ -9,6 +9,11 @@ data class UsuarioHeaderDTO(
     val biblioKarma: Int
 )
 
+data class UsuarioKarmaDTO(
+    val id: Int,
+    val biblioKarma: Int
+)
+
 data class UsuarioEdicionDTO(
     val nombre: String,
     val apellido: String,

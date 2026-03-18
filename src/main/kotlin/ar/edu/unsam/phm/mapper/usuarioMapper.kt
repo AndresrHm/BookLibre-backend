@@ -3,6 +3,7 @@ package ar.edu.unsam.phm.mapper
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
+import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
 import org.springframework.stereotype.Component
 
@@ -29,6 +30,11 @@ class UsuarioMapper(
     fun toUsuarioHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(
         id = usuario.id,
         urlImagen = usuario.urlImagen,
+        biblioKarma = usuario.biblioKarma
+    )
+
+    fun toUsuarioKarma(usuario: Usuario): UsuarioKarmaDTO = UsuarioKarmaDTO(
+        id = usuario.id,
         biblioKarma = usuario.biblioKarma
     )
 }
