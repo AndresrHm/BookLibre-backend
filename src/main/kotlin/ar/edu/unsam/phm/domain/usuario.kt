@@ -1,10 +1,12 @@
 package ar.edu.unsam.phm.domain
 
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import java.time.LocalDate
 
 class Usuario(
+    override var id: Int = -1,
     var nombre: String,
     var apellido: String,
     var descripcion: String,
@@ -13,7 +15,6 @@ class Usuario(
     var ciudad: String,
     var tipoUsuario: TipoUsuario = lector,
     var urlImagen: String,
-    override var id: Int = -1
 ) : Identificable {
     var biblioKarma: Int = 0
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
@@ -25,6 +26,9 @@ class Usuario(
     }
 
     fun sumarKarma(karma: Int) {
+        if (karma <= 0)
+            throw BusinessException("Solo se puede sumar karma positivo")
+
         biblioKarma += karma
     }
 

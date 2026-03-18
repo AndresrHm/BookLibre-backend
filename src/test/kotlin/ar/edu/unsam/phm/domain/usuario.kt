@@ -1,0 +1,71 @@
+package ar.edu.unsam.phm.domain
+
+import ar.edu.unsam.phm.BusinessException
+import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
+import java.time.LocalDate
+
+class UsuarioSpec : DescribeSpec({
+    describe("Test de Usuario") {
+        val usuario = crearUsuario()
+        it("un usuario puede sumar karma") {
+            usuario.biblioKarma.shouldBe(0)
+
+            usuario.sumarKarma(100)
+
+            usuario.biblioKarma.shouldBe(100)
+        }
+
+        it("un usuario no puede sumar karma menor a 1") {
+            usuario.biblioKarma.shouldBe(0)
+
+            shouldThrow<BusinessException> {
+                usuario.sumarKarma(0)
+            }
+        }
+
+        it("un usuario puede realizar una reserva, lo que aumenta su karma") {
+            val libroReserva = crearLibro(
+                tipoLibro = comun,
+                idPropietario = 2
+            )
+            val usuarioPrestador = crearUsuario(id = 2)
+            val fechasDeReservas = listOf<Pair<LocalDate, LocalDate>>()
+            
+            usuario.crearReserva(
+                libroReserva,
+                usuarioPrestador,
+                LocalDate.now(),
+                LocalDate.now().plusDays(1),
+                fechasDeReservas
+            ) //Esta reserva provee 15 bibliokarmas
+
+            usuario.biblioKarma.shouldBe(15)
+        }
+    }
+})
+
+fun crearUsuario(
+    id: Int = 1,
+    nombre: String = "NombreUsuario",
+    apellido: String = "ApellidoUsuario",
+    descripcion: String = "DescripcionUsuario",
+    email: String = "emailusuario@gmail.com",
+    celular: String = "1111111111",
+    ciudad: String = "CiudadUsuario",
+    tipoUsuario: TipoUsuario = lector,
+    urlImagen: String = "imagenUsuario"
+): Usuario {
+    return Usuario(
+        nombre = nombre,
+        apellido = apellido,
+        descripcion = descripcion,
+        email = email,
+        celular = celular,
+        ciudad = ciudad,
+        tipoUsuario = tipoUsuario,
+        urlImagen = urlImagen
+    )
+}
