@@ -13,8 +13,7 @@ data class Calificacion(
     override var id: Int = -1
 
     init {
-        requireBusiness(puntuacion in 0.0..5.0, "puntuacion debe estar entre 0.0 y 5.0")
-        requireBusiness(comentario.isNotBlank(), "comentario no debe estar vacío")
+        requireBusiness(puntuacion in 0.5..5.0, "puntuacion debe estar entre 0.5 y 5.0")
         requireBusiness(comentario.length <= 500, "comentario no debe superar los 500 caracteres")
     }
 }
