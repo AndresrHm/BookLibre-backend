@@ -39,7 +39,7 @@ class Libro(
 
     fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
 
-    fun calcularKarmaHomePage(usuarioLector : Usuario) : Int = tipoLibro.posibleKarmaALector(this, usuarioLector)
+    fun calcularKarmaHomePage(usuarioLector : Usuario) : Int = tipoLibro.posibleKarmaALector( this, usuarioLector)
 
     fun reservar(
         fechaRecogida: LocalDate,
