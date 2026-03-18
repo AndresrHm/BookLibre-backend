@@ -58,6 +58,7 @@ data class LibroHomeUsuarioDTO(
     val isbn13: Long,
     val descripcion: String,
     val rating: Double,
+    val biblioKarma : Int
 )
 
 data class FiltrosDeLibrosDTO(
@@ -68,7 +69,8 @@ data class FiltrosDeLibrosDTO(
     val fechaHasta: LocalDate?,
     val isbn13: Long?,
     val usuarioPrestador: Usuario?,
-    val search: String?
+    val search: String?,
+    val usuarioLector: Usuario?
 )
 
 data class LibroUsuarioPerfilDTO(

@@ -15,12 +15,12 @@ import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.lector
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
-/*
+
 class EspecTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
 
@@ -38,7 +38,7 @@ class EspecTest : DescribeSpec({
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
             ciudad = "Buenos Aires",
-            tipoUsuario = lector,
+            tipoUsuario = TipoUsuario.LECTOR,
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -49,7 +49,7 @@ class EspecTest : DescribeSpec({
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
             ciudad = "Cordoba",
-            tipoUsuario = lector,
+            tipoUsuario = TipoUsuario.LECTOR,
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -175,7 +175,8 @@ class EspecTest : DescribeSpec({
                 paginasMax = null,
                 isbn13 = null,
                 usuarioPrestador = null,
-                search = null
+                search = null,
+                usuarioLector = null,
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
@@ -217,7 +218,8 @@ class EspecTest : DescribeSpec({
                 paginasMax = null,
                 isbn13 = null,
                 usuarioPrestador = null,
-                search = null
+                search = null,
+                usuarioLector = null
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
@@ -239,7 +241,8 @@ class EspecTest : DescribeSpec({
                 paginasMax = null,
                 isbn13 = null,
                 usuarioPrestador = null,
-                search = "Dune"
+                search = "Dune",
+                usuarioLector = null
             )
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
@@ -282,4 +285,4 @@ fun crearLibro(
         idPropietario
     )
 }
-*/
+

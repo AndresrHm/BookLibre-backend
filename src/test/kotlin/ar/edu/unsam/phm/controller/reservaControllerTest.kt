@@ -1,7 +1,5 @@
 package ar.edu.unsam.phm.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import io.kotest.core.spec.style.AnnotationSpec
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,8 +18,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     // ----- Reservas Realizadas -----
     @Test
     fun `Un usuario puede obtener sus reservas realizadas correctamente (toMe)`() {
-        val mapper = ObjectMapper()
-
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 1)
@@ -35,7 +31,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Si el usuario es inexistente, se rechaza la request`() {
-        val mapper = ObjectMapper()
 
         val errorMessage = mockMvc
             .perform(
@@ -51,7 +46,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `El filtrado funciona correctamente`() {
-        val mapper = ObjectMapper()
 
         mockMvc
             .perform(
@@ -80,7 +74,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     // ----- Reservas Recibidas -----
     @Test
     fun `Un usuario puede obtener sus reservas recibidas correctamente (byMe)`() {
-        val mapper = ObjectMapper()
 
         mockMvc
             .perform(
@@ -95,7 +88,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `_Si el usuario es inexistente, se rechaza la request`() {
-        val mapper = ObjectMapper()
 
         val errorMessage = mockMvc
             .perform(
@@ -111,8 +103,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `_El filtrado funciona correctamente`() {
-        val mapper = ObjectMapper()
-
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 1)

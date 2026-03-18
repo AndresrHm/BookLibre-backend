@@ -20,11 +20,13 @@ class UsuarioController(
     @GetMapping("/usuarioHeader/{usuarioId}")
     fun getUsuarioHeader(@PathVariable usuarioId: Int) = usuarioService.usuarioHeaderInfo(usuarioId)
 
-    @PutMapping("/updateUsuario/{usuarioId}")
+    @PutMapping("/usuarioUpdate")
     fun updateUsuario(
-        @PathVariable usuarioId: Int,
         @RequestBody usuario: UsuarioEdicionDTO
-    ) = usuarioService.updateUsuario(usuario, usuarioId)
+    ) = usuarioService.usuarioUpdate(usuario)
+
+    @GetMapping("/getUsuarioUpdate/{usuarioId}")
+    fun getUsuarioUpdate(@PathVariable usuarioId: Int) = usuarioService.getUsuarioUpdate(usuarioId)
 
     @GetMapping("/usuarioPerfil/{usuarioId}")
     fun getUsuario(@PathVariable usuarioId: Int) = usuarioService.usuarioPerfil(usuarioId)

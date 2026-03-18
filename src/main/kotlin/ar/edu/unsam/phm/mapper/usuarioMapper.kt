@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
+import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
 import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -31,6 +32,16 @@ class UsuarioMapper(
         id = usuario.id,
         urlImagen = usuario.urlImagen,
         biblioKarma = usuario.biblioKarma
+    )
+
+    fun toUsuarioEdicionDTO(usuario: Usuario): UsuarioEdicionDTO = UsuarioEdicionDTO(
+        id = usuario.id,
+        nombre = usuario.nombre,
+        apellido = usuario.apellido,
+        descripcion = usuario.descripcion,
+        ciudad = usuario.ciudad,
+        tipoUsuario = usuario.tipoUsuario,
+        urlImagen = usuario.urlImagen
     )
 
     fun toUsuarioKarma(usuario: Usuario): UsuarioKarmaDTO = UsuarioKarmaDTO(

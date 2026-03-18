@@ -13,7 +13,7 @@ class Usuario(
     var email: String,
     var celular: String,
     var ciudad: String,
-    var tipoUsuario: TipoUsuario = lector,
+    var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
 ) : Identificable {
     var biblioKarma: Int = 0
@@ -64,6 +64,10 @@ class Usuario(
 
     fun getFechaCreacionAsString(): String = fechaDeCreacion.formatear()
     fun getCantidadDeLibrosLeidos(): Int = listaDeLibrosPedidos.size
+}
+
+enum class TipoUsuario {
+    LECTOR, PUBLICADOR, LECTORPUBLICADOR
 }
 
 
