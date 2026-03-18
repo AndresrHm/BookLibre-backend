@@ -17,8 +17,6 @@ import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.lector
-import ar.edu.unsam.phm.domain.publicador
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -30,7 +28,7 @@ class EspecTest : DescribeSpec({
         val repositoryReservas = ReservaRepository()
         val repositoryLibros = LibroRepository(repositoryReservas)
         val repositoryUsuario = UsuarioRepository()
-        val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario)
+        val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario, repositoryLibros)
         val serviceLibros = LibroService(repositoryLibros, serviceReservas, LibroMapper(repositoryLibros))
 
         val usuario1 = Usuario(
