@@ -88,7 +88,7 @@ class ReservaService(
         if (fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now())
             throw BusinessException("No se puede realizar una reserva para una fecha anterior a la actual")
 
-        if (libro.id != usuarioPrestador.id)
+        if (libro.idPropietario != usuarioPrestador.id)
             throw BusinessException("El libro no pertenece al usuario prestador")
 
         if (usuarioLector.id == libro.id)
