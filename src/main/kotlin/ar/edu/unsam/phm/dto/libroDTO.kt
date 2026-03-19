@@ -99,3 +99,12 @@ enum class FiltroDisponibilidadPerfil {
     DISPONIBLES,
     PRESTADOS
 }
+
+enum class OrdenHomePage {
+    NOMBRE_ASC
+    , NOMBRE_DESC
+    , AUTOR_ASC
+    , AUTOR_DESC
+    , USER_ASC
+    , USER_DESC
+}

@@ -16,9 +16,11 @@ import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
+import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -26,6 +28,7 @@ import java.time.LocalDate
 class LibroService(
     var repositorioLibro: LibroRepository,
     var serviceReservas: ReservaService,
+    var repoitorioUsuario: UsuarioRepository,
     var libroMapper: LibroMapper
 ) {
     private fun getLibroByIdOrThrow(idLibro: Int): Libro =
@@ -70,17 +73,6 @@ class LibroService(
         return getLibroByIdOrThrow(idLibro)
     }
 
-    /*
-    fun getLibrosDisponiblesPorFecha(desde: LocalDate, hasta: LocalDate): List<Libro> {
-        val librosReservados= serviceReservas.getLibrosReservadosEntreFechas(desde, hasta)
-        return repositorioLibro.allInstances().filter { it !in librosReservados }
-    }
-    fun getLibrosPorGeneroExacto(genero: Genero): List<Libro> {
-        return repositorioLibro.allInstances().filter { it.genero == genero }
-    }
-    fun getLibrosPorRangoDePaginas(min: Int, max: Int): List<Libro> {
-        return repositorioLibro.allInstances().filter { it.cantidadPaginas in min..max }
-    }*/
     private val filtrosAplicables: List<FiltroDeLibro> = listOf(
         BusquedaPorNombreFiltro(),
         EntreFechasFiltro(serviceReservas),
@@ -93,16 +85,29 @@ class LibroService(
     fun getLibrosPorFiltros(
         filtros: FiltrosDeLibrosDTO,
         page: Int = 0,
-        size: Int = 6
+        size: Int = 6,
+        ordenHomePage: OrdenHomePage,
+        userId: Int
     ): PageResponse<Libro> {
         require(page >= 0) { "page no puede ser negativo" }
         require(size > 0) { "size debe ser mayor a 0" }
 
-        val librosFiltrados = filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
-            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+        val librosFiltrados = filtrosAplicables
+            .fold(repositorioLibro.getElementos()) { resultado, filtro ->
+                if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+            }
+            .filter { it.idPropietario != userId }
+
+        val librosPorFiltroOrdenado = when (ordenHomePage) {
+            OrdenHomePage.NOMBRE_ASC -> librosFiltrados.sortedBy { it.titulo.lowercase() }
+            OrdenHomePage.NOMBRE_DESC -> librosFiltrados.sortedByDescending { it.titulo.lowercase() }
+            OrdenHomePage.AUTOR_ASC -> librosFiltrados.sortedBy { it.autor.lowercase() }
+            OrdenHomePage.AUTOR_DESC -> librosFiltrados.sortedByDescending { it.autor.lowercase() }
+            OrdenHomePage.USER_ASC -> librosFiltrados.sortedBy { repoitorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
+            OrdenHomePage.USER_DESC -> librosFiltrados.sortedByDescending { repoitorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
         }
 
-        val pageResult = paginate(page, size, librosFiltrados)
+        val pageResult = paginate(page, size, librosPorFiltroOrdenado)
         val totalPages = if (pageResult.totalElements == 0) 0 else (pageResult.totalElements + size - 1) / size
 
         return PageResponse(
@@ -113,20 +118,16 @@ class LibroService(
             totalPages = totalPages
         )
     }
-    fun bringKarma(libro: Libro, usuarioId: Int): Int {
+    fun bringKarma(libro: Libro, usuarioId: Int, fechaIni : LocalDate?, fechaFin: LocalDate?): Int {
         val usuarioLector = serviceReservas.usuarioRepository.getById(usuarioId)
             ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
 
-        return libro.calcularKarmaHomePage(usuarioLector)
-    }
-//        filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
-//            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
-//        }
-//    fun getLibrosPorFiltros(filtros: FiltrosDeLibrosDTO): List<Libro> =
-//        filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
-//            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
-//        }
 
+        val fechaDesde = fechaIni ?: LocalDate.now()
+        val fechaHasta = fechaFin ?: LocalDate.now()
+
+        return libro.calcularKarmaHomePage(usuarioLector, fechaDesde, fechaHasta)
+    }
 
     fun obtenerLibrosDeUsuario(
         usuarioId: Int,
