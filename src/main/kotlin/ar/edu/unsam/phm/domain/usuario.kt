@@ -52,6 +52,7 @@ class Usuario(
             fechaRecogida = fechaRecogida,
             fechaDevolucion = fechaDevolucion,
         )
+        agregarLibroLeido()
         sumarKarma(reserva.darKarma())
         return reserva
     }
