@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.dto.RegisterRequestDTO
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
@@ -48,4 +49,17 @@ class UsuarioMapper(
         id = usuario.id,
         biblioKarma = usuario.biblioKarma
     )
+
+    fun registerRequestDTOtoUsuario(register: RegisterRequestDTO): Usuario = Usuario(
+        id = 0,
+        nombre = register.nombre,
+        apellido = register.apellido,
+        descripcion = "",
+        ciudad = register.ciudad,
+        tipoUsuario = register.tipoDeUsuario,
+        urlImagen = "",
+        email = register.email,
+        celular = register.celular,
+
+    ).apply {passwordSesion = register.password}
 }

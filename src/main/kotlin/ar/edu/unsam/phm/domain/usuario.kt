@@ -20,6 +20,7 @@ class Usuario(
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
     val listaDeLibrosPedidos = mutableListOf<Libro>()
     val fechaDeCreacion = LocalDate.now()
+    lateinit var passwordSesion: String
 
     fun agregarLibroParaPrestar(libro: Libro) {
         listaDeLibrosParaPrestar.add(libro)
