@@ -36,6 +36,7 @@ class EspecTest : DescribeSpec({
             repositoryUsuario,
             LibroMapper(repositoryLibros)
         )
+        val userIdConsulta = 999
 
         val usuario1 = crearUsuario(
             id = 1,
@@ -192,7 +193,8 @@ class EspecTest : DescribeSpec({
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(
                 filtroDeLibros,
-                ordenHomePage = OrdenHomePage.NOMBRE_ASC
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = userIdConsulta
             )
             librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
         }
@@ -236,7 +238,8 @@ class EspecTest : DescribeSpec({
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(
                 filtroDeLibros,
-                ordenHomePage = OrdenHomePage.NOMBRE_ASC
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = userIdConsulta
             )
             librosFiltrados.content shouldBe listOf(libro2)
         }
@@ -262,7 +265,8 @@ class EspecTest : DescribeSpec({
 
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(
                 filtroDeLibros,
-                ordenHomePage = OrdenHomePage.NOMBRE_ASC
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = userIdConsulta
             )
             librosFiltrados.content shouldBe listOf(libro2, libro6)
         }
