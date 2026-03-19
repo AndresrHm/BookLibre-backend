@@ -8,8 +8,6 @@ import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.LibroService
@@ -20,6 +18,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
 
@@ -31,7 +30,12 @@ class EspecTest : DescribeSpec({
         val repositoryLibros = LibroRepository(repositoryReservas)
         val repositoryUsuario = UsuarioRepository()
         val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario, repositoryLibros)
-        val serviceLibros = LibroService(repositoryLibros, serviceReservas, LibroMapper(repositoryLibros))
+        val serviceLibros = LibroService(
+            repositoryLibros,
+            serviceReservas,
+            repositoryUsuario,
+            LibroMapper(repositoryLibros)
+        )
 
         val usuario1 = crearUsuario(
             id = 1,
@@ -186,7 +190,10 @@ class EspecTest : DescribeSpec({
                 usuarioLector = null,
             )
 
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+                filtroDeLibros,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC
+            )
             librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
         }
         it("devuelve libros con filtro de genero y fechas") {
@@ -227,7 +234,10 @@ class EspecTest : DescribeSpec({
                 usuarioLector = null
             )
 
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+                filtroDeLibros,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC
+            )
             librosFiltrados.content shouldBe listOf(libro2)
         }
         it("devuelve libros por nombre") {
@@ -250,7 +260,10 @@ class EspecTest : DescribeSpec({
                 usuarioLector = null
             )
 
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+                filtroDeLibros,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC
+            )
             librosFiltrados.content shouldBe listOf(libro2, libro6)
         }
 

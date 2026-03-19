@@ -7,6 +7,7 @@ import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.mapper.LibroMapper
@@ -76,12 +77,14 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
         @RequestBody filtros: FiltrosDeLibrosDTO,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
-        @RequestParam userId: Int
+        @RequestParam userId: Int,
+        @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
         ): PageResponse<LibroHomeUsuarioDTO> {
-        val pageResult = libroService.getLibrosPorFiltros(filtros, page, size)
+        val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage)
 
         return PageResponse(
-            content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it, libroService.bringKarma(it, userId)) },
+            content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it, libroService.bringKarma
+                (it, userId, filtros.fechaDesde, filtros.fechaHasta )) },
             page = pageResult.page,
             size = pageResult.size,
             totalElements = pageResult.totalElements,
