@@ -60,5 +60,6 @@ class UsuarioMapper(
         urlImagen = "",
         email = register.email,
         celular = register.celular,
-    )
+
+    ).apply {passwordSesion = register.password}
 }
