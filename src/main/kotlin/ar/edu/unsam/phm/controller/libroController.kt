@@ -39,6 +39,7 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
     ): PageResponse<LibroUsuarioPerfilDTO> {
         return libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion, filtro)
     }
+
     @PostMapping("libro/crear")
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
         val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)

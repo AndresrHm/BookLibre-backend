@@ -39,7 +39,8 @@ data class LibroDetalleDTO(
     val descripcion: String,
     val rating: Double,
     val cantidadResenias: Int,
-    val reseniasRecientes: List<CalificacionDTO>
+    val reseniasRecientes: List<CalificacionDTO>,
+    val idPropietario: Int
 )
 
 data class LibroHomeUsuarioDTO(
