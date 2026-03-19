@@ -37,4 +37,7 @@ class UsuarioService(
         val usuario = usuarioById(id)
         return usuarioMapper.toUsuarioPerfilDTO(usuario)
     }
+
+
+
 }
