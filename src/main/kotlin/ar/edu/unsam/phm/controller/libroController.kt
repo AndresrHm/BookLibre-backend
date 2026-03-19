@@ -80,7 +80,7 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
         @RequestParam userId: Int,
         @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
         ): PageResponse<LibroHomeUsuarioDTO> {
-        val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage)
+        val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage, userId)
 
         return PageResponse(
             content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it, libroService.bringKarma

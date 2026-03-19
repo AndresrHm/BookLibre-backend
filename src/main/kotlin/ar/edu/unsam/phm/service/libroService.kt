@@ -23,7 +23,6 @@ import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.util.Date
 
 @Service
 class LibroService(
@@ -87,15 +86,19 @@ class LibroService(
         filtros: FiltrosDeLibrosDTO,
         page: Int = 0,
         size: Int = 6,
-        ordenHomePage: OrdenHomePage
+        ordenHomePage: OrdenHomePage,
+        userId: Int
     ): PageResponse<Libro> {
         require(page >= 0) { "page no puede ser negativo" }
         require(size > 0) { "size debe ser mayor a 0" }
 
-        val librosFiltrados = filtrosAplicables.fold(repositorioLibro.getElementos()) { resultado, filtro ->
-            if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
-        }
-        val librosPorFiltroOrdenado= when (ordenHomePage) {
+        val librosFiltrados = filtrosAplicables
+            .fold(repositorioLibro.getElementos()) { resultado, filtro ->
+                if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+            }
+            .filter { it.idPropietario != userId }
+
+        val librosPorFiltroOrdenado = when (ordenHomePage) {
             OrdenHomePage.NOMBRE_ASC -> librosFiltrados.sortedBy { it.titulo.lowercase() }
             OrdenHomePage.NOMBRE_DESC -> librosFiltrados.sortedByDescending { it.titulo.lowercase() }
             OrdenHomePage.AUTOR_ASC -> librosFiltrados.sortedBy { it.autor.lowercase() }
