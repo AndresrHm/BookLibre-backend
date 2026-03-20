@@ -1,4 +1,4 @@
-POST http://localhost:9000/libro/crear
+POST http://localhost:9000/libros
 Content-Type: application/json
 
 {
@@ -15,7 +15,7 @@ Content-Type: application/json
   "fechaPublicacion": "1963-06-28",
   "isbn13": 9788420471006,
   "descripcion": "Una obra maestra.",
-  "idPropietario": 1
+  "idPropietario": 3
 }
 
 ###
