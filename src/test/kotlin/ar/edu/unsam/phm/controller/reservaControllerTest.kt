@@ -41,7 +41,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario no existe")
+        assertEquals(errorMessage, "El usuario logueado no existe")
     }
 
     @Test
@@ -98,7 +98,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario no existe")
+        assertEquals(errorMessage, "El usuario logueado no existe")
     }
 
     @Test

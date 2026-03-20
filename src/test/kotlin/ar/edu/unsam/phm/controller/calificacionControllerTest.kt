@@ -45,7 +45,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         )
             .andExpect(status().isNotFound).andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe libro con el id 69420.")
+        assertEquals(errorMessage, "No existe libro con el id 69420")
     }
 
     // ----- Calificar un libro -----
@@ -95,7 +95,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario no puede calificar este libro")
+        assertEquals(errorMessage, "El usuario logueado no puede calificar este libro")
     }
 
     @Test

@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
-import ar.edu.unsam.phm.dto.ReservaDetalleDTO
+import ar.edu.unsam.phm.dto.ReservaDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
@@ -48,7 +48,7 @@ class ReservaController(
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam string: String?,
-    ): PageResponse<ReservaDetalleDTO> {
+    ): PageResponse<ReservaDTO> {
         val result = reservaService.getReservasRealizadas(id, page, size, string)
 
         return PageResponse(
@@ -66,7 +66,7 @@ class ReservaController(
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam string: String?,
-    ): PageResponse<ReservaDetalleDTO> {
+    ): PageResponse<ReservaDTO> {
         val result = reservaService.getReservasRecibidas(id, page, size, string)
 
         return PageResponse(
