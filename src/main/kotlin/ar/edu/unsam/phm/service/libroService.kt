@@ -31,38 +31,24 @@ class LibroService(
     var repoitorioUsuario: UsuarioRepository,
     var libroMapper: LibroMapper
 ) {
-    private fun getLibroByIdOrThrow(idLibro: Int): Libro =
-        repositorioLibro.getById(idLibro)
-            ?: throw NotFoundException("No existe un libro con el id $idLibro")
-
-    private fun validarPropietario(libro: Libro, idUsuario: Int, idLibro: Int) {
-        if (libro.idPropietario != idUsuario) {
-            throw BusinessException("El libro con id $idLibro no pertenece al usuario $idUsuario")
-        }
-    }
-
     fun crearLibro(libro: Libro): Libro {
         val nuevoLibro = libro
-        nuevoLibro.init()
 
         repositorioLibro.create(nuevoLibro)
         return nuevoLibro
     }
 
-    fun obtenerLibroParaEdicion(idLibro: Int, idUsuario: Int): Libro {
+    fun obtenerLibroParaEdicion(idLibro: Int): Libro {
         val libroParaEdicion = getLibroByIdOrThrow(idLibro)
-        validarPropietario(libroParaEdicion, idUsuario, idLibro)
 
         return libroParaEdicion
     }
 
-    fun editarLibro(libroParaEdicion: Libro, idLibro: Int, idUsuario: Int): Libro {
+    fun editarLibro(libroParaEdicion: Libro, idUsuarioActual: Int): Libro {
         val libroEditado = libroParaEdicion
 
-        libroEditado.init()
-
-        val libroOriginal = getLibroByIdOrThrow(idLibro)
-        validarPropietario(libroOriginal, idUsuario, idLibro)
+        val libroOriginal = getLibroByIdOrThrow(libroParaEdicion.id)
+        validarPropietario(libroOriginal, idUsuarioActual)
 
         repositorioLibro.update(libroEditado)
 
@@ -118,6 +104,7 @@ class LibroService(
             totalPages = totalPages
         )
     }
+
     fun bringKarma(libro: Libro, usuarioId: Int, fechaIni : LocalDate?, fechaFin: LocalDate?): Int {
         val usuarioLector = serviceReservas.usuarioRepository.getById(usuarioId)
             ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
@@ -166,10 +153,21 @@ class LibroService(
             totalPages = totalPaginas,
         )
     }
+
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
-        validarPropietario(libro, idUsuario, idLibro)
+        validarPropietario(libro, idUsuario)
 
         repositorioLibro.delete(libro)
+    }
+
+    private fun getLibroByIdOrThrow(idLibro: Int): Libro =
+        repositorioLibro.getById(idLibro)
+            ?: throw NotFoundException("No existe un libro con el id $idLibro")
+
+    private fun validarPropietario(libro: Libro, idUsuario: Int) {
+        if (libro.idPropietario != idUsuario) {
+            throw BusinessException("El libro con ${libro.id} no pertenece al usuario $idUsuario")
+        }
     }
 }

@@ -24,11 +24,17 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.RequestMapping
 
 @RestController
+@RequestMapping("libros")
 @CrossOrigin("*")
-class LibroController(val libroService: LibroService, val libroMapper: LibroMapper, val calificacionService: CalificacionService) {
-    @GetMapping("/usuarios/{usuarioId}/libros")
+class LibroController(
+    val libroService: LibroService,
+    val libroMapper: LibroMapper,
+    val calificacionService: CalificacionService
+) {
+    @GetMapping("{usuarioId}")
     fun obtenerLibrosDeUsuario(
         @PathVariable usuarioId: Int,
         @RequestParam page: Int = 0,
@@ -40,37 +46,34 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
         return libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion, filtro)
     }
 
-    @PostMapping("libro/crear")
+    @PostMapping
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
         val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
         return this.libroMapper.libroToLibroEdicionDTO(nuevoLibro)
     }
 
-    @GetMapping("libro/editar/{idLibro}/{idUsuario}") //Debería poder hacerse sin idLibro
-    fun obtenerLibroParaEdicion(@PathVariable idLibro: Int, @PathVariable idUsuario: Int): LibroEdicionDTO {
-        val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro, idUsuario)
+    @GetMapping("{idLibro}/edicion")
+    fun obtenerLibroParaEdicion(@PathVariable idLibro: Int): LibroEdicionDTO {
+        val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro)
         return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
 
-
-    @GetMapping("libro/detalle/{idLibro}")
+    @GetMapping("{idLibro}/detalle")
     fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
         val libroDetalle = libroService.obtenerLibroDetalle(idLibro)
         val ultimasCalificaciones = calificacionService.obtenerUltimasCalificaciones(idLibro)
         return libroMapper.libroToLibroDetalleDTO(libroDetalle, ultimasCalificaciones)
     }
 
-    @PutMapping("libro/editar/{idLibro}/{idUsuario}")//Debería poder hacerse sin idLibro
+    @PutMapping
     fun editarLibro(
         @RequestBody libro: LibroEdicionDTO,
-        @PathVariable idLibro: Int,
-        @PathVariable idUsuario: Int
+        @RequestParam idUsuario: Int,
     ): LibroEdicionDTO {
-        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
-        libroConvertido.init()
-        val libroParaEdicion = libroService.editarLibro(libroConvertido, idLibro, idUsuario)
-        return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
+        val libroObjeto = libroMapper.libroEdicionDTOToLibro(libro)
+        val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
+        return libroMapper.libroToLibroEdicionDTO(libroEditado)
     }
 
     @PostMapping("/homePage/user/filter")
@@ -80,20 +83,28 @@ class LibroController(val libroService: LibroService, val libroMapper: LibroMapp
         @RequestParam size: Int = 6,
         @RequestParam userId: Int,
         @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
-        ): PageResponse<LibroHomeUsuarioDTO> {
+    ): PageResponse<LibroHomeUsuarioDTO> {
         val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage, userId)
 
         return PageResponse(
-            content = pageResult.content.map { libroMapper.libroToLibroHomeUsuarioDTO(it, libroService.bringKarma
-                (it, userId, filtros.fechaDesde, filtros.fechaHasta )) },
+            content = pageResult.content.map {
+                libroMapper.libroToLibroHomeUsuarioDTO(
+                    it, libroService.bringKarma
+                        (it, userId, filtros.fechaDesde, filtros.fechaHasta)
+                )
+            },
             page = pageResult.page,
             size = pageResult.size,
             totalElements = pageResult.totalElements,
             totalPages = pageResult.totalPages
         )
     }
-    @DeleteMapping("libro/eliminar/{idLibro}/{idUsuario}")
+
+    @DeleteMapping("{idLibro}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun borrarLibro(@PathVariable idLibro: Int, @PathVariable idUsuario: Int) =
+    fun borrarLibro(
+        @PathVariable idLibro: Int,
+        @RequestParam idUsuario: Int
+    ) =
         libroService.borrarLibro(idLibro, idUsuario)
 }
