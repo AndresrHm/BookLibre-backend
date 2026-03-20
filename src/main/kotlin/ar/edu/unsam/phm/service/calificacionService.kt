@@ -24,11 +24,9 @@ class CalificacionService(
         calificacion: CrearCalificacionDTO
     ) {
         val reserva = reservaRepository.getById(calificacion.reservaId)
-            ?: throw NotFoundException("No existe la reserva $calificacion.reservaId")
+            ?: throw NotFoundException("No existe la reserva con id ${calificacion.reservaId}")
 
-        println(calificacion.usuarioId)
-        println(reserva.usuarioLector.id)
-        if (calificacion.usuarioId != reserva.usuarioLector.id) throw BusinessException("El usuario no puede calificar este libro")
+        if (calificacion.usuarioId != reserva.usuarioLector.id) throw BusinessException("El usuario logueado no puede calificar este libro")
 
         if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException("Podrá calificar el libro cuando termine la reserva")
 
@@ -51,7 +49,7 @@ class CalificacionService(
         size: Int,
     ): PageResponse<Calificacion> {
         val libro = libroRepository.getById(libroID)
-            ?: throw NotFoundException("No existe libro con el id $libroID.")
+            ?: throw NotFoundException("No existe libro con el id $libroID")
 
         val pageResult = calificacionRepository.obtenerCalificaciones(libro, orden, page, size)
 

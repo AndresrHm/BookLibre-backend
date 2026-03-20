@@ -10,7 +10,6 @@ class CalificacionSpec : DescribeSpec({
     describe("Test de Calificacion") {
 
         it("calificación se crea correctamente con datos válidos") {
-            println(crearCalificacion())
             shouldNotThrow<BusinessException> {
                 crearCalificacion()
             }
