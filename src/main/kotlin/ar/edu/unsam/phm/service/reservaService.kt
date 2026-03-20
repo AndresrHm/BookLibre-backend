@@ -25,7 +25,7 @@ class ReservaService(
         string: String?,
     ): PageResponse<Reserva> {
 
-        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario no existe")
+        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario logueado no existe")
 
         val pageResponse = reservaRepository.findByLectorID(userID, page, size, string)
 
@@ -45,7 +45,7 @@ class ReservaService(
         string: String?,
     ): PageResponse<Reserva> {
 
-        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario no existe")
+        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario logueado no existe")
 
         val pageResponse = reservaRepository.findByPrestadorID(userID, page, size, string)
 
