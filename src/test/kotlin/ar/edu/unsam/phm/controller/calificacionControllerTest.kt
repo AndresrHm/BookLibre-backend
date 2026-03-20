@@ -31,7 +31,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
                     .value("https://ui-avatars.com/api/?name=Juan+Perez")
             )
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].puntuacion").value(4.5))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Me encantó"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Muy bueno"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].fecha").exists())
 
 
