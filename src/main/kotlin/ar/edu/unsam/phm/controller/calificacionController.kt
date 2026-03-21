@@ -12,21 +12,23 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@RequestMapping("calificaciones")
 @CrossOrigin("*")
 class CalificacionController(val calificacionService: CalificacionService) {
 
-    @PostMapping("/libros/{libroId}/calificaciones")
+    @PostMapping
     fun calificarLibro(
         @RequestBody calificacion: CrearCalificacionDTO
     ) {
         return calificacionService.calificarLibro(calificacion)
     }
 
-    @GetMapping(    "libros/{libroId}/calificaciones")
+    @GetMapping("{libroId}")
     fun calificacionesLibro(
         @PathVariable libroId: Int,
         @RequestParam page: Int,
