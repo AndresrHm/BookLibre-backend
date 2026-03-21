@@ -21,7 +21,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Se pueden obtener las calificaciones de un libro`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/libros/{libroId}/calificaciones", 15)
+                MockMvcRequestBuilders.get("/calificaciones/{libroId}", 15)
                     .param("page", "0")
             )
             .andExpect(status().isOk)
@@ -40,7 +40,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el libro no existe, no se retorna ninguna calificación`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/calificaciones", 69420)
+            MockMvcRequestBuilders.get("/calificaciones/{libroId}", 69420)
                 .param("page", "0")
         )
             .andExpect(status().isNotFound).andReturn().resolvedException?.message
@@ -64,7 +64,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 """.trimIndent()
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/libros/{libroId}/calificaciones", 41)
+            MockMvcRequestBuilders.post("/calificaciones", 41)
                 .param("usuarioId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -87,7 +87,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 """.trimIndent()
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.post("/libros/{libroId}/calificaciones", 41)
+            MockMvcRequestBuilders.post("/calificaciones", 41)
                 .param("usuarioId", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -114,7 +114,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 """.trimIndent()
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.post("/libros/{libroId}/calificaciones", 42)
+            MockMvcRequestBuilders.post("/calificaciones", 42)
                 .param("usuarioId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
