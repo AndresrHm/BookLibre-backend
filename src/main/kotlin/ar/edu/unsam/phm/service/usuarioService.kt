@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.service
 
+import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
@@ -27,6 +28,12 @@ class UsuarioService(
     }
 
     fun usuarioUpdate(datosUsuario: UsuarioEdicionDTO): Usuario {
+        if(
+            datosUsuario.nombre == "" ||
+            datosUsuario.apellido == "" ||
+            datosUsuario.ciudad == ""){
+            throw BusinessException("Uno o mas campos obligatorios estan incompletos.")
+        }
         val usuario = usuarioById(datosUsuario.id)
         usuario.update(datosUsuario)
         usuarioRepositorio.update(usuario)
