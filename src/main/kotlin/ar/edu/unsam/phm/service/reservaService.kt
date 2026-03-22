@@ -59,14 +59,7 @@ class ReservaService(
     }
 
     fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
-        require(!fechaInicio.isAfter(fechaFin)) { "fechaInicio no puede ser mayor a fechaFin" }
-
-        return reservaRepository.getElementos()
-            .filter { reserva ->
-                // Verificamos que la reserva este entre el rango de fechas a buscar
-                !reserva.fechaRecogida.isAfter(fechaFin) && !reserva.fechaDevolucion.isBefore(fechaInicio)
-            }
-            .map { it.libro }
+        return reservaRepository.getLibrosReservadosEntreFechas(fechaInicio, fechaFin)
     }
 
     fun getLibrosPrestadosPorUsuario(usuarioPrestador: Usuario): List<Libro> {
