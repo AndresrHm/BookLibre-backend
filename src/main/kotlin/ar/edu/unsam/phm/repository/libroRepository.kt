@@ -12,7 +12,8 @@ import java.time.LocalDate
 
 @Repository
 class LibroRepository(
-    private val reservaRepository: ReservaRepository
+    private val reservaRepository: ReservaRepository,
+    private val userRepository: UsuarioRepository
 ) : Repositorio<Libro>() {
     fun actualizarRating(libroID: Int, rating: Double) {
         val libro = getById(libroID)
@@ -60,6 +61,11 @@ class LibroRepository(
             !hoy.isAfter(reserva.fechaDevolucion)
         }
         return if (prestado) "PRESTADO" else "DISPONIBLE"
+    }
+    fun getNickUsuarioCreador (libroId: Int): String {
+        val libro = getById(libroId) ?: throw BusinessException("No existe el libro con id ${libroId}.")
+        val usuario = userRepository.getById(libro.idPropietario) ?: throw BusinessException("No existe el usuario con id ${libro.idPropietario}.")
+        return usuario.nombre
     }
 }
 

@@ -108,7 +108,8 @@ class LibroMapper(
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
             rating = libro.rating(),
-            biblioKarma = karmaForUserLector
+            biblioKarma = karmaForUserLector,
+            userCreador = libroRepository.getNickUsuarioCreador(libro.id)
         )
         return libroDetalle
     }

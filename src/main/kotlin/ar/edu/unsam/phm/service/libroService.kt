@@ -20,6 +20,7 @@ import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -27,8 +28,8 @@ import java.time.LocalDate
 @Service
 class LibroService(
     var repositorioLibro: LibroRepository,
-    var serviceReservas: ReservaService,
-    var repoitorioUsuario: UsuarioRepository,
+    var repositorioReservas: ReservaRepository,
+    var repositorioUsuario: UsuarioRepository,
     var libroMapper: LibroMapper
 ) {
     fun crearLibro(libro: Libro): Libro {
@@ -61,11 +62,11 @@ class LibroService(
 
     private val filtrosAplicables: List<FiltroDeLibro> = listOf(
         BusquedaPorNombreFiltro(),
-        EntreFechasFiltro(serviceReservas),
+        EntreFechasFiltro(repositorioReservas),
         GeneroFiltro(),
         RangoDePaginasFiltro(),
         ISBN13Filtro(),
-        UsuarioPrestadorFiltro(serviceReservas)
+        UsuarioPrestadorFiltro(repositorioReservas)
     )
 
     fun getLibrosPorFiltros(
@@ -89,8 +90,8 @@ class LibroService(
             OrdenHomePage.NOMBRE_DESC -> librosFiltrados.sortedByDescending { it.titulo.lowercase() }
             OrdenHomePage.AUTOR_ASC -> librosFiltrados.sortedBy { it.autor.lowercase() }
             OrdenHomePage.AUTOR_DESC -> librosFiltrados.sortedByDescending { it.autor.lowercase() }
-            OrdenHomePage.USER_ASC -> librosFiltrados.sortedBy { repoitorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
-            OrdenHomePage.USER_DESC -> librosFiltrados.sortedByDescending { repoitorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
+            OrdenHomePage.USER_ASC -> librosFiltrados.sortedBy { repositorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
+            OrdenHomePage.USER_DESC -> librosFiltrados.sortedByDescending { repositorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
         }
 
         val pageResult = paginate(page, size, librosPorFiltroOrdenado)
@@ -106,7 +107,7 @@ class LibroService(
     }
 
     fun bringKarma(libro: Libro, usuarioId: Int, fechaIni : LocalDate?, fechaFin: LocalDate?): Int {
-        val usuarioLector = serviceReservas.usuarioRepository.getById(usuarioId)
+        val usuarioLector = repositorioUsuario.getById(usuarioId)
             ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
 
 
@@ -127,7 +128,7 @@ class LibroService(
         require(page >= 0) { "page debe ser mayor o igual a 0" }
         require(size > 0) { "size debe ser mayor a 0" }
 
-        val idsLibrosPrestados = serviceReservas
+        val idsLibrosPrestados = repositorioReservas
             .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
             .map { it.id }
             .toSet()

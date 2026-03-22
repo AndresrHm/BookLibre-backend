@@ -17,7 +17,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
     describe("Busqueda de libros por propietario con filtros y orden") {
         it("filtra solo disponibles") {
             val reservaRepository = ReservaRepository()
-            val libroRepository = LibroRepository(reservaRepository)
+            val userRepository = UsuarioRepository()
+            val libroRepository = LibroRepository(reservaRepository, userRepository)
 
             val disponible = crearLibro(titulo = "Disponible", autor = "Autor A", idPropietario = 10)
             val prestado = crearLibro(titulo = "Prestado", autor = "Autor B", idPropietario = 10)
@@ -40,7 +41,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
 
         it("ordena por titulo y luego por autor") {
             val reservaRepository = ReservaRepository()
-            val libroRepository = LibroRepository(reservaRepository)
+            val userRepository = UsuarioRepository()
+            val libroRepository = LibroRepository(reservaRepository, userRepository)
 
             val libroAutorZ = crearLibro(titulo = "Mismo", autor = "Zulu", idPropietario = 5)
             val libroAutorA = crearLibro(titulo = "Mismo", autor = "Alfa", idPropietario = 5)
@@ -65,7 +67,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
 
         it("ordena por disponibilidad en descendente dejando prestados primero") {
             val reservaRepository = ReservaRepository()
-            val libroRepository = LibroRepository(reservaRepository)
+            val userRepository = UsuarioRepository()
+            val libroRepository = LibroRepository(reservaRepository, userRepository)
 
             val disponible = crearLibro(titulo = "Disponible", autor = "Autor A", idPropietario = 8)
             val prestado = crearLibro(titulo = "Prestado", autor = "Autor B", idPropietario = 8)
@@ -119,4 +122,3 @@ private fun crearLibro(
         idPropietario = idPropietario
     )
 }
-
