@@ -1,9 +1,11 @@
 package ar.edu.unsam.phm.repository
 
+import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResult
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.paginate
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Repository
 open class ReservaRepository : Repositorio<Reserva>() {
@@ -65,5 +67,22 @@ open class ReservaRepository : Repositorio<Reserva>() {
     fun obtenerCantidadDeReservasDeAlgunDuenio(usuarioID: Int) : Int {
         val listaDeReservasFiltradas = getElementos().filter { it.usuarioPrestador.id == usuarioID }
         return listaDeReservasFiltradas.size
+    }
+    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
+        require(!fechaInicio.isAfter(fechaFin)) { "fechaInicio no puede ser mayor a fechaFin" }
+
+        return getElementos()
+            .filter { reserva ->
+                // Solapamiento inclusivo del rango [fechaInicio, fechaFin]
+                !reserva.fechaRecogida.isAfter(fechaFin) && !reserva.fechaDevolucion.isBefore(fechaInicio)
+            }
+            .map { it.libro }
+            .distinctBy { it.id }
+    }
+
+    fun getLibrosPrestadosPorUsuario(usuarioPrestadorId: Int): List<Libro> {
+        return getElementos()
+            .filter { it.usuarioPrestador.id == usuarioPrestadorId }
+            .map { it.libro }
     }
 }

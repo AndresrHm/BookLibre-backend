@@ -10,12 +10,16 @@ import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
+import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
+import ar.edu.unsam.phm.dto.toFiltrosDeLibrosDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
+import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -32,7 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 class LibroController(
     val libroService: LibroService,
     val libroMapper: LibroMapper,
-    val calificacionService: CalificacionService
+    val calificacionService: CalificacionService,
+    val usuarioService: UsuarioService,
 ) {
     @GetMapping("{usuarioId}")
     fun obtenerLibrosDeUsuario(
@@ -76,21 +81,26 @@ class LibroController(
         return libroMapper.libroToLibroEdicionDTO(libroEditado)
     }
 
-    @PostMapping("/homePage/user/filter")
+    @GetMapping("/homePage/user/filter")
     fun getLibrosFilter(
-        @RequestBody filtros: FiltrosDeLibrosDTO,
+        @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam userId: Int,
         @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
     ): PageResponse<LibroHomeUsuarioDTO> {
+        val filtros = filtrosQuery.toFiltrosDeLibrosDTO(
+            usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.usuarioById(it) },
+            usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.usuarioById(it) },
+        )
+
         val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage, userId)
 
         return PageResponse(
             content = pageResult.content.map {
                 libroMapper.libroToLibroHomeUsuarioDTO(
-                    it, libroService.bringKarma
-                        (it, userId, filtros.fechaDesde, filtros.fechaHasta)
+                    it,
+                    libroService.bringKarma(it, userId, filtros.fechaDesde, filtros.fechaHasta)
                 )
             },
             page = pageResult.page,

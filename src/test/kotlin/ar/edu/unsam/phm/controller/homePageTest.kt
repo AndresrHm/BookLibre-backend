@@ -9,7 +9,6 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.repository.ReservaRepository
-import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
@@ -27,12 +26,11 @@ class EspecTest : DescribeSpec({
 
     describe("Test de Busqueda de libros Basico") {
         val repositoryReservas = ReservaRepository()
-        val repositoryLibros = LibroRepository(repositoryReservas)
         val repositoryUsuario = UsuarioRepository()
-        val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario, repositoryLibros)
+        val repositoryLibros = LibroRepository(repositoryReservas, repositoryUsuario)
         val serviceLibros = LibroService(
             repositoryLibros,
-            serviceReservas,
+            repositoryReservas,
             repositoryUsuario,
             LibroMapper(repositoryLibros)
         )
@@ -182,7 +180,7 @@ class EspecTest : DescribeSpec({
             val filtroDeLibros = FiltrosDeLibrosDTO(
                 fechaDesde = LocalDate.of(2026, 4, 5),
                 fechaHasta = LocalDate.of(2026, 4, 12),
-                genero = null,
+                generos = null,
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
@@ -227,7 +225,7 @@ class EspecTest : DescribeSpec({
             val filtroDeLibros = FiltrosDeLibrosDTO(
                 fechaDesde = LocalDate.of(2026, 4, 5),
                 fechaHasta = LocalDate.of(2026, 4, 12),
-                genero = Genero.CIENCIA_FICCION,
+                generos = listOf(Genero.CIENCIA_FICCION),
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
@@ -254,7 +252,7 @@ class EspecTest : DescribeSpec({
             val filtroDeLibros = FiltrosDeLibrosDTO(
                 fechaDesde = null,
                 fechaHasta = null,
-                genero = null,
+                generos = null,
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,

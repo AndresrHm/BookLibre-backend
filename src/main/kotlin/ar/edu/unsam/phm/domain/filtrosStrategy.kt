@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
-import ar.edu.unsam.phm.service.ReservaService
+import ar.edu.unsam.phm.repository.ReservaRepository
 
 
 interface FiltroDeLibro{
@@ -10,7 +10,7 @@ interface FiltroDeLibro{
 }
 
 class EntreFechasFiltro(
-    val reservaService: ReservaService,
+    val reservaRepo: ReservaRepository,
 ): FiltroDeLibro {
 
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
@@ -20,19 +20,19 @@ class EntreFechasFiltro(
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val desde= queFiltrar.fechaDesde!!
         val hasta= queFiltrar.fechaHasta!!
-        val reservados= reservaService.getLibrosReservadosEntreFechas(desde, hasta)
+        val reservados= reservaRepo.getLibrosReservadosEntreFechas(desde, hasta)
         return libros.filter { it !in reservados }
     }
 }
 
 class GeneroFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
-        return queFiltrar.genero != null
+        return !queFiltrar.generos.isNullOrEmpty()
     }
 
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
-        val genero = queFiltrar.genero!!
-        return libros.filter { it.genero == genero }
+        val generosABuscar = queFiltrar.generos!!.toSet()
+        return libros.filter { it.genero in generosABuscar }
     }
 }
 
@@ -71,14 +71,14 @@ class ISBN13Filtro : FiltroDeLibro {
 }
 
 class UsuarioPrestadorFiltro(
-    val reservaService: ReservaService
+    val reservaRepository: ReservaRepository
 ): FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibrosDTO): Boolean {
         return queFiltrar.usuarioPrestador != null
     }
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibrosDTO): List<Libro> {
         val usuarioPrestador= queFiltrar.usuarioPrestador!!
-        val prestadosPorUsuario= reservaService.getLibrosPrestadosPorUsuario(usuarioPrestador)
+        val prestadosPorUsuario= reservaRepository.getLibrosPrestadosPorUsuario(usuarioPrestador.id)
         return libros.filter { it in prestadosPorUsuario }
 
     }
