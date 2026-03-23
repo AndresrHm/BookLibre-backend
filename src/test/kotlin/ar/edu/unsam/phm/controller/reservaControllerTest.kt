@@ -20,7 +20,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (toMe)`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", 1)
                     .param("page", "0")
                     .param("size", "6")
             )
@@ -34,7 +34,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 99)
+                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", 99)
                     .param("page", "0")
                     .param("size", "6")
             )
@@ -49,7 +49,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", 1)
                     .param("page", "0")
                     .param("size", "6")
                     .param("string", "cien")
@@ -77,7 +77,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/recibidas", 1)
                     .param("page", "0")
                     .param("size", "6")
             )
@@ -91,7 +91,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 99)
+                MockMvcRequestBuilders.get("/reservas/{id}/recibidas", 99)
                     .param("page", "0")
                     .param("size", "6")
             )
@@ -105,7 +105,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `_El filtrado funciona correctamente`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/recibidas", 1)
                     .param("page", "0")
                     .param("size", "6")
                     .param("string", "the l")
@@ -146,6 +146,5 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                         )
                     )
             )
-
     }
 }
