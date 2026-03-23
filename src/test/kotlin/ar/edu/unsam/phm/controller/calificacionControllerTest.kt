@@ -34,7 +34,6 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Muy bueno"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].fecha").exists())
 
-
     }
 
     @Test

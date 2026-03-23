@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.assertEquals
@@ -20,13 +19,13 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (toMe)`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", 1)
                     .param("page", "0")
                     .param("size", "6")
             )
             .andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("1984"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Animal Farm"))
+            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
+            .andExpect(jsonPath("$.content[1].titulo").value("Animal Farm"))
     }
 
     @Test
@@ -34,7 +33,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 99)
+                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", 99)
                     .param("page", "0")
                     .param("size", "6")
             )
@@ -49,7 +48,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/realizadas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", 1)
                     .param("page", "0")
                     .param("size", "6")
                     .param("string", "cien")
@@ -77,13 +76,13 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/recibidas", 1)
                     .param("page", "0")
                     .param("size", "6")
             )
             .andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("Dune"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Foundation"))
+            .andExpect(jsonPath("$.content[0].titulo").value("Dune"))
+            .andExpect(jsonPath("$.content[1].titulo").value("Foundation"))
     }
 
     @Test
@@ -91,7 +90,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 99)
+                MockMvcRequestBuilders.get("/reservas/{id}/recibidas", 99)
                     .param("page", "0")
                     .param("size", "6")
             )
@@ -105,7 +104,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `_El filtrado funciona correctamente`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/usuarios/{id}/reservas/recibidas", 1)
+                MockMvcRequestBuilders.get("/reservas/{id}/recibidas", 1)
                     .param("page", "0")
                     .param("size", "6")
                     .param("string", "the l")
@@ -146,6 +145,5 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                         )
                     )
             )
-
     }
 }
