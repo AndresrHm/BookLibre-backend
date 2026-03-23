@@ -90,8 +90,13 @@ class LibroService(
             OrdenHomePage.NOMBRE_DESC -> librosFiltrados.sortedByDescending { it.titulo.lowercase() }
             OrdenHomePage.AUTOR_ASC -> librosFiltrados.sortedBy { it.autor.lowercase() }
             OrdenHomePage.AUTOR_DESC -> librosFiltrados.sortedByDescending { it.autor.lowercase() }
-            OrdenHomePage.USER_ASC -> librosFiltrados.sortedBy { repositorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
-            OrdenHomePage.USER_DESC -> librosFiltrados.sortedByDescending { repositorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: "" }
+            OrdenHomePage.USER_ASC -> librosFiltrados.sortedBy {
+                repositorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: ""
+            }
+
+            OrdenHomePage.USER_DESC -> librosFiltrados.sortedByDescending {
+                repositorioUsuario.getById(it.idPropietario)?.nombre?.lowercase() ?: ""
+            }
         }
 
         val pageResult = paginate(page, size, librosPorFiltroOrdenado)
@@ -106,7 +111,7 @@ class LibroService(
         )
     }
 
-    fun bringKarma(libro: Libro, usuarioId: Int, fechaIni : LocalDate?, fechaFin: LocalDate?): Int {
+    fun bringKarma(libro: Libro, usuarioId: Int, fechaIni: LocalDate?, fechaFin: LocalDate?): Int {
         val usuarioLector = repositorioUsuario.getById(usuarioId)
             ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
 
@@ -168,7 +173,7 @@ class LibroService(
 
     private fun validarPropietario(libro: Libro, idUsuario: Int) {
         if (libro.idPropietario != idUsuario) {
-            throw BusinessException("El libro con ${libro.id} no pertenece al usuario $idUsuario")
+            throw BusinessException("El libro con id ${libro.id} no pertenece al usuario $idUsuario")
         }
     }
 }
