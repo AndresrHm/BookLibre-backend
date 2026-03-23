@@ -4,6 +4,7 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Usuario
+import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
 data class LibroEdicionDTO(
@@ -58,11 +59,12 @@ data class LibroHomeUsuarioDTO(
     val isbn13: Long,
     val descripcion: String,
     val rating: Double,
-    val biblioKarma : Int
+    val biblioKarma : Int,
+    val userCreador : String
 )
 
 data class FiltrosDeLibrosDTO(
-    val genero: Genero?,
+    val generos: List<Genero>?,
     val paginasMin: Int?,
     val paginasMax: Int?,
     val fechaDesde: LocalDate?,
@@ -72,6 +74,38 @@ data class FiltrosDeLibrosDTO(
     val search: String?,
     val usuarioLector: Usuario?
 )
+
+// DTO de transporte para GET /homePage/user/filter (query params)
+data class FiltrosLibrosQueryDTO(
+    val generos: List<Genero>? = null,
+    val paginasMin: Int? = null,
+    val paginasMax: Int? = null,
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val fechaDesde: LocalDate? = null,
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    val fechaHasta: LocalDate? = null,
+    val isbn13: Long? = null,
+    val usuarioPrestadorId: Int? = null,
+    val search: String? = null,
+    val usuarioLectorId: Int? = null,
+)
+
+fun FiltrosLibrosQueryDTO.toFiltrosDeLibrosDTO(
+    usuarioPrestador: Usuario?,
+    usuarioLector: Usuario?,
+): FiltrosDeLibrosDTO {
+    return FiltrosDeLibrosDTO(
+        generos = generos,
+        paginasMin = paginasMin,
+        paginasMax = paginasMax,
+        fechaDesde = fechaDesde,
+        fechaHasta = fechaHasta,
+        isbn13 = isbn13,
+        usuarioPrestador = usuarioPrestador,
+        search = search,
+        usuarioLector = usuarioLector,
+    )
+}
 
 data class LibroUsuarioPerfilDTO(
     val id: Int,
@@ -98,4 +132,13 @@ enum class FiltroDisponibilidadPerfil {
     TODOS,
     DISPONIBLES,
     PRESTADOS
+}
+
+enum class OrdenHomePage {
+    NOMBRE_ASC
+    , NOMBRE_DESC
+    , AUTOR_ASC
+    , AUTOR_DESC
+    , USER_ASC
+    , USER_DESC
 }

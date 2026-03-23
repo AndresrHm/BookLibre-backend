@@ -35,6 +35,8 @@ class LibroMapper(
 
         libro.id = libroEdicionDTO.id
 
+        libro.init()
+
         return libro
     }
 
@@ -106,7 +108,8 @@ class LibroMapper(
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
             rating = libro.rating(),
-            biblioKarma = karmaForUserLector
+            biblioKarma = karmaForUserLector,
+            userCreador = libroRepository.getNickUsuarioCreador(libro.id)
         )
         return libroDetalle
     }

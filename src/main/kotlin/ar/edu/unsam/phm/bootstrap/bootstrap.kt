@@ -1143,6 +1143,10 @@ class BootstrapData(
 
         reservas.forEach(reservaRepository::create)
 
+        reservas.forEach {
+            it.usuarioLector.agregarLibroLeido()
+        }
+
         // Vincula cada libro al usuario propietario persistido en memoria.
         usuarios.forEach { usuario ->
             libros.filter { it.idPropietario == usuario.id }.forEach(usuario::agregarLibroParaPrestar)
@@ -1164,7 +1168,8 @@ class BootstrapData(
             "Interesante",
             "Recomendado",
             "No era lo que esperaba",
-            "Volvería a leerlo"
+            "Volvería a leerlo",
+            "Comentario excesivamente largo: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent at sollicitudin justo, sed tempor mi. Maecenas vehicula fringilla suscipit. Nulla dapibus nam."
         )
         val puntuaciones = listOf(2.5, 3.0, 3.5, 4.0, 4.5, 5.0)
         val calificaciones = reservas

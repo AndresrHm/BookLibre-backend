@@ -8,10 +8,7 @@ import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.repository.ReservaRepository
-import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
@@ -20,6 +17,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
 
@@ -28,10 +26,15 @@ class EspecTest : DescribeSpec({
 
     describe("Test de Busqueda de libros Basico") {
         val repositoryReservas = ReservaRepository()
-        val repositoryLibros = LibroRepository(repositoryReservas)
         val repositoryUsuario = UsuarioRepository()
-        val serviceReservas = ReservaService(repositoryReservas, repositoryUsuario, repositoryLibros)
-        val serviceLibros = LibroService(repositoryLibros, serviceReservas, LibroMapper(repositoryLibros))
+        val repositoryLibros = LibroRepository(repositoryReservas, repositoryUsuario)
+        val serviceLibros = LibroService(
+            repositoryLibros,
+            repositoryReservas,
+            repositoryUsuario,
+            LibroMapper(repositoryLibros)
+        )
+        val userIdConsulta = 999
 
         val usuario1 = crearUsuario(
             id = 1,
@@ -177,7 +180,7 @@ class EspecTest : DescribeSpec({
             val filtroDeLibros = FiltrosDeLibrosDTO(
                 fechaDesde = LocalDate.of(2026, 4, 5),
                 fechaHasta = LocalDate.of(2026, 4, 12),
-                genero = null,
+                generos = null,
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
@@ -186,7 +189,11 @@ class EspecTest : DescribeSpec({
                 usuarioLector = null,
             )
 
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+                filtroDeLibros,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = userIdConsulta
+            )
             librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
         }
         it("devuelve libros con filtro de genero y fechas") {
@@ -218,7 +225,7 @@ class EspecTest : DescribeSpec({
             val filtroDeLibros = FiltrosDeLibrosDTO(
                 fechaDesde = LocalDate.of(2026, 4, 5),
                 fechaHasta = LocalDate.of(2026, 4, 12),
-                genero = Genero.CIENCIA_FICCION,
+                generos = listOf(Genero.CIENCIA_FICCION),
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
@@ -227,7 +234,11 @@ class EspecTest : DescribeSpec({
                 usuarioLector = null
             )
 
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+                filtroDeLibros,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = userIdConsulta
+            )
             librosFiltrados.content shouldBe listOf(libro2)
         }
         it("devuelve libros por nombre") {
@@ -241,7 +252,7 @@ class EspecTest : DescribeSpec({
             val filtroDeLibros = FiltrosDeLibrosDTO(
                 fechaDesde = null,
                 fechaHasta = null,
-                genero = null,
+                generos = null,
                 paginasMin = null,
                 paginasMax = null,
                 isbn13 = null,
@@ -250,7 +261,11 @@ class EspecTest : DescribeSpec({
                 usuarioLector = null
             )
 
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(filtroDeLibros)
+            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+                filtroDeLibros,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = userIdConsulta
+            )
             librosFiltrados.content shouldBe listOf(libro2, libro6)
         }
 

@@ -21,7 +21,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Se pueden obtener las calificaciones de un libro`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/libros/{libroId}/calificaciones", 15)
+                MockMvcRequestBuilders.get("/calificaciones/{libroId}", 15)
                     .param("page", "0")
             )
             .andExpect(status().isOk)
@@ -31,7 +31,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
                     .value("https://ui-avatars.com/api/?name=Juan+Perez")
             )
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].puntuacion").value(4.5))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Me encantó"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Muy bueno"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].fecha").exists())
 
 
@@ -40,12 +40,12 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el libro no existe, no se retorna ninguna calificación`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/calificaciones", 69420)
+            MockMvcRequestBuilders.get("/calificaciones/{libroId}", 69420)
                 .param("page", "0")
         )
             .andExpect(status().isNotFound).andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe libro con el id 69420.")
+        assertEquals(errorMessage, "No existe libro con el id 69420")
     }
 
     // ----- Calificar un libro -----
@@ -64,7 +64,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 """.trimIndent()
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/libros/{libroId}/calificaciones", 41)
+            MockMvcRequestBuilders.post("/calificaciones", 41)
                 .param("usuarioId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -87,7 +87,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 """.trimIndent()
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.post("/libros/{libroId}/calificaciones", 41)
+            MockMvcRequestBuilders.post("/calificaciones", 41)
                 .param("usuarioId", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -95,7 +95,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario no puede calificar este libro")
+        assertEquals(errorMessage, "El usuario logueado no puede calificar este libro")
     }
 
     @Test
@@ -114,7 +114,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 """.trimIndent()
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.post("/libros/{libroId}/calificaciones", 42)
+            MockMvcRequestBuilders.post("/calificaciones", 42)
                 .param("usuarioId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)

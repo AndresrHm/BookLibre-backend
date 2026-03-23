@@ -3,12 +3,12 @@ package ar.edu.unsam.phm.mapper
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
-import ar.edu.unsam.phm.dto.ReservaDetalleDTO
+import ar.edu.unsam.phm.dto.ReservaDTO
 import org.springframework.stereotype.Component
 
 @Component
 class ReservaMapper {
-    fun toReservaDetalleDTO(obj: Reserva, userID: Int): ReservaDetalleDTO {
+    fun toReservaDetalleDTO(obj: Reserva, userID: Int): ReservaDTO {
         val puedeCalificar =
             obj.usuarioLector.id == userID &&
                     obj.estado() == EstadoReserva.DEVUELTO
@@ -20,7 +20,7 @@ class ReservaMapper {
                 obj.usuarioLector.nombre
             }
 
-        return ReservaDetalleDTO(
+        return ReservaDTO(
             reservaId = obj.id,
             libroId = obj.libro.id,
             titulo = obj.libro.titulo,

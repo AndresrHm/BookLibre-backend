@@ -18,7 +18,7 @@ class Usuario(
 ) : Identificable {
     var biblioKarma: Int = 0
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
-    val listaDeLibrosPedidos = mutableListOf<Libro>()
+    var cantidadDeLibrosPedidos : Int = 0  //// ver mas adealnte
     val fechaDeCreacion = LocalDate.now()
     lateinit var passwordSesion: String
 
@@ -31,6 +31,9 @@ class Usuario(
             throw BusinessException("Solo se puede sumar karma positivo")
 
         biblioKarma += karma
+    }
+    fun agregarLibroLeido() {
+        cantidadDeLibrosPedidos += 1
     }
 
     fun crearReserva(
@@ -49,7 +52,7 @@ class Usuario(
             fechaRecogida = fechaRecogida,
             fechaDevolucion = fechaDevolucion,
         )
-
+        agregarLibroLeido()
         sumarKarma(reserva.darKarma())
         return reserva
     }
@@ -64,7 +67,6 @@ class Usuario(
     }
 
     fun getFechaCreacionAsString(): String = fechaDeCreacion.formatear()
-    fun getCantidadDeLibrosLeidos(): Int = listaDeLibrosPedidos.size
 }
 
 enum class TipoUsuario {
