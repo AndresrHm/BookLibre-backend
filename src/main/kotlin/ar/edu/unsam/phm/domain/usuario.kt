@@ -68,13 +68,6 @@ class Usuario(
 
     fun getFechaCreacionAsString(): String = fechaDeCreacion.formatear()
 
-    fun verificarTipoDeUsuario(): Boolean {
-        when(this.tipoUsuario){
-            TipoUsuario.LECTOR -> return()
-            TipoUsuario.PUBLICADOR ->
-            TipoUsuario.LECTORPUBLICADOR ->
-        }
-    }
 }
 
 enum class TipoUsuario {

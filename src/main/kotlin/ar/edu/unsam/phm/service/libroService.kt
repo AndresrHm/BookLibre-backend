@@ -155,6 +155,10 @@ class LibroService(
         )
     }
 
+    fun eliminarLibrosDeUsuario(usuarioId: Int) {
+        repositorioLibro.eliminarPorIDPropietario(usuarioId)
+    }
+
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
