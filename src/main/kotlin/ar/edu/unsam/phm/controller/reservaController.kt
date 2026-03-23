@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@RequestMapping("reservas")
 @CrossOrigin("*")
 class ReservaController(
     val reservaService: ReservaService,
@@ -24,7 +26,7 @@ class ReservaController(
     val reservaMapper: ReservaMapper,
 ) {
 
-    @PostMapping("crearReserva")
+    @PostMapping
     fun reservarLibro(
         @RequestBody reserva: CreacionReservaDTO,
     ): CreacionReservaDTO {
@@ -42,17 +44,17 @@ class ReservaController(
         return reservaMapper.toCreacionReservaDTO(reservaObjeto)
     }
 
-    @GetMapping("usuarios/{id}/reservas/realizadas")
+    @GetMapping("/{usuarioId}/realizadas")
     fun getReservasRealizadas(
-        @PathVariable id: Int,
+        @PathVariable usuarioId: Int,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam string: String?,
     ): PageResponse<ReservaDetalleDTO> {
-        val result = reservaService.getReservasRealizadas(id, page, size, string)
+        val result = reservaService.getReservasRealizadas(usuarioId, page, size, string)
 
         return PageResponse(
-            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, id) },
+            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, usuarioId) },
             page = result.page,
             size = result.size,
             totalElements = result.content.size,
@@ -60,17 +62,17 @@ class ReservaController(
         )
     }
 
-    @GetMapping("usuarios/{id}/reservas/recibidas")
+    @GetMapping("{usuarioId}/recibidas")
     fun getReservasRecibidas(
-        @PathVariable id: Int,
+        @PathVariable usuarioId: Int,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
         @RequestParam string: String?,
     ): PageResponse<ReservaDetalleDTO> {
-        val result = reservaService.getReservasRecibidas(id, page, size, string)
+        val result = reservaService.getReservasRecibidas(usuarioId, page, size, string)
 
         return PageResponse(
-            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, id) },
+            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, usuarioId) },
             page = result.page,
             size = result.size,
             totalElements = result.content.size,
