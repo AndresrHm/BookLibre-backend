@@ -76,6 +76,9 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
+        if(usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR){
+            throw BusinessException("Solo un Lector puede reservar libros.")}
+
         if (fechaRecogida.isAfter(fechaDevolucion))
             throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
 

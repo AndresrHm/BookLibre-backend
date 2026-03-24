@@ -67,6 +67,7 @@ class Usuario(
     }
 
     fun getFechaCreacionAsString(): String = fechaDeCreacion.formatear()
+
 }
 
 enum class TipoUsuario {
