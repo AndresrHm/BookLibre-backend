@@ -1,12 +1,18 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.bootstrap.BootstrapData
+import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.hamcrest.Matchers.containsInAnyOrder
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.assertEquals
@@ -14,6 +20,18 @@ import kotlin.test.assertEquals
 @SpringBootTest
 @AutoConfigureMockMvc
 class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
+    @Autowired
+    private lateinit var bootstrapData: BootstrapData
+
+    @Autowired
+    private lateinit var usuarioRepository: UsuarioRepository
+
+    @Autowired
+    private lateinit var libroRepository: LibroRepository
+
+    @Autowired
+    private lateinit var reservaRepository: ReservaRepository
+
     // ----- Reservas Realizadas -----
     @Test
     fun `Un usuario puede obtener sus reservas realizadas correctamente (toMe)`() {
@@ -24,8 +42,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                     .param("size", "6")
             )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
-            .andExpect(jsonPath("$.content[1].titulo").value("Animal Farm"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("1984"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Animal Farm"))
     }
 
     @Test
@@ -81,8 +99,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                     .param("size", "6")
             )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[0].titulo").value("Dune"))
-            .andExpect(jsonPath("$.content[1].titulo").value("Foundation"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("Dune"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Foundation"))
     }
 
     @Test
@@ -145,5 +163,6 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                         )
                     )
             )
+
     }
 }
