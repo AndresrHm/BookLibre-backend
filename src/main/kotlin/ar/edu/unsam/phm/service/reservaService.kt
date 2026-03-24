@@ -6,6 +6,7 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -75,6 +76,9 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
+        if(usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR){
+            throw BusinessException("Solo un Lector puede reservar libros.")}
+
         if (fechaRecogida.isAfter(fechaDevolucion))
             throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
 

@@ -67,5 +67,10 @@ class LibroRepository(
         val usuario = userRepository.getById(libro.idPropietario) ?: throw BusinessException("No existe el usuario con id ${libro.idPropietario}.")
         return usuario.nombre
     }
+
+    fun eliminarPorIDPropietario (idPropietario: Int) {
+        val libros = getElementos().filter {it.idPropietario == idPropietario}
+        libros.forEach { libro -> delete(libro) }
+    }
 }
 

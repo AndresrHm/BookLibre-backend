@@ -10,6 +10,7 @@ import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.DireccionOrden
@@ -34,7 +35,8 @@ class LibroService(
 ) {
     fun crearLibro(libro: Libro): Libro {
         val nuevoLibro = libro
-
+        val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
+        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede crear libros.")}
         repositorioLibro.create(nuevoLibro)
         return nuevoLibro
     }
@@ -47,6 +49,9 @@ class LibroService(
 
     fun editarLibro(libroParaEdicion: Libro, idUsuarioActual: Int): Libro {
         val libroEditado = libroParaEdicion
+
+        val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
+        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede editar libros.")}
 
         val libroOriginal = getLibroByIdOrThrow(libroParaEdicion.id)
         validarPropietario(libroOriginal, idUsuarioActual)

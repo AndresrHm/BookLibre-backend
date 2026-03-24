@@ -4,6 +4,7 @@ import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
@@ -11,6 +12,7 @@ import ar.edu.unsam.phm.dto.OrdenCalificacion
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -19,10 +21,14 @@ class CalificacionService(
     var libroRepository: LibroRepository,
     var reservaRepository: ReservaRepository,
     var calificacionRepository: CalificacionRepository,
+    var usuarioRepository: UsuarioRepository
 ) {
     fun calificarLibro(
         calificacion: CrearCalificacionDTO
     ) {
+        val tipoUsuario = usuarioRepository.getTipoUsuario(calificacion.usuarioId)
+        if(tipoUsuario == TipoUsuario.PUBLICADOR){throw BusinessException("Solo un Lector puede calificar libros.")}
+
         val reserva = reservaRepository.getById(calificacion.reservaId)
             ?: throw NotFoundException("No existe la reserva con id ${calificacion.reservaId}")
 
