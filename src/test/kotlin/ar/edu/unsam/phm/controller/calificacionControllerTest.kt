@@ -1,5 +1,22 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.EstadoLibro
+import ar.edu.unsam.phm.domain.Genero
+import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.domain.comun
+import ar.edu.unsam.phm.domain.crearLibro
+import ar.edu.unsam.phm.domain.crearUsuario
+import ar.edu.unsam.phm.dto.EstadoReserva
+import ar.edu.unsam.phm.repository.CalificacionRepository
+import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.hamcrest.Matchers.containsInAnyOrder
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -8,62 +25,140 @@ import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.LocalDate
 import kotlin.test.assertEquals
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
+    @Autowired
+    private lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    private lateinit var usuarioRepository: UsuarioRepository
+
+    @Autowired
+    private lateinit var libroRepository: LibroRepository
+
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
+    val libro1usuario1 = crearLibro(
+        "1984",
+        comun,
+        "Distopía política",
+        "https://covers.openlibrary.org/b/id/12693610-L.jpg",
+        Genero.CIENCIA_FICCION,
+        "George Orwell",
+        328,
+        9780451524935L,
+        Idioma.INGLES,
+        "Secker & Warburg",
+        LocalDate.of(1949, 6, 8),
+        EstadoLibro.BUENO,
+        1
+    )
+
+    val usuario1 = crearUsuario(
+        id = 1,
+    )
+
+    val usuario2 = crearUsuario(
+        id = 2,
+        nombre = "Juan",
+        apellido = "Perez",
+        urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
+    )
+
+    val fechaRecogida = LocalDate.of(2026, 3, 20)
+    val fechaDevolucion = LocalDate.of(2026, 3, 21)
+
+    val reserva1 = crearReserva(
+        libro1usuario1,
+        usuarioPrestador = usuario1,
+        usuarioLector = usuario2,
+        fechaRecogida,
+        fechaDevolucion,
+    )
+
+    // Reserva con estado activo
+    val reserva2 = crearReserva(
+        libro1usuario1,
+        usuarioPrestador = usuario1,
+        usuarioLector = usuario2,
+        fechaRecogida,
+        LocalDate.of(2026, 3, 31),
+    )
+
+    val calificacion1 = crearCalificacion(
+        reserva1,
+        4.5,
+        "Muy bueno!",
+        LocalDate.of(2026, 3, 24)
+    )
+
+    @BeforeEach
+    fun init() {
+        reservaRepository.clearInit()
+        usuarioRepository.clearInit()
+        libroRepository.clearInit()
+        calificacionRepository.clearInit()
+
+        usuarioRepository.create(usuario1)
+        usuarioRepository.create(usuario2)
+
+        libroRepository.create(libro1usuario1)
+
+        reservaRepository.create(reserva1)
+        reservaRepository.create(reserva2)
+
+        calificacionRepository.create((calificacion1))
+    }
 
     // ----- Obtener calificaciones de un libro -----
     @Test
     fun `Se pueden obtener las calificaciones de un libro`() {
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/calificaciones/{libroId}", 15)
+                MockMvcRequestBuilders.get("/calificaciones/{libroId}", libro1usuario1.id)
                     .param("page", "0")
             )
             .andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].nombreUsuario").value("Juan Perez"))
-            .andExpect(
-                MockMvcResultMatchers.jsonPath("$.content[0].imagenUsuario")
-                    .value("https://ui-avatars.com/api/?name=Juan+Perez")
-            )
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].puntuacion").value(4.5))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].comentario").value("Muy bueno"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].fecha").exists())
+            .andExpect(jsonPath("$.content[0].nombreUsuario").value("Juan Perez"))
+            .andExpect(jsonPath("$.content[0].imagenUsuario").value("https://ui-avatars.com/api/?name=Juan+Perez"))
+            .andExpect(jsonPath("$.content[0].puntuacion").value(4.5))
+            .andExpect(jsonPath("$.content[0].comentario").value("Muy bueno!"))
+            .andExpect(jsonPath("$.content[0].fecha").value(LocalDate.of(2026, 3, 24).toString()))
 
     }
 
     @Test
     fun `Si el libro no existe, no se retorna ninguna calificación`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/calificaciones/{libroId}", 69420)
+            MockMvcRequestBuilders.get("/calificaciones/{libroId}", -1)
                 .param("page", "0")
         )
             .andExpect(status().isNotFound).andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe libro con el id 69420")
+        assertEquals(errorMessage, "No existe libro con el id -1")
     }
 
     // ----- Calificar un libro -----
     @Test
     fun `Si el usuario devolvió el libro, y es lector, puede calificarlo`() {
-        // Libro[40] (ID 41) -> It, prestado por usuario con ID 5 a usuario con ID 3.
-        // Tiene fecha de devolución como hoy - 1 día.
-        // Reserva ID 55.
         val requestBody = """
     {
-        "reservaId": 55,
-        "usuarioId": 3,
+        "reservaId": 1,
+        "usuarioId": 2,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
 """.trimIndent()
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/calificaciones", 41)
+            MockMvcRequestBuilders.post("/calificaciones")
                 .param("usuarioId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -72,21 +167,17 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Si el usuario no es lector, no puede calificarlo`() {
-        // Libro[40] (ID 41) -> It, prestado por usuario con ID 5 a usuario con ID 3.
-        // Tiene fecha de devolución como hoy - 1 día.
-        // Reserva ID 55.
-
         val requestBody = """
     {
-        "reservaId": 55,
-        "usuarioId": 69420,
+        "reservaId": 1,
+        "usuarioId": -1,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
 """.trimIndent()
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.post("/calificaciones", 41)
+            MockMvcRequestBuilders.post("/calificaciones")
                 .param("usuarioId", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
@@ -99,22 +190,18 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Si el usuario es lector pero aún no terminó la reserva, no puede calificarlo`() {
-        // Libro[41] (ID 42) -> Carrie, prestado por usuario con ID 5 a usuario con ID 3.
-        // Tiene fecha de devolución como hoy + 3 días.
-        // Reserva ID 56.
-
         val requestBody = """
     {
-        "reservaId": 56,
-        "usuarioId": 3,
+        "reservaId": 5,
+        "usuarioId": 2,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
 """.trimIndent()
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.post("/calificaciones", 42)
-                .param("usuarioId", "3")
+            MockMvcRequestBuilders.post("/calificaciones")
+                .param("usuarioId", "2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
@@ -123,4 +210,18 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         assertEquals(errorMessage, "Podrá calificar el libro cuando termine la reserva")
     }
+}
+
+fun crearCalificacion(
+    reserva: Reserva,
+    puntuacion: Double,
+    comentario: String,
+    fecha: LocalDate,
+): Calificacion {
+    return Calificacion(
+        reserva,
+        puntuacion,
+        comentario,
+        fecha,
+    )
 }
