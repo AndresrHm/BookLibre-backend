@@ -38,4 +38,7 @@ class UsuarioController(
         val usuario = usuarioService.usuarioById(usuarioId)
         return usuarioMapper.toUsuarioKarma(usuario)
     }
+
+    @GetMapping("{usuarioId}/tipoUsuario")
+    fun getUsuarioTipo(@PathVariable usuarioId: Int) = usuarioService.getUsuarioTipo(usuarioId)
 }

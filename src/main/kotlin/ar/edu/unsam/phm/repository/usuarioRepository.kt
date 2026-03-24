@@ -12,4 +12,6 @@ class UsuarioRepository : Repositorio<Usuario>() {
                     }
                     return usuario?.id ?: throw IllegalArgumentException("Usuario o contraseña incorrectos")
         }
+
+    fun getTipoUsuario(id: Int) = getById(id)?.tipoUsuario
 }

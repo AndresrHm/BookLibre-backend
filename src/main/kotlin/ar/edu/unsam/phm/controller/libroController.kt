@@ -51,13 +51,6 @@ class LibroController(
         return libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion, filtro)
     }
 
-    @DeleteMapping("{usuarioId}")
-    fun eliminarLibrosDeUsuario(
-        @PathVariable usuarioId: Int,
-    ) {
-        libroService.eliminarLibrosDeUsuario(usuarioId)
-    }
-
     @PostMapping
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
         val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)

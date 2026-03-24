@@ -8,6 +8,7 @@ import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
+import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Service
 class UsuarioService(
     val usuarioRepositorio: UsuarioRepository,
     val usuarioMapper: UsuarioMapper,
-    val reservaRepository: ReservaRepository
+    val reservaRepositorio: ReservaRepository,
+    val libroRepositorio: LibroRepository
 ) {
     fun usuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario de id <$id>")
 
@@ -30,6 +32,11 @@ class UsuarioService(
         return usuarioMapper.toUsuarioEdicionDTO(usuario)
     }
 
+    fun getUsuarioTipo(id: Int): TipoUsuario {
+        val usuario = usuarioById(id)
+        return usuario.tipoUsuario
+    }
+
     fun usuarioUpdate(datosUsuario: UsuarioEdicionDTO): Usuario {
         if(
             datosUsuario.nombre == "" ||
@@ -39,12 +46,13 @@ class UsuarioService(
         }
 
         when(datosUsuario.tipoUsuario) {
-            TipoUsuario.LECTOR ->
-                if (reservaRepository.findByPrestadorID(datosUsuario.id,1,1,"").totalElements > 0) {
+            TipoUsuario.LECTOR -> {
+                if (reservaRepositorio.findByPrestadorID(datosUsuario.id, 1, 1, "").totalElements > 0) {
                     throw BusinessException("El usuario tiene libros prestados.")
                 }
+                libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)}
             TipoUsuario.PUBLICADOR ->
-                if (reservaRepository.findByLectorID(datosUsuario.id,1,1,"").totalElements > 0) {
+                if (reservaRepositorio.findByLectorID(datosUsuario.id,1,1,"").totalElements > 0) {
                     throw BusinessException("El usuario tiene devoluciones pendientes.")
                 }
             TipoUsuario.LECTORPUBLICADOR -> {}
