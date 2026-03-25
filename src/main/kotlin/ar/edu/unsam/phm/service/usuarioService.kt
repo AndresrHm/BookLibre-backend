@@ -20,7 +20,7 @@ class UsuarioService(
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    fun usuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario de id <$id>")
+    fun usuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
     fun usuarioHeaderInfo(id: Int): UsuarioHeaderDTO {
         val usuario = usuarioById(id)
