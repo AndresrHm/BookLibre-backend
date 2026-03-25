@@ -49,7 +49,6 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         isbn13 = 9780451524935,
         idPropietario = 1,
     )
-
     private val libro2Usuario1 = crearLibro(
         titulo = "Hamlet",
         genero = Genero.DRAMA,
@@ -58,7 +57,6 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         isbn13 = 9780141015866,
         idPropietario = 1,
     )
-
     private val libro1Usuario2 = crearLibro(
         titulo = "Dune",
         genero = Genero.CIENCIA_FICCION,
@@ -67,7 +65,6 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         isbn13 = 9780441172719,
         idPropietario = 2,
     )
-
     private val libro2Usuario2 = crearLibro(
         titulo = "Foundation",
         genero = Genero.CIENCIA_FICCION,
@@ -76,7 +73,6 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         isbn13 = 9780553293357,
         idPropietario = 2,
     )
-
     private val libro3Usuario2 = crearLibro(
         titulo = "El gran gatsby",
         genero = Genero.LITERATURA_CLASICA,
