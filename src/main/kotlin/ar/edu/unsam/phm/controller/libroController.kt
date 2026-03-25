@@ -81,7 +81,7 @@ class LibroController(
         return libroMapper.libroToLibroEdicionDTO(libroEditado)
     }
 
-    @GetMapping("/homePage/user/filter")
+    @GetMapping("/libros/filter")
     fun getLibrosFilter(
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @RequestParam page: Int = 0,
