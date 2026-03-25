@@ -6,6 +6,7 @@ import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
 
 const val MAX_CARACTERES_DESCRIPCION = 500
+const val MAX_PAGINAS_LIBRO = 1500
 
 class Libro(
     var titulo: String,
@@ -62,7 +63,7 @@ class Libro(
             fechaRecogida <= it.second && fechaDevolucion >= it.first
         })
 
-        if (haySolapamiento) throw BusinessException("Existe una reserva en la fecha estipulada")
+        if (haySolapamiento) throw BusinessException("Existe una reserva en el rango de fechas estipulado")
     }
 
     // Para página de detalle
@@ -107,6 +108,9 @@ class Libro(
 
     private fun verficarPaginas() {
         if (cantidadPaginas <= 0) {
+            throw BusinessException("La cantidad de páginas del libro debe ser positiva")
+        }
+        if (cantidadPaginas >= MAX_PAGINAS_LIBRO) {
             throw BusinessException("La cantidad de páginas del libro debe ser positiva")
         }
     }
