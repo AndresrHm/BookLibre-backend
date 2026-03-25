@@ -166,11 +166,11 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Test
-    fun `Si el usuario no es lector, no puede calificarlo`() {
+    fun `Si el usuario no es el lector, no puede calificarlo`() {
         val requestBody = """
     {
         "reservaId": 1,
-        "usuarioId": -1,
+        "usuarioId": 1,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
     }
@@ -192,7 +192,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es lector pero aún no terminó la reserva, no puede calificarlo`() {
         val requestBody = """
     {
-        "reservaId": 5,
+        "reservaId": 2,
         "usuarioId": 2,
         "comentario": "Muy buen libro",
         "puntuacion": 4.5
