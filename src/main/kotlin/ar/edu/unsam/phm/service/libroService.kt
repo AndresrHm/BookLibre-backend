@@ -81,14 +81,18 @@ class LibroService(
         ordenHomePage: OrdenHomePage,
         userId: Int
     ): PageResponse<Libro> {
-        require(page >= 0) { "page no puede ser negativo" }
-        require(size > 0) { "size debe ser mayor a 0" }
+        validarPaginacion(page, size)
+        validarRangosFiltros(filtros)
 
-        val librosFiltrados = filtrosAplicables
-            .fold(repositorioLibro.getElementos()) { resultado, filtro ->
-                if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
-            }
-            .filter { it.idPropietario != userId }
+        val librosFiltrados = try {
+            filtrosAplicables
+                .fold(repositorioLibro.getElementos()) { resultado, filtro ->
+                    if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+                }
+                .filter { it.idPropietario != userId }
+        } catch (e: IllegalArgumentException) {
+            throw BusinessException(e.message ?: "Parametros de filtro invalidos")
+        }
 
         val librosPorFiltroOrdenado = when (ordenHomePage) {
             OrdenHomePage.NOMBRE_ASC -> librosFiltrados.sortedBy { it.titulo.lowercase() }
@@ -135,8 +139,7 @@ class LibroService(
         direccion: DireccionOrden,
         filtro: FiltroDisponibilidadPerfil
     ): PageResponse<LibroUsuarioPerfilDTO> {
-        require(page >= 0) { "page debe ser mayor o igual a 0" }
-        require(size > 0) { "size debe ser mayor a 0" }
+        validarPaginacion(page, size)
 
         val idsLibrosPrestados = repositorioReservas
             .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
@@ -179,6 +182,25 @@ class LibroService(
     private fun validarPropietario(libro: Libro, idUsuario: Int) {
         if (libro.idPropietario != idUsuario) {
             throw BusinessException("El libro con id ${libro.id} no pertenece al usuario $idUsuario")
+        }
+    }
+
+    private fun validarPaginacion(page: Int, size: Int) {
+        if (page < 0) throw BusinessException("page no puede ser negativo")
+        if (size <= 0) throw BusinessException("size debe ser mayor a 0")
+    }
+
+    private fun validarRangosFiltros(filtros: FiltrosDeLibrosDTO) {
+        val fechaDesde = filtros.fechaDesde
+        val fechaHasta = filtros.fechaHasta
+        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+            throw BusinessException("fechaDesde no puede ser mayor a fechaHasta")
+        }
+
+        val paginasMin = filtros.paginasMin
+        val paginasMax = filtros.paginasMax
+        if (paginasMin != null && paginasMax != null && paginasMin > paginasMax) {
+            throw BusinessException("paginasMin no puede ser mayor a paginasMax")
         }
     }
 }
