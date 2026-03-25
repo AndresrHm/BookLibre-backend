@@ -26,8 +26,11 @@ class CalificacionService(
     fun calificarLibro(
         calificacion: CrearCalificacionDTO
     ) {
-        val tipoUsuario = usuarioRepository.getTipoUsuario(calificacion.usuarioId)
-        if(tipoUsuario == TipoUsuario.PUBLICADOR){throw BusinessException("Solo un Lector puede calificar libros.")}
+        val usuario = usuarioRepository.getById(calificacion.usuarioId) ?: throw NotFoundException("No se ha encontrado el usuario con id $calificacion.usuarioId")
+
+        if (usuario.tipoUsuario == TipoUsuario.PUBLICADOR) {
+            throw BusinessException("Solo un Lector puede calificar libros.")
+        }
 
         val reserva = reservaRepository.getById(calificacion.reservaId)
             ?: throw NotFoundException("No existe la reserva con id ${calificacion.reservaId}")
