@@ -31,11 +31,15 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     lateinit var objectMapper: ObjectMapper
 
     val libro1 = crearLibro()
+    val libro2 = crearLibro(titulo = "Segundo libro", autor = "Otro autor")
+    val libro3 = crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE)
 
     @BeforeEach
     fun init() {
         libroRepository.clearInit()
         libroRepository.create(libro1)
+        libroRepository.create(libro2)
+        libroRepository.create(libro3)
     }
 
     // ----- Crear un libro -----
@@ -49,7 +53,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                     .content(objectMapper.writeValueAsString(libroValido))
             )
             .andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("4"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.titulo").value("Título de libro"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.tipoLibro").value("comun"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.descripcion").value("Descripción de libro"))
@@ -78,7 +82,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andReturn().resolvedException?.message
 
         assertEquals(errorMessage, "El libro debe tener un título")
-        assertEquals(libroRepository.getElementos().size, 1) // El libro no fue agregado al repositorio
+        assertEquals(libroRepository.getElementos().size, 3) // El libro no fue agregado al repositorio
     }
 
     // ----- Obtener detalle de libro -----
@@ -130,6 +134,18 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 .content(objectMapper.writeValueAsString(libroEditadoDTO))
         ).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.titulo").value("Nuevo título editado"))
+    }
+    @Test
+    fun `Se trae la lista de libros del perfil`(){
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/libros/{usuarioId}", 0)
+        ).andExpect(status().isOk)
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("Título de libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Segundo libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].titulo").value("Tercer libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.page").value("0"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size").value("3"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value("3"))
     }
 
     @Test
