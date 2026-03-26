@@ -87,7 +87,7 @@ class LibroService(
         validarRangosFiltros(filtrosNormalizados)
         val librosFiltrados = try {
             filtrosAplicables
-                .fold(repositorioLibro.getElementos()) { resultado, filtro ->
+                .fold(repositorioLibro.filtrarLibrosActivos()) { resultado, filtro ->
                     if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(resultado, filtrosNormalizados) else resultado
                 }
                 .filter { it.idPropietario != userId }
@@ -161,7 +161,10 @@ class LibroService(
             if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
 
         return PageResponse(
-            content = resultadoPagina.content.map { libroMapper.libroToLibroPerfilUsuarioDTO(it) },
+            content = resultadoPagina.content.map { libro ->
+                val disponibilidad = if (libro.id in idsLibrosPrestados) "PRESTADO" else "DISPONIBLE"
+                libroMapper.libroToLibroPerfilUsuarioDTO(libro, disponibilidad)
+            },
             page = page,
             size = size,
             totalElements = resultadoPagina.totalElements,
@@ -172,8 +175,12 @@ class LibroService(
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
-
-        repositorioLibro.delete(libro)
+        if (repositorioReservas.estadoLibro(libro)) {
+            throw BusinessException("El Libro se encuenta prestado")
+        } else {
+            libro.activado = false
+            repositorioLibro.update(libro)
+        }
     }
 
     private fun getLibroByIdOrThrow(idLibro: Int): Libro =

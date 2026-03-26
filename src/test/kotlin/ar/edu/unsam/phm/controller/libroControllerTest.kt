@@ -205,7 +205,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         )
             .andExpect(status().isNoContent)
 
-        assertEquals(libroRepository.getById(1), null) // El libro fue eliminado satisfactoriamente
+        assertEquals(false, libroRepository.getById(1)?.activado) // El libro queda dado de baja logicamente
     }
 
     @Test

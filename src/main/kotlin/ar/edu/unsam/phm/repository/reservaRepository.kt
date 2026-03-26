@@ -85,4 +85,17 @@ open class ReservaRepository : Repositorio<Reserva>() {
             .filter { it.usuarioPrestador.id == usuarioPrestadorId }
             .map { it.libro }
     }
+
+    // se fija si un libro esta reservado
+    fun estadoLibro(libro : Libro) : Boolean {
+        val hoy = LocalDate.now()
+        val librosReservadosHoyIds = getLibrosReservadosEntreFechas(hoy, hoy)
+            .map { it.id }
+            .toSet()
+
+        return libro.id in librosReservadosHoyIds
+
+
+    }
+
 }

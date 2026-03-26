@@ -8,13 +8,13 @@ import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 
 @Repository
 class LibroRepository(
     private val reservaRepository: ReservaRepository,
     private val userRepository: UsuarioRepository
 ) : Repositorio<Libro>() {
+    fun filtrarLibrosActivos() = getElementos().filter { it.activado }
     fun actualizarRating(libroID: Int, rating: Double) {
         val libro = getById(libroID)
         if (libro != null) libro.actualizarRating(rating) else throw BusinessException("No existe el libro con id ${libroID}.")
@@ -29,7 +29,7 @@ class LibroRepository(
         filtro: FiltroDisponibilidadPerfil,
         librosPrestadosIds: Set<Int> = emptySet()
     ): PageResult<Libro> {
-        val librosDelUsuario = getElementos()
+        val librosDelUsuario = filtrarLibrosActivos()
             .filter { it.idPropietario == propietarioId }
 
         val librosFiltrados = when (filtro) {
@@ -53,15 +53,6 @@ class LibroRepository(
         val ordenados = librosFiltrados.sortedWith(comparadorFinal)
         return paginate(page, size, ordenados)
     }
-    fun verDisponibilidadDelLibro(libroID: Int): String {
-        val hoy = LocalDate.now()
-        val prestado = reservaRepository.getElementos().any { reserva ->
-            reserva.libro.id == libroID &&
-            !hoy.isBefore(reserva.fechaRecogida) &&
-            !hoy.isAfter(reserva.fechaDevolucion)
-        }
-        return if (prestado) "PRESTADO" else "DISPONIBLE"
-    }
     fun getNickUsuarioCreador (libroId: Int): String {
         val libro = getById(libroId) ?: throw BusinessException("No existe el libro con id ${libroId}.")
         val usuario = userRepository.getById(libro.idPropietario) ?: throw BusinessException("No existe el usuario con id ${libro.idPropietario}.")
@@ -70,7 +61,7 @@ class LibroRepository(
 
     fun eliminarPorIDPropietario (idPropietario: Int) {
         val libros = getElementos().filter {it.idPropietario == idPropietario}
-        libros.forEach { libro -> delete(libro) }
+        libros.forEach { libro -> libro.activado = false }
     }
 }
 
