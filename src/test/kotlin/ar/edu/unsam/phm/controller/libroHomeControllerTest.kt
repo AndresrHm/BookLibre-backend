@@ -101,7 +101,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden obtener libros de home con filtros por query params`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "6")
                 .param("userId", "1")
@@ -120,7 +120,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se obtiene un libro por busqueda por nombre`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "6")
                 .param("userId", "1")
@@ -137,7 +137,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden enviar multiples generos como query params`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "10")
                 .param("userId", "1")
@@ -155,7 +155,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el userId no existe, se retorna error 404`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "6")
                 .param("userId", "999")
@@ -170,7 +170,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el page es negativo, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "-1")
                 .param("size", "6")
                 .param("userId", "1")
@@ -185,7 +185,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si se pasan fechas invalidas en el filtro, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "6")
                 .param("userId", "1")
@@ -202,7 +202,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Te devuelve los libros segun el orden pedido`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/homePage/user/filter")
+            MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "6")
                 .param("userId", "1")
