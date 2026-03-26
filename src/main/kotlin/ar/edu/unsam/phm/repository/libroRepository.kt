@@ -14,7 +14,7 @@ class LibroRepository(
     private val reservaRepository: ReservaRepository,
     private val userRepository: UsuarioRepository
 ) : Repositorio<Libro>() {
-    fun filtrarLibrosActivos() = getElementos().filter { it.activado }
+    fun filtrarLibrosActivos() = getElementos().filter { it.activo }
     fun actualizarRating(libroID: Int, rating: Double) {
         val libro = getById(libroID)
         if (libro != null) libro.actualizarRating(rating) else throw BusinessException("No existe el libro con id ${libroID}.")
@@ -61,7 +61,7 @@ class LibroRepository(
 
     fun eliminarPorIDPropietario (idPropietario: Int) {
         val libros = getElementos().filter {it.idPropietario == idPropietario}
-        libros.forEach { libro -> libro.activado = false }
+        libros.forEach { libro -> libro.activo = false }
     }
 }
 

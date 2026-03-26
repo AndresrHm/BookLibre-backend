@@ -88,7 +88,7 @@ class LibroMapper(
             cantidadResenias = libro.cantidadResenias,
             reseniasRecientes = CalificacionMapper.toDTO(libroReseniasRecientes),
             idPropietario = libro.idPropietario,
-            activo = libro.activado.toString() // opcion momentanea me parece que el estado lo deberia preguntar por fuera
+            activo = libro.activo
         )
         return libroDetalle
     }

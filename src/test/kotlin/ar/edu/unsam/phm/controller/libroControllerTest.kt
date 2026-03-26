@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
-import kotlin.test.assertFalse
 import org.junit.jupiter.api.Assertions.assertEquals
 
 @SpringBootTest
@@ -205,7 +204,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         )
             .andExpect(status().isNoContent)
 
-        assertEquals(false, libroRepository.getById(1)?.activado) // El libro queda dado de baja logicamente
+        assertEquals(false, libroRepository.getById(1)?.activo) // El libro queda dado de baja logicamente
     }
 
     @Test

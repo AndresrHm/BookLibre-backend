@@ -28,7 +28,7 @@ class Libro(
     var cantidadReservas = 0
     var cantidadResenias = 0
     var rating: Double = 0.0
-    var activado = true
+    var activo = true
 
     fun init() {
         verficarTitulo()

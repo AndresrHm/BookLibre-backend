@@ -42,7 +42,7 @@ data class LibroDetalleDTO(
     val cantidadResenias: Int,
     val reseniasRecientes: List<CalificacionDTO>,
     val idPropietario: Int,
-    val activo: String
+    val activo: Boolean,
 )
 
 data class LibroHomeUsuarioDTO(

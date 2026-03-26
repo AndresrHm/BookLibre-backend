@@ -178,7 +178,7 @@ class LibroService(
         if (repositorioReservas.estadoLibro(libro)) {
             throw BusinessException("El Libro se encuenta prestado")
         } else {
-            libro.activado = false
+            libro.activo = false
             repositorioLibro.update(libro)
         }
     }
