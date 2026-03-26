@@ -40,14 +40,14 @@ class LibroMapper(
         return libro
     }
 
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro): LibroUsuarioPerfilDTO = LibroUsuarioPerfilDTO(
+    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO = LibroUsuarioPerfilDTO(
         id = libro.id,
         titulo = libro.titulo,
         portada = libro.portada,
         genero = libro.genero,
         autor = libro.autor,
         fechaAgregado = libro.getFechaAsString(),
-        disponibilidad = libroRepository.verDisponibilidadDelLibro(libro.id)
+        disponibilidad = disponibilidad
     )
     fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
@@ -87,7 +87,8 @@ class LibroMapper(
             rating = libro.rating(),
             cantidadResenias = libro.cantidadResenias,
             reseniasRecientes = CalificacionMapper.toDTO(libroReseniasRecientes),
-            idPropietario = libro.idPropietario
+            idPropietario = libro.idPropietario,
+            activo = libro.activado.toString() // opcion momentanea me parece que el estado lo deberia preguntar por fuera
         )
         return libroDetalle
     }
