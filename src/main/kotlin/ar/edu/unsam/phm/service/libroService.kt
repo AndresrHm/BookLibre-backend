@@ -81,13 +81,14 @@ class LibroService(
         ordenHomePage: OrdenHomePage,
         userId: Int
     ): PageResponse<Libro> {
-        validarPaginacion(page, size)
-        validarRangosFiltros(filtros)
+        val filtrosNormalizados = normalizarFechasPorDefecto(filtros)
 
+        validarPaginacion(page, size)
+        validarRangosFiltros(filtrosNormalizados)
         val librosFiltrados = try {
             filtrosAplicables
                 .fold(repositorioLibro.getElementos()) { resultado, filtro ->
-                    if (filtro.cumpleCondicion(filtros)) filtro.filtrar(resultado, filtros) else resultado
+                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(resultado, filtrosNormalizados) else resultado
                 }
                 .filter { it.idPropietario != userId }
         } catch (e: IllegalArgumentException) {
@@ -202,5 +203,12 @@ class LibroService(
         if (paginasMin != null && paginasMax != null && paginasMin > paginasMax) {
             throw BusinessException("paginasMin no puede ser mayor a paginasMax")
         }
+    }
+
+    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibrosDTO): FiltrosDeLibrosDTO {
+        if (filtros.fechaDesde != null || filtros.fechaHasta != null) return filtros
+
+        val hoy = LocalDate.now()
+        return filtros.copy(fechaDesde = hoy, fechaHasta = hoy)
     }
 }

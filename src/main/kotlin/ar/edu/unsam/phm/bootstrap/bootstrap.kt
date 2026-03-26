@@ -1123,23 +1123,7 @@ class BootstrapData(
             Reserva(libros[0], u1, u4, hoy.minusDays(28), hoy.minusDays(18)),
             Reserva(libros[0], u1, u5, hoy.minusDays(24), hoy.minusDays(14)),
             Reserva(libros[0], u1, u2, hoy.minusDays(40), hoy.minusDays(30)),
-            Reserva(libros[0], u1, u3, hoy.minusDays(39), hoy.minusDays(29)),
-            Reserva(libros[0], u1, u4, hoy.minusDays(38), hoy.minusDays(28)),
-            Reserva(libros[0], u1, u5, hoy.minusDays(37), hoy.minusDays(27)),
-            Reserva(libros[0], u1, u2, hoy.minusDays(36), hoy.minusDays(26)),
-            Reserva(libros[0], u1, u3, hoy.minusDays(35), hoy.minusDays(25)),
-            Reserva(libros[0], u1, u4, hoy.minusDays(34), hoy.minusDays(24)),
-            Reserva(libros[0], u1, u5, hoy.minusDays(33), hoy.minusDays(23)),
-            Reserva(libros[0], u1, u2, hoy.minusDays(31), hoy.minusDays(21)),
-            Reserva(libros[0], u1, u3, hoy.minusDays(30), hoy.minusDays(20)),
-            Reserva(libros[0], u1, u6, hoy.minusDays(29), hoy.minusDays(19)),
-            Reserva(libros[0], u1, u7, hoy.minusDays(27), hoy.minusDays(17)),
-            Reserva(libros[0], u1, u8, hoy.minusDays(26), hoy.minusDays(16)),
-            Reserva(libros[0], u1, u9, hoy.minusDays(25), hoy.minusDays(15)),
-            Reserva(libros[0], u1, u10, hoy.minusDays(23), hoy.minusDays(13)),
-            Reserva(libros[0], u1, u11, hoy.minusDays(22), hoy.minusDays(12)),
-            Reserva(libros[0], u1, u12, hoy.minusDays(21), hoy.minusDays(11)),
-        )
+            )
 
         reservas.forEach(reservaRepository::create)
 
