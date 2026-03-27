@@ -88,10 +88,10 @@ class ReservaService(
         if (usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR)
             throw BusinessException("El usuario con id ${usuarioLector.id} no es lector")
 
-        if (libro.idPropietario != usuarioPrestador.id)
+        if (!esPropietario(usuarioPrestador, libro))
             throw BusinessException("El libro no pertenece al usuario prestador")
 
-        if (usuarioLector.id == libro.idPropietario)
+        if (esPropietario(usuarioLector, libro))
             throw BusinessException("Un usuario no puede reservar un libro que le pertenece")
 
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
@@ -103,6 +103,8 @@ class ReservaService(
 
         return reserva
     }
+
+    private fun esPropietario(usuarioLector: Usuario, libro: Libro): Boolean = usuarioLector.id == libro.idPropietario
 
     fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate,LocalDate>> {
         if (libroRepository.getById(libroId) != null) {

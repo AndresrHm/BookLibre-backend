@@ -5,6 +5,7 @@ import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
@@ -28,7 +29,7 @@ class CalificacionService(
     ) {
         val usuario = usuarioRepository.getById(calificacion.usuarioId) ?: throw NotFoundException("No se ha encontrado el usuario con id $calificacion.usuarioId")
 
-        if (usuario.tipoUsuario == TipoUsuario.PUBLICADOR) {
+        if (esPublicador(usuario)) {
             throw BusinessException("Solo un Lector puede calificar libros.")
         }
 
@@ -50,6 +51,8 @@ class CalificacionService(
 
         libroRepository.actualizarRating(reserva.libro.id, calificacionRepository.obtenerPromedio(reserva.libro.id))
     }
+
+    private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 
     fun obtenerCalificaciones(
         libroID: Int,

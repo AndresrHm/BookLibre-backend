@@ -201,7 +201,7 @@ class LibroService(
     private fun validarRangosFiltros(filtros: FiltrosDeLibrosDTO) {
         val fechaDesde = filtros.fechaDesde
         val fechaHasta = filtros.fechaHasta
-        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
+        if (entreFechas(fechaDesde, fechaHasta)) {
             throw BusinessException("fechaDesde no puede ser mayor a fechaHasta")
         }
 
@@ -211,6 +211,9 @@ class LibroService(
             throw BusinessException("paginasMin no puede ser mayor a paginasMax")
         }
     }
+
+    private fun entreFechas(fechaDesde: LocalDate?, fechaHasta: LocalDate?): Boolean =
+        fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)
 
     private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibrosDTO): FiltrosDeLibrosDTO {
         if (filtros.fechaDesde != null || filtros.fechaHasta != null) return filtros
