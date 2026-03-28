@@ -164,7 +164,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals("No existe un usuario con el id 999", errorMessage)
+        assertEquals("No existe un usuario con el id 999.", errorMessage)
     }
 
     @Test

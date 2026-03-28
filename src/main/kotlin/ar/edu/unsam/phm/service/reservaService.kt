@@ -12,6 +12,7 @@ import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import kotlin.Pair
 
 @Service
 class ReservaService(
@@ -61,47 +62,75 @@ class ReservaService(
 
     fun crearReserva(
         libro: Libro,
+        cantidadReservas: Int,
         usuarioLector: Usuario,
         usuarioPrestador: Usuario,
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
-        if(usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR){
-            throw BusinessException("Solo un Lector puede reservar libros.")}
+        if (esTipoPublicador(usuarioLector)) {
+            throw BusinessException("Solo un Lector puede reservar libros.")
+        }
 
         if (fechaRecogida.isAfter(fechaDevolucion))
             throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
 
-        if (fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now())
+        if (fechasAnterioresAHoy(fechaRecogida, fechaDevolucion))
             throw BusinessException("No se puede realizar una reserva para una fecha anterior a la actual")
 
-        if (usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR)
-            throw BusinessException("El usuario con id ${usuarioLector.id} no es lector")
-
-        if (libro.idPropietario != usuarioPrestador.id)
+        if (!libroPerteneceAUsuario(usuarioPrestador, libro))
             throw BusinessException("El libro no pertenece al usuario prestador")
 
-        if (usuarioLector.id == libro.idPropietario)
+        if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException("Un usuario no puede reservar un libro que le pertenece")
+
 
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
 
-        val reserva = usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
+        if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
+        ) {
+            throw BusinessException("Existe una reserva en el rango de fechas estipulado")
+        }
+
+        val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
+
+        usuarioLector.agregarLibroLeido() // Esto desaparece cuando saquemos el contador de libros leídos
+        usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
 
         reservaRepository.create(reserva)
-        usuarioRepository.update(usuarioLector)
+        usuarioRepository.update(usuarioLector) // Esto desaparece cuando saquemos el contador de libros leídos (y menos mal)
 
         return reserva
     }
 
-    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate,LocalDate>> {
+    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate, LocalDate>> {
         if (libroRepository.getById(libroId) != null) {
             val reservas = reservaRepository.findByLibroId(libroId)
-            return reservas.map{
+            return reservas.map {
                 it.fechaRecogida to it.fechaDevolucion
             }
         } else {
             throw NotFoundException("No existe un libro con el id $libroId")
+        }
+    }
+
+    private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
+        fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
+
+    private fun esTipoPublicador(usuarioLector: Usuario): Boolean = usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR
+
+    private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
+        usuarioLector.id == libro.idPropietario
+
+    private fun haySolapamiento(
+        fechaRecogida: LocalDate,
+        fechaDevolucion: LocalDate,
+        fechasDeReservas: List<Pair<LocalDate, LocalDate>>
+    ): Boolean {
+        return fechasDeReservas.any {
+            // first: Inicio de reserva existente
+            // second: Fin de reserva existente
+            fechaRecogida <= it.second && fechaDevolucion >= it.first
         }
     }
 

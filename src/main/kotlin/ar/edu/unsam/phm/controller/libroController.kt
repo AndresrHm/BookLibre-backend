@@ -61,13 +61,13 @@ class LibroController(
 
     @GetMapping("{idLibro}/edicion")
     fun obtenerLibroParaEdicion(@PathVariable idLibro: Int): LibroEdicionDTO {
-        val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro)
+        val libroParaEdicion = libroService.obtenerLibro(idLibro)
         return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
 
     @GetMapping("{idLibro}/detalle")
     fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
-        val libroDetalle = libroService.obtenerLibroDetalle(idLibro)
+        val libroDetalle = libroService.obtenerLibro(idLibro)
         val promedioCalificaciones = calificacionService.promedioCalificaciones(idLibro)
         val cantidadCalificaciones = calificacionService.cantidadCalificaciones(idLibro)
         val ultimasCalificaciones = calificacionService.ultimasCalificaciones(idLibro)

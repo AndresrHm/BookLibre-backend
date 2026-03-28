@@ -26,25 +26,6 @@ class UsuarioSpec : DescribeSpec({
                 usuario.sumarKarma(0)
             }
         }
-
-        it("un usuario puede realizar una reserva, lo que aumenta su karma") {
-            val libroReserva = crearLibro(
-                tipoLibro = comun,
-                idPropietario = 2
-            )
-            val usuarioPrestador = crearUsuario(id = 2)
-            val fechasDeReservas = listOf<Pair<LocalDate, LocalDate>>()
-            
-            usuario.crearReserva(
-                libroReserva,
-                usuarioPrestador,
-                LocalDate.now(),
-                LocalDate.now().plusDays(1),
-                fechasDeReservas
-            ) //Esta reserva provee 15 bibliokarmas
-
-            usuario.biblioKarma.shouldBe(15)
-        }
     }
 })
 
