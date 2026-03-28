@@ -15,10 +15,6 @@ class LibroRepository(
     private val userRepository: UsuarioRepository
 ) : Repositorio<Libro>() {
     fun filtrarLibrosActivos() = getElementos().filter { it.activo }
-    fun actualizarRating(libroID: Int, rating: Double) {
-        val libro = getById(libroID)
-        if (libro != null) libro.actualizarRating(rating) else throw BusinessException("No existe el libro con id ${libroID}.")
-    }
 
     fun buscarPorIdPropietario(
         propietarioId: Int,

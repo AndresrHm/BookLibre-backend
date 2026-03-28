@@ -124,14 +124,20 @@ class LibroService(
         )
     }
 
-    fun bringKarma(libro: Libro, usuarioId: Int, fechaIni: LocalDate?, fechaFin: LocalDate?): Int {
+    fun bringKarma(
+        libro: Libro,
+        cantidadReservas: Int,
+        usuarioId: Int,
+        fechaIni: LocalDate?,
+        fechaFin: LocalDate?
+    ): Int {
         val usuarioLector = repositorioUsuario.getById(usuarioId)
             ?: throw NotFoundException("No existe un usuario con el id $usuarioId.")
 
         val fechaDesde = fechaIni ?: LocalDate.now()
         val fechaHasta = fechaFin ?: LocalDate.now()
 
-        return libro.calcularKarmaHomePage(usuarioLector, fechaDesde, fechaHasta)
+        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
 
     fun obtenerLibrosDeUsuario(
@@ -177,7 +183,7 @@ class LibroService(
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
-        if (repositorioReservas.estadoLibro(libro)) {
+        if (repositorioReservas.estaReservado(libro)) {
             throw BusinessException("El Libro se encuenta prestado")
         } else {
             libro.activo = false

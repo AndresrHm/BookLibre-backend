@@ -9,7 +9,7 @@ data class ReservaDTO(
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
-    val ratingLibro: Double,
+    val calificacionLibro: Double,
     val usuario: String,
     val fechaInicio: LocalDate,
     val fechaFin: LocalDate,

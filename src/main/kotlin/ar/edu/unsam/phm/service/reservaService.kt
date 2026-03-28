@@ -60,18 +60,9 @@ class ReservaService(
         )
     }
 
-    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
-        return reservaRepository.getLibrosReservadosEntreFechas(fechaInicio, fechaFin)
-    }
-
-    fun getLibrosPrestadosPorUsuario(usuarioPrestador: Usuario): List<Libro> {
-        return reservaRepository.getElementos()
-            .filter { it.usuarioPrestador.id == usuarioPrestador.id }
-            .map { it.libro }
-    }
-
     fun crearReserva(
         libro: Libro,
+        cantidadReservas: Int,
         usuarioLector: Usuario,
         usuarioPrestador: Usuario,
         fechaRecogida: LocalDate,
@@ -101,12 +92,10 @@ class ReservaService(
             throw BusinessException("Existe una reserva en el rango de fechas estipulado")
         }
 
-        libro.reservar() // Esto desaparece cuando saquemos el contador de reservas
-
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
 
         usuarioLector.agregarLibroLeido() // Esto desaparece cuando saquemos el contador de libros leídos
-        usuarioLector.sumarKarma(reserva.darKarma())
+        usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
 
         reservaRepository.create(reserva)
         usuarioRepository.update(usuarioLector) // Esto desaparece cuando saquemos el contador de libros leídos (y menos mal)
@@ -143,5 +132,9 @@ class ReservaService(
             // second: Fin de reserva existente
             fechaRecogida <= it.second && fechaDevolucion >= it.first
         }
+    }
+
+    fun cantidadReservas(libroID: Int): Int {
+        return reservaRepository.cantidadReservas(libroID)
     }
 }
