@@ -49,14 +49,15 @@ class ReservaController(
         return reservaMapper.toCreacionReservaDTO(reservaObjeto)
     }
 
-    @GetMapping("/{usuarioId}/realizadas")
-    fun getReservasRealizadas(
+    @GetMapping("/{usuarioId}")
+    fun reservas(
         @PathVariable usuarioId: Int,
+        @RequestParam type: ReservaType,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int = 6,
+        @RequestParam size: Int = 4,
         @RequestParam string: String?,
     ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservasRealizadas(usuarioId, page, size, string)
+        val result = reservaService.getReservas(usuarioId, type, page, size, string)
 
         return PageResponse(
             content = result.content.map { it ->
@@ -73,30 +74,9 @@ class ReservaController(
             totalPages = result.totalPages,
         )
     }
+}
 
-    @GetMapping("{usuarioId}/recibidas")
-    fun getReservasRecibidas(
-        @PathVariable usuarioId: Int,
-        @RequestParam page: Int = 0,
-        @RequestParam size: Int = 6,
-        @RequestParam string: String?,
-    ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservasRecibidas(usuarioId, page, size, string)
-
-        return PageResponse(
-            content = result.content.map { it ->
-                reservaMapper.toReservaDetalleDTO(
-                    it,
-                    usuarioId,
-                    reservaService.cantidadReservas(it.libro.id),
-                    calificacionService.promedioCalificaciones(it.libro.id),
-                )
-            },
-            page = result.page,
-            size = result.size,
-            totalElements = result.content.size,
-            totalPages = result.totalPages,
-        )
-    }
-
+enum class ReservaType {
+    TO_ME,
+    BY_ME,
 }

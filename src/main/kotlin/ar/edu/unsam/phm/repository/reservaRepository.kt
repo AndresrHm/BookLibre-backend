@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.repository
 
+import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResult
 import ar.edu.unsam.phm.domain.Reserva
@@ -10,35 +11,17 @@ import java.time.LocalDate
 @Repository
 open class ReservaRepository : Repositorio<Reserva>() {
 
-    // reservas donde el user es lector
-    fun findByLectorID(
+    fun findReservasByType(
         userID: Int,
+        type: ReservaType,
         page: Int,
         size: Int,
         string: String?,
     ): PageResult<Reserva> {
-
-        var filtered = getElementos().filter { it.usuarioLector.id == userID }
-
-        if (string != null) {
-            filtered = filtered.filter { r ->
-                r.libro.titulo.lowercase().contains(string.lowercase()) ||
-                r.libro.autor.lowercase().contains(string.lowercase())
-            }
+        var filtered = when (type) {
+            ReservaType.TO_ME -> getElementos().filter { it.usuarioLector.id == userID }
+            ReservaType.BY_ME -> getElementos().filter { it.usuarioPrestador.id == userID }
         }
-
-        return paginate(page, size, filtered)
-    }
-
-    // reservas donde el user es prestador
-    fun findByPrestadorID(
-        userID: Int,
-        page: Int,
-        size: Int,
-        string: String?,
-    ): PageResult<Reserva> {
-
-        var filtered = getElementos().filter { it.usuarioPrestador.id == userID }
 
         if (string != null) {
             filtered = filtered.filter { r ->
@@ -51,7 +34,7 @@ open class ReservaRepository : Repositorio<Reserva>() {
     }
 
     // obtener reservas asociadas a un libro
-    fun findByLibroId(libroID: Int) : List<Reserva> {
+    fun findByLibroId(libroID: Int): List<Reserva> {
         val listaDeReservas = getElementos().filter { it.libro.id == libroID }
         return listaDeReservas
     }
@@ -64,10 +47,11 @@ open class ReservaRepository : Repositorio<Reserva>() {
     }
 
     // cantidad de reservas de un dueño
-    fun obtenerCantidadDeReservasDeAlgunDuenio(usuarioID: Int) : Int {
+    fun obtenerCantidadDeReservasDeAlgunDuenio(usuarioID: Int): Int {
         val listaDeReservasFiltradas = getElementos().filter { it.usuarioPrestador.id == usuarioID }
         return listaDeReservasFiltradas.size
     }
+
     fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
         require(!fechaInicio.isAfter(fechaFin)) { "fechaInicio no puede ser mayor a fechaFin" }
 
@@ -87,7 +71,7 @@ open class ReservaRepository : Repositorio<Reserva>() {
     }
 
     // se fija si un libro esta reservado
-    fun estaReservado(libro : Libro) : Boolean {
+    fun estaReservado(libro: Libro): Boolean {
         val hoy = LocalDate.now()
         val librosReservadosHoyIds = getLibrosReservadosEntreFechas(hoy, hoy)
             .map { it.id }

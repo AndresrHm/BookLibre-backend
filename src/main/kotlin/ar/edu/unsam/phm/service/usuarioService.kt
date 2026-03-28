@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
+import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
@@ -47,14 +48,27 @@ class UsuarioService(
 
         when (datosUsuario.tipoUsuario) {
             TipoUsuario.LECTOR -> {
-                if (reservaRepositorio.findByPrestadorID(datosUsuario.id, 1, 1, "").totalElements > 0) {
+                if (reservaRepositorio.findReservasByType(
+                        datosUsuario.id,
+                        ReservaType.TO_ME,
+                        1,
+                        1, ""
+                    ).totalElements > 0
+                ) {
                     throw BusinessException("El usuario tiene libros prestados.")
                 }
                 libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)
             }
 
             TipoUsuario.PUBLICADOR ->
-                if (reservaRepositorio.findByLectorID(datosUsuario.id, 1, 1, "").totalElements > 0) {
+                if (reservaRepositorio.findReservasByType(
+                        datosUsuario.id,
+                        ReservaType.BY_ME,
+                        1,
+                        1,
+                        ""
+                    ).totalElements > 0
+                ) {
                     throw BusinessException("El usuario tiene devoluciones pendientes.")
                 }
 
@@ -73,6 +87,6 @@ class UsuarioService(
 
     private fun camposObligatoriosVacios(datosUsuario: UsuarioEdicionDTO): Boolean =
         datosUsuario.nombre == "" ||
-        datosUsuario.apellido == "" ||
-        datosUsuario.ciudad == ""
+                datosUsuario.apellido == "" ||
+                datosUsuario.ciudad == ""
 }
