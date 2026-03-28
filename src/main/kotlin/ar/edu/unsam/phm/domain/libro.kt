@@ -45,26 +45,8 @@ class Libro(
         diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector( this, usuarioLector)
 
     fun reservar(
-        fechaRecogida: LocalDate,
-        fechaDevolucion: LocalDate,
-        fechasDeReservas: List<Pair<LocalDate, LocalDate>>
     ) {
-        validarReserva(fechaRecogida, fechaDevolucion, fechasDeReservas)
         cantidadReservas += 1
-    }
-
-    fun validarReserva(
-        fechaRecogida: LocalDate,
-        fechaDevolucion: LocalDate,
-        fechasDeReserva: List<Pair<LocalDate, LocalDate>>
-    ) {
-        val haySolapamiento = (fechasDeReserva.any {
-            // first: Inicio de reserva existente
-            // second: Fin de reserva existente
-            fechaRecogida <= it.second && fechaDevolucion >= it.first
-        })
-
-        if (haySolapamiento) throw BusinessException("Existe una reserva en el rango de fechas estipulado")
     }
 
     // Para página de detalle

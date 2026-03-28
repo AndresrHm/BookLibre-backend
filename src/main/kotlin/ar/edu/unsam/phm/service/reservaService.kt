@@ -12,6 +12,7 @@ import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import kotlin.Pair
 
 @Service
 class ReservaService(
@@ -92,13 +93,23 @@ class ReservaService(
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException("Un usuario no puede reservar un libro que le pertenece")
 
+
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
 
-        val reserva =
-            usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
+        if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
+        ) {
+            throw BusinessException("Existe una reserva en el rango de fechas estipulado")
+        }
+
+        libro.reservar() // Esto desaparece cuando saquemos el contador de reservas
+
+        val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
+
+        usuarioLector.agregarLibroLeido() // Esto desaparece cuando saquemos el contador de libros leídos
+        usuarioLector.sumarKarma(reserva.darKarma())
 
         reservaRepository.create(reserva)
-        usuarioRepository.update(usuarioLector)
+        usuarioRepository.update(usuarioLector) // Esto desaparece cuando saquemos el contador de libros leídos (y menos mal)
 
         return reserva
     }
@@ -121,4 +132,16 @@ class ReservaService(
 
     private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
         usuarioLector.id == libro.idPropietario
+
+    private fun haySolapamiento(
+        fechaRecogida: LocalDate,
+        fechaDevolucion: LocalDate,
+        fechasDeReservas: List<Pair<LocalDate, LocalDate>>
+    ): Boolean {
+        return fechasDeReservas.any {
+            // first: Inicio de reserva existente
+            // second: Fin de reserva existente
+            fechaRecogida <= it.second && fechaDevolucion >= it.first
+        }
+    }
 }
