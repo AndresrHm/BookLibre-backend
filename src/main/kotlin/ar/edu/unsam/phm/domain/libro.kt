@@ -74,7 +74,7 @@ class Libro(
             throw BusinessException("La cantidad de páginas del libro debe ser positiva")
         }
         if (cantidadPaginas >= MAX_PAGINAS_LIBRO) {
-            throw BusinessException("La cantidad de páginas del libro debe ser positiva")
+            throw BusinessException("El libro no puede superar las ${MAX_PAGINAS_LIBRO} páginas.")
         }
     }
 

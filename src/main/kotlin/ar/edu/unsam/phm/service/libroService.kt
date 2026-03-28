@@ -33,8 +33,7 @@ class LibroService(
     var repositorioUsuario: UsuarioRepository,
     var libroMapper: LibroMapper
 ) {
-    fun crearLibro(libro: Libro): Libro {
-        val nuevoLibro = libro
+    fun crearLibro(nuevoLibro: Libro): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
         if (esTipoLector(tipoUsuario)) {
             throw BusinessException("Solo un Publicador puede crear libros.")
@@ -44,9 +43,9 @@ class LibroService(
     }
 
     fun obtenerLibro(idLibro: Int): Libro {
-        val libroParaEdicion = getLibroByIdOrThrow(idLibro)
+        val libro = getLibroByIdOrThrow(idLibro)
 
-        return libroParaEdicion
+        return libro
     }
 
     fun editarLibro(libroEditado: Libro, idUsuarioActual: Int): Libro {

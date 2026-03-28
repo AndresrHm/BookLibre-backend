@@ -2,7 +2,9 @@ package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
+import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.ReservaDTO
+import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.mapper.ReservaMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
@@ -78,5 +80,5 @@ class ReservaController(
 
 enum class ReservaType {
     TO_ME,
-    BY_ME,
+    BY_ME
 }
