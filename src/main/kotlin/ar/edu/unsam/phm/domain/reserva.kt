@@ -16,8 +16,8 @@ class Reserva(
 ) : Identificable {
     override var id: Int = -1
 
-    fun darKarma(): Int {
-        return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this)
+    fun darKarma(cantidadReservas: Int): Int {
+        return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this, cantidadReservas)
     }
 
     fun estado(hoy: LocalDate = LocalDate.now()): EstadoReserva {

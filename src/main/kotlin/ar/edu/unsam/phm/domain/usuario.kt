@@ -53,7 +53,8 @@ class Usuario(
             fechaDevolucion = fechaDevolucion,
         )
         agregarLibroLeido()
-        sumarKarma(reserva.darKarma())
+        // cant reservas falopa
+        sumarKarma(reserva.darKarma(cantidadReservas = 1))
         return reserva
     }
 

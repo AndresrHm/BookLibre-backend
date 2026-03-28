@@ -4,6 +4,7 @@ import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.ReservaDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
+import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 class ReservaController(
     val reservaService: ReservaService,
     val usuarioService: UsuarioService,
+    val calificacionService: CalificacionService,
     val libroService: LibroService,
     val reservaMapper: ReservaMapper,
 ) {
@@ -54,7 +56,14 @@ class ReservaController(
         val result = reservaService.getReservasRealizadas(usuarioId, page, size, string)
 
         return PageResponse(
-            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, usuarioId) },
+            content = result.content.map { it ->
+                reservaMapper.toReservaDetalleDTO(
+                    it,
+                    usuarioId,
+                    reservaService.cantidadReservas(it.libro.id),
+                    calificacionService.promedioCalificaciones(it.libro.id),
+                )
+            },
             page = result.page,
             size = result.size,
             totalElements = result.content.size,
@@ -72,7 +81,14 @@ class ReservaController(
         val result = reservaService.getReservasRecibidas(usuarioId, page, size, string)
 
         return PageResponse(
-            content = result.content.map { it -> reservaMapper.toReservaDetalleDTO(it, usuarioId) },
+            content = result.content.map { it ->
+                reservaMapper.toReservaDetalleDTO(
+                    it,
+                    usuarioId,
+                    reservaService.cantidadReservas(it.libro.id),
+                    calificacionService.promedioCalificaciones(it.libro.id),
+                )
+            },
             page = result.page,
             size = result.size,
             totalElements = result.content.size,

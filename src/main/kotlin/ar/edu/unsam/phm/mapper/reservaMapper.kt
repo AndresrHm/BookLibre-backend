@@ -8,7 +8,12 @@ import org.springframework.stereotype.Component
 
 @Component
 class ReservaMapper {
-    fun toReservaDetalleDTO(obj: Reserva, userID: Int): ReservaDTO {
+    fun toReservaDetalleDTO(
+        obj: Reserva,
+        userID: Int,
+        cantidadReservas: Int,
+        calificacionLibro: Double
+    ): ReservaDTO {
         val puedeCalificar =
             obj.usuarioLector.id == userID &&
                     obj.estado() == EstadoReserva.DEVUELTO
@@ -26,13 +31,13 @@ class ReservaMapper {
             titulo = obj.libro.titulo,
             autor = obj.libro.autor,
             imagenUrl = obj.libro.portada,
-            ratingLibro = obj.libro.rating(),
+            calificacionLibro = calificacionLibro,
             usuario = usuario,
             fechaInicio = obj.fechaRecogida,
             fechaFin = obj.fechaDevolucion,
             estado = obj.estado(),
             puedeCalificar = puedeCalificar,
-            biblioKarma = obj.libro.darKarma(obj),
+            biblioKarma = obj.libro.darKarma(obj, cantidadReservas),
         )
     }
 

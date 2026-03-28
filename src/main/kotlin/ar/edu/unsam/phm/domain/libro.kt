@@ -25,9 +25,6 @@ class Libro(
 ) : Identificable {
     override var id: Int = -1
     val fechaAgregado = LocalDate.now()
-    var cantidadReservas = 0
-    var cantidadResenias = 0
-    var rating: Double = 0.0
     var activo = true
 
     fun init() {
@@ -39,10 +36,10 @@ class Libro(
         verficarCodigo()
     }
 
-    fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
+    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(reserva, cantidadReservas)
 
-    fun calcularKarmaHomePage(usuarioLector : Usuario, fechaIni: LocalDate, fechaFin : LocalDate) : Int =
-        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector( this, usuarioLector)
+    fun calcularKarmaHomePage(usuarioLector: Usuario, cantidadReservas: Int, fechaIni: LocalDate, fechaFin: LocalDate): Int =
+        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector(this, cantidadReservas, usuarioLector)
 
     fun reservar(
         fechaRecogida: LocalDate,
@@ -50,7 +47,6 @@ class Libro(
         fechasDeReservas: List<Pair<LocalDate, LocalDate>>
     ) {
         validarReserva(fechaRecogida, fechaDevolucion, fechasDeReservas)
-        cantidadReservas += 1
     }
 
     fun validarReserva(
@@ -65,18 +61,6 @@ class Libro(
         })
 
         if (haySolapamiento) throw BusinessException("Existe una reserva en el rango de fechas estipulado")
-    }
-
-    // Para página de detalle
-    fun rating(): Double {
-        return rating
-    }
-
-    fun actualizarRating(nuevoRating: Double) {
-        if (nuevoRating < 0.0 || nuevoRating > 5.0)
-            throw BusinessException("La calificación del libro debe ser un número entre 0 y 5")
-        cantidadResenias += 1
-        rating = nuevoRating
     }
 
     // Validaciones de creación/edición

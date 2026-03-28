@@ -40,15 +40,17 @@ class LibroMapper(
         return libro
     }
 
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO = LibroUsuarioPerfilDTO(
-        id = libro.id,
-        titulo = libro.titulo,
-        portada = libro.portada,
-        genero = libro.genero,
-        autor = libro.autor,
-        fechaAgregado = libro.getFechaAsString(),
-        disponibilidad = disponibilidad
-    )
+    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
+        LibroUsuarioPerfilDTO(
+            id = libro.id,
+            titulo = libro.titulo,
+            portada = libro.portada,
+            genero = libro.genero,
+            autor = libro.autor,
+            fechaAgregado = libro.getFechaAsString(),
+            disponibilidad = disponibilidad
+        )
+
     fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
             id = libro.id,
@@ -69,7 +71,12 @@ class LibroMapper(
         return libroEdicionDTO
     }
 
-    fun libroToLibroDetalleDTO(libro: Libro, libroReseniasRecientes: List<Calificacion>): LibroDetalleDTO {
+    fun libroToLibroDetalleDTO(
+        libro: Libro,
+        rating: Double,
+        cantidadCalificaciones: Int,
+        libroCalificacionesRecientes: List<Calificacion>
+    ): LibroDetalleDTO {
         val libroDetalle = LibroDetalleDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -84,16 +91,20 @@ class LibroMapper(
             editorial = libro.editorial,
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
-            rating = libro.rating(),
-            cantidadResenias = libro.cantidadResenias,
-            reseniasRecientes = CalificacionMapper.toDTO(libroReseniasRecientes),
+            rating = rating,
+            cantidadCalificaciones = cantidadCalificaciones,
+            calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
             idPropietario = libro.idPropietario,
             activo = libro.activo
         )
         return libroDetalle
     }
 
-    fun libroToLibroHomeUsuarioDTO(libro: Libro, karmaForUserLector : Int): LibroHomeUsuarioDTO {
+    fun libroToLibroHomeUsuarioDTO(
+        libro: Libro,
+        rating: Double,
+        karmaForUserLector: Int
+    ): LibroHomeUsuarioDTO {
         val libroDetalle = LibroHomeUsuarioDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -108,7 +119,7 @@ class LibroMapper(
             editorial = libro.editorial,
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
-            rating = libro.rating(),
+            rating = rating,
             biblioKarma = karmaForUserLector,
             userCreador = libroRepository.getNickUsuarioCreador(libro.id)
         )

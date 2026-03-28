@@ -59,16 +59,6 @@ class ReservaService(
         )
     }
 
-    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
-        return reservaRepository.getLibrosReservadosEntreFechas(fechaInicio, fechaFin)
-    }
-
-    fun getLibrosPrestadosPorUsuario(usuarioPrestador: Usuario): List<Libro> {
-        return reservaRepository.getElementos()
-            .filter { it.usuarioPrestador.id == usuarioPrestador.id }
-            .map { it.libro }
-    }
-
     fun crearReserva(
         libro: Libro,
         usuarioLector: Usuario,
@@ -113,5 +103,9 @@ class ReservaService(
         } else {
             throw NotFoundException("No existe un libro con el id $libroId")
         }
+    }
+
+    fun cantidadReservas(libroID: Int): Int {
+        return reservaRepository.cantidadReservas(libroID)
     }
 }

@@ -36,7 +36,9 @@ class LibroService(
     fun crearLibro(libro: Libro): Libro {
         val nuevoLibro = libro
         val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
-        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede crear libros.")}
+        if (tipoUsuario == TipoUsuario.LECTOR) {
+            throw BusinessException("Solo un Publicador puede crear libros.")
+        }
         repositorioLibro.create(nuevoLibro)
         return nuevoLibro
     }
@@ -51,7 +53,9 @@ class LibroService(
         val libroEditado = libroParaEdicion
 
         val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
-        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede editar libros.")}
+        if (tipoUsuario == TipoUsuario.LECTOR) {
+            throw BusinessException("Solo un Publicador puede editar libros.")
+        }
 
         val libroOriginal = getLibroByIdOrThrow(libroParaEdicion.id)
         validarPropietario(libroOriginal, idUsuarioActual)
@@ -88,7 +92,10 @@ class LibroService(
         val librosFiltrados = try {
             filtrosAplicables
                 .fold(repositorioLibro.filtrarLibrosActivos()) { resultado, filtro ->
-                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(resultado, filtrosNormalizados) else resultado
+                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(
+                        resultado,
+                        filtrosNormalizados
+                    ) else resultado
                 }
                 .filter { it.idPropietario != userId }
         } catch (e: IllegalArgumentException) {
@@ -121,7 +128,13 @@ class LibroService(
         )
     }
 
-    fun bringKarma(libro: Libro, usuarioId: Int, fechaIni: LocalDate?, fechaFin: LocalDate?): Int {
+    fun bringKarma(
+        libro: Libro,
+        cantidadReservas: Int,
+        usuarioId: Int,
+        fechaIni: LocalDate?,
+        fechaFin: LocalDate?
+    ): Int {
         val usuarioLector = repositorioUsuario.getById(usuarioId)
             ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
 
@@ -129,7 +142,7 @@ class LibroService(
         val fechaDesde = fechaIni ?: LocalDate.now()
         val fechaHasta = fechaFin ?: LocalDate.now()
 
-        return libro.calcularKarmaHomePage(usuarioLector, fechaDesde, fechaHasta)
+        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
 
     fun obtenerLibrosDeUsuario(
@@ -175,7 +188,7 @@ class LibroService(
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
-        if (repositorioReservas.estadoLibro(libro)) {
+        if (repositorioReservas.estaReservado(libro)) {
             throw BusinessException("El Libro se encuenta prestado")
         } else {
             libro.activo = false

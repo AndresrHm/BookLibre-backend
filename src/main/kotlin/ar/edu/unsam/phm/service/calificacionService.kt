@@ -5,7 +5,6 @@ import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.TipoUsuario
-import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.dto.OrdenCalificacion
@@ -47,8 +46,6 @@ class CalificacionService(
         )
 
         calificacionRepository.agregarCalificacion(nuevaCalificacion)
-
-        libroRepository.actualizarRating(reserva.libro.id, calificacionRepository.obtenerPromedio(reserva.libro.id))
     }
 
     fun obtenerCalificaciones(
@@ -71,7 +68,7 @@ class CalificacionService(
         )
     }
 
-    fun obtenerUltimasCalificaciones(
+    fun ultimasCalificaciones(
         libroID: Int,
     ): List<Calificacion> {
         val libro = libroRepository.getById(libroID)
@@ -80,5 +77,17 @@ class CalificacionService(
         val calificaciones = calificacionRepository.obtenerUltimasCalificaciones(libro)
 
         return calificaciones
+    }
+
+    fun promedioCalificaciones(
+        libroID: Int,
+    ): Double {
+        return calificacionRepository.obtenerPromedioCalificaciones(libroID)
+    }
+
+    fun cantidadCalificaciones(
+        libroID: Int,
+    ): Int {
+        return calificacionRepository.obtenerCantidadCalificaciones(libroID)
     }
 }
