@@ -78,7 +78,7 @@ class CalificacionService(
         libroID: Int,
     ): List<Calificacion> {
         val libro = libroRepository.getById(libroID)
-            ?: throw NotFoundException("No existe libro con el id $libroID")
+            ?: throw NotFoundException("No existe libro con el id $libroID.")
 
         val calificaciones = calificacionRepository.obtenerUltimasCalificaciones(libro)
 

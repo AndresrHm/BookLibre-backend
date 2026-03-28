@@ -76,27 +76,26 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
-        if(usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR){
-            throw BusinessException("Solo un Lector puede reservar libros.")}
+        if (esTipoPublicador(usuarioLector)) {
+            throw BusinessException("Solo un Lector puede reservar libros.")
+        }
 
         if (fechaRecogida.isAfter(fechaDevolucion))
             throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
 
-        if (fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now())
+        if (fechasAnterioresAHoy(fechaRecogida, fechaDevolucion))
             throw BusinessException("No se puede realizar una reserva para una fecha anterior a la actual")
 
-        if (usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR)
-            throw BusinessException("El usuario con id ${usuarioLector.id} no es lector")
-
-        if (!esPropietario(usuarioPrestador, libro))
+        if (!libroPerteneceAUsuario(usuarioPrestador, libro))
             throw BusinessException("El libro no pertenece al usuario prestador")
 
-        if (esPropietario(usuarioLector, libro))
+        if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException("Un usuario no puede reservar un libro que le pertenece")
 
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
 
-        val reserva = usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
+        val reserva =
+            usuarioLector.crearReserva(libro, usuarioPrestador, fechaRecogida, fechaDevolucion, fechasDeReservas)
 
         reservaRepository.create(reserva)
         usuarioRepository.update(usuarioLector)
@@ -104,16 +103,22 @@ class ReservaService(
         return reserva
     }
 
-    private fun esPropietario(usuarioLector: Usuario, libro: Libro): Boolean = usuarioLector.id == libro.idPropietario
-
-    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate,LocalDate>> {
+    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate, LocalDate>> {
         if (libroRepository.getById(libroId) != null) {
             val reservas = reservaRepository.findByLibroId(libroId)
-            return reservas.map{
+            return reservas.map {
                 it.fechaRecogida to it.fechaDevolucion
             }
         } else {
             throw NotFoundException("No existe un libro con el id $libroId")
         }
     }
+
+    private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
+        fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
+
+    private fun esTipoPublicador(usuarioLector: Usuario): Boolean = usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR
+
+    private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
+        usuarioLector.id == libro.idPropietario
 }

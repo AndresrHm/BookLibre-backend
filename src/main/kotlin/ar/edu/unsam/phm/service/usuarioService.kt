@@ -20,7 +20,8 @@ class UsuarioService(
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    fun usuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
+    fun usuarioById(id: Int) =
+        usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
     fun usuarioHeaderInfo(id: Int): UsuarioHeaderDTO {
         val usuario = usuarioById(id)
@@ -38,23 +39,25 @@ class UsuarioService(
     }
 
     fun usuarioUpdate(datosUsuario: UsuarioEdicionDTO): Usuario {
-        if(
-            datosUsuario.nombre == "" ||
-            datosUsuario.apellido == "" ||
-            datosUsuario.ciudad == ""){
-            throw BusinessException("Uno o mas campos obligatorios estan incompletos.")
+        if (
+            camposObligatoriosVacios(datosUsuario)
+        ) {
+            throw BusinessException("Uno o más campos obligatorios están incompletos.")
         }
 
-        when(datosUsuario.tipoUsuario) {
+        when (datosUsuario.tipoUsuario) {
             TipoUsuario.LECTOR -> {
                 if (reservaRepositorio.findByPrestadorID(datosUsuario.id, 1, 1, "").totalElements > 0) {
                     throw BusinessException("El usuario tiene libros prestados.")
                 }
-                libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)}
+                libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)
+            }
+
             TipoUsuario.PUBLICADOR ->
-                if (reservaRepositorio.findByLectorID(datosUsuario.id,1,1,"").totalElements > 0) {
+                if (reservaRepositorio.findByLectorID(datosUsuario.id, 1, 1, "").totalElements > 0) {
                     throw BusinessException("El usuario tiene devoluciones pendientes.")
                 }
+
             TipoUsuario.LECTORPUBLICADOR -> {}
         }
         val usuario = usuarioById(datosUsuario.id)
@@ -68,6 +71,8 @@ class UsuarioService(
         return usuarioMapper.toUsuarioPerfilDTO(usuario)
     }
 
-
-
+    private fun camposObligatoriosVacios(datosUsuario: UsuarioEdicionDTO): Boolean =
+        datosUsuario.nombre == "" ||
+        datosUsuario.apellido == "" ||
+        datosUsuario.ciudad == ""
 }

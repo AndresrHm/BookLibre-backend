@@ -31,7 +31,7 @@ class ReservaController(
         @RequestBody reserva: CreacionReservaDTO,
     ): CreacionReservaDTO {
         // Busco los objetos de dominio para poder armar el objeto de dominio
-        val libro = libroService.obtenerLibroDetalle(reserva.libroId)
+        val libro = libroService.obtenerLibro(reserva.libroId)
         val usuarioLector = usuarioService.usuarioById(reserva.usuarioLectorId)
         val usuarioPrestador = usuarioService.usuarioById(reserva.usuarioPrestadorId)
         val reservaObjeto = reservaService.crearReserva(

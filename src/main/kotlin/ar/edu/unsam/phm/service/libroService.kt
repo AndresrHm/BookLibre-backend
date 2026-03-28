@@ -36,24 +36,26 @@ class LibroService(
     fun crearLibro(libro: Libro): Libro {
         val nuevoLibro = libro
         val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
-        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede crear libros.")}
+        if (esTipoLector(tipoUsuario)) {
+            throw BusinessException("Solo un Publicador puede crear libros.")
+        }
         repositorioLibro.create(nuevoLibro)
         return nuevoLibro
     }
 
-    fun obtenerLibroParaEdicion(idLibro: Int): Libro {
+    fun obtenerLibro(idLibro: Int): Libro {
         val libroParaEdicion = getLibroByIdOrThrow(idLibro)
 
         return libroParaEdicion
     }
 
-    fun editarLibro(libroParaEdicion: Libro, idUsuarioActual: Int): Libro {
-        val libroEditado = libroParaEdicion
-
+    fun editarLibro(libroEditado: Libro, idUsuarioActual: Int): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
-        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede editar libros.")}
+        if (esTipoLector(tipoUsuario)) {
+            throw BusinessException("Solo un Publicador puede editar libros.")
+        }
 
-        val libroOriginal = getLibroByIdOrThrow(libroParaEdicion.id)
+        val libroOriginal = getLibroByIdOrThrow(libroEditado.id)
         validarPropietario(libroOriginal, idUsuarioActual)
 
         repositorioLibro.update(libroEditado)
@@ -61,9 +63,7 @@ class LibroService(
         return libroEditado
     }
 
-    fun obtenerLibroDetalle(idLibro: Int): Libro {
-        return getLibroByIdOrThrow(idLibro)
-    }
+    private fun esTipoLector(tipoUsuario: TipoUsuario?): Boolean = tipoUsuario == TipoUsuario.LECTOR
 
     private val filtrosAplicables: List<FiltroDeLibro> = listOf(
         BusquedaPorNombreFiltro(),
@@ -88,11 +88,14 @@ class LibroService(
         val librosFiltrados = try {
             filtrosAplicables
                 .fold(repositorioLibro.filtrarLibrosActivos()) { resultado, filtro ->
-                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(resultado, filtrosNormalizados) else resultado
+                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(
+                        resultado,
+                        filtrosNormalizados
+                    ) else resultado
                 }
                 .filter { it.idPropietario != userId }
         } catch (e: IllegalArgumentException) {
-            throw BusinessException(e.message ?: "Parametros de filtro invalidos")
+            throw BusinessException(e.message ?: "Parámetros de filtro inválidos.")
         }
 
         val librosPorFiltroOrdenado = when (ordenHomePage) {
@@ -123,8 +126,7 @@ class LibroService(
 
     fun bringKarma(libro: Libro, usuarioId: Int, fechaIni: LocalDate?, fechaFin: LocalDate?): Int {
         val usuarioLector = repositorioUsuario.getById(usuarioId)
-            ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
-
+            ?: throw NotFoundException("No existe un usuario con el id $usuarioId.")
 
         val fechaDesde = fechaIni ?: LocalDate.now()
         val fechaHasta = fechaFin ?: LocalDate.now()
