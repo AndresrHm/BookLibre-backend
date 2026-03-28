@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
+import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
@@ -20,36 +21,16 @@ class ReservaService(
     val usuarioRepository: UsuarioRepository,
     val libroRepository: LibroRepository,
 ) {
-    fun getReservasRealizadas(
+    fun getReservas(
         userID: Int,
+        type: ReservaType,
         page: Int,
         size: Int,
         string: String?,
     ): PageResponse<Reserva> {
-
         if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario logueado no existe")
 
-        val pageResponse = reservaRepository.findByLectorID(userID, page, size, string)
-
-        return PageResponse(
-            content = pageResponse.content,
-            page = page,
-            size = size,
-            totalElements = pageResponse.content.size,
-            totalPages = (pageResponse.totalElements + size - 1) / size,
-        )
-    }
-
-    fun getReservasRecibidas(
-        userID: Int,
-        page: Int,
-        size: Int,
-        string: String?,
-    ): PageResponse<Reserva> {
-
-        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario logueado no existe")
-
-        val pageResponse = reservaRepository.findByPrestadorID(userID, page, size, string)
+        val pageResponse = reservaRepository.findReservasByType(userID, type, page, size, string)
 
         return PageResponse(
             content = pageResponse.content,
