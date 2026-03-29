@@ -2,10 +2,13 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.domain.coleccionable
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.conDedicatoria
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
+import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
@@ -124,5 +127,24 @@ class LibroMapper(
             userCreador = libroRepository.getNickUsuarioCreador(libro.id)
         )
         return libroDetalle
+    }
+
+    fun filtroDTOtoLibroFiltro(
+        filtrosQuery: FiltrosLibrosQueryDTO,
+        usuarioPrestador: Usuario?,
+        usuarioLector: Usuario?
+        ) : FiltrosDeLibros {
+       val filtros = FiltrosDeLibros(
+            generos = filtrosQuery.generos,
+            fechaDesde = filtrosQuery.fechaDesde,
+            fechaHasta = filtrosQuery.fechaHasta,
+            paginasMin = filtrosQuery.paginasMin,
+            paginasMax = filtrosQuery.paginasMax,
+            usuarioPrestador = usuarioPrestador,
+            usuarioLector = usuarioLector,
+            isbn13 = filtrosQuery.isbn13,
+            search = filtrosQuery.search
+        )
+        return filtros
     }
 }

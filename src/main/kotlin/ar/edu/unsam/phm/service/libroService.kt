@@ -15,7 +15,7 @@ import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
-import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
@@ -75,7 +75,7 @@ class LibroService(
     )
 
     fun getLibrosPorFiltros(
-        filtros: FiltrosDeLibrosDTO,
+        filtros: FiltrosDeLibros,
         page: Int = 0,
         size: Int = 6,
         ordenHomePage: OrdenHomePage,
@@ -206,7 +206,7 @@ class LibroService(
         if (size <= 0) throw BusinessException(ErrorStrings.SIZE_DEBE_SER_MAYOR_A_CERO)
     }
 
-    private fun validarRangosFiltros(filtros: FiltrosDeLibrosDTO) {
+    private fun validarRangosFiltros(filtros: FiltrosDeLibros) {
         val fechaDesde = filtros.fechaDesde
         val fechaHasta = filtros.fechaHasta
         if (entreFechas(fechaDesde, fechaHasta)) {
@@ -223,7 +223,7 @@ class LibroService(
     private fun entreFechas(fechaDesde: LocalDate?, fechaHasta: LocalDate?): Boolean =
         fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)
 
-    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibrosDTO): FiltrosDeLibrosDTO {
+    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibros): FiltrosDeLibros {
         if (filtros.fechaDesde != null || filtros.fechaHasta != null) return filtros
 
         val hoy = LocalDate.now()
