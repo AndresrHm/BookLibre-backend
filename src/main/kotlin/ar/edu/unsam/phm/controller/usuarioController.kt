@@ -1,7 +1,9 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
+import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -20,25 +22,36 @@ class UsuarioController(
     val usuarioMapper: UsuarioMapper
 ) {
     @GetMapping("{usuarioId}/header")
-    fun getUsuarioHeader(@PathVariable usuarioId: Int) = usuarioService.usuarioHeaderInfo(usuarioId)
+    fun getUsuarioHeader(@PathVariable usuarioId: Int) : UsuarioHeaderDTO {
+        val usuario = usuarioService.getUsuarioById(usuarioId)
+        return usuarioMapper.toUsuarioHeaderDTO(usuario)
+    }
 
     @PutMapping
     fun updateUsuario(
         @RequestBody usuario: UsuarioEdicionDTO
-    ) = usuarioService.usuarioUpdate(usuario)
+    ) {
+        val usuarioNuevo = usuarioMapper.usuarioEdicionDTOtoLibro(usuario)
+        usuarioService.usuarioUpdate(usuarioNuevo)}
 
     @GetMapping("{usuarioId}/update")
-    fun getUsuarioUpdate(@PathVariable usuarioId: Int) = usuarioService.getUsuarioUpdate(usuarioId)
+    fun getUsuarioUpdate(@PathVariable usuarioId: Int) : UsuarioEdicionDTO {
+        val usuario = usuarioService.getUsuarioById(usuarioId)
+        return usuarioMapper.toUsuarioEdicionDTO(usuario)
+    }
 
     @GetMapping("{usuarioId}/perfil")
-    fun getUsuario(@PathVariable usuarioId: Int) = usuarioService.usuarioPerfil(usuarioId)
+    fun getUsuario(@PathVariable usuarioId: Int) : UsarioPerfilDTO {
+        val usuario = usuarioService.getUsuarioById(usuarioId)
+        return usuarioMapper.toUsuarioPerfilDTO(usuario)
+    }
 
     @GetMapping("{usuarioId}/karma")
     fun getUsuarioKarma(@PathVariable usuarioId: Int): UsuarioKarmaDTO {
-        val usuario = usuarioService.usuarioById(usuarioId)
+        val usuario = usuarioService.getUsuarioById(usuarioId)
         return usuarioMapper.toUsuarioKarma(usuario)
     }
 
     @GetMapping("{usuarioId}/tipoUsuario")
-    fun getUsuarioTipo(@PathVariable usuarioId: Int) = usuarioService.getUsuarioTipo(usuarioId)
+    fun getUsuarioTipo(@PathVariable usuarioId: Int) = usuarioService.getUsuarioById(usuarioId).tipoUsuario
 }

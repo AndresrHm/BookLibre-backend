@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.repository.Identificable
-import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import java.time.LocalDate
 
 class Usuario(
@@ -57,17 +56,13 @@ class Usuario(
         return reserva
     }
 
-    fun update(usuarioNuevo: UsuarioEdicionDTO) {
-        nombre = usuarioNuevo.nombre
-        apellido = usuarioNuevo.apellido
-        descripcion = usuarioNuevo.descripcion
-        ciudad = usuarioNuevo.ciudad
-        tipoUsuario = usuarioNuevo.tipoUsuario
-        urlImagen = usuarioNuevo.urlImagen
-    }
-
     fun getFechaCreacionAsString(): String = fechaDeCreacion.formatear()
 
+    fun esLector(): Boolean = this.tipoUsuario == TipoUsuario.LECTOR
+
+    fun esPublicador(): Boolean = this.tipoUsuario == TipoUsuario.PUBLICADOR
+
+    fun esLectorPublicador(): Boolean = this.tipoUsuario == TipoUsuario.LECTORPUBLICADOR
 }
 
 enum class TipoUsuario {
