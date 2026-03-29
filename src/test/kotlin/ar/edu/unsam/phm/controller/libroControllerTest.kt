@@ -5,6 +5,7 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -80,7 +81,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El libro debe tener un título")
+        assertEquals(ErrorStrings.LIBRO_DEBE_TENER_TITULO, errorMessage)
         assertEquals(libroRepository.getElementos().size, 3) // El libro no fue agregado al repositorio
     }
 
@@ -100,7 +101,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe un libro con el id -1")
+        assertEquals(ErrorStrings.libroNoEncontradoPorId(-1), errorMessage)
     }
 
     // ----- Obtener libro para edición -----
@@ -119,7 +120,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe un libro con el id -1")
+        assertEquals(ErrorStrings.libroNoEncontradoPorId(-1), errorMessage)
     }
 
     // ----- Editar un libro -----
@@ -160,7 +161,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals("El libro con id 1 no pertenece al usuario -1", errorMessage)
+        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(1, -1), errorMessage)
     }
 
     @Test
@@ -176,7 +177,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals("No existe un libro con el id -1", errorMessage)
+        assertEquals(ErrorStrings.libroNoEncontradoPorId(-1), errorMessage)
     }
 
     @Test
@@ -192,7 +193,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals("El libro debe tener un título", errorMessage)
+        assertEquals(ErrorStrings.LIBRO_DEBE_TENER_TITULO, errorMessage)
     }
 
     // ----- Eliminar un libro -----
@@ -216,7 +217,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe un libro con el id 0")
+        assertEquals(ErrorStrings.libroNoEncontradoPorId(0), errorMessage)
     }
 
     @Test
@@ -228,7 +229,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El libro con id 1 no pertenece al usuario -1")
+        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(1, -1), errorMessage)
     }
 }
 

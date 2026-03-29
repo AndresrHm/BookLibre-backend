@@ -10,6 +10,7 @@ import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.EstadoReserva
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -214,7 +215,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                     .param("size", "6")
             ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario logueado no existe")
+        assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
 
     @Test
@@ -287,7 +288,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals("El usuario logueado no existe", errorMessage)
+        assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
 
     @Test

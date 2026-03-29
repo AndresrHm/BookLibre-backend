@@ -5,9 +5,8 @@ import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
-import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -22,12 +21,7 @@ class UsuarioService(
     val libroRepositorio: LibroRepository
 ) {
     fun usuarioById(id: Int) =
-        usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
-
-    fun usuarioHeaderInfo(id: Int): UsuarioHeaderDTO {
-        val usuario = usuarioById(id)
-        return usuarioMapper.toUsuarioHeaderDTO(usuario)
-    }
+        usuarioRepositorio.getById(id) ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(id))
 
     fun getUsuarioUpdate(id: Int): UsuarioEdicionDTO {
         val usuario = usuarioById(id)
@@ -43,7 +37,7 @@ class UsuarioService(
         if (
             camposObligatoriosVacios(datosUsuario)
         ) {
-            throw BusinessException("Uno o más campos obligatorios están incompletos.")
+            throw BusinessException(ErrorStrings.CAMPOS_OBLIGATORIOS_INCOMPLETOS)
         }
 
         when (datosUsuario.tipoUsuario) {
@@ -55,7 +49,7 @@ class UsuarioService(
                         1, ""
                     ).totalElements > 0
                 ) {
-                    throw BusinessException("El usuario tiene libros prestados.")
+                    throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
                 }
                 libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)
             }
@@ -69,7 +63,7 @@ class UsuarioService(
                         ""
                     ).totalElements > 0
                 ) {
-                    throw BusinessException("El usuario tiene devoluciones pendientes.")
+                    throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
                 }
 
             TipoUsuario.LECTORPUBLICADOR -> {}
@@ -78,11 +72,6 @@ class UsuarioService(
         usuario.update(datosUsuario)
         usuarioRepositorio.update(usuario)
         return usuario
-    }
-
-    fun usuarioPerfil(id: Int): UsarioPerfilDTO {
-        val usuario = usuarioById(id)
-        return usuarioMapper.toUsuarioPerfilDTO(usuario)
     }
 
     private fun camposObligatoriosVacios(datosUsuario: UsuarioEdicionDTO): Boolean =

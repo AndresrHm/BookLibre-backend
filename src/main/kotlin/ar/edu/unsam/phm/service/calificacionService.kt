@@ -9,6 +9,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.dto.OrdenCalificacion
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -26,18 +27,19 @@ class CalificacionService(
     fun calificarLibro(
         calificacion: CrearCalificacionDTO
     ) {
-        val usuario = usuarioRepository.getById(calificacion.usuarioId) ?: throw NotFoundException("No se ha encontrado el usuario con id $calificacion.usuarioId")
+        val usuario = usuarioRepository.getById(calificacion.usuarioId)
+            ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacion.usuarioId))
 
         if (esPublicador(usuario)) {
-            throw BusinessException("Solo un Lector puede calificar libros.")
+            throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
         }
 
         val reserva = reservaRepository.getById(calificacion.reservaId)
-            ?: throw NotFoundException("No existe la reserva con id ${calificacion.reservaId}")
+            ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacion.reservaId))
 
-        if (calificacion.usuarioId != reserva.usuarioLector.id) throw BusinessException("El usuario logueado no puede calificar este libro")
+        if (calificacion.usuarioId != reserva.usuarioLector.id) throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
 
-        if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException("Podrá calificar el libro cuando termine la reserva")
+        if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
         val nuevaCalificacion = Calificacion(
             reserva = reserva,
@@ -58,7 +60,7 @@ class CalificacionService(
         size: Int,
     ): PageResponse<Calificacion> {
         val libro = libroRepository.getById(libroID)
-            ?: throw NotFoundException("No existe libro con el id $libroID")
+            ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
         val pageResult = calificacionRepository.obtenerCalificaciones(libro, orden, page, size)
 
@@ -75,7 +77,7 @@ class CalificacionService(
         libroID: Int,
     ): List<Calificacion> {
         val libro = libroRepository.getById(libroID)
-            ?: throw NotFoundException("No existe libro con el id $libroID")
+            ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
         val calificaciones = calificacionRepository.obtenerUltimasCalificaciones(libro)
 

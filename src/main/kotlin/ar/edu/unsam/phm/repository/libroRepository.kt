@@ -7,11 +7,11 @@ import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.errors.ErrorStrings
 import org.springframework.stereotype.Repository
 
 @Repository
 class LibroRepository(
-    private val reservaRepository: ReservaRepository,
     private val userRepository: UsuarioRepository
 ) : Repositorio<Libro>() {
     fun filtrarLibrosActivos() = getElementos().filter { it.activo }
@@ -50,8 +50,8 @@ class LibroRepository(
         return paginate(page, size, ordenados)
     }
     fun getNickUsuarioCreador (libroId: Int): String {
-        val libro = getById(libroId) ?: throw BusinessException("No existe el libro con id ${libroId}.")
-        val usuario = userRepository.getById(libro.idPropietario) ?: throw BusinessException("No existe el usuario con id ${libro.idPropietario}.")
+        val libro = getById(libroId) ?: throw BusinessException(ErrorStrings.libroNoExisteConIdEnRepo(libroId))
+        val usuario = userRepository.getById(libro.idPropietario) ?: throw BusinessException(ErrorStrings.usuarioNoExisteConIdEnRepo(libro.idPropietario))
         return usuario.nombre
     }
 

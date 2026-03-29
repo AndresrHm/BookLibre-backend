@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.repository
 
-import ar.edu.unsam.phm.domain.Reserva
-import org.springframework.stereotype.Component
+import ar.edu.unsam.phm.errors.ErrorStrings
 
 interface Identificable {
     var id: Int
@@ -20,7 +19,7 @@ abstract class Repositorio<T : Identificable> {
     fun delete(elemento: T) = elementos.removeIf { it.id == elemento.id }
 
     fun update(elemento: T) {
-        if (!elementosID().contains(elemento.id)) throw ElementoNoEncontrado("No existe elemento con dicha ID.")
+        if (!elementosID().contains(elemento.id)) throw ElementoNoEncontrado(ErrorStrings.ELEMENTO_NO_ENCONTRADO_ID)
         delete(elemento)
         elementos.add(elemento)
     }

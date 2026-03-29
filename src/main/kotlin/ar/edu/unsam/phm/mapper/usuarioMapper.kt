@@ -26,7 +26,7 @@ class UsuarioMapper(
         biblioKarma = usuario.biblioKarma,
         fechaCreacion = usuario.getFechaCreacionAsString(),
         cantidadDePrestamos = reservaRepository.obtenerCantidadDeReservasDeAlgunDuenio(usuario.id),
-        cantidadDeLibrosLeidos = usuario.cantidadDeLibrosPedidos
+        cantidadDeLibrosLeidos = reservaRepository.obtenerCantidadDeLibrosPedidos(usuario.id)
     )
 
     fun toUsuarioHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(

@@ -51,6 +51,11 @@ open class ReservaRepository : Repositorio<Reserva>() {
         val listaDeReservasFiltradas = getElementos().filter { it.usuarioPrestador.id == usuarioID }
         return listaDeReservasFiltradas.size
     }
+    // cantidad de libros leidos por un usuario
+    fun obtenerCantidadDeLibrosPedidos(usuarioID: Int): Int {
+        val listaDeReservasFiltradas = getElementos().filter { it.usuarioLector.id == usuarioID }
+        return listaDeReservasFiltradas.size
+    }
 
     fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro> {
         require(!fechaInicio.isAfter(fechaFin)) { "fechaInicio no puede ser mayor a fechaFin" }

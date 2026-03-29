@@ -8,6 +8,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -28,7 +29,7 @@ class ReservaService(
         size: Int,
         string: String?,
     ): PageResponse<Reserva> {
-        if (usuarioRepository.getById(userID) == null) throw BusinessException("El usuario logueado no existe")
+        if (usuarioRepository.getById(userID) == null) throw BusinessException(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE)
 
         val pageResponse = reservaRepository.findReservasByType(userID, type, page, size, string)
 
@@ -50,32 +51,30 @@ class ReservaService(
         fechaDevolucion: LocalDate
     ): Reserva {
         if (esTipoPublicador(usuarioLector)) {
-            throw BusinessException("Solo un Lector puede reservar libros.")
+            throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_RESERVAR)
         }
 
         if (fechaRecogida.isAfter(fechaDevolucion))
-            throw BusinessException("La fecha de devolución no puede ser anterior a la fecha de recogida")
+            throw BusinessException(ErrorStrings.FECHA_DEVOLUCION_ANTERIOR_A_RECOGIDA)
 
         if (fechasAnterioresAHoy(fechaRecogida, fechaDevolucion))
-            throw BusinessException("No se puede realizar una reserva para una fecha anterior a la actual")
+            throw BusinessException(ErrorStrings.FECHA_RESERVA_ANTERIOR_A_HOY)
 
         if (!libroPerteneceAUsuario(usuarioPrestador, libro))
-            throw BusinessException("El libro no pertenece al usuario prestador")
+            throw BusinessException(ErrorStrings.LIBRO_NO_PERTENECE_USUARIO_PRESTADOR)
 
         if (libroPerteneceAUsuario(usuarioLector, libro))
-            throw BusinessException("Un usuario no puede reservar un libro que le pertenece")
+            throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
 
 
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
-            throw BusinessException("Existe una reserva en el rango de fechas estipulado")
+            throw BusinessException(ErrorStrings.EXISTE_RESERVA_EN_RANGO)
         }
 
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
-
-        usuarioLector.agregarLibroLeido() // Esto desaparece cuando saquemos el contador de libros leídos
         usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
 
         reservaRepository.create(reserva)
@@ -91,7 +90,7 @@ class ReservaService(
                 it.fechaRecogida to it.fechaDevolucion
             }
         } else {
-            throw NotFoundException("No existe un libro con el id $libroId")
+            throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
         }
     }
 

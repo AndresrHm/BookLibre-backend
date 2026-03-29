@@ -19,6 +19,7 @@ import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -36,7 +37,7 @@ class LibroService(
     fun crearLibro(nuevoLibro: Libro): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
         if (esTipoLector(tipoUsuario)) {
-            throw BusinessException("Solo un Publicador puede crear libros.")
+            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
         }
         repositorioLibro.create(nuevoLibro)
         return nuevoLibro
@@ -51,7 +52,7 @@ class LibroService(
     fun editarLibro(libroEditado: Libro, idUsuarioActual: Int): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
         if (esTipoLector(tipoUsuario)) {
-            throw BusinessException("Solo un Publicador puede editar libros.")
+            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_EDITAR_LIBROS)
         }
 
         val libroOriginal = getLibroByIdOrThrow(libroEditado.id)
@@ -94,7 +95,7 @@ class LibroService(
                 }
                 .filter { it.idPropietario != userId }
         } catch (e: IllegalArgumentException) {
-            throw BusinessException(e.message ?: "Parámetros de filtro inválidos.")
+            throw BusinessException(e.message ?: ErrorStrings.PARAMETROS_FILTRO_INVALIDOS)
         }
 
         val librosPorFiltroOrdenado = when (ordenHomePage) {
@@ -131,7 +132,7 @@ class LibroService(
         fechaFin: LocalDate?
     ): Int {
         val usuarioLector = repositorioUsuario.getById(usuarioId)
-            ?: throw NotFoundException("No existe un usuario con el id $usuarioId.")
+            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(usuarioId))
 
         val fechaDesde = fechaIni ?: LocalDate.now()
         val fechaHasta = fechaFin ?: LocalDate.now()
@@ -183,7 +184,7 @@ class LibroService(
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
         if (repositorioReservas.estaReservado(libro)) {
-            throw BusinessException("El Libro se encuenta prestado")
+            throw BusinessException(ErrorStrings.LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR)
         } else {
             libro.activo = false
             repositorioLibro.update(libro)
@@ -192,30 +193,30 @@ class LibroService(
 
     private fun getLibroByIdOrThrow(idLibro: Int): Libro =
         repositorioLibro.getById(idLibro)
-            ?: throw NotFoundException("No existe un libro con el id $idLibro")
+            ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro))
 
     private fun validarPropietario(libro: Libro, idUsuario: Int) {
         if (libro.idPropietario != idUsuario) {
-            throw BusinessException("El libro con id ${libro.id} no pertenece al usuario $idUsuario")
+            throw BusinessException(ErrorStrings.libroNoPerteneceAlUsuario(libro.id, idUsuario))
         }
     }
 
     private fun validarPaginacion(page: Int, size: Int) {
-        if (page < 0) throw BusinessException("page no puede ser negativo")
-        if (size <= 0) throw BusinessException("size debe ser mayor a 0")
+        if (page < 0) throw BusinessException(ErrorStrings.PAGE_NO_PUEDE_SER_NEGATIVO)
+        if (size <= 0) throw BusinessException(ErrorStrings.SIZE_DEBE_SER_MAYOR_A_CERO)
     }
 
     private fun validarRangosFiltros(filtros: FiltrosDeLibrosDTO) {
         val fechaDesde = filtros.fechaDesde
         val fechaHasta = filtros.fechaHasta
         if (entreFechas(fechaDesde, fechaHasta)) {
-            throw BusinessException("fechaDesde no puede ser mayor a fechaHasta")
+            throw BusinessException(ErrorStrings.FECHA_DESDE_MAYOR_A_FECHA_HASTA)
         }
 
         val paginasMin = filtros.paginasMin
         val paginasMax = filtros.paginasMax
         if (paginasMin != null && paginasMax != null && paginasMin > paginasMax) {
-            throw BusinessException("paginasMin no puede ser mayor a paginasMax")
+            throw BusinessException(ErrorStrings.PAGINAS_MIN_MAYOR_A_PAGINAS_MAX)
         }
     }
 

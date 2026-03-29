@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.dto
 
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.requireBusiness
 import java.time.LocalDate
 
@@ -18,8 +19,8 @@ data class CrearCalificacionDTO(
     val puntuacion: Double,
 ) {
     init {
-        requireBusiness(comentario.length <= 500, "comentario no debe superar los 500 caracteres")
-        requireBusiness(puntuacion in 0.5..5.0, "puntuacion debe estar entre 0.5 y 5.0")
+        requireBusiness(comentario.length <= 500, ErrorStrings.COMENTARIO_MAX_500)
+        requireBusiness(puntuacion in 0.5..5.0, ErrorStrings.PUNTUACION_ENTRE_05_Y_50)
     }
 }
 

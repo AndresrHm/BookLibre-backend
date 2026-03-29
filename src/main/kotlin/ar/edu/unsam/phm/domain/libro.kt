@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
 
@@ -44,47 +45,47 @@ class Libro(
     // Validaciones de creación/edición
     private fun verficarTitulo() {
         if (titulo.isBlank()) {
-            throw BusinessException("El libro debe tener un título")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_TITULO)
         }
     }
 
     private fun verficarDescripcion() {
         if (descripcion.isBlank()) {
-            throw BusinessException("El libro debe tener una descripción")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_DESCRIPCION)
         }
         if (descripcion.length > MAX_CARACTERES_DESCRIPCION) {
-            throw BusinessException("La descripción no puede superar los $MAX_CARACTERES_DESCRIPCION caracteres")
+            throw BusinessException(ErrorStrings.descripcionNoPuedeSuperar(MAX_CARACTERES_DESCRIPCION))
         }
     }
 
     private fun verficarAutor() {
         if (autor.isBlank()) {
-            throw BusinessException("El libro debe tener un autor")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_AUTOR)
         }
     }
 
     private fun verficarEditorial() {
         if (editorial.isBlank()) {
-            throw BusinessException("El libro debe ser de una editorial")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_EDITORIAL)
         }
     }
 
     private fun verficarPaginas() {
         if (cantidadPaginas <= 0) {
-            throw BusinessException("La cantidad de páginas del libro debe ser positiva")
+            throw BusinessException(ErrorStrings.LIBRO_CANTIDAD_PAGINAS_POSITIVA)
         }
         if (cantidadPaginas >= MAX_PAGINAS_LIBRO) {
-            throw BusinessException("El libro no puede superar las ${MAX_PAGINAS_LIBRO} páginas.")
+            throw BusinessException(ErrorStrings.libroNoPuedeSuperarPaginas(MAX_PAGINAS_LIBRO))
         }
     }
 
     private fun verficarCodigo() {
         if (isbn13 <= 0) {
-            throw BusinessException("El código ISBN-13 debe ser positivo")
+            throw BusinessException(ErrorStrings.ISBN13_DEBE_SER_POSITIVO)
         }
 
         if (isbn13.toString().length != 13) {
-            throw BusinessException("El código ISBN-13 debe contener 13 dígitos")
+            throw BusinessException(ErrorStrings.ISBN13_DEBE_TENER_13_DIGITOS)
         }
     }
 

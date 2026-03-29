@@ -1120,10 +1120,6 @@ class BootstrapData(
 
         reservas.forEach(reservaRepository::create)
 
-        reservas.forEach {
-            it.usuarioLector.agregarLibroLeido()
-        }
-
         // Vincula cada libro al usuario propietario persistido en memoria.
         usuarios.forEach { usuario ->
             libros.filter { it.idPropietario == usuario.id }.forEach(usuario::agregarLibroParaPrestar)

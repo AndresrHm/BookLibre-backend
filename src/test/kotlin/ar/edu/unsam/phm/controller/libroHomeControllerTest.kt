@@ -7,6 +7,7 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -154,17 +155,18 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Si el userId no existe, se retorna error 404`() {
+        val usuarioIdInexistente = 999
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/filter")
                 .param("page", "0")
                 .param("size", "6")
-                .param("userId", "999")
+                .param("userId", usuarioIdInexistente.toString())
                 .param("ordenHomePage", "NOMBRE_ASC")
         )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals("No existe un usuario con el id 999.", errorMessage)
+        assertEquals(ErrorStrings.usuarioNoExistePorId(usuarioIdInexistente), errorMessage)
     }
 
     @Test
@@ -179,7 +181,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals("page no puede ser negativo", errorMessage)
+        assertEquals(ErrorStrings.PAGE_NO_PUEDE_SER_NEGATIVO, errorMessage)
     }
 
     @Test
@@ -196,7 +198,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals("fechaDesde no puede ser mayor a fechaHasta", errorMessage)
+        assertEquals(ErrorStrings.FECHA_DESDE_MAYOR_A_FECHA_HASTA, errorMessage)
     }
 
     @Test
