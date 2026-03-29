@@ -40,4 +40,18 @@ class UsuarioService(
         return usuario
     }
 
+    fun validarPermisoLector(usuario: Usuario) {
+        if(!usuario.esLector() && !usuario.esLectorPublicador()){
+            throw BusinessException("Necesitas permisos de Lector para realizar esta accion.")
+        }
+
+    }
+
+    fun validarPermisoPublicador(usuario: Usuario) {
+        if(!usuario.esPublicador() && !usuario.esLectorPublicador()){
+            throw BusinessException("Necesitas permisos de Publicador para realizar esta accion.")
+        }
+
+    }
+
 }
