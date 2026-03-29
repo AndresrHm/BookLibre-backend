@@ -90,8 +90,8 @@ class LibroController(
         @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
     ): PageResponse<LibroHomeUsuarioDTO> {
         val filtros = filtrosQuery.toFiltrosDeLibrosDTO(
-            usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.usuarioById(it) },
-            usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.usuarioById(it) },
+            usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.getUsuarioById(it) },
+            usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
         )
 
         val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage, userId)
