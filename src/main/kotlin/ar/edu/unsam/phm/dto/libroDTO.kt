@@ -64,7 +64,7 @@ data class LibroHomeUsuarioDTO(
     val userCreador : String
 )
 
-data class FiltrosDeLibrosDTO(
+data class FiltrosDeLibros(
     val generos: List<Genero>?,
     val paginasMin: Int?,
     val paginasMax: Int?,
@@ -91,11 +91,12 @@ data class FiltrosLibrosQueryDTO(
     val usuarioLectorId: Int? = null,
 )
 
-fun FiltrosLibrosQueryDTO.toFiltrosDeLibrosDTO(
+
+fun FiltrosLibrosQueryDTO.DtoToLibroFiltro(
     usuarioPrestador: Usuario?,
     usuarioLector: Usuario?,
-): FiltrosDeLibrosDTO {
-    return FiltrosDeLibrosDTO(
+): FiltrosDeLibros {
+    return FiltrosDeLibros(
         generos = generos,
         paginasMin = paginasMin,
         paginasMax = paginasMax,

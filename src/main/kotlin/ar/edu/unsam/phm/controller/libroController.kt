@@ -10,7 +10,7 @@ import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
-import ar.edu.unsam.phm.dto.toFiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.DtoToLibroFiltro
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
@@ -98,7 +98,8 @@ class LibroController(
         @RequestParam userId: Int,
         @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
     ): PageResponse<LibroHomeUsuarioDTO> {
-        val filtros = filtrosQuery.toFiltrosDeLibrosDTO(
+        val filtros = libroMapper.filtroDTOtoLibroFiltro(
+            filtrosQuery,
             usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.usuarioById(it) },
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.usuarioById(it) },
         )
