@@ -1052,10 +1052,10 @@ class BootstrapData(
             Reserva(libros[18], u2, u1, hoy.minusDays(7), hoy.plusDays(3)),
 
             // -------- u3 presta a u4 --------
-            Reserva(libros[20], u3, u4, hoy.minusDays(12), hoy.minusDays(2)),
+            Reserva(libros[20], u3, u4, hoy.minusDays(12), hoy.minusDays(4)),
             Reserva(libros[21], u3, u4, hoy.minusDays(5), hoy.plusDays(2)),
             Reserva(libros[22], u3, u4, hoy.minusDays(2), hoy.plusDays(10)),
-            Reserva(libros[23], u3, u4, hoy.minusDays(20), hoy.minusDays(1)),
+            Reserva(libros[23], u3, u4, hoy.minusDays(20), hoy.minusDays(5)),
             Reserva(libros[24], u3, u4, hoy.minusDays(3), hoy.plusDays(1)),
             Reserva(libros[25], u3, u4, hoy.minusDays(1), hoy.plusDays(15)),
             Reserva(libros[26], u3, u4, hoy.minusDays(9), hoy.minusDays(3)),
@@ -1063,21 +1063,21 @@ class BootstrapData(
 
             // -------- u3 presta a u5 --------
             Reserva(libros[28], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
-            Reserva(libros[29], u3, u5, hoy.minusDays(4), hoy.plusDays(2)),
+            Reserva(libros[29], u3, u5, hoy.minusDays(1), hoy.plusDays(2)),
             Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.plusDays(8)),
-            Reserva(libros[21], u3, u5, hoy.minusDays(16), hoy.minusDays(1)),
-            Reserva(libros[22], u3, u5, hoy.minusDays(2), hoy.plusDays(1)),
+            Reserva(libros[21], u3, u5, hoy.minusDays(16), hoy.minusDays(6)),
+            Reserva(libros[22], u3, u5, hoy.minusDays(10), hoy.minusDays(8)),
             Reserva(libros[23], u3, u5, hoy.minusDays(1), hoy.plusDays(12)),
             Reserva(libros[24], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
-            Reserva(libros[25], u3, u5, hoy.minusDays(7), hoy.plusDays(3)),
+            Reserva(libros[25], u3, u5, hoy.minusDays(7), hoy.minusDays(3)),
 
             // -------- u4 presta a u3 --------
             Reserva(libros[30], u4, u3, hoy.minusDays(14), hoy.minusDays(5)),
             Reserva(libros[31], u4, u3, hoy.minusDays(4), hoy.plusDays(2)),
             Reserva(libros[32], u4, u3, hoy.minusDays(3), hoy.plusDays(8)),
-            Reserva(libros[33], u4, u3, hoy.minusDays(16), hoy.minusDays(1)),
+            Reserva(libros[33], u4, u3, hoy.minusDays(16), hoy.minusDays(3)),
             Reserva(libros[34], u4, u3, hoy.minusDays(2), hoy.plusDays(1)),
-            Reserva(libros[35], u4, u3, hoy.minusDays(1), hoy.plusDays(12)),
+            Reserva(libros[35], u4, u3, hoy.minusDays(2), hoy.plusDays(12)),
             Reserva(libros[36], u4, u3, hoy.minusDays(11), hoy.minusDays(4)),
             Reserva(libros[37], u4, u3, hoy.minusDays(7), hoy.plusDays(3)),
 
@@ -1085,17 +1085,17 @@ class BootstrapData(
             Reserva(libros[38], u4, u5, hoy.minusDays(13), hoy.minusDays(3)),
             Reserva(libros[39], u4, u5, hoy.minusDays(5), hoy.plusDays(2)),
             Reserva(libros[30], u4, u5, hoy.minusDays(2), hoy.plusDays(9)),
-            Reserva(libros[31], u4, u5, hoy.minusDays(17), hoy.minusDays(2)),
-            Reserva(libros[32], u4, u5, hoy.minusDays(3), hoy.plusDays(1)),
+            Reserva(libros[31], u4, u5, hoy.minusDays(17), hoy.minusDays(6)),
+            Reserva(libros[32], u4, u5, hoy.minusDays(5), hoy.minusDays(3)),
             Reserva(libros[33], u4, u5, hoy.minusDays(1), hoy.plusDays(14)),
             Reserva(libros[34], u4, u5, hoy.minusDays(9), hoy.minusDays(4)),
-            Reserva(libros[35], u4, u5, hoy.minusDays(6), hoy.plusDays(5)),
+            Reserva(libros[35], u4, u5, hoy.minusDays(3), hoy.plusDays(5)),
 
             // -------- u5 presta a u3 --------
             Reserva(libros[40], u5, u3, hoy.minusDays(13), hoy.minusDays(4)),
             Reserva(libros[41], u5, u3, hoy.minusDays(5), hoy.plusDays(3)),
             Reserva(libros[42], u5, u3, hoy.minusDays(2), hoy.plusDays(7)),
-            Reserva(libros[43], u5, u3, hoy.minusDays(17), hoy.minusDays(1)),
+            Reserva(libros[43], u5, u3, hoy.minusDays(17), hoy.minusDays(2)),
             Reserva(libros[44], u5, u3, hoy.minusDays(3), hoy.plusDays(2)),
             Reserva(libros[45], u5, u3, hoy.minusDays(1), hoy.plusDays(11)),
             Reserva(libros[46], u5, u3, hoy.minusDays(10), hoy.minusDays(5)),
@@ -1105,18 +1105,18 @@ class BootstrapData(
             Reserva(libros[48], u5, u4, hoy.minusDays(12), hoy.minusDays(3)),
             Reserva(libros[49], u5, u4, hoy.minusDays(4), hoy.plusDays(2)),
             Reserva(libros[40], u5, u4, hoy.minusDays(2), hoy.plusDays(8)),
-            Reserva(libros[41], u5, u4, hoy.minusDays(18), hoy.minusDays(1)),
-            Reserva(libros[42], u5, u4, hoy.minusDays(3), hoy.plusDays(1)),
+            Reserva(libros[41], u5, u4, hoy.minusDays(18), hoy.minusDays(7)),
+            Reserva(libros[42], u5, u4, hoy.minusDays(10), hoy.plusDays(5)),
             Reserva(libros[43], u5, u4, hoy.minusDays(1), hoy.plusDays(13)),
             Reserva(libros[44], u5, u4, hoy.minusDays(9), hoy.minusDays(4)),
-            Reserva(libros[45], u5, u4, hoy.minusDays(7), hoy.plusDays(3)),
+            Reserva(libros[45], u5, u4, hoy.minusDays(7), hoy.minusDays(3)),
 
-            // Reseñas extra para probar paginado sin lógica especial en bootstrap.
+            // Reservas extra para probar paginado sin lógica especial en bootstrap.
             Reserva(libros[0], u1, u3, hoy.minusDays(32), hoy.minusDays(22)),
-            Reserva(libros[0], u1, u4, hoy.minusDays(28), hoy.minusDays(18)),
-            Reserva(libros[0], u1, u5, hoy.minusDays(24), hoy.minusDays(14)),
-            Reserva(libros[0], u1, u2, hoy.minusDays(40), hoy.minusDays(30)),
-            )
+            Reserva(libros[0], u1, u4, hoy.minusDays(21), hoy.minusDays(18)),
+            Reserva(libros[0], u1, u5, hoy.minusDays(17), hoy.minusDays(14)),
+            Reserva(libros[0], u1, u2, hoy.minusDays(1), hoy.plusDays(5)),
+        )
 
         reservas.forEach(reservaRepository::create)
 
