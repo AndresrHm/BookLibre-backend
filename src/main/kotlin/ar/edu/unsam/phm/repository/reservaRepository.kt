@@ -51,6 +51,7 @@ open class ReservaRepository : Repositorio<Reserva>() {
         val listaDeReservasFiltradas = getElementos().filter { it.usuarioPrestador.id == usuarioID }
         return listaDeReservasFiltradas.size
     }
+
     // cantidad de libros leidos por un usuario
     fun obtenerCantidadDeLibrosPedidos(usuarioID: Int): Int {
         val listaDeReservasFiltradas = getElementos().filter { it.usuarioLector.id == usuarioID }

@@ -100,8 +100,8 @@ class LibroController(
     ): PageResponse<LibroHomeUsuarioDTO> {
         val filtros = libroMapper.filtroDTOtoLibroFiltro(
             filtrosQuery,
-            usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.usuarioById(it) },
-            usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.usuarioById(it) },
+            usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.getUsuarioById(it) },
+            usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
         )
 
         val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage, userId)

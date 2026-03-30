@@ -16,66 +16,36 @@ import org.springframework.stereotype.Service
 @Service
 class UsuarioService(
     val usuarioRepositorio: UsuarioRepository,
-    val usuarioMapper: UsuarioMapper,
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    fun usuarioById(id: Int) =
-        usuarioRepositorio.getById(id) ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(id))
+    fun getUsuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
-    fun getUsuarioUpdate(id: Int): UsuarioEdicionDTO {
-        val usuario = usuarioById(id)
-        return usuarioMapper.toUsuarioEdicionDTO(usuario)
-    }
-
-    fun getUsuarioTipo(id: Int): TipoUsuario {
-        val usuario = usuarioById(id)
-        return usuario.tipoUsuario
-    }
-
-    fun usuarioUpdate(datosUsuario: UsuarioEdicionDTO): Usuario {
+    fun usuarioUpdate(usuario: Usuario): Usuario {
         if (
-            camposObligatoriosVacios(datosUsuario)
+            camposObligatoriosVacios(usuario)
         ) {
             throw BusinessException(ErrorStrings.CAMPOS_OBLIGATORIOS_INCOMPLETOS)
         }
 
-        when (datosUsuario.tipoUsuario) {
-            TipoUsuario.LECTOR -> {
-                if (reservaRepositorio.findReservasByType(
-                        datosUsuario.id,
-                        ReservaType.TO_ME,
-                        1,
-                        1, ""
-                    ).totalElements > 0
-                ) {
+        when {
+            usuario.esLector() -> {
+                if (reservaRepositorio.findReservasByType(usuario.id, ReservaType.TO_ME, 1, 1, "").totalElements > 0) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
                 }
-                libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)
-            }
-
-            TipoUsuario.PUBLICADOR ->
-                if (reservaRepositorio.findReservasByType(
-                        datosUsuario.id,
-                        ReservaType.BY_ME,
-                        1,
-                        1,
-                        ""
-                    ).totalElements > 0
-                ) {
+                libroRepositorio.eliminarPorIDPropietario(usuario.id)}
+            usuario.esPublicador() ->
+                if (reservaRepositorio.findReservasByType(usuario.id, ReservaType.BY_ME, 1, 1, "").totalElements > 0) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
                 }
-
-            TipoUsuario.LECTORPUBLICADOR -> {}
+            usuario.esLectorPublicador() -> {}
         }
-        val usuario = usuarioById(datosUsuario.id)
-        usuario.update(datosUsuario)
         usuarioRepositorio.update(usuario)
         return usuario
     }
 
-    private fun camposObligatoriosVacios(datosUsuario: UsuarioEdicionDTO): Boolean =
-        datosUsuario.nombre == "" ||
-                datosUsuario.apellido == "" ||
-                datosUsuario.ciudad == ""
+    private fun camposObligatoriosVacios(usuario: Usuario): Boolean =
+        usuario.nombre == "" ||
+        usuario.apellido == "" ||
+        usuario.ciudad == ""
 }

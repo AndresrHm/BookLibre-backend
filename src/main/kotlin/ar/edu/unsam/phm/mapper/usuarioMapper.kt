@@ -7,12 +7,31 @@ import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
 import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.stereotype.Component
 
 @Component
 class UsuarioMapper(
-    private val reservaRepository: ReservaRepository
+    private val reservaRepository: ReservaRepository,
+    private val usuarioService: UsuarioService
 ) {
+    fun usuarioEdicionDTOtoLibro(usuarioEdicionDTO: UsuarioEdicionDTO): Usuario {
+        val usuario = usuarioService.getUsuarioById(usuarioEdicionDTO.id)
+        val usuarioNuevo = Usuario(
+            nombre = usuarioEdicionDTO.nombre,
+            apellido = usuarioEdicionDTO.apellido,
+            descripcion = usuarioEdicionDTO.descripcion,
+            ciudad = usuarioEdicionDTO.ciudad,
+            tipoUsuario = usuarioEdicionDTO.tipoUsuario,
+            urlImagen = usuarioEdicionDTO.urlImagen,
+            email = usuario.email,
+            celular = usuario.celular,
+        )
+        usuarioNuevo.id = usuarioEdicionDTO.id
+
+        return usuarioNuevo
+    }
+
     fun toUsuarioPerfilDTO(usuario: Usuario): UsarioPerfilDTO = UsarioPerfilDTO(
         id = usuario.id,
         nombre = usuario.nombre,
