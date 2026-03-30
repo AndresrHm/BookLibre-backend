@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.crearUsuario
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -13,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import kotlin.test.assertEquals
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -51,12 +53,13 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se encuentra información del header si el usuario no existe`() {
+        val usuarioIdInexistente = -1
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/header", -1)
+            MockMvcRequestBuilders.get("/usuario/{usuarioId}/header", usuarioIdInexistente)
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assert(errorMessage?.contains("No se encontró usuario") == true)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioIdInexistente), errorMessage)
     }
 
     // ----- Obtener perfil del usuario -----
@@ -74,12 +77,13 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se encuentra el perfil si el usuario no existe`() {
+        val usuarioIdInexistente = -1
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/perfil", -1)
+            MockMvcRequestBuilders.get("/usuario/{usuarioId}/perfil", usuarioIdInexistente)
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assert(errorMessage?.contains("No se encontró usuario") == true)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioIdInexistente), errorMessage)
     }
 
     // ----- Obtener tipo de usuario -----
@@ -109,11 +113,12 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se encuentra el tipo de usuario si el usuario no existe`() {
+        val usuarioIdInexistente = -1
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", -1)
+            MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", usuarioIdInexistente)
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assert(errorMessage?.contains("No se encontró usuario") == true)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioIdInexistente), errorMessage)
     }
 }

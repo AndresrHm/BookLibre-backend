@@ -1,6 +1,5 @@
 package ar.edu.unsam.phm.controller
 
-import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
@@ -11,10 +10,11 @@ import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
-import ar.edu.unsam.phm.dto.toFiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.DtoToLibroFiltro
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
+import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -35,9 +35,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 @CrossOrigin("*")
 class LibroController(
     val libroService: LibroService,
-    val libroMapper: LibroMapper,
-    val calificacionService: CalificacionService,
+    val reservaService: ReservaService,
     val usuarioService: UsuarioService,
+    val calificacionService: CalificacionService,
+    val libroMapper: LibroMapper,
 ) {
     @GetMapping("{usuarioId}")
     fun obtenerLibrosDeUsuario(
@@ -60,15 +61,23 @@ class LibroController(
 
     @GetMapping("{idLibro}/edicion")
     fun obtenerLibroParaEdicion(@PathVariable idLibro: Int): LibroEdicionDTO {
-        val libroParaEdicion = libroService.obtenerLibroParaEdicion(idLibro)
+        val libroParaEdicion = libroService.obtenerLibro(idLibro)
         return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
     }
 
     @GetMapping("{idLibro}/detalle")
     fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
-        val libroDetalle = libroService.obtenerLibroDetalle(idLibro)
-        val ultimasCalificaciones = calificacionService.obtenerUltimasCalificaciones(idLibro)
-        return libroMapper.libroToLibroDetalleDTO(libroDetalle, ultimasCalificaciones)
+        val libroDetalle = libroService.obtenerLibro(idLibro)
+        val promedioCalificaciones = calificacionService.promedioCalificaciones(idLibro)
+        val cantidadCalificaciones = calificacionService.cantidadCalificaciones(idLibro)
+        val ultimasCalificaciones = calificacionService.ultimasCalificaciones(idLibro)
+
+        return libroMapper.libroToLibroDetalleDTO(
+            libroDetalle,
+            promedioCalificaciones,
+            cantidadCalificaciones,
+            ultimasCalificaciones
+        )
     }
 
     @PutMapping
@@ -89,7 +98,8 @@ class LibroController(
         @RequestParam userId: Int,
         @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
     ): PageResponse<LibroHomeUsuarioDTO> {
-        val filtros = filtrosQuery.toFiltrosDeLibrosDTO(
+        val filtros = libroMapper.filtroDTOtoLibroFiltro(
+            filtrosQuery,
             usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.usuarioById(it) },
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.usuarioById(it) },
         )
@@ -100,7 +110,13 @@ class LibroController(
             content = pageResult.content.map {
                 libroMapper.libroToLibroHomeUsuarioDTO(
                     it,
-                    libroService.bringKarma(it, userId, filtros.fechaDesde, filtros.fechaHasta)
+                    calificacionService.promedioCalificaciones(it.id),
+                    libroService.bringKarma(
+                        it,
+                        reservaService.cantidadReservas(it.id),
+                        userId,
+                        filtros.fechaDesde,
+                        filtros.fechaHasta)
                 )
             },
             page = pageResult.page,

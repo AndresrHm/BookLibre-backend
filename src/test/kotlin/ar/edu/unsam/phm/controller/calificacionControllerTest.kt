@@ -4,18 +4,15 @@ import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
-import ar.edu.unsam.phm.dto.EstadoReserva
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
@@ -142,7 +138,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         )
             .andExpect(status().isNotFound).andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe libro con el id -1")
+        assertEquals(ErrorStrings.libroNoExistePorId(-1), errorMessage)
     }
 
     // ----- Calificar un libro -----
@@ -185,7 +181,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario logueado no puede calificar este libro")
+        assertEquals(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO, errorMessage)
     }
 
     @Test
@@ -208,7 +204,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "Podrá calificar el libro cuando termine la reserva")
+        assertEquals(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA, errorMessage)
     }
 }
 

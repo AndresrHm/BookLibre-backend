@@ -2,10 +2,13 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.domain.coleccionable
 import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.conDedicatoria
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
+import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
@@ -40,15 +43,17 @@ class LibroMapper(
         return libro
     }
 
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO = LibroUsuarioPerfilDTO(
-        id = libro.id,
-        titulo = libro.titulo,
-        portada = libro.portada,
-        genero = libro.genero,
-        autor = libro.autor,
-        fechaAgregado = libro.getFechaAsString(),
-        disponibilidad = disponibilidad
-    )
+    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
+        LibroUsuarioPerfilDTO(
+            id = libro.id,
+            titulo = libro.titulo,
+            portada = libro.portada,
+            genero = libro.genero,
+            autor = libro.autor,
+            fechaAgregado = libro.getFechaAsString(),
+            disponibilidad = disponibilidad
+        )
+
     fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
             id = libro.id,
@@ -69,7 +74,12 @@ class LibroMapper(
         return libroEdicionDTO
     }
 
-    fun libroToLibroDetalleDTO(libro: Libro, libroReseniasRecientes: List<Calificacion>): LibroDetalleDTO {
+    fun libroToLibroDetalleDTO(
+        libro: Libro,
+        rating: Double,
+        cantidadCalificaciones: Int,
+        libroCalificacionesRecientes: List<Calificacion>
+    ): LibroDetalleDTO {
         val libroDetalle = LibroDetalleDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -84,16 +94,20 @@ class LibroMapper(
             editorial = libro.editorial,
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
-            rating = libro.rating(),
-            cantidadResenias = libro.cantidadResenias,
-            reseniasRecientes = CalificacionMapper.toDTO(libroReseniasRecientes),
+            rating = rating,
+            cantidadCalificaciones = cantidadCalificaciones,
+            calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
             idPropietario = libro.idPropietario,
             activo = libro.activo
         )
         return libroDetalle
     }
 
-    fun libroToLibroHomeUsuarioDTO(libro: Libro, karmaForUserLector : Int): LibroHomeUsuarioDTO {
+    fun libroToLibroHomeUsuarioDTO(
+        libro: Libro,
+        rating: Double,
+        karmaForUserLector: Int
+    ): LibroHomeUsuarioDTO {
         val libroDetalle = LibroHomeUsuarioDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -108,10 +122,29 @@ class LibroMapper(
             editorial = libro.editorial,
             fechaPublicacion = libro.fechaPublicacion,
             estado = libro.estadoLibro,
-            rating = libro.rating(),
+            rating = rating,
             biblioKarma = karmaForUserLector,
             userCreador = libroRepository.getNickUsuarioCreador(libro.id)
         )
         return libroDetalle
+    }
+
+    fun filtroDTOtoLibroFiltro(
+        filtrosQuery: FiltrosLibrosQueryDTO,
+        usuarioPrestador: Usuario?,
+        usuarioLector: Usuario?
+        ) : FiltrosDeLibros {
+       val filtros = FiltrosDeLibros(
+            generos = filtrosQuery.generos,
+            fechaDesde = filtrosQuery.fechaDesde,
+            fechaHasta = filtrosQuery.fechaHasta,
+            paginasMin = filtrosQuery.paginasMin,
+            paginasMax = filtrosQuery.paginasMax,
+            usuarioPrestador = usuarioPrestador,
+            usuarioLector = usuarioLector,
+            isbn13 = filtrosQuery.isbn13,
+            search = filtrosQuery.search
+        )
+        return filtros
     }
 }

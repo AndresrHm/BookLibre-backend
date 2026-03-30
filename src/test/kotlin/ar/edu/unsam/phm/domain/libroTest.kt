@@ -96,63 +96,32 @@ class LibroSpec : DescribeSpec({
             }
         }
 
-        describe(name = "Validación de calificación y reserva") {
-            val libro = crearLibro()
-
-            it("Si se actualiza el rating, aumenta la cantida de reseñas") {
-                libro.rating().shouldBe(0.0)
-                libro.cantidadResenias.shouldBe(0)
-
-                libro.actualizarRating(1.0)
-
-                libro.rating().shouldBe(1.0)
-                libro.cantidadResenias.shouldBe(1)
-            }
-
-            it("La calificación de un libro debe ubicarse en cierto rango") {
-                val libroSinResenias = crearLibro()
-                libroSinResenias.rating().shouldBe(0.0)
-                libroSinResenias.cantidadResenias.shouldBe(0)
-
-                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(-1.0) }
-                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(5.1) }
-
-                libroSinResenias.rating().shouldBe(0.0)
-                libroSinResenias.cantidadResenias.shouldBe(0)
-            }
-
-            it("Un libro puede reservarse si las fechas estipuladas no pertenecen a reservas anteriores") {
-                val fechaRecogidaValida = HOY
-                val fechaDevolucionValida = HOY.plusDays(1)
-                val fechasDeReservasNulas = listOf<Pair<LocalDate, LocalDate>>()
-
-                libro.cantidadReservas.shouldBe(0)
-
-                libro.reservar(fechaRecogidaValida, fechaDevolucionValida, fechasDeReservasNulas)
-
-                libro.cantidadReservas.shouldBe(1)
-            }
-
-            it("Un libro no puede reservarse si se solapan las fechas de reservas pasadas y actual") {
-                val libroSinReservas = crearLibro()
-                val fechaRecogidaInvalida = HOY
-                val fechaDevolucionInvalida = HOY.plusDays(1)
-                val fechasDeReservasOcupadas =
-                    listOf<Pair<LocalDate, LocalDate>>(Pair(HOY.minusDays(1), HOY.plusDays(1)))
-
-                libroSinReservas.cantidadReservas.shouldBe(0)
-
-                shouldThrow<BusinessException> {
-                    libroSinReservas.reservar(
-                        fechaRecogidaInvalida,
-                        fechaDevolucionInvalida,
-                        fechasDeReservasOcupadas
-                    )
-                }
-
-                libroSinReservas.cantidadReservas.shouldBe(0)
-            }
-        }
+        // TODO: quedó obsoleto
+//        describe(name = "Validación de calificación y reserva") {
+//            val libro = crearLibro()
+//
+//            it("Si se actualiza el rating, aumenta la cantida de reseñas") {
+//                libro.rating().shouldBe(0.0)
+//                libro.cantidadResenias.shouldBe(0)
+//
+//                libro.actualizarRating(1.0)
+//
+//                libro.rating().shouldBe(1.0)
+//                libro.cantidadResenias.shouldBe(1)
+//            }
+//
+//            it("La calificación de un libro debe ubicarse en cierto rango") {
+//                val libroSinResenias = crearLibro()
+//                libroSinResenias.rating().shouldBe(0.0)
+//                libroSinResenias.cantidadResenias.shouldBe(0)
+//
+//                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(-1.0) }
+//                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(5.1) }
+//
+//                libroSinResenias.rating().shouldBe(0.0)
+//                libroSinResenias.cantidadResenias.shouldBe(0)
+//            }
+//        }
     }
 })
 

@@ -2,11 +2,11 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
+import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
-import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -20,12 +20,8 @@ class UsuarioService(
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    fun usuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
-
-    fun usuarioHeaderInfo(id: Int): UsuarioHeaderDTO {
-        val usuario = usuarioById(id)
-        return usuarioMapper.toUsuarioHeaderDTO(usuario)
-    }
+    fun usuarioById(id: Int) =
+        usuarioRepositorio.getById(id) ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(id))
 
     fun getUsuarioUpdate(id: Int): UsuarioEdicionDTO {
         val usuario = usuarioById(id)
@@ -38,23 +34,38 @@ class UsuarioService(
     }
 
     fun usuarioUpdate(datosUsuario: UsuarioEdicionDTO): Usuario {
-        if(
-            datosUsuario.nombre == "" ||
-            datosUsuario.apellido == "" ||
-            datosUsuario.ciudad == ""){
-            throw BusinessException("Uno o mas campos obligatorios estan incompletos.")
+        if (
+            camposObligatoriosVacios(datosUsuario)
+        ) {
+            throw BusinessException(ErrorStrings.CAMPOS_OBLIGATORIOS_INCOMPLETOS)
         }
 
-        when(datosUsuario.tipoUsuario) {
+        when (datosUsuario.tipoUsuario) {
             TipoUsuario.LECTOR -> {
-                if (reservaRepositorio.findByPrestadorID(datosUsuario.id, 1, 1, "").totalElements > 0) {
-                    throw BusinessException("El usuario tiene libros prestados.")
+                if (reservaRepositorio.findReservasByType(
+                        datosUsuario.id,
+                        ReservaType.TO_ME,
+                        1,
+                        1, ""
+                    ).totalElements > 0
+                ) {
+                    throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
                 }
-                libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)}
+                libroRepositorio.eliminarPorIDPropietario(datosUsuario.id)
+            }
+
             TipoUsuario.PUBLICADOR ->
-                if (reservaRepositorio.findByLectorID(datosUsuario.id,1,1,"").totalElements > 0) {
-                    throw BusinessException("El usuario tiene devoluciones pendientes.")
+                if (reservaRepositorio.findReservasByType(
+                        datosUsuario.id,
+                        ReservaType.BY_ME,
+                        1,
+                        1,
+                        ""
+                    ).totalElements > 0
+                ) {
+                    throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
                 }
+
             TipoUsuario.LECTORPUBLICADOR -> {}
         }
         val usuario = usuarioById(datosUsuario.id)
@@ -63,11 +74,8 @@ class UsuarioService(
         return usuario
     }
 
-    fun usuarioPerfil(id: Int): UsarioPerfilDTO {
-        val usuario = usuarioById(id)
-        return usuarioMapper.toUsuarioPerfilDTO(usuario)
-    }
-
-
-
+    private fun camposObligatoriosVacios(datosUsuario: UsuarioEdicionDTO): Boolean =
+        datosUsuario.nombre == "" ||
+                datosUsuario.apellido == "" ||
+                datosUsuario.ciudad == ""
 }

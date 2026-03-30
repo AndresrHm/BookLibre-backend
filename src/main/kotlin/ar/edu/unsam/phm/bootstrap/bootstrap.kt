@@ -1026,13 +1026,6 @@ class BootstrapData(
         val u3 = usuarios.first { it.id == 3 }
         val u4 = usuarios.first { it.id == 4 }
         val u5 = usuarios.first { it.id == 5 }
-        val u6 = usuarios.first { it.id == 6 }
-        val u7 = usuarios.first { it.id == 7 }
-        val u8 = usuarios.first { it.id == 8 }
-        val u9 = usuarios.first { it.id == 9 }
-        val u10 = usuarios.first { it.id == 10 }
-        val u11 = usuarios.first { it.id == 11 }
-        val u12 = usuarios.first { it.id == 12 }
 
         val hoy = LocalDate.now()
 
@@ -1127,10 +1120,6 @@ class BootstrapData(
 
         reservas.forEach(reservaRepository::create)
 
-        reservas.forEach {
-            it.usuarioLector.agregarLibroLeido()
-        }
-
         // Vincula cada libro al usuario propietario persistido en memoria.
         usuarios.forEach { usuario ->
             libros.filter { it.idPropietario == usuario.id }.forEach(usuario::agregarLibroParaPrestar)
@@ -1177,13 +1166,5 @@ class BootstrapData(
         calificacionesUnicas.forEach {
             calificacionRepository.agregarCalificacion(it)
         }
-        calificacionesUnicas
-            .groupBy { it.reserva.libro.id }
-            .forEach { (libroID, reseniasLibro) ->
-                val promedio = calificacionRepository.obtenerPromedio(libroID)
-                repeat(reseniasLibro.size) {
-                    libroRepository.actualizarRating(libroID, promedio)
-                }
-            }
     }
 }

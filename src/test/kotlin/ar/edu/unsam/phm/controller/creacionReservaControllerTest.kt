@@ -3,6 +3,7 @@ package ar.edu.unsam.phm.controller
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -89,7 +90,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No existe un libro con el id 1")
+        assertEquals(ErrorStrings.libroNoEncontradoPorId(1), errorMessage)
     }
 
     @Test
@@ -108,7 +109,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No se encontró usuario con id 2")
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(2), errorMessage)
     }
 
     @Test
@@ -127,7 +128,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No se encontró usuario con id 2")
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(2), errorMessage)
     }
 
     @Test
@@ -147,7 +148,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "No se puede realizar una reserva para una fecha anterior a la actual")
+        assertEquals(ErrorStrings.FECHA_RESERVA_ANTERIOR_A_HOY, errorMessage)
     }
 }
 

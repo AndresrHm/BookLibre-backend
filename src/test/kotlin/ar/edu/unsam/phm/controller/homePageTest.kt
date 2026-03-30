@@ -16,7 +16,7 @@ import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
-import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -27,7 +27,7 @@ class EspecTest : DescribeSpec({
     describe("Test de Busqueda de libros Basico") {
         val repositoryReservas = ReservaRepository()
         val repositoryUsuario = UsuarioRepository()
-        val repositoryLibros = LibroRepository(repositoryReservas, repositoryUsuario)
+        val repositoryLibros = LibroRepository( repositoryUsuario)
         val serviceLibros = LibroService(
             repositoryLibros,
             repositoryReservas,
@@ -177,7 +177,7 @@ class EspecTest : DescribeSpec({
             repositoryReservas.create(reserva1)
             repositoryReservas.create(reserva2)
 
-            val filtroDeLibros = FiltrosDeLibrosDTO(
+            val filtroDeLibros = FiltrosDeLibros(
                 fechaDesde = LocalDate.of(2026, 4, 5),
                 fechaHasta = LocalDate.of(2026, 4, 12),
                 generos = null,
@@ -222,7 +222,7 @@ class EspecTest : DescribeSpec({
             repositoryReservas.create(reserva1)
             repositoryReservas.create(reserva2)
 
-            val filtroDeLibros = FiltrosDeLibrosDTO(
+            val filtroDeLibros = FiltrosDeLibros(
                 fechaDesde = LocalDate.of(2026, 4, 5),
                 fechaHasta = LocalDate.of(2026, 4, 12),
                 generos = listOf(Genero.CIENCIA_FICCION),
@@ -249,7 +249,7 @@ class EspecTest : DescribeSpec({
             repositoryLibros.create(libro5)
             repositoryLibros.create(libro6)
 
-            val filtroDeLibros = FiltrosDeLibrosDTO(
+            val filtroDeLibros = FiltrosDeLibros(
                 fechaDesde = null,
                 fechaHasta = null,
                 generos = null,

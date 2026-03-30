@@ -10,6 +10,7 @@ import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.EstadoReserva
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -170,7 +171,9 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (donde el usuario es lector)`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", usuario1.id).param("page", "0")
+                MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+                    .param("type", "TO_ME")
+                    .param("page", "0")
                     .param("size", "6")
             )
             .andExpect(status().isOk)
@@ -206,19 +209,21 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request`() {
 
         val errorMessage = mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", -1)
+                MockMvcRequestBuilders.get("/reservas/{id}", -1)
+                    .param("type", "TO_ME")
                     .param("page", "0")
                     .param("size", "6")
             ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
 
-        assertEquals(errorMessage, "El usuario logueado no existe")
+        assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
 
     @Test
     fun `El filtrado funciona correctamente`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas/{id}/realizadas", usuario1.id)
+                MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+                    .param("type", "TO_ME")
                     .param("page", "0")
                     .param("size", "6")
                     .param("string", "dun")
@@ -238,7 +243,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas recibidas correctamente (donde el usuario es prestador)`() {
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/reservas/{id}/recibidas", usuario1.id)
+            MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+                .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
         )
@@ -274,21 +280,23 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request (recibidas)`() {
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/reservas/{id}/recibidas", -1)
+            MockMvcRequestBuilders.get("/reservas/{id}", -1)
+                .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals("El usuario logueado no existe", errorMessage)
+        assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
 
     @Test
     fun `El filtrado funciona correctamente en reservas recibidas`() {
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/reservas/{id}/recibidas", usuario1.id)
+            MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+                .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
                 .param("string", "cien")

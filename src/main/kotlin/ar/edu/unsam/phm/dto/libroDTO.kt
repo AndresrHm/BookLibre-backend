@@ -39,8 +39,8 @@ data class LibroDetalleDTO(
     val isbn13: Long,
     val descripcion: String,
     val rating: Double,
-    val cantidadResenias: Int,
-    val reseniasRecientes: List<CalificacionDTO>,
+    val cantidadCalificaciones: Int,
+    val calificacionesRecientes: List<CalificacionDTO>,
     val idPropietario: Int,
     val activo: Boolean,
 )
@@ -64,7 +64,7 @@ data class LibroHomeUsuarioDTO(
     val userCreador : String
 )
 
-data class FiltrosDeLibrosDTO(
+data class FiltrosDeLibros(
     val generos: List<Genero>?,
     val paginasMin: Int?,
     val paginasMax: Int?,
@@ -91,11 +91,12 @@ data class FiltrosLibrosQueryDTO(
     val usuarioLectorId: Int? = null,
 )
 
-fun FiltrosLibrosQueryDTO.toFiltrosDeLibrosDTO(
+
+fun FiltrosLibrosQueryDTO.DtoToLibroFiltro(
     usuarioPrestador: Usuario?,
     usuarioLector: Usuario?,
-): FiltrosDeLibrosDTO {
-    return FiltrosDeLibrosDTO(
+): FiltrosDeLibros {
+    return FiltrosDeLibros(
         generos = generos,
         paginasMin = paginasMin,
         paginasMax = paginasMax,

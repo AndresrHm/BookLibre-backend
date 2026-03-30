@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
 
@@ -25,9 +26,6 @@ class Libro(
 ) : Identificable {
     override var id: Int = -1
     val fechaAgregado = LocalDate.now()
-    var cantidadReservas = 0
-    var cantidadResenias = 0
-    var rating: Double = 0.0
     var activo = true
 
     fun init() {
@@ -39,90 +37,55 @@ class Libro(
         verficarCodigo()
     }
 
-    fun darKarma(reserva: Reserva): Int = tipoLibro.darKarma(reserva)
+    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(reserva, cantidadReservas)
 
-    fun calcularKarmaHomePage(usuarioLector : Usuario, fechaIni: LocalDate, fechaFin : LocalDate) : Int =
-        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector( this, usuarioLector)
-
-    fun reservar(
-        fechaRecogida: LocalDate,
-        fechaDevolucion: LocalDate,
-        fechasDeReservas: List<Pair<LocalDate, LocalDate>>
-    ) {
-        validarReserva(fechaRecogida, fechaDevolucion, fechasDeReservas)
-        cantidadReservas += 1
-    }
-
-    fun validarReserva(
-        fechaRecogida: LocalDate,
-        fechaDevolucion: LocalDate,
-        fechasDeReserva: List<Pair<LocalDate, LocalDate>>
-    ) {
-        val haySolapamiento = (fechasDeReserva.any {
-            // first: Inicio de reserva existente
-            // second: Fin de reserva existente
-            fechaRecogida <= it.second && fechaDevolucion >= it.first
-        })
-
-        if (haySolapamiento) throw BusinessException("Existe una reserva en el rango de fechas estipulado")
-    }
-
-    // Para página de detalle
-    fun rating(): Double {
-        return rating
-    }
-
-    fun actualizarRating(nuevoRating: Double) {
-        if (nuevoRating < 0.0 || nuevoRating > 5.0)
-            throw BusinessException("La calificación del libro debe ser un número entre 0 y 5")
-        cantidadResenias += 1
-        rating = nuevoRating
-    }
+    fun calcularKarmaHomePage(usuarioLector: Usuario, cantidadReservas: Int, fechaIni: LocalDate, fechaFin: LocalDate): Int =
+        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector(this, cantidadReservas, usuarioLector)
 
     // Validaciones de creación/edición
     private fun verficarTitulo() {
         if (titulo.isBlank()) {
-            throw BusinessException("El libro debe tener un título")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_TITULO)
         }
     }
 
     private fun verficarDescripcion() {
         if (descripcion.isBlank()) {
-            throw BusinessException("El libro debe tener una descripción")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_DESCRIPCION)
         }
         if (descripcion.length > MAX_CARACTERES_DESCRIPCION) {
-            throw BusinessException("La descripción no puede superar los $MAX_CARACTERES_DESCRIPCION caracteres")
+            throw BusinessException(ErrorStrings.descripcionNoPuedeSuperar(MAX_CARACTERES_DESCRIPCION))
         }
     }
 
     private fun verficarAutor() {
         if (autor.isBlank()) {
-            throw BusinessException("El libro debe tener un autor")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_AUTOR)
         }
     }
 
     private fun verficarEditorial() {
         if (editorial.isBlank()) {
-            throw BusinessException("El libro debe ser de una editorial")
+            throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_EDITORIAL)
         }
     }
 
     private fun verficarPaginas() {
         if (cantidadPaginas <= 0) {
-            throw BusinessException("La cantidad de páginas del libro debe ser positiva")
+            throw BusinessException(ErrorStrings.LIBRO_CANTIDAD_PAGINAS_POSITIVA)
         }
         if (cantidadPaginas >= MAX_PAGINAS_LIBRO) {
-            throw BusinessException("La cantidad de páginas del libro debe ser positiva")
+            throw BusinessException(ErrorStrings.libroNoPuedeSuperarPaginas(MAX_PAGINAS_LIBRO))
         }
     }
 
     private fun verficarCodigo() {
         if (isbn13 <= 0) {
-            throw BusinessException("El código ISBN-13 debe ser positivo")
+            throw BusinessException(ErrorStrings.ISBN13_DEBE_SER_POSITIVO)
         }
 
         if (isbn13.toString().length != 13) {
-            throw BusinessException("El código ISBN-13 debe contener 13 dígitos")
+            throw BusinessException(ErrorStrings.ISBN13_DEBE_TENER_13_DIGITOS)
         }
     }
 

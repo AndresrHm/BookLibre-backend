@@ -15,10 +15,11 @@ import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
-import ar.edu.unsam.phm.dto.FiltrosDeLibrosDTO
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -33,27 +34,28 @@ class LibroService(
     var repositorioUsuario: UsuarioRepository,
     var libroMapper: LibroMapper
 ) {
-    fun crearLibro(libro: Libro): Libro {
-        val nuevoLibro = libro
+    fun crearLibro(nuevoLibro: Libro): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
-        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede crear libros.")}
+        if (esTipoLector(tipoUsuario)) {
+            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
+        }
         repositorioLibro.create(nuevoLibro)
         return nuevoLibro
     }
 
-    fun obtenerLibroParaEdicion(idLibro: Int): Libro {
-        val libroParaEdicion = getLibroByIdOrThrow(idLibro)
+    fun obtenerLibro(idLibro: Int): Libro {
+        val libro = getLibroByIdOrThrow(idLibro)
 
-        return libroParaEdicion
+        return libro
     }
 
-    fun editarLibro(libroParaEdicion: Libro, idUsuarioActual: Int): Libro {
-        val libroEditado = libroParaEdicion
-
+    fun editarLibro(libroEditado: Libro, idUsuarioActual: Int): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
-        if(tipoUsuario == TipoUsuario.LECTOR){throw BusinessException("Solo un Publicador puede editar libros.")}
+        if (esTipoLector(tipoUsuario)) {
+            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_EDITAR_LIBROS)
+        }
 
-        val libroOriginal = getLibroByIdOrThrow(libroParaEdicion.id)
+        val libroOriginal = getLibroByIdOrThrow(libroEditado.id)
         validarPropietario(libroOriginal, idUsuarioActual)
 
         repositorioLibro.update(libroEditado)
@@ -61,9 +63,7 @@ class LibroService(
         return libroEditado
     }
 
-    fun obtenerLibroDetalle(idLibro: Int): Libro {
-        return getLibroByIdOrThrow(idLibro)
-    }
+    private fun esTipoLector(tipoUsuario: TipoUsuario?): Boolean = tipoUsuario == TipoUsuario.LECTOR
 
     private val filtrosAplicables: List<FiltroDeLibro> = listOf(
         BusquedaPorNombreFiltro(),
@@ -75,7 +75,7 @@ class LibroService(
     )
 
     fun getLibrosPorFiltros(
-        filtros: FiltrosDeLibrosDTO,
+        filtros: FiltrosDeLibros,
         page: Int = 0,
         size: Int = 6,
         ordenHomePage: OrdenHomePage,
@@ -88,11 +88,14 @@ class LibroService(
         val librosFiltrados = try {
             filtrosAplicables
                 .fold(repositorioLibro.filtrarLibrosActivos()) { resultado, filtro ->
-                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(resultado, filtrosNormalizados) else resultado
+                    if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(
+                        resultado,
+                        filtrosNormalizados
+                    ) else resultado
                 }
                 .filter { it.idPropietario != userId }
         } catch (e: IllegalArgumentException) {
-            throw BusinessException(e.message ?: "Parametros de filtro invalidos")
+            throw BusinessException(e.message ?: ErrorStrings.PARAMETROS_FILTRO_INVALIDOS)
         }
 
         val librosPorFiltroOrdenado = when (ordenHomePage) {
@@ -121,15 +124,20 @@ class LibroService(
         )
     }
 
-    fun bringKarma(libro: Libro, usuarioId: Int, fechaIni: LocalDate?, fechaFin: LocalDate?): Int {
+    fun bringKarma(
+        libro: Libro,
+        cantidadReservas: Int,
+        usuarioId: Int,
+        fechaIni: LocalDate?,
+        fechaFin: LocalDate?
+    ): Int {
         val usuarioLector = repositorioUsuario.getById(usuarioId)
-            ?: throw NotFoundException("No existe un usuario con el id $usuarioId")
-
+            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(usuarioId))
 
         val fechaDesde = fechaIni ?: LocalDate.now()
         val fechaHasta = fechaFin ?: LocalDate.now()
 
-        return libro.calcularKarmaHomePage(usuarioLector, fechaDesde, fechaHasta)
+        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
 
     fun obtenerLibrosDeUsuario(
@@ -175,8 +183,8 @@ class LibroService(
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
-        if (repositorioReservas.estadoLibro(libro)) {
-            throw BusinessException("El Libro se encuenta prestado")
+        if (repositorioReservas.estaReservado(libro)) {
+            throw BusinessException(ErrorStrings.LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR)
         } else {
             libro.activo = false
             repositorioLibro.update(libro)
@@ -185,34 +193,37 @@ class LibroService(
 
     private fun getLibroByIdOrThrow(idLibro: Int): Libro =
         repositorioLibro.getById(idLibro)
-            ?: throw NotFoundException("No existe un libro con el id $idLibro")
+            ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro))
 
     private fun validarPropietario(libro: Libro, idUsuario: Int) {
         if (libro.idPropietario != idUsuario) {
-            throw BusinessException("El libro con id ${libro.id} no pertenece al usuario $idUsuario")
+            throw BusinessException(ErrorStrings.libroNoPerteneceAlUsuario(libro.id, idUsuario))
         }
     }
 
     private fun validarPaginacion(page: Int, size: Int) {
-        if (page < 0) throw BusinessException("page no puede ser negativo")
-        if (size <= 0) throw BusinessException("size debe ser mayor a 0")
+        if (page < 0) throw BusinessException(ErrorStrings.PAGE_NO_PUEDE_SER_NEGATIVO)
+        if (size <= 0) throw BusinessException(ErrorStrings.SIZE_DEBE_SER_MAYOR_A_CERO)
     }
 
-    private fun validarRangosFiltros(filtros: FiltrosDeLibrosDTO) {
+    private fun validarRangosFiltros(filtros: FiltrosDeLibros) {
         val fechaDesde = filtros.fechaDesde
         val fechaHasta = filtros.fechaHasta
-        if (fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)) {
-            throw BusinessException("fechaDesde no puede ser mayor a fechaHasta")
+        if (entreFechas(fechaDesde, fechaHasta)) {
+            throw BusinessException(ErrorStrings.FECHA_DESDE_MAYOR_A_FECHA_HASTA)
         }
 
         val paginasMin = filtros.paginasMin
         val paginasMax = filtros.paginasMax
         if (paginasMin != null && paginasMax != null && paginasMin > paginasMax) {
-            throw BusinessException("paginasMin no puede ser mayor a paginasMax")
+            throw BusinessException(ErrorStrings.PAGINAS_MIN_MAYOR_A_PAGINAS_MAX)
         }
     }
 
-    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibrosDTO): FiltrosDeLibrosDTO {
+    private fun entreFechas(fechaDesde: LocalDate?, fechaHasta: LocalDate?): Boolean =
+        fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)
+
+    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibros): FiltrosDeLibros {
         if (filtros.fechaDesde != null || filtros.fechaHasta != null) return filtros
 
         val hoy = LocalDate.now()

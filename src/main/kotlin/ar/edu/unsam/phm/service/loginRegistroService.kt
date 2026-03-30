@@ -12,5 +12,4 @@ class LoginRegistroService(
     fun buscarUsuarioContraseniaUsuario(usuarioLogin : String, passwordLogin : String)=usuarioRepository.inicioSesion(usuarioLogin, passwordLogin)
 
     fun crearUsuario(usuario : Usuario) {usuarioRepository.create(usuario)}
-
 }

@@ -14,13 +14,17 @@ class CalificacionRepository : Repositorio<Calificacion>() {
     ): PageResult<Calificacion> {
 
         val calificacionesOrdenadas = when (orden) {
-            OrdenCalificacion.DATE_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedBy { it.fecha }
+            OrdenCalificacion.DATE_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }
+                .sortedBy { it.fecha }
 
-            OrdenCalificacion.DATE_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedByDescending { it.fecha }
+            OrdenCalificacion.DATE_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }
+                .sortedByDescending { it.fecha }
 
-            OrdenCalificacion.RATING_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedBy { it.puntuacion }
+            OrdenCalificacion.RATING_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }
+                .sortedBy { it.puntuacion }
 
-            OrdenCalificacion.RATING_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }.sortedByDescending { it.puntuacion }
+            OrdenCalificacion.RATING_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }
+                .sortedByDescending { it.puntuacion }
         }
 
         return paginate(page, size, calificacionesOrdenadas)
@@ -45,9 +49,15 @@ class CalificacionRepository : Repositorio<Calificacion>() {
         }
     }
 
-    fun obtenerPromedio(libroID: Int): Double {
-        val calificaciones = getElementos().filter { it.reserva.libro.id == libroID }
+    fun obtenerPromedioCalificaciones(libroID: Int): Double {
+        return getElementos()
+            .filter { it.reserva.libro.id == libroID }
+            .map { it.puntuacion }
+            .average()
+            .takeIf { !it.isNaN() } ?: 0.0
+    }
 
-        return (calificaciones.sumOf { it.puntuacion } / calificaciones.size)
+    fun obtenerCantidadCalificaciones(libroID: Int): Int {
+        return getElementos().filter { it.reserva.libro.id == libroID }.size
     }
 }
