@@ -25,7 +25,7 @@ class CalificacionController(val calificacionService: CalificacionService) {
     fun calificarLibro(
         @RequestBody calificacion: CrearCalificacionDTO
     ) {
-        return calificacionService.calificarLibro(calificacion)
+        calificacionService.calificarLibro(calificacion)
     }
 
     @GetMapping("{libroId}")
@@ -36,7 +36,7 @@ class CalificacionController(val calificacionService: CalificacionService) {
         @RequestParam orden: OrdenCalificacion = OrdenCalificacion.DATE_DESC,
     ): PageResponse<CalificacionDTO> {
         val result = calificacionService.obtenerCalificaciones(libroId, orden, page, size)
-        
+
         return PageResponse(
             content = result.content.map { it -> CalificacionMapper.toDTO(it) },
             page = result.page,
