@@ -32,7 +32,7 @@ class Reserva(
 ) : Identificable {
     @Id
     @GeneratedValue
-    override var id: Int = -1
+    override var id: Long? = null
 
     // TODO: Revisar la forma de obtener cantidad reservas
     fun darKarma(cantidadReservas: Int): Int {

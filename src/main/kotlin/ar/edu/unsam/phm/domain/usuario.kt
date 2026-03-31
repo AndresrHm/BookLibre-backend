@@ -24,7 +24,7 @@ class Usuario(
 ) : Identificable {
     @Id
     @GeneratedValue
-    override var id: Int = -1
+    override var id: Long? = null
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "libros_para_prestar")
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()

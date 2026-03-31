@@ -36,7 +36,7 @@ class Libro(
 ) : Identificable {
     @Id
     @GeneratedValue
-    override var id: Int = -1
+    override var id: Long? = null
     val fechaAgregado: LocalDate = LocalDate.now()
     var activo = true
 

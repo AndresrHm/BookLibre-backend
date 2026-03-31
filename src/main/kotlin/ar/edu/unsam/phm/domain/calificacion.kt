@@ -22,5 +22,5 @@ data class Calificacion(
 ): Identificable {
     @Id
     @GeneratedValue
-    override var id: Int = -1
+    override var id: Long? = null
 }

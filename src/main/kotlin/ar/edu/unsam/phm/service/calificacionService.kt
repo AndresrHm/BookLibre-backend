@@ -14,6 +14,8 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -62,14 +64,23 @@ class CalificacionService(
         val libro = libroRepository.getById(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
-        val pageResult = calificacionRepository.obtenerCalificaciones(libro, orden, page, size)
+        val sort = when (orden) {
+            OrdenCalificacion.DATE_ASC -> Sort.by("fecha").ascending()
+            OrdenCalificacion.DATE_DESC -> Sort.by("fecha").descending()
+            OrdenCalificacion.RATING_ASC -> Sort.by("puntuacion").ascending()
+            OrdenCalificacion.RATING_DESC -> Sort.by("puntuacion").descending()
+        }
+
+        val pageable = PageRequest.of(page, size, sort)
+
+        val result = calificacionRepository.findByReservaLibroId(libro.id!!, pageable)
 
         return PageResponse(
-            content = pageResult.content,
-            page = page,
-            size = size,
-            totalElements = pageResult.totalElements,
-            totalPages = (pageResult.totalElements + size - 1) / size
+            content = result.content,
+            page = result.number,
+            size = result.size,
+            totalElements = result.totalElements.toInt(),
+            totalPages = result.totalPages,
         )
     }
 

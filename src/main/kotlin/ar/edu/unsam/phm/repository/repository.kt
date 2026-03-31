@@ -3,7 +3,7 @@ package ar.edu.unsam.phm.repository
 import ar.edu.unsam.phm.errors.ErrorStrings
 
 interface Identificable {
-    var id: Int
+    var id: Long?
 }
 
 abstract class Repositorio<T : Identificable> {
@@ -11,7 +11,7 @@ abstract class Repositorio<T : Identificable> {
     private var idIncremental = 1
 
     open fun create(elemento: T) {
-        elemento.id = idIncremental
+        elemento.id = idIncremental.toLong()
         idIncremental += 1
         elementos.add(elemento)
     }
@@ -24,7 +24,7 @@ abstract class Repositorio<T : Identificable> {
         elementos.add(elemento)
     }
 
-    fun getById(id: Int): T? = elementos.firstOrNull { it.id == id }
+    fun getById(id: Int): T? = elementos.firstOrNull { it.id == id.toLong() }
 
 //    abstract fun search(string: String): List<T> Por el momento no se especifica un search()
 
