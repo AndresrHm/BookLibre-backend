@@ -4,9 +4,13 @@ import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.requireBusiness
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.utils.diasEntre
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+@Entity
 class Reserva(
     val libro: Libro,
     val usuarioPrestador: Usuario,
@@ -14,6 +18,8 @@ class Reserva(
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
 ) : Identificable {
+    @Id
+    @GeneratedValue
     override var id: Int = -1
 
     fun darKarma(cantidadReservas: Int): Int {

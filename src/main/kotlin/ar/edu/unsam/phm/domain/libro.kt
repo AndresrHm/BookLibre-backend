@@ -5,10 +5,14 @@ import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
 
 const val MAX_CARACTERES_DESCRIPCION = 500
 const val MAX_PAGINAS_LIBRO = 1500
 
+@Entity
 class Libro(
     var titulo: String,
     val tipoLibro: TipoLibro,
@@ -24,6 +28,8 @@ class Libro(
     var estadoLibro: EstadoLibro,
     val idPropietario: Int
 ) : Identificable {
+    @Id
+    @GeneratedValue
     override var id: Int = -1
     val fechaAgregado = LocalDate.now()
     var activo = true
