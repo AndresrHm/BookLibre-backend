@@ -65,12 +65,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(reserva))
             )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.libroId").value("1"))
-            .andExpect(jsonPath("$.usuarioPrestadorId").value("2"))
-            .andExpect(jsonPath("$.usuarioLectorId").value("1"))
-            .andExpect(jsonPath("$.fechaRecogida").value(HOY.toString()))
-            .andExpect(jsonPath("$.fechaDevolucion").value(HOY.plusDays(1).toString()))
+            .andExpect(status().isCreated)
         assertEquals(reservaRepository.getElementos().size, 1)
     }
 

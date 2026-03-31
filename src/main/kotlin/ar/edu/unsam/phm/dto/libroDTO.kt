@@ -7,6 +7,15 @@ import ar.edu.unsam.phm.domain.Usuario
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
+sealed class SealedGetLibroDTO(val tipo: String) {
+    data class Edicion(
+        val libro: LibroEdicionDTO
+    ) : SealedGetLibroDTO("EDICION")
+    data class Detalle(
+        val libro: LibroDetalleDTO
+    ): SealedGetLibroDTO("DETALLE")
+}
+
 data class LibroEdicionDTO(
     val id: Int,
     val imagenUrl: String,
@@ -143,4 +152,9 @@ enum class OrdenHomePage {
     , AUTOR_DESC
     , USER_ASC
     , USER_DESC
+}
+
+enum class GetLibroDTO {
+    DETALLE,
+    EDICION
 }

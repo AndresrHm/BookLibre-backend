@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.controller
 
+import ActionResponse
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CalificacionDTO
@@ -7,6 +8,8 @@ import ar.edu.unsam.phm.dto.CrearCalificacionDTO
 import ar.edu.unsam.phm.dto.OrdenCalificacion
 import ar.edu.unsam.phm.mapper.CalificacionMapper
 import ar.edu.unsam.phm.service.CalificacionService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,8 +27,12 @@ class CalificacionController(val calificacionService: CalificacionService) {
     @PostMapping
     fun calificarLibro(
         @RequestBody calificacion: CrearCalificacionDTO
-    ) {
+    ): ResponseEntity<ActionResponse> {
         calificacionService.calificarLibro(calificacion)
+        val mensajeExito = "Calificación registrada exitosamente."
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(ActionResponse(mensajeExito))
     }
 
     @GetMapping("{libroId}")

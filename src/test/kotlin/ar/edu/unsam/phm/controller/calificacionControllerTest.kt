@@ -158,7 +158,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
                 .param("usuarioId", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
-        ).andExpect(status().isOk)
+        ).andExpect(status().isCreated)
     }
 
     @Test

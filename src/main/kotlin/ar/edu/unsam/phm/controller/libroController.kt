@@ -1,8 +1,8 @@
 package ar.edu.unsam.phm.controller
 
+import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.DireccionOrden
-import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
@@ -10,7 +10,8 @@ import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
-import ar.edu.unsam.phm.dto.DtoToLibroFiltro
+import ar.edu.unsam.phm.dto.GetLibroDTO
+import ar.edu.unsam.phm.dto.SealedGetLibroDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
@@ -26,8 +27,8 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
 
 @RestController
@@ -53,41 +54,53 @@ class LibroController(
     }
 
     @PostMapping
-    fun crearLibro(@RequestBody libro: LibroEdicionDTO): LibroEdicionDTO {
+    fun crearLibro(@RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
         val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
-        return this.libroMapper.libroToLibroEdicionDTO(nuevoLibro)
+        libroMapper.libroToLibroEdicionDTO(nuevoLibro)
+
+        val mensajeExito = "Se creó el libro ${nuevoLibro.titulo} exitosamente"
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(ActionResponse(mensajeExito))
     }
 
-    @GetMapping("{idLibro}/edicion")
-    fun obtenerLibroParaEdicion(@PathVariable idLibro: Int): LibroEdicionDTO {
-        val libroParaEdicion = libroService.obtenerLibro(idLibro)
-        return this.libroMapper.libroToLibroEdicionDTO(libroParaEdicion)
-    }
+    @GetMapping("{idLibro}/{tipoDTO}")
+    fun obtenerLibro(@PathVariable idLibro: Int, @PathVariable tipoDTO: GetLibroDTO): SealedGetLibroDTO {
+        val libro = libroService.obtenerLibro(idLibro)
 
-    @GetMapping("{idLibro}/detalle")
-    fun obtenerLibroDetalle(@PathVariable idLibro: Int): LibroDetalleDTO {
-        val libroDetalle = libroService.obtenerLibro(idLibro)
-        val promedioCalificaciones = calificacionService.promedioCalificaciones(idLibro)
-        val cantidadCalificaciones = calificacionService.cantidadCalificaciones(idLibro)
-        val ultimasCalificaciones = calificacionService.ultimasCalificaciones(idLibro)
+        when (tipoDTO) {
+            GetLibroDTO.EDICION -> {
+                val dto = libroMapper.libroToLibroEdicionDTO(libro)
+                return SealedGetLibroDTO.Edicion(dto)
+            }
 
-        return libroMapper.libroToLibroDetalleDTO(
-            libroDetalle,
-            promedioCalificaciones,
-            cantidadCalificaciones,
-            ultimasCalificaciones
-        )
+            GetLibroDTO.DETALLE -> {
+                val promedio = calificacionService.promedioCalificaciones(idLibro)
+                val cantidad = calificacionService.cantidadCalificaciones(idLibro)
+                val ultimas = calificacionService.ultimasCalificaciones(idLibro)
+
+                val dtoDetalle = libroMapper.libroToLibroDetalleDTO(
+                    libro, promedio, cantidad, ultimas
+                )
+                return SealedGetLibroDTO.Detalle(dtoDetalle)
+            }
+        }
     }
 
     @PutMapping
     fun editarLibro(
         @RequestBody libro: LibroEdicionDTO,
         @RequestParam idUsuario: Int,
-    ): LibroEdicionDTO {
+    ): ResponseEntity<ActionResponse> {
         val libroObjeto = libroMapper.libroEdicionDTOToLibro(libro)
         val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
-        return libroMapper.libroToLibroEdicionDTO(libroEditado)
+        libroMapper.libroToLibroEdicionDTO(libroEditado)
+
+        val mensajeExito = "Se editó el libro ${libroEditado.titulo} exitosamente"
+        return ResponseEntity
+            .ok()
+            .body(ActionResponse(mensajeExito))
     }
 
     @GetMapping("/filter")
@@ -116,7 +129,8 @@ class LibroController(
                         reservaService.cantidadReservas(it.id),
                         userId,
                         filtros.fechaDesde,
-                        filtros.fechaHasta)
+                        filtros.fechaHasta
+                    )
                 )
             },
             page = pageResult.page,
@@ -127,10 +141,15 @@ class LibroController(
     }
 
     @DeleteMapping("{idLibro}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun borrarLibro(
         @PathVariable idLibro: Int,
         @RequestParam idUsuario: Int
-    ) =
+    ): ResponseEntity<ActionResponse> {
         libroService.borrarLibro(idLibro, idUsuario)
+
+        val mensajeExito = "El libro fue eliminado exitosamente."
+        return ResponseEntity
+            .ok()
+            .body(ActionResponse(mensajeExito))
+    }
 }

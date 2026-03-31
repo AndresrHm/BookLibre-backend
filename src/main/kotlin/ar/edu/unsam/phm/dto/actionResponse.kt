@@ -1,0 +1,1 @@
+data class ActionResponse(val message: String)

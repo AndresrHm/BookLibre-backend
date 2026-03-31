@@ -1,8 +1,12 @@
 package ar.edu.unsam.phm.controller
+import ActionResponse
+import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LoginRequestDTO
 import ar.edu.unsam.phm.dto.RegisterRequestDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.service.LoginRegistroService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -21,7 +25,12 @@ class ControllerLogin(val loginRegistroService: LoginRegistroService, private va
     }
 
     @PutMapping("/crearUsuario")
-    fun crearUsuario(@RequestBody registerRequest: RegisterRequestDTO) {
-        return loginRegistroService.crearUsuario(usuarioMapper.registerRequestDTOtoUsuario(registerRequest))
+    fun crearUsuario(@RequestBody registerRequest: RegisterRequestDTO): ResponseEntity<ActionResponse> {
+        loginRegistroService.crearUsuario(usuarioMapper.registerRequestDTOtoUsuario(registerRequest))
+
+        val mensajeExito = "Usuario creado exitosamente"
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(ActionResponse(mensajeExito))
     }
 }

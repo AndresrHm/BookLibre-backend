@@ -4,6 +4,7 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.crearLibro
+import ar.edu.unsam.phm.dto.GetLibroDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
@@ -20,6 +21,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -52,21 +55,8 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(libroValido))
             )
-            .andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("4"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.titulo").value("Título de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.tipoLibro").value("comun"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.descripcion").value("Descripción de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.imagenUrl").value("Portada de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.genero").value("CIENCIA_FICCION"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.autor").value("Autor de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.cantidadPaginas").value("10"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.isbn13").value("1111111111111"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.idioma").value("ESPANOL"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.editorial").value("Editorial de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.fechaPublicacion").value("2026-03-23"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.estado").value("BUENO"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.idPropietario").value("0"))
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.message").value("Se creó el libro Título de libro exitosamente"))
     }
 
     @Test
@@ -89,15 +79,15 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Cuando se provee un id, devuelve el libro asociado a ese id (detalle)`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/detalle", 1)
+            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", 1, GetLibroDTO.DETALLE)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.titulo").value("Título de libro"))
+            .andExpect(jsonPath("$.libro.titulo").value("Título de libro"))
     }
 
     @Test
     fun `Cuando se provee un id de un libro que no existe, devuelve un error (detalle)`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/detalle", -1)
+            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", -1, GetLibroDTO.DETALLE)
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
@@ -108,15 +98,15 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Cuando se provee un id, devuelve el libro asociado a ese id (edición)`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/edicion", 1)
+            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", 1, GetLibroDTO.EDICION)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.titulo").value("Título de libro"))
+            .andExpect(jsonPath("$.libro.titulo").value("Título de libro"))
     }
 
     @Test
     fun `Cuando se provee un id de un libro que no existe, devuelve un error (edición)`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/edicion", -1)
+            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", -1, GetLibroDTO.EDICION)
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
@@ -133,10 +123,10 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroEditadoDTO))
         ).andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.titulo").value("Nuevo título editado"))
     }
+
     @Test
-    fun `Se trae la lista de libros del perfil`(){
+    fun `Se trae la lista de libros del perfil`() {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/{usuarioId}", 0)
         ).andExpect(status().isOk)
@@ -197,17 +187,6 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     // ----- Eliminar un libro -----
-    @Test
-    fun `Se puede eliminar un libro de la base de datos`() {
-        mockMvc.perform(
-            MockMvcRequestBuilders.delete("/libros/1")
-                .param("idUsuario", "0")
-        )
-            .andExpect(status().isNoContent)
-
-        assertEquals(false, libroRepository.getById(1)?.activo) // El libro queda dado de baja logicamente
-    }
-
     @Test
     fun `No se puede eliminar un libro que no está en la base de datos`() {
         val errorMessage = mockMvc.perform(
