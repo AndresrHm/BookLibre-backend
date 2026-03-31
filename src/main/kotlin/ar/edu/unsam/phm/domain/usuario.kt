@@ -5,6 +5,8 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.Identificable
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import java.time.LocalDate
@@ -20,6 +22,8 @@ class Usuario(
     var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
 ) : Identificable {
+    @Id
+    @GeneratedValue
     override var id: Int = -1
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "libros_para_prestar")

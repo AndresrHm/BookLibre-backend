@@ -2,11 +2,9 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
-import ar.edu.unsam.phm.domain.coleccionable
-import ar.edu.unsam.phm.domain.comun
-import ar.edu.unsam.phm.domain.conDedicatoria
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
@@ -22,7 +20,7 @@ class LibroMapper(
     fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
-            tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") conDedicatoria else if (libroEdicionDTO.tipoLibro == "coleccionable") coleccionable else comun,
+            tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") TipoLibro.CON_DEDICATORIA else if (libroEdicionDTO.tipoLibro == "coleccionable") TipoLibro.COLECCIONABLE else TipoLibro.COMUN,
             descripcion = libroEdicionDTO.descripcion,
             portada = libroEdicionDTO.imagenUrl,
             genero = libroEdicionDTO.genero,
@@ -58,7 +56,7 @@ class LibroMapper(
         val libroEdicionDTO = LibroEdicionDTO(
             id = libro.id,
             titulo = libro.titulo,
-            tipoLibro = if (libro.tipoLibro == conDedicatoria) "conDedicatoria" else if (libro.tipoLibro == coleccionable) "coleccionable" else "comun",
+            tipoLibro = if (libro.tipoLibro == TipoLibro.CON_DEDICATORIA) "conDedicatoria" else if (libro.tipoLibro == TipoLibro.COLECCIONABLE) "coleccionable" else "comun",
             descripcion = libro.descripcion,
             imagenUrl = libro.portada,
             genero = libro.genero,
@@ -83,7 +81,7 @@ class LibroMapper(
         val libroDetalle = LibroDetalleDTO(
             id = libro.id,
             titulo = libro.titulo,
-            tipoLibro = if (libro.tipoLibro == conDedicatoria) "conDedicatoria" else if (libro.tipoLibro == coleccionable) "coleccionable" else "comun",
+            tipoLibro = if (libro.tipoLibro == TipoLibro.CON_DEDICATORIA) "conDedicatoria" else if (libro.tipoLibro == TipoLibro.COLECCIONABLE) "coleccionable" else "comun",
             descripcion = libro.descripcion,
             imagenUrl = libro.portada,
             genero = libro.genero,
@@ -111,7 +109,7 @@ class LibroMapper(
         val libroDetalle = LibroHomeUsuarioDTO(
             id = libro.id,
             titulo = libro.titulo,
-            tipoLibro = if (libro.tipoLibro == conDedicatoria) "conDedicatoria" else if (libro.tipoLibro == coleccionable) "coleccionable" else "comun",
+            tipoLibro = if (libro.tipoLibro == TipoLibro.CON_DEDICATORIA) "conDedicatoria" else if (libro.tipoLibro == TipoLibro.COLECCIONABLE) "coleccionable" else "comun",
             descripcion = libro.descripcion,
             imagenUrl = libro.portada,
             genero = libro.genero,
@@ -133,8 +131,8 @@ class LibroMapper(
         filtrosQuery: FiltrosLibrosQueryDTO,
         usuarioPrestador: Usuario?,
         usuarioLector: Usuario?
-        ) : FiltrosDeLibros {
-       val filtros = FiltrosDeLibros(
+    ): FiltrosDeLibros {
+        val filtros = FiltrosDeLibros(
             generos = filtrosQuery.generos,
             fechaDesde = filtrosQuery.fechaDesde,
             fechaHasta = filtrosQuery.fechaHasta,

@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import kotlin.math.ceil
 
+// Solución temporal, para permitir levantar con db
 enum class TipoLibro {
     COMUN {
         override fun darKarma(reserva: Reserva, cantidadReservas: Int): Int {

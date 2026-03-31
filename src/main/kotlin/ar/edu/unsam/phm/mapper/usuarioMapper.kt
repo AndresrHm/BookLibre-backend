@@ -70,7 +70,6 @@ class UsuarioMapper(
     )
 
     fun registerRequestDTOtoUsuario(register: RegisterRequestDTO): Usuario = Usuario(
-        id = 0,
         nombre = register.nombre,
         apellido = register.apellido,
         descripcion = "",
@@ -80,5 +79,5 @@ class UsuarioMapper(
         email = register.email,
         celular = register.celular,
 
-    ).apply {passwordSesion = register.password}
+    ).apply {passwordSesion = register.password; id = 0}
 }
