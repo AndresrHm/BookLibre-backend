@@ -3,10 +3,14 @@ package ar.edu.unsam.phm.domain
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.Identificable
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.OneToMany
 import java.time.LocalDate
 
+@Entity
 class Usuario(
-    override var id: Int = -1,
     var nombre: String,
     var apellido: String,
     var descripcion: String,
@@ -16,9 +20,12 @@ class Usuario(
     var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
 ) : Identificable {
-    var biblioKarma: Int = 0
+    override var id: Int = -1
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "libros_para_prestar")
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
-    val fechaDeCreacion = LocalDate.now()
+    var biblioKarma: Int = 0
+    val fechaDeCreacion: LocalDate = LocalDate.now()
     lateinit var passwordSesion: String
 
     fun agregarLibroParaPrestar(libro: Libro) {
