@@ -171,7 +171,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (donde el usuario es lector)`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+                MockMvcRequestBuilders.get("/reservas")
+                    .param("usuarioId", usuario1.id.toString())
                     .param("type", "TO_ME")
                     .param("page", "0")
                     .param("size", "6")
@@ -209,7 +210,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request`() {
 
         val errorMessage = mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas/{id}", -1)
+                MockMvcRequestBuilders.get("/reservas")
+                    .param("usuarioId", "-1")
                     .param("type", "TO_ME")
                     .param("page", "0")
                     .param("size", "6")
@@ -222,11 +224,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `El filtrado funciona correctamente`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+                MockMvcRequestBuilders.get("/reservas")
+                    .param("usuarioId", usuario1.id.toString())
                     .param("type", "TO_ME")
                     .param("page", "0")
                     .param("size", "6")
-                    .param("string", "dun")
+                    .param("search", "dun")
             ).andExpect(status().isOk)
 
             .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(6))
@@ -243,7 +246,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas recibidas correctamente (donde el usuario es prestador)`() {
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", usuario1.id.toString())
                 .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
@@ -280,7 +284,8 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request (recibidas)`() {
 
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/reservas/{id}", -1)
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", "-1")
                 .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
@@ -295,11 +300,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `El filtrado funciona correctamente en reservas recibidas`() {
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/reservas/{id}", usuario1.id)
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", usuario1.id.toString())
                 .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
-                .param("string", "cien")
+                .param("search", "cien")
         )
             .andExpect(status().isOk)
 
