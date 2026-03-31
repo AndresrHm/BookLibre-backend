@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("libros")
@@ -45,12 +46,24 @@ class LibroController(
     fun obtenerLibrosDeUsuario(
         @PathVariable usuarioId: Int,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int = 3, // 3 libros por página, igual que la tabla del front
+        @RequestParam size: Int = 3,
         @RequestParam orden: OrdenLibroPerfil = OrdenLibroPerfil.FECHA_AGREGADO,
         @RequestParam direccion: DireccionOrden = DireccionOrden.DESCENDENTE,
         @RequestParam filtro: FiltroDisponibilidadPerfil = FiltroDisponibilidadPerfil.TODOS,
     ): PageResponse<LibroUsuarioPerfilDTO> {
-        return libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion, filtro)
+        val idsLibrosPrestadosHoy = reservaService.idLibrosPrestadosHoy()
+        val result = libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion, filtro, idsLibrosPrestadosHoy)
+
+        return PageResponse(
+            content = result.content.map { libro ->
+                val disponibilidad = if (libro.id in idsLibrosPrestadosHoy) "PRESTADO" else "DISPONIBLE"
+                libroMapper.libroToLibroPerfilUsuarioDTO(libro, disponibilidad)
+            },
+            page = result.page,
+            size = result.size,
+            totalElements = result.content.size,
+            totalPages = result.totalPages,
+        )
     }
 
     @PostMapping

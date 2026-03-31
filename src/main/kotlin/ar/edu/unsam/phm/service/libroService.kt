@@ -146,14 +146,10 @@ class LibroService(
         size: Int,
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
-        filtro: FiltroDisponibilidadPerfil
-    ): PageResponse<LibroUsuarioPerfilDTO> {
+        filtro: FiltroDisponibilidadPerfil,
+        idsLibrosPrestados: Set<Int>
+    ): PageResponse<Libro> {
         validarPaginacion(page, size)
-
-        val idsLibrosPrestados = repositorioReservas
-            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
-            .map { it.id }
-            .toSet()
 
         val resultadoPagina = repositorioLibro.buscarPorIdPropietario(
             propietarioId = usuarioId,
@@ -169,10 +165,7 @@ class LibroService(
             if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
 
         return PageResponse(
-            content = resultadoPagina.content.map { libro ->
-                val disponibilidad = if (libro.id in idsLibrosPrestados) "PRESTADO" else "DISPONIBLE"
-                libroMapper.libroToLibroPerfilUsuarioDTO(libro, disponibilidad)
-            },
+            content = resultadoPagina.content,
             page = page,
             size = size,
             totalElements = resultadoPagina.totalElements,

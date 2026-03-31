@@ -94,6 +94,17 @@ class ReservaService(
         }
     }
 
+    fun cantidadReservas(libroID: Int): Int {
+        return reservaRepository.cantidadReservas(libroID)
+    }
+
+    fun idLibrosPrestadosHoy(): Set<Int> {
+        return reservaRepository
+            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
+            .map { it.id }
+            .toSet()
+    }
+
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
         fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
 
@@ -112,9 +123,5 @@ class ReservaService(
             // second: Fin de reserva existente
             fechaRecogida <= it.second && fechaDevolucion >= it.first
         }
-    }
-
-    fun cantidadReservas(libroID: Int): Int {
-        return reservaRepository.cantidadReservas(libroID)
     }
 }
