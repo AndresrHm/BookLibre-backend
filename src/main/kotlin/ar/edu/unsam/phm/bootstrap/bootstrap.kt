@@ -54,7 +54,7 @@ class BootstrapData(
                 email = "juan@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
             ).apply { biblioKarma = 2000;passwordSesion = "juan123" },
 
@@ -66,7 +66,7 @@ class BootstrapData(
                 email = "ana@mail.com",
                 celular = "222222",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
             ).apply { biblioKarma = 4000; passwordSesion = "ana123" },
 
@@ -78,7 +78,7 @@ class BootstrapData(
                 email = "carlos@mail.com",
                 celular = "333333",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez"
             ).apply { biblioKarma = 1500; passwordSesion = "carlos123" },
 
@@ -90,7 +90,7 @@ class BootstrapData(
                 email = "lucia@mail.com",
                 celular = "444444",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez"
             ).apply { biblioKarma = 3200; passwordSesion = "lucia123" },
 
@@ -102,7 +102,7 @@ class BootstrapData(
                 email = "email123@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3"
             ).apply { biblioKarma = 9999; passwordSesion = "nombre123" },
 
@@ -114,7 +114,7 @@ class BootstrapData(
                 email = "pedro@mail.com",
                 celular = "666666",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa"
             ).apply { biblioKarma = 2100; passwordSesion = "pedro123" },
 
@@ -126,7 +126,7 @@ class BootstrapData(
                 email = "marina@mail.com",
                 celular = "777777",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz"
             ).apply { biblioKarma = 1800; passwordSesion = "marina123" },
 
@@ -138,7 +138,7 @@ class BootstrapData(
                 email = "diego@mail.com",
                 celular = "888888",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez"
             ).apply { biblioKarma = 2600; passwordSesion = "diego123" },
 
@@ -150,7 +150,7 @@ class BootstrapData(
                 email = "sofia@mail.com",
                 celular = "999999",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta"
             ).apply { biblioKarma = 1750; passwordSesion = "sofia123" },
 
@@ -162,7 +162,7 @@ class BootstrapData(
                 email = "nicolas@mail.com",
                 celular = "101010",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega"
             ).apply { biblioKarma = 1950; passwordSesion = "nicolas123" },
 
@@ -174,7 +174,7 @@ class BootstrapData(
                 email = "valentina@mail.com",
                 celular = "111110",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez"
             ).apply { biblioKarma = 2300; passwordSesion = "valentina123" },
 
@@ -186,7 +186,7 @@ class BootstrapData(
                 email = "tomas@mail.com",
                 celular = "121212",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR,
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra"
             ).apply { biblioKarma = 2050; passwordSesion = "tomas123" },
 
@@ -1052,10 +1052,10 @@ class BootstrapData(
             Reserva(libros[18], u2, u1, hoy.minusDays(7), hoy.plusDays(3)),
 
             // -------- u3 presta a u4 --------
-            Reserva(libros[20], u3, u4, hoy.minusDays(12), hoy.minusDays(2)),
+            Reserva(libros[20], u3, u4, hoy.minusDays(12), hoy.minusDays(4)),
             Reserva(libros[21], u3, u4, hoy.minusDays(5), hoy.plusDays(2)),
             Reserva(libros[22], u3, u4, hoy.minusDays(2), hoy.plusDays(10)),
-            Reserva(libros[23], u3, u4, hoy.minusDays(20), hoy.minusDays(1)),
+            Reserva(libros[23], u3, u4, hoy.minusDays(20), hoy.minusDays(5)),
             Reserva(libros[24], u3, u4, hoy.minusDays(3), hoy.plusDays(1)),
             Reserva(libros[25], u3, u4, hoy.minusDays(1), hoy.plusDays(15)),
             Reserva(libros[26], u3, u4, hoy.minusDays(9), hoy.minusDays(3)),
@@ -1063,21 +1063,21 @@ class BootstrapData(
 
             // -------- u3 presta a u5 --------
             Reserva(libros[28], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
-            Reserva(libros[29], u3, u5, hoy.minusDays(4), hoy.plusDays(2)),
+            Reserva(libros[29], u3, u5, hoy.minusDays(1), hoy.plusDays(2)),
             Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.plusDays(8)),
-            Reserva(libros[21], u3, u5, hoy.minusDays(16), hoy.minusDays(1)),
-            Reserva(libros[22], u3, u5, hoy.minusDays(2), hoy.plusDays(1)),
+            Reserva(libros[21], u3, u5, hoy.minusDays(16), hoy.minusDays(6)),
+            Reserva(libros[22], u3, u5, hoy.minusDays(10), hoy.minusDays(8)),
             Reserva(libros[23], u3, u5, hoy.minusDays(1), hoy.plusDays(12)),
             Reserva(libros[24], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
-            Reserva(libros[25], u3, u5, hoy.minusDays(7), hoy.plusDays(3)),
+            Reserva(libros[25], u3, u5, hoy.minusDays(7), hoy.minusDays(3)),
 
             // -------- u4 presta a u3 --------
             Reserva(libros[30], u4, u3, hoy.minusDays(14), hoy.minusDays(5)),
             Reserva(libros[31], u4, u3, hoy.minusDays(4), hoy.plusDays(2)),
             Reserva(libros[32], u4, u3, hoy.minusDays(3), hoy.plusDays(8)),
-            Reserva(libros[33], u4, u3, hoy.minusDays(16), hoy.minusDays(1)),
+            Reserva(libros[33], u4, u3, hoy.minusDays(16), hoy.minusDays(3)),
             Reserva(libros[34], u4, u3, hoy.minusDays(2), hoy.plusDays(1)),
-            Reserva(libros[35], u4, u3, hoy.minusDays(1), hoy.plusDays(12)),
+            Reserva(libros[35], u4, u3, hoy.minusDays(2), hoy.plusDays(12)),
             Reserva(libros[36], u4, u3, hoy.minusDays(11), hoy.minusDays(4)),
             Reserva(libros[37], u4, u3, hoy.minusDays(7), hoy.plusDays(3)),
 
@@ -1085,17 +1085,17 @@ class BootstrapData(
             Reserva(libros[38], u4, u5, hoy.minusDays(13), hoy.minusDays(3)),
             Reserva(libros[39], u4, u5, hoy.minusDays(5), hoy.plusDays(2)),
             Reserva(libros[30], u4, u5, hoy.minusDays(2), hoy.plusDays(9)),
-            Reserva(libros[31], u4, u5, hoy.minusDays(17), hoy.minusDays(2)),
-            Reserva(libros[32], u4, u5, hoy.minusDays(3), hoy.plusDays(1)),
+            Reserva(libros[31], u4, u5, hoy.minusDays(17), hoy.minusDays(6)),
+            Reserva(libros[32], u4, u5, hoy.minusDays(5), hoy.minusDays(3)),
             Reserva(libros[33], u4, u5, hoy.minusDays(1), hoy.plusDays(14)),
             Reserva(libros[34], u4, u5, hoy.minusDays(9), hoy.minusDays(4)),
-            Reserva(libros[35], u4, u5, hoy.minusDays(6), hoy.plusDays(5)),
+            Reserva(libros[35], u4, u5, hoy.minusDays(3), hoy.plusDays(5)),
 
             // -------- u5 presta a u3 --------
             Reserva(libros[40], u5, u3, hoy.minusDays(13), hoy.minusDays(4)),
             Reserva(libros[41], u5, u3, hoy.minusDays(5), hoy.plusDays(3)),
             Reserva(libros[42], u5, u3, hoy.minusDays(2), hoy.plusDays(7)),
-            Reserva(libros[43], u5, u3, hoy.minusDays(17), hoy.minusDays(1)),
+            Reserva(libros[43], u5, u3, hoy.minusDays(17), hoy.minusDays(2)),
             Reserva(libros[44], u5, u3, hoy.minusDays(3), hoy.plusDays(2)),
             Reserva(libros[45], u5, u3, hoy.minusDays(1), hoy.plusDays(11)),
             Reserva(libros[46], u5, u3, hoy.minusDays(10), hoy.minusDays(5)),
@@ -1105,18 +1105,18 @@ class BootstrapData(
             Reserva(libros[48], u5, u4, hoy.minusDays(12), hoy.minusDays(3)),
             Reserva(libros[49], u5, u4, hoy.minusDays(4), hoy.plusDays(2)),
             Reserva(libros[40], u5, u4, hoy.minusDays(2), hoy.plusDays(8)),
-            Reserva(libros[41], u5, u4, hoy.minusDays(18), hoy.minusDays(1)),
-            Reserva(libros[42], u5, u4, hoy.minusDays(3), hoy.plusDays(1)),
+            Reserva(libros[41], u5, u4, hoy.minusDays(18), hoy.minusDays(7)),
+            Reserva(libros[42], u5, u4, hoy.minusDays(10), hoy.plusDays(5)),
             Reserva(libros[43], u5, u4, hoy.minusDays(1), hoy.plusDays(13)),
             Reserva(libros[44], u5, u4, hoy.minusDays(9), hoy.minusDays(4)),
-            Reserva(libros[45], u5, u4, hoy.minusDays(7), hoy.plusDays(3)),
+            Reserva(libros[45], u5, u4, hoy.minusDays(7), hoy.minusDays(3)),
 
-            // Reseñas extra para probar paginado sin lógica especial en bootstrap.
+            // Reservas extra para probar paginado sin lógica especial en bootstrap.
             Reserva(libros[0], u1, u3, hoy.minusDays(32), hoy.minusDays(22)),
-            Reserva(libros[0], u1, u4, hoy.minusDays(28), hoy.minusDays(18)),
-            Reserva(libros[0], u1, u5, hoy.minusDays(24), hoy.minusDays(14)),
-            Reserva(libros[0], u1, u2, hoy.minusDays(40), hoy.minusDays(30)),
-            )
+            Reserva(libros[0], u1, u4, hoy.minusDays(21), hoy.minusDays(18)),
+            Reserva(libros[0], u1, u5, hoy.minusDays(17), hoy.minusDays(14)),
+            Reserva(libros[0], u1, u2, hoy.minusDays(1), hoy.plusDays(5)),
+        )
 
         reservas.forEach(reservaRepository::create)
 
