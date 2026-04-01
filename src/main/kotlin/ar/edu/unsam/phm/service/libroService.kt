@@ -171,11 +171,6 @@ class LibroService(
     ): PageResponse<Libro> {
         validarPaginacion(page, size)
 
-        val idsLibrosPrestados = repositorioReservas
-            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
-            .map { it.id }
-            .toSet()
-
         val resultadoPagina = repositorioLibro.buscarPorIdPropietario(
             propietarioId = usuarioId,
             page = page,
