@@ -70,16 +70,13 @@ class ISBN13Filtro : FiltroDeLibro {
     }
 }
 
-class UsuarioPrestadorFiltro(
-    val reservaRepository: ReservaRepository
-): FiltroDeLibro {
+class UsuarioPrestadorFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibros): Boolean {
         return queFiltrar.usuarioPrestador != null
     }
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibros): List<Libro> {
         val usuarioPrestador= queFiltrar.usuarioPrestador!!
-        val prestadosPorUsuario= reservaRepository.getLibrosPrestadosPorUsuario(usuarioPrestador.id)
-        return libros.filter { it in prestadosPorUsuario }
+        return libros.filter { it.idPropietario == usuarioPrestador.id }
 
     }
 }
