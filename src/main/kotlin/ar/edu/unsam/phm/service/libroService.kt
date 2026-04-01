@@ -148,6 +148,7 @@ class LibroService(
             }
         }
 
+
         val pageResult = paginate(page, size, librosPorFiltroOrdenado)
         val totalPages = if (pageResult.totalElements == 0) 0 else (pageResult.totalElements + size - 1) / size
 
