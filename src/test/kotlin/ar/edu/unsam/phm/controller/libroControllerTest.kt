@@ -3,11 +3,14 @@ package ar.edu.unsam.phm.controller
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.dto.GetLibroDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,15 +34,32 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var libroRepository: LibroRepository
 
     @Autowired
+    private lateinit var usuarioRepository: UsuarioRepository
+
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    val libro1 = crearLibro()
-    val libro2 = crearLibro(titulo = "Segundo libro", autor = "Otro autor")
-    val libro3 = crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE)
+    private val usuarioPerfil = Usuario(
+        nombre = "Usuario",
+        apellido = "Perfil",
+        descripcion = "Usuario para tests de perfil",
+        email = "perfil@test.com",
+        celular = "11223344",
+        ciudad = "Buenos Aires",
+        tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
+        urlImagen = "https://test.com/perfil.jpg"
+    )
+
+    val libro1 = crearLibro(idPropietario = 1)
+    val libro2 = crearLibro(titulo = "Segundo libro", autor = "Otro autor", idPropietario = 1)
+    val libro3 = crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE, idPropietario = 1)
 
     @BeforeEach
     fun init() {
         libroRepository.clearInit()
+        usuarioRepository.clearInit()
+
+        usuarioRepository.create(usuarioPerfil)
         libroRepository.create(libro1)
         libroRepository.create(libro2)
         libroRepository.create(libro3)
@@ -132,7 +152,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 .param("flagDiff", "PERFIL")
                 .param("page", "0")
                 .param("size", "3")
-                .param("userId", "0")
+                .param("userId", "1")
                 .param("disponibilidadLibrosPerfil", "TODOS")
                 .param("ordenPerfilPage", "FECHA_AGREGADO")
                 .param("direccionPerfilPage", "DESCENDENTE")
