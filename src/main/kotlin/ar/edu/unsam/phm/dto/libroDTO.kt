@@ -16,6 +16,15 @@ sealed class SealedGetLibroDTO(val tipo: String) {
     ): SealedGetLibroDTO("DETALLE")
 }
 
+sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
+    data class Home(
+        val libro: LibroFiltradoDTO
+    ) : SealedGetLibroFiltradoDTO("HOME")
+    data class Perfil(
+        val libro: LibroUsuarioPerfilDTO
+    ) : SealedGetLibroFiltradoDTO("PERFIL")
+}
+
 data class LibroEdicionDTO(
     val id: Int,
     val imagenUrl: String,

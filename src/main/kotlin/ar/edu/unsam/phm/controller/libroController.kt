@@ -6,12 +6,12 @@ import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.LibroFiltradoDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
+import ar.edu.unsam.phm.dto.SealedGetLibroFiltradoDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
@@ -106,7 +106,7 @@ class LibroController(
         @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil ? = FiltroDisponibilidadPerfil.TODOS,
         @RequestParam(required = false) usuarioPrestador: String?,
 
-    ): PageResponse<LibroFiltradoDTO> {
+    ): PageResponse<SealedGetLibroFiltradoDTO> {
         val usuarioPrestadorFiltrado = filtrosQuery.usuarioPrestadorId
             ?.let { usuarioService.getUsuarioById(it) }
             ?: usuarioPrestador
@@ -133,21 +133,25 @@ class LibroController(
         return PageResponse(
             content = pageResult.content.map {
                 when (flagDiff) {
-                    OrigenLibro.HOME -> libroMapper.libroToLibroFiltradoDTO(
-                        it,
-                        calificacionService.promedioCalificaciones(it.id),
-                        libroService.bringKarma(
+                    OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
+                        libroMapper.libroToLibroFiltradoDTO(
                             it,
-                            reservaService.cantidadReservas(it.id),
-                            userId,
-                            filtrosDeHome.fechaDesde,
-                            filtrosDeHome.fechaHasta,
-                        ),
-                        libroService.disponibilidadLibro(it.id)
+                            calificacionService.promedioCalificaciones(it.id),
+                            libroService.bringKarma(
+                                it,
+                                reservaService.cantidadReservas(it.id),
+                                userId,
+                                filtrosDeHome.fechaDesde,
+                                filtrosDeHome.fechaHasta,
+                            ),
+                            libroService.disponibilidadLibro(it.id)
+                        )
                     )
-                    OrigenLibro.PERFIL -> libroMapper.libroToLibroFiltradoPerfilDto(
-                        it,
-                        libroService.disponibilidadLibro(it.id)
+                    OrigenLibro.PERFIL -> SealedGetLibroFiltradoDTO.Perfil(
+                        libroMapper.libroToLibroPerfilUsuarioDTO(
+                            it,
+                            libroService.disponibilidadLibro(it.id)
+                        )
                     )
                 }
 
