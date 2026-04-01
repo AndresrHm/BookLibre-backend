@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 
 @SpringBootTest
@@ -160,9 +159,12 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 .param("ordenPerfilPage", "FECHA_AGREGADO")
                 .param("direccionPerfilPage", "DESCENDENTE")
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("Título de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Segundo libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].titulo").value("Tercer libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].tipo").value("PERFIL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].tipo").value("PERFIL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].tipo").value("PERFIL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].libro.titulo").value("Título de libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].libro.titulo").value("Segundo libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].libro.titulo").value("Tercer libro"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.page").value(0))
             .andExpect(MockMvcResultMatchers.jsonPath("$.size").value(3))
             .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value(3))

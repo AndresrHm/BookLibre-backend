@@ -111,8 +111,9 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.totalElements").value(3))
             .andExpect(jsonPath("$.totalPages").value(1))
             .andExpect(jsonPath("$.content", hasSize<Any>(3)))
-            .andExpect(jsonPath("$.content[*].titulo", contains("Dune", "El gran gatsby", "Foundation")))
-            .andExpect(jsonPath("$.content[*].userCreador", contains("Bruno", "Bruno", "Bruno")))
+            .andExpect(jsonPath("$.content[*].tipo", contains("HOME", "HOME", "HOME")))
+            .andExpect(jsonPath("$.content[*].libro.titulo", contains("Dune", "El gran gatsby", "Foundation")))
+            .andExpect(jsonPath("$.content[*].libro.userCreador", contains("Bruno", "Bruno", "Bruno")))
     }
 
     @Test
@@ -124,8 +125,9 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.content", hasSize<Any>(1)))
-            .andExpect(jsonPath("$.content[0].titulo").value("Dune"))
-            .andExpect(jsonPath("$.content[0].autor").value("Frank Herbert"))
+            .andExpect(jsonPath("$.content[0].tipo").value("HOME"))
+            .andExpect(jsonPath("$.content[0].libro.titulo").value("Dune"))
+            .andExpect(jsonPath("$.content[0].libro.autor").value("Frank Herbert"))
     }
 
     @Test
@@ -138,8 +140,9 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.totalElements").value(2))
             .andExpect(jsonPath("$.content", hasSize<Any>(2)))
-            .andExpect(jsonPath("$.content[*].titulo", containsInAnyOrder("Dune", "Foundation")))
-            .andExpect(jsonPath("$.content[*].genero", containsInAnyOrder("CIENCIA_FICCION", "CIENCIA_FICCION")))
+            .andExpect(jsonPath("$.content[*].tipo", containsInAnyOrder("HOME", "HOME")))
+            .andExpect(jsonPath("$.content[*].libro.titulo", containsInAnyOrder("Dune", "Foundation")))
+            .andExpect(jsonPath("$.content[*].libro.genero", containsInAnyOrder("CIENCIA_FICCION", "CIENCIA_FICCION")))
     }
 
     @Test
@@ -184,7 +187,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             requestLibrosHome(ordenHomePage = "NOMBRE_DESC")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[*].titulo", contains("Foundation", "El gran gatsby", "Dune")))
+            .andExpect(jsonPath("$.content[*].libro.titulo", contains("Foundation", "El gran gatsby", "Dune")))
     }
 
     @Test
@@ -197,8 +200,9 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.totalElements").value(1))
-            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
-            .andExpect(jsonPath("$.content[0].userCreador").value("Ana"))
+            .andExpect(jsonPath("$.content[0].tipo").value("HOME"))
+            .andExpect(jsonPath("$.content[0].libro.titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].libro.userCreador").value("Ana"))
     }
 
     @Test
@@ -211,8 +215,9 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.totalElements").value(1))
-            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
-            .andExpect(jsonPath("$.content[0].userCreador").value("Ana"))
+            .andExpect(jsonPath("$.content[0].tipo").value("HOME"))
+            .andExpect(jsonPath("$.content[0].libro.titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].libro.userCreador").value("Ana"))
     }
 
     @Test
