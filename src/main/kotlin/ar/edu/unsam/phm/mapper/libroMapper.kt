@@ -103,8 +103,7 @@ class LibroMapper(
         val libroDetalle = LibroFiltradoDTO(
             id = libro.id,
             titulo = libro.titulo,
-            // TODO Refactorizar tipoLibro Para evitar comparacion y cadenas de if
-            tipoLibro = if (libro.tipoLibro == conDedicatoria) "conDedicatoria" else if (libro.tipoLibro == coleccionable) "coleccionable" else "comun",
+            tipoLibro = null,
             descripcion = libro.descripcion,
             imagenUrl = libro.portada,
             genero = libro.genero,
@@ -117,6 +116,28 @@ class LibroMapper(
             estado = libro.estadoLibro,
             rating = rating,
             biblioKarma = karmaForUserLector,
+            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+            disponibilidad = disponibilidad
+        )
+        return libroDetalle
+    }
+    fun libroToLibroFiltradoPerfilDto(libro: Libro, disponibilidad: String): LibroFiltradoDTO {
+        val libroDetalle = LibroFiltradoDTO(
+            id = libro.id,
+            titulo = libro.titulo,
+            tipoLibro = null,
+            descripcion = null,
+            imagenUrl = libro.portada,
+            genero = libro.genero,
+            autor = libro.autor,
+            cantidadPaginas = null,
+            isbn13 = null,
+            idioma = null,
+            editorial = null,
+            fechaAgregado = libro.fechaPublicacion,
+            estado = null,
+            rating = null,
+            biblioKarma = null,
             userCreador = libroRepository.getNickUsuarioCreador(libro.id),
             disponibilidad = disponibilidad
         )

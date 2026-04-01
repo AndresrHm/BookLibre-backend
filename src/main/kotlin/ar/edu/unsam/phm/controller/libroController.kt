@@ -126,18 +126,25 @@ class LibroController(
 
         return PageResponse(
             content = pageResult.content.map {
-                libroMapper.libroToLibroFiltradoDTO(
-                    it,
-                    calificacionService.promedioCalificaciones(it.id),
-                    libroService.bringKarma(
+                when (flagDiff) {
+                    OrigenLibro.HOME -> libroMapper.libroToLibroFiltradoDTO(
                         it,
-                        reservaService.cantidadReservas(it.id),
-                        userId,
-                        filtrosDeHome.fechaDesde,
-                        filtrosDeHome.fechaHasta,
-                    ),
-                    libroService.disponibilidadLibro(it.id)
-                )
+                        calificacionService.promedioCalificaciones(it.id),
+                        libroService.bringKarma(
+                            it,
+                            reservaService.cantidadReservas(it.id),
+                            userId,
+                            filtrosDeHome.fechaDesde,
+                            filtrosDeHome.fechaHasta,
+                        ),
+                        libroService.disponibilidadLibro(it.id)
+                    )
+                    OrigenLibro.PERFIL -> libroMapper.libroToLibroFiltradoPerfilDto(
+                        it,
+                        libroService.disponibilidadLibro(it.id)
+                    )
+                }
+
             } ,
             page = pageResult.page,
             size = pageResult.size,
