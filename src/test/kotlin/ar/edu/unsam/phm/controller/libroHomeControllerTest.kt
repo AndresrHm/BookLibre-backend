@@ -187,6 +187,57 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.content[*].titulo", contains("Foundation", "El gran gatsby", "Dune")))
     }
 
+    @Test
+    fun `Se puede filtrar home por usuarioPrestador por nombre`() {
+        mockMvc.perform(
+            requestLibrosHome(userId = "2")
+                .param("paginasMin", "200")
+                .param("paginasMax", "800")
+                .param("usuarioPrestador", "Ana")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].userCreador").value("Ana"))
+    }
+
+    @Test
+    fun `Si se filtra por usuarioPrestador propio, se muestran sus libros`() {
+        mockMvc.perform(
+            requestLibrosHome(userId = "1")
+                .param("paginasMin", "200")
+                .param("paginasMax", "800")
+                .param("usuarioPrestador", "Ana")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].userCreador").value("Ana"))
+    }
+
+    @Test
+    fun `Se pueden obtener prestadores disponibles para el desplegable`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/libros/prestadores-disponibles")
+                .param("userId", "1")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$", hasSize<Any>(1)))
+            .andExpect(jsonPath("$[0]").value("Bruno"))
+    }
+
+    @Test
+    fun `Se pueden filtrar prestadores disponibles por nombre`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/libros/prestadores-disponibles")
+                .param("userId", "1")
+                .param("search", "bru")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$", hasSize<Any>(1)))
+            .andExpect(jsonPath("$[0]").value("Bruno"))
+    }
+
     private fun requestLibrosHome(
         page: String = "0",
         size: String = "6",
