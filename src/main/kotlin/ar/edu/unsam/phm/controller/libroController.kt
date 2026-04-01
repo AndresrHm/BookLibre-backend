@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestMapping
-import java.time.LocalDate
 
 @RestController
 @RequestMapping("libros")
@@ -105,11 +104,18 @@ class LibroController(
         @RequestParam ordenPerfilPage: OrdenLibroPerfil ? = OrdenLibroPerfil.FECHA_AGREGADO,
         @RequestParam direccionPerfilPage: DireccionOrden ? = DireccionOrden.DESCENDENTE,
         @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil ? = FiltroDisponibilidadPerfil.TODOS,
+        @RequestParam(required = false) usuarioPrestador: String?,
 
     ): PageResponse<LibroFiltradoDTO> {
+        val usuarioPrestadorFiltrado = filtrosQuery.usuarioPrestadorId
+            ?.let { usuarioService.getUsuarioById(it) }
+            ?: usuarioPrestador
+                ?.takeIf { it.isNotBlank() }
+                ?.let { usuarioService.getUsuarioByNombre(it) }
+
         val filtrosDeHome = libroMapper.filtroDTOtoLibroFiltro(
             filtrosQuery,
-            usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.getUsuarioById(it) },
+            usuarioPrestador = usuarioPrestadorFiltrado,
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
         )
 
@@ -152,6 +158,12 @@ class LibroController(
             totalPages = pageResult.totalPages
         )
     }
+
+    @GetMapping("prestadores-disponibles")
+    fun getPrestadoresDisponibles(
+        @RequestParam userId: Int,
+        @RequestParam(required = false, defaultValue = "") search: String,
+    ): List<String> = libroService.obtenerPrestadoresDisponibles(search, userId)
 
     @DeleteMapping("{idLibro}")
     fun borrarLibro(
