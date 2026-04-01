@@ -54,7 +54,7 @@ data class LibroDetalleDTO(
     val activo: Boolean,
 )
 
-data class LibroHomeUsuarioDTO(
+data class LibroFiltradoDTO(
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
@@ -64,13 +64,14 @@ data class LibroHomeUsuarioDTO(
     val idioma: Idioma,
     val estado: EstadoLibro,
     val editorial: String,
-    val fechaPublicacion: LocalDate,
+    val fechaAgregado: LocalDate,
     val cantidadPaginas: Int,
     val isbn13: Long,
     val descripcion: String,
     val rating: Double,
     val biblioKarma : Int,
-    val userCreador : String
+    val userCreador : String,
+    val disponibilidad: String
 )
 
 data class FiltrosDeLibros(
@@ -157,4 +158,9 @@ enum class OrdenHomePage {
 enum class GetLibroDTO {
     DETALLE,
     EDICION
+}
+
+enum class OrigenLibro {
+    HOME,
+    PERFIL
 }

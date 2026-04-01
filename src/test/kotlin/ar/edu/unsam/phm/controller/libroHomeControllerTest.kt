@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -102,11 +103,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden obtener libros de home con filtros por query params`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome()
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.page").value(0))
@@ -121,11 +118,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se obtiene un libro por busqueda por nombre`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome()
                 .param("search", "Dune")
         )
             .andExpect(status().isOk)
@@ -138,11 +131,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden enviar multiples generos como query params`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "10")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome(size = "10")
                 .param("generos", "DRAMA")
                 .param("generos", "CIENCIA_FICCION")
         )
@@ -157,11 +146,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el userId no existe, se retorna error 404`() {
         val usuarioIdInexistente = 999
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", usuarioIdInexistente.toString())
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome(userId = usuarioIdInexistente.toString())
         )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
@@ -172,11 +157,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el page es negativo, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "-1")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome(page = "-1")
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
@@ -187,11 +168,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si se pasan fechas invalidas en el filtro, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome()
                 .param("fechaDesde", "2027-05-01")
                 .param("fechaHasta", "2026-04-01")
         )
@@ -204,14 +181,24 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Te devuelve los libros segun el orden pedido`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_DESC")
+            requestLibrosHome(ordenHomePage = "NOMBRE_DESC")
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content[*].titulo", contains("Foundation", "El gran gatsby", "Dune")))
+    }
+
+    private fun requestLibrosHome(
+        page: String = "0",
+        size: String = "6",
+        userId: String = "1",
+        ordenHomePage: String = "NOMBRE_ASC",
+    ): MockHttpServletRequestBuilder {
+        return MockMvcRequestBuilders.get("/libros")
+            .param("flagDiff", "HOME")
+            .param("page", page)
+            .param("size", size)
+            .param("userId", userId)
+            .param("ordenHomePage", ordenHomePage)
     }
 }
 

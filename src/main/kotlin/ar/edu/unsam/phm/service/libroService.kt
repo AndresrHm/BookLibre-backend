@@ -19,6 +19,7 @@ import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.LibroRepository
@@ -75,6 +76,40 @@ class LibroService(
     )
 
     fun getLibrosPorFiltros(
+        filtrosDeHome: FiltrosDeLibros,
+        page: Int = 0,
+        size: Int = 6,
+        ordenHomePage: OrdenHomePage,
+        userId: Int,
+        flagDiff: OrigenLibro, // Luego cambiar por un enum
+        // de momento, si es false, se asume que se quieren los libros del perfil,
+        // y si es true, se asume que se quieren los libros de la home page
+        disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil,
+        ordenLibroPerfil: OrdenLibroPerfil,
+        direccionOrdenPerfil: DireccionOrden
+
+    ): PageResponse<Libro> {
+        validarFlagDiff(flagDiff)
+
+        return when (flagDiff) {
+            OrigenLibro.HOME -> librosFiltradosHomePage(
+                filtrosDeHome,
+                page,
+                size,
+                ordenHomePage,
+                userId
+            )
+            OrigenLibro.PERFIL -> obtenerLibrosDeUsuario(
+                usuarioId = userId,
+                page = page,
+                size = size,
+                orden = ordenLibroPerfil,
+                direccion = direccionOrdenPerfil,
+                filtro = disponibilidadLibrosPerfil,
+            )
+        }
+    }
+    fun librosFiltradosHomePage(
         filtros: FiltrosDeLibros,
         page: Int = 0,
         size: Int = 6,
@@ -85,6 +120,7 @@ class LibroService(
 
         validarPaginacion(page, size)
         validarRangosFiltros(filtrosNormalizados)
+
         val librosFiltrados = try {
             filtrosAplicables
                 .fold(repositorioLibro.filtrarLibrosActivos()) { resultado, filtro ->
@@ -124,22 +160,6 @@ class LibroService(
         )
     }
 
-    fun bringKarma(
-        libro: Libro,
-        cantidadReservas: Int,
-        usuarioId: Int,
-        fechaIni: LocalDate?,
-        fechaFin: LocalDate?
-    ): Int {
-        val usuarioLector = repositorioUsuario.getById(usuarioId)
-            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(usuarioId))
-
-        val fechaDesde = fechaIni ?: LocalDate.now()
-        val fechaHasta = fechaFin ?: LocalDate.now()
-
-        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
-    }
-
     fun obtenerLibrosDeUsuario(
         usuarioId: Int,
         page: Int,
@@ -147,7 +167,7 @@ class LibroService(
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
         filtro: FiltroDisponibilidadPerfil
-    ): PageResponse<LibroUsuarioPerfilDTO> {
+    ): PageResponse<Libro> {
         validarPaginacion(page, size)
 
         val idsLibrosPrestados = repositorioReservas
@@ -165,21 +185,46 @@ class LibroService(
             librosPrestadosIds = idsLibrosPrestados
         )
 
-        val totalPaginas =
-            if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
+        val totalPaginas = if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
 
         return PageResponse(
-            content = resultadoPagina.content.map { libro ->
-                val disponibilidad = if (libro.id in idsLibrosPrestados) "PRESTADO" else "DISPONIBLE"
-                libroMapper.libroToLibroPerfilUsuarioDTO(libro, disponibilidad)
-            },
+            content = resultadoPagina.content,
             page = page,
             size = size,
             totalElements = resultadoPagina.totalElements,
-            totalPages = totalPaginas,
+            totalPages = totalPaginas
         )
+//        return PageResponse(
+//            content = resultadoPagina.content.map { libro ->
+//                val disponibilidad = if (libro.id in idsLibrosPrestados) "PRESTADO" else "DISPONIBLE"
+//                libroMapper.libroToLibroPerfilUsuarioDTO(libro, disponibilidad)
+//            },
+//            page = page,
+//            size = size,
+//            totalElements = resultadoPagina.totalElements,
+//            totalPages = totalPaginas,
+//        )
     }
 
+    fun bringKarma(
+        libro: Libro,
+        cantidadReservas: Int,
+        usuarioId: Int,
+        fechaIni: LocalDate?,
+        fechaFin: LocalDate?
+    ): Int {
+        val usuarioLector = repositorioUsuario.getById(usuarioId)
+            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(usuarioId))
+
+        val fechaDesde = fechaIni ?: LocalDate.now()
+        val fechaHasta = fechaFin ?: LocalDate.now()
+
+        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
+    }
+    fun disponibilidadLibro(idLibro: Int): String {
+        val libro = getLibroByIdOrThrow(idLibro)
+        return if (repositorioReservas.estaReservado(libro)) "PRESTADO" else "DISPONIBLE"
+    }
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
@@ -228,5 +273,11 @@ class LibroService(
 
         val hoy = LocalDate.now()
         return filtros.copy(fechaDesde = hoy, fechaHasta = hoy)
+    }
+
+    private fun validarFlagDiff(flagDiff: OrigenLibro) {
+        if (flagDiff != OrigenLibro.HOME && flagDiff != OrigenLibro.PERFIL) {
+            throw BusinessException(ErrorStrings.FLAG_DIFF_INVALIDO)
+        }
     }
 }

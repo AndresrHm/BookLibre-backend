@@ -4,13 +4,13 @@ import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
+import ar.edu.unsam.phm.dto.LibroFiltradoDTO
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
+import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
@@ -41,17 +41,6 @@ class LibroController(
     val calificacionService: CalificacionService,
     val libroMapper: LibroMapper,
 ) {
-    @GetMapping("{usuarioId}")
-    fun obtenerLibrosDeUsuario(
-        @PathVariable usuarioId: Int,
-        @RequestParam page: Int = 0,
-        @RequestParam size: Int = 3, // 3 libros por página, igual que la tabla del front
-        @RequestParam orden: OrdenLibroPerfil = OrdenLibroPerfil.FECHA_AGREGADO,
-        @RequestParam direccion: DireccionOrden = DireccionOrden.DESCENDENTE,
-        @RequestParam filtro: FiltroDisponibilidadPerfil = FiltroDisponibilidadPerfil.TODOS,
-    ): PageResponse<LibroUsuarioPerfilDTO> {
-        return libroService.obtenerLibrosDeUsuario(usuarioId, page, size, orden, direccion, filtro)
-    }
 
     @PostMapping
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
@@ -103,36 +92,52 @@ class LibroController(
             .body(ActionResponse(mensajeExito))
     }
 
-    @GetMapping("/filter")
+    @GetMapping("")
     fun getLibrosFilter(
+
+        @RequestParam flagDiff : OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int = 6,
+        @RequestParam size: Int,
         @RequestParam userId: Int,
-        @RequestParam ordenHomePage: OrdenHomePage = OrdenHomePage.NOMBRE_ASC
-    ): PageResponse<LibroHomeUsuarioDTO> {
-        val filtros = libroMapper.filtroDTOtoLibroFiltro(
+        @RequestParam ordenHomePage : OrdenHomePage ? = OrdenHomePage.NOMBRE_ASC,
+        @RequestParam ordenPerfilPage: OrdenLibroPerfil ? = OrdenLibroPerfil.FECHA_AGREGADO,
+        @RequestParam direccionPerfilPage: DireccionOrden ? = DireccionOrden.DESCENDENTE,
+        @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil ? = FiltroDisponibilidadPerfil.TODOS,
+
+    ): PageResponse<LibroFiltradoDTO> {
+        val filtrosDeHome = libroMapper.filtroDTOtoLibroFiltro(
             filtrosQuery,
             usuarioPrestador = filtrosQuery.usuarioPrestadorId?.let { usuarioService.getUsuarioById(it) },
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
         )
 
-        val pageResult = libroService.getLibrosPorFiltros(filtros, page, size, ordenHomePage, userId)
+        val pageResult = libroService.getLibrosPorFiltros(
+            filtrosDeHome,
+            page,
+            size,
+            ordenHomePage!!,
+            userId,
+            flagDiff,
+            disponibilidadLibrosPerfil!!,
+            ordenPerfilPage!!,
+            direccionPerfilPage!!)
 
         return PageResponse(
             content = pageResult.content.map {
-                libroMapper.libroToLibroHomeUsuarioDTO(
+                libroMapper.libroToLibroFiltradoDTO(
                     it,
                     calificacionService.promedioCalificaciones(it.id),
                     libroService.bringKarma(
                         it,
                         reservaService.cantidadReservas(it.id),
                         userId,
-                        filtros.fechaDesde,
-                        filtros.fechaHasta
-                    )
+                        filtrosDeHome.fechaDesde,
+                        filtrosDeHome.fechaHasta,
+                    ),
+                    libroService.disponibilidadLibro(it.id)
                 )
-            },
+            } ,
             page = pageResult.page,
             size = pageResult.size,
             totalElements = pageResult.totalElements,

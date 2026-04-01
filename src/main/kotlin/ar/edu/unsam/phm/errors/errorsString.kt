@@ -36,6 +36,7 @@ object ErrorStrings {
 	const val LIBRO_CANTIDAD_PAGINAS_POSITIVA = "La cantidad de páginas del libro debe ser positiva"
 	const val ISBN13_DEBE_SER_POSITIVO = "El código ISBN-13 debe ser positivo"
 	const val ISBN13_DEBE_TENER_13_DIGITOS = "El código ISBN-13 debe contener 13 dígitos"
+	const val FLAG_DIFF_INVALIDO = "No se reconoce el origen de la busqueda"
 
 	fun usuarioNoEncontradoPorId(id: Int) = "No se encontró usuario con id $id"
 	fun libroNoEncontradoPorId(id: Int) = "No existe un libro con el id $id"

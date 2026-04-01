@@ -16,8 +16,12 @@ import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
+import ar.edu.unsam.phm.dto.DireccionOrden
+import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.OrdenHomePage
+import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
 
@@ -35,7 +39,9 @@ class EspecTest : DescribeSpec({
             LibroMapper(repositoryLibros)
         )
         val userIdConsulta = 999
-
+        val ordenPerfilPage = OrdenLibroPerfil.FECHA_AGREGADO
+        val direccionPerfilPage = DireccionOrden.DESCENDENTE
+        val disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS
         val usuario1 = crearUsuario(
             id = 1,
             nombre = "Juan",
@@ -192,7 +198,13 @@ class EspecTest : DescribeSpec({
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(
                 filtroDeLibros,
                 ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-                userId = userIdConsulta
+                userId = userIdConsulta,
+                flagDiff = OrigenLibro.HOME,
+                disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
+                ordenLibroPerfil = ordenPerfilPage,
+                direccionOrdenPerfil = direccionPerfilPage
+
+
             )
             librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
         }
@@ -237,7 +249,11 @@ class EspecTest : DescribeSpec({
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(
                 filtroDeLibros,
                 ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-                userId = userIdConsulta
+                userId = userIdConsulta,
+                flagDiff = OrigenLibro.HOME,
+                disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
+                ordenLibroPerfil = ordenPerfilPage,
+                direccionOrdenPerfil = direccionPerfilPage
             )
             librosFiltrados.content shouldBe listOf(libro2)
         }
@@ -264,7 +280,11 @@ class EspecTest : DescribeSpec({
             val librosFiltrados = serviceLibros.getLibrosPorFiltros(
                 filtroDeLibros,
                 ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-                userId = userIdConsulta
+                userId = userIdConsulta ,
+                flagDiff = OrigenLibro.HOME,
+                disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
+                ordenLibroPerfil = ordenPerfilPage,
+                direccionOrdenPerfil = direccionPerfilPage
             )
             librosFiltrados.content shouldBe listOf(libro2, libro6)
         }

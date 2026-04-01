@@ -11,7 +11,7 @@ import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
+import ar.edu.unsam.phm.dto.LibroFiltradoDTO
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Component
 
@@ -43,16 +43,7 @@ class LibroMapper(
         return libro
     }
 
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
-        LibroUsuarioPerfilDTO(
-            id = libro.id,
-            titulo = libro.titulo,
-            portada = libro.portada,
-            genero = libro.genero,
-            autor = libro.autor,
-            fechaAgregado = libro.getFechaAsString(),
-            disponibilidad = disponibilidad
-        )
+
 
     fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
@@ -103,14 +94,16 @@ class LibroMapper(
         return libroDetalle
     }
 
-    fun libroToLibroHomeUsuarioDTO(
+    fun libroToLibroFiltradoDTO(
         libro: Libro,
         rating: Double,
-        karmaForUserLector: Int
-    ): LibroHomeUsuarioDTO {
-        val libroDetalle = LibroHomeUsuarioDTO(
+        karmaForUserLector: Int,
+        disponibilidad: String
+    ): LibroFiltradoDTO {
+        val libroDetalle = LibroFiltradoDTO(
             id = libro.id,
             titulo = libro.titulo,
+            // TODO Refactorizar tipoLibro Para evitar comparacion y cadenas de if
             tipoLibro = if (libro.tipoLibro == conDedicatoria) "conDedicatoria" else if (libro.tipoLibro == coleccionable) "coleccionable" else "comun",
             descripcion = libro.descripcion,
             imagenUrl = libro.portada,
@@ -120,14 +113,26 @@ class LibroMapper(
             isbn13 = libro.isbn13,
             idioma = libro.idioma,
             editorial = libro.editorial,
-            fechaPublicacion = libro.fechaPublicacion,
+            fechaAgregado = libro.fechaPublicacion,
             estado = libro.estadoLibro,
             rating = rating,
             biblioKarma = karmaForUserLector,
-            userCreador = libroRepository.getNickUsuarioCreador(libro.id)
+            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+            disponibilidad = disponibilidad
         )
         return libroDetalle
     }
+
+    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
+        LibroUsuarioPerfilDTO(
+            id = libro.id,
+            titulo = libro.titulo,
+            portada = libro.portada,
+            genero = libro.genero,
+            autor = libro.autor,
+            fechaAgregado = libro.getFechaAsString(),
+            disponibilidad = disponibilidad
+        )
 
     fun filtroDTOtoLibroFiltro(
         filtrosQuery: FiltrosLibrosQueryDTO,
