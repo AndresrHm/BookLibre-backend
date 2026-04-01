@@ -16,7 +16,6 @@ import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
-import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrigenLibro
@@ -72,7 +71,7 @@ class LibroService(
         GeneroFiltro(),
         RangoDePaginasFiltro(),
         ISBN13Filtro(),
-        UsuarioPrestadorFiltro(repositorioReservas)
+        UsuarioPrestadorFiltro()
     )
 
     fun getLibrosPorFiltros(
@@ -129,7 +128,13 @@ class LibroService(
                         filtrosNormalizados
                     ) else resultado
                 }
-                .filter { it.idPropietario != userId }
+                .let { filtrados ->
+                    if (filtrosNormalizados.usuarioPrestador == null) {
+                        filtrados.filter { it.idPropietario != userId }
+                    } else {
+                        filtrados
+                    }
+                }
         } catch (e: IllegalArgumentException) {
             throw BusinessException(e.message ?: ErrorStrings.PARAMETROS_FILTRO_INVALIDOS)
         }
@@ -226,6 +231,22 @@ class LibroService(
         val libro = getLibroByIdOrThrow(idLibro)
         return if (repositorioReservas.estaReservado(libro)) "PRESTADO" else "DISPONIBLE"
     }
+
+    fun obtenerPrestadoresDisponibles(search: String?, userId: Int): List<String> {
+        repositorioUsuario.getById(userId)
+            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
+
+        val termino = search?.trim().orEmpty()
+
+        return repositorioLibro.filtrarLibrosActivos()
+            .filter { it.idPropietario != userId }
+            .filter { !repositorioReservas.estaReservado(it) }
+            .mapNotNull { repositorioUsuario.getById(it.idPropietario)?.nombre }
+            .distinct()
+            .filter { termino.isBlank() || it.contains(termino, ignoreCase = true) }
+            .sortedBy { it.lowercase() }
+    }
+
     fun borrarLibro(idLibro: Int, idUsuario: Int) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
