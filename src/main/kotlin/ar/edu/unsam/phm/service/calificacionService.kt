@@ -29,7 +29,7 @@ class CalificacionService(
     fun calificarLibro(
         calificacion: CrearCalificacionDTO
     ) {
-        val usuario = usuarioRepository.getById(calificacion.usuarioId)
+        val usuario = usuarioRepository.findById(calificacion.usuarioId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacion.usuarioId))
 
         if (esPublicador(usuario)) {

@@ -14,7 +14,7 @@ object ErrorStrings {
 	const val SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS = "Solo un Publicador puede crear libros."
 	const val SOLO_PUBLICADOR_PUEDE_EDITAR_LIBROS = "Solo un Publicador puede editar libros."
 	const val PARAMETROS_FILTRO_INVALIDOS = "Parámetros de filtro inválidos."
-	const val LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR = "El Libro se encuenta prestado"
+	const val LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR = "El Libro se encuentra prestado"
 	const val PAGE_NO_PUEDE_SER_NEGATIVO = "page no puede ser negativo"
 	const val SIZE_DEBE_SER_MAYOR_A_CERO = "size debe ser mayor a 0"
 	const val FECHA_DESDE_MAYOR_A_FECHA_HASTA = "fechaDesde no puede ser mayor a fechaHasta"
@@ -37,18 +37,16 @@ object ErrorStrings {
 	const val ISBN13_DEBE_SER_POSITIVO = "El código ISBN-13 debe ser positivo"
 	const val ISBN13_DEBE_TENER_13_DIGITOS = "El código ISBN-13 debe contener 13 dígitos"
 
-	fun usuarioNoEncontradoPorId(id: Int) = "No se encontró usuario con id $id"
-	fun libroNoEncontradoPorId(id: Int) = "No existe un libro con el id $id"
-	fun usuarioNoExistePorId(id: Int) = "No existe un usuario con el id $id."
-	fun libroNoExistePorId(id: Int) = "No existe libro con el id $id"
-	fun reservaNoExistePorId(id: Int) = "No existe la reserva con id $id"
-	fun usuarioNoEncontradoParaCalificacion(id: Int) = "No se ha encontrado el usuario con id $id"
-	fun libroNoPerteneceAlUsuario(libroId: Int, idUsuario: Int) =
-		"El libro con id $libroId no pertenece al usuario $idUsuario"
-	fun libroNoExisteConIdEnRepo(id: Int) = "No existe el libro con id $id."
-	fun usuarioNoExisteConIdEnRepo(id: Int) = "No existe el usuario con id $id."
-	fun descripcionNoPuedeSuperar(maxCaracteres: Int) =
-		"La descripción no puede superar los $maxCaracteres caracteres"
+	fun usuarioNoEncontradoPorId(id: Long) = "No se encontró usuario con id $id"
+	fun libroNoEncontradoPorId(id: Long) = "No existe un libro con el id $id"
+	fun usuarioNoExistePorId(id: Long) = "No existe un usuario con el id $id."
+	fun libroNoExistePorId(id: Long) = "No existe libro con el id $id"
+	fun reservaNoExistePorId(id: Long) = "No existe la reserva con id $id"
+	fun usuarioNoEncontradoParaCalificacion(id: Long) = "No se ha encontrado el usuario con id $id"
+	fun libroNoPerteneceAlUsuario(libroId: Long, idUsuario: Long) = "El libro con id $libroId no pertenece al usuario $idUsuario"
+	fun libroNoExisteConIdEnRepo(id: Long) = "No existe el libro con id $id."
+	fun usuarioNoExisteConIdEnRepo(id: Long) = "No existe el usuario con id $id."
+	fun descripcionNoPuedeSuperar(maxCaracteres: Int) = "La descripción no puede superar los $maxCaracteres caracteres"
 	fun libroNoPuedeSuperarPaginas(maxPaginas: Int) = "El libro no puede superar las $maxPaginas páginas."
 }
 
