@@ -61,15 +61,15 @@ class ReservaController(
             .body(ActionResponse(mensajeExito))
     }
 
-    @GetMapping("/{usuarioId}")
+    @GetMapping()
     fun reservas(
-        @PathVariable usuarioId: Int,
+        @RequestParam usuarioId: Int,
         @RequestParam type: ReservaType,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 4,
-        @RequestParam string: String?,
+        @RequestParam search: String?,
     ): PageResponse<ReservaDTO> {
-        val result = reservaService.getReservas(usuarioId, type, page, size, string)
+        val result = reservaService.getReservas(usuarioId, type, page, size, search)
 
         return PageResponse(
             content = result.content.map { it ->
