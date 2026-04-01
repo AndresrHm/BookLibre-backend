@@ -136,10 +136,13 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     // ----- Editar un libro -----
     @Test
     fun `Se puede editar un libro`() {
-        val libroEditadoDTO = crearLibroDTO(titulo = "Nuevo título editado")
+        val libroEditadoDTO = crearLibroDTO(
+            titulo = "Nuevo título editado",
+            idPropietario = 1,
+        )
         mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", "0")
+                .param("idUsuario", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroEditadoDTO))
         ).andExpect(status().isOk())
