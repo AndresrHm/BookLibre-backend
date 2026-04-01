@@ -56,7 +56,7 @@ class CalificacionService(
     private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 
     fun obtenerCalificaciones(
-        libroID: Int,
+        libroID: Long,
         orden: OrdenCalificacion,
         page: Int,
         size: Int,
