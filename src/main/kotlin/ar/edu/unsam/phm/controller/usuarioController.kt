@@ -1,9 +1,8 @@
 package ar.edu.unsam.phm.controller
 
-import ar.edu.unsam.phm.dto.UsarioPerfilDTO
+import ar.edu.unsam.phm.dto.SealedGetUsuarioDTO
+import ar.edu.unsam.phm.dto.TipoDTOUsuario
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
-import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
-import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -21,37 +20,46 @@ class UsuarioController(
     val usuarioService: UsuarioService,
     val usuarioMapper: UsuarioMapper
 ) {
-    @GetMapping("{usuarioId}/header")
-    fun getUsuarioHeader(@PathVariable usuarioId: Int) : UsuarioHeaderDTO {
-        val usuario = usuarioService.getUsuarioById(usuarioId)
-        return usuarioMapper.toUsuarioHeaderDTO(usuario)
-    }
 
     @PutMapping
     fun updateUsuario(
         @RequestBody usuario: UsuarioEdicionDTO
     ) {
         val usuarioNuevo = usuarioMapper.usuarioEdicionDTOtoLibro(usuario)
-        usuarioService.usuarioUpdate(usuarioNuevo)}
-
-    @GetMapping("{usuarioId}/update")
-    fun getUsuarioUpdate(@PathVariable usuarioId: Int) : UsuarioEdicionDTO {
-        val usuario = usuarioService.getUsuarioById(usuarioId)
-        return usuarioMapper.toUsuarioEdicionDTO(usuario)
+        usuarioService.usuarioUpdate(usuarioNuevo)
     }
 
-    @GetMapping("{usuarioId}/perfil")
-    fun getUsuario(@PathVariable usuarioId: Int) : UsarioPerfilDTO {
+    @GetMapping("{usuarioId}/{tipoDTO}")
+    fun getUsuarioType(@PathVariable usuarioId: Int, @PathVariable tipoDTO: String): SealedGetUsuarioDTO {
         val usuario = usuarioService.getUsuarioById(usuarioId)
-        return usuarioMapper.toUsuarioPerfilDTO(usuario)
+        val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTO)
+
+        when (tipoDTOEnum) {
+            TipoDTOUsuario.HEADER -> {
+                val dto = usuarioMapper.toUsuarioHeaderDTO(usuario)
+                return SealedGetUsuarioDTO.Header(dto)
+            }
+
+            TipoDTOUsuario.UPDATE -> {
+                val dto = usuarioMapper.toUsuarioEdicionDTO(usuario)
+                return SealedGetUsuarioDTO.Update(dto)
+            }
+
+            TipoDTOUsuario.PERFIL -> {
+                val dto = usuarioMapper.toUsuarioPerfilDTO(usuario)
+                return SealedGetUsuarioDTO.Perfil(dto)
+            }
+
+            TipoDTOUsuario.KARMA -> {
+                val dto = usuarioMapper.toUsuarioKarma(usuario)
+                return SealedGetUsuarioDTO.Karma(dto)
+            }
+
+            TipoDTOUsuario.TIPOUSUARIO -> {
+                val tipo = usuario.tipoUsuario
+                return SealedGetUsuarioDTO.TipoPerfil(tipo)
+            }
+        }
     }
 
-    @GetMapping("{usuarioId}/karma")
-    fun getUsuarioKarma(@PathVariable usuarioId: Int): UsuarioKarmaDTO {
-        val usuario = usuarioService.getUsuarioById(usuarioId)
-        return usuarioMapper.toUsuarioKarma(usuario)
-    }
-
-    @GetMapping("{usuarioId}/tipoUsuario")
-    fun getUsuarioTipo(@PathVariable usuarioId: Int) = usuarioService.getUsuarioById(usuarioId).tipoUsuario
 }

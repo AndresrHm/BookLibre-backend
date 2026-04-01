@@ -3,11 +3,8 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -43,20 +40,6 @@ class UsuarioService(
         usuarioRepositorio.update(usuario)
         return usuario
     }
-//
-//    fun validarPermisoLector(usuario: Usuario) {
-//        if(!usuario.esLector() && !usuario.esLectorPublicador()){
-//            throw BusinessException("Necesitas permisos de Lector para realizar esta accion.")
-//        }
-//
-//    }
-//
-//    fun validarPermisoPublicador(usuario: Usuario) {
-//        if(!usuario.esPublicador() && !usuario.esLectorPublicador()){
-//            throw BusinessException("Necesitas permisos de Publicador para realizar esta accion.")
-//        }
-//
-//    }
 
     private fun camposObligatoriosVacios(usuario: Usuario): Boolean =
         usuario.nombre == "" ||

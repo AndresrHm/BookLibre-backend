@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.RegisterRequestDTO
+import ar.edu.unsam.phm.dto.TipoDTOUsuario
 import ar.edu.unsam.phm.dto.UsarioPerfilDTO
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
@@ -25,9 +26,10 @@ class UsuarioMapper(
             tipoUsuario = usuarioEdicionDTO.tipoUsuario,
             urlImagen = usuarioEdicionDTO.urlImagen,
             email = usuario.email,
-            celular = usuario.celular,
+            celular = usuario.celular
         )
         usuarioNuevo.id = usuarioEdicionDTO.id
+        usuarioNuevo.biblioKarma = usuario.biblioKarma
 
         return usuarioNuevo
     }
@@ -81,4 +83,6 @@ class UsuarioMapper(
         celular = register.celular,
 
     ).apply {passwordSesion = register.password}
+
+    fun toTipoDTOUsuario(tipo: String) = TipoDTOUsuario.valueOf(tipo.uppercase())
 }

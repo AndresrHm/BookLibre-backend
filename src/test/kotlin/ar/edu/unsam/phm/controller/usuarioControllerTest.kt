@@ -46,9 +46,9 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/header", 1)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.urlImagen").value("imagenUsuario"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.biblioKarma").value("50"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.id").value("1"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.urlImagen").value("imagenUsuario"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.biblioKarma").value("50"))
     }
 
     @Test
@@ -68,11 +68,11 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/perfil", 2)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("2"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.nombre").value("María"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.apellido").value("González"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.tipoUsuario").value("PUBLICADOR"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.biblioKarma").value("150"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.id").value("2"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.nombre").value("María"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.apellido").value("González"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.tipoUsuario").value("PUBLICADOR"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.biblioKarma").value("150"))
     }
 
     @Test
@@ -92,7 +92,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", 1)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$").value("LECTOR"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario").value("LECTOR"))
     }
 
     @Test
@@ -100,7 +100,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", 2)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$").value("PUBLICADOR"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario").value("PUBLICADOR"))
     }
 
     @Test
@@ -108,7 +108,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", 3)
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$").value("LECTORPUBLICADOR"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario").value("LECTORPUBLICADOR"))
     }
 
     @Test
