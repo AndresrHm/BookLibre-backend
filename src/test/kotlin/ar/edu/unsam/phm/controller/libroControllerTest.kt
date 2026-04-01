@@ -128,14 +128,21 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se trae la lista de libros del perfil`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{usuarioId}", 0)
+            MockMvcRequestBuilders.get("/libros")
+                .param("flagDiff", "PERFIL")
+                .param("page", "0")
+                .param("size", "3")
+                .param("userId", "0")
+                .param("disponibilidadLibrosPerfil", "TODOS")
+                .param("ordenPerfilPage", "FECHA_AGREGADO")
+                .param("direccionPerfilPage", "DESCENDENTE")
         ).andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("Título de libro"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Segundo libro"))
             .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].titulo").value("Tercer libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.page").value("0"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.size").value("3"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value("3"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.page").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size").value(3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value(3))
     }
 
     @Test
