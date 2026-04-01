@@ -85,7 +85,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         usuarioPrestador = usuario1,
         usuarioLector = usuario2,
         fechaRecogida,
-        LocalDate.of(2026, 3, 31),
+        LocalDate.of(2026, 4, 20),
     )
 
     val calificacion1 = crearCalificacion(
