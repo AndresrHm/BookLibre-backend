@@ -4,18 +4,37 @@ import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.requireBusiness
 import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.utils.diasEntre
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+@Entity
 class Reserva(
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "libro_id")
     val libro: Libro,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "prestador_id")
     val usuarioPrestador: Usuario,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lector_id")
     val usuarioLector: Usuario,
+
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
 ) : Identificable {
-    override var id: Int = -1
+    @Id
+    @GeneratedValue
+    override var id: Long? = null
 
+    // TODO: Revisar la forma de obtener cantidad reservas
     fun darKarma(cantidadReservas: Int): Int {
         return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this, cantidadReservas)
     }

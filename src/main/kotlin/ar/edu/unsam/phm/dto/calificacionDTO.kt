@@ -13,8 +13,8 @@ data class CalificacionDTO(
 )
 
 data class CrearCalificacionDTO(
-    val reservaId: Int,
-    val usuarioId: Int,
+    val reservaId: Long,
+    val usuarioId: Long,
     val comentario: String,
     val puntuacion: Double,
 ) {

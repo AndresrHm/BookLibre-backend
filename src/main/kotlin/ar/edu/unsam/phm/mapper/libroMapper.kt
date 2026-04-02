@@ -11,7 +11,7 @@ import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.LibroFiltradoDTO
+import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Component
 
@@ -22,7 +22,7 @@ class LibroMapper(
     fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
-            tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") conDedicatoria else if (libroEdicionDTO.tipoLibro == "coleccionable") coleccionable else comun,
+            tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") TipoLibro.CON_DEDICATORIA else if (libroEdicionDTO.tipoLibro == "coleccionable") TipoLibro.COLECCIONABLE else TipoLibro.COMUN,
             descripcion = libroEdicionDTO.descripcion,
             portada = libroEdicionDTO.imagenUrl,
             genero = libroEdicionDTO.genero,
@@ -43,7 +43,16 @@ class LibroMapper(
         return libro
     }
 
-
+    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
+        LibroUsuarioPerfilDTO(
+            id = libro.id,
+            titulo = libro.titulo,
+            portada = libro.portada,
+            genero = libro.genero,
+            autor = libro.autor,
+            fechaAgregado = libro.getFechaAsString(),
+            disponibilidad = disponibilidad
+        )
 
     fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
@@ -159,8 +168,8 @@ class LibroMapper(
         filtrosQuery: FiltrosLibrosQueryDTO,
         usuarioPrestador: Usuario?,
         usuarioLector: Usuario?
-        ) : FiltrosDeLibros {
-       val filtros = FiltrosDeLibros(
+    ): FiltrosDeLibros {
+        val filtros = FiltrosDeLibros(
             generos = filtrosQuery.generos,
             fechaDesde = filtrosQuery.fechaDesde,
             fechaHasta = filtrosQuery.fechaHasta,
