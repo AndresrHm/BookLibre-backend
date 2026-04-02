@@ -68,8 +68,9 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
     )
 
-    val fechaRecogida = LocalDate.of(2026, 3, 20)
-    val fechaDevolucion = LocalDate.of(2026, 3, 21)
+    private val hoy = LocalDate.now()
+    private val fechaRecogida = hoy.minusDays(10)
+    private val fechaDevolucion = hoy.minusDays(1)
 
     val reserva1 = crearReserva(
         libro1usuario1,
@@ -79,20 +80,21 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         fechaDevolucion,
     )
 
-    // Reserva con estado activo
+    // Reserva que todavia no termino para validar que no se puede calificar
     val reserva2 = crearReserva(
         libro1usuario1,
         usuarioPrestador = usuario1,
         usuarioLector = usuario2,
-        fechaRecogida,
-        LocalDate.of(2026, 3, 31),
+        hoy,
+        hoy.plusDays(1),
     )
 
+    private val fechaCalificacion1 = hoy.minusDays(2)
     val calificacion1 = crearCalificacion(
         reserva1,
         4.5,
         "Muy bueno!",
-        LocalDate.of(2026, 3, 24)
+        fechaCalificacion1
     )
 
     @BeforeEach
@@ -126,7 +128,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.content[0].imagenUsuario").value("https://ui-avatars.com/api/?name=Juan+Perez"))
             .andExpect(jsonPath("$.content[0].puntuacion").value(4.5))
             .andExpect(jsonPath("$.content[0].comentario").value("Muy bueno!"))
-            .andExpect(jsonPath("$.content[0].fecha").value(LocalDate.of(2026, 3, 24).toString()))
+            .andExpect(jsonPath("$.content[0].fecha").value(fechaCalificacion1.toString()))
 
     }
 

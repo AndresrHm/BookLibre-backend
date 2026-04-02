@@ -15,4 +15,7 @@ class UsuarioRepository : Repositorio<Usuario>() {
         }
 
     fun getTipoUsuario(id: Int) = getById(id)?.tipoUsuario
+
+    fun getByNombre(nombre: String): Usuario? =
+        getElementos().find { it.nombre.equals(nombre, ignoreCase = true) }
 }

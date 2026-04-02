@@ -16,6 +16,15 @@ sealed class SealedGetLibroDTO(val tipo: String) {
     ): SealedGetLibroDTO("DETALLE")
 }
 
+sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
+    data class Home(
+        val libro: LibroFiltradoDTO
+    ) : SealedGetLibroFiltradoDTO("HOME")
+    data class Perfil(
+        val libro: LibroUsuarioPerfilDTO
+    ) : SealedGetLibroFiltradoDTO("PERFIL")
+}
+
 data class LibroEdicionDTO(
     val id: Int,
     val imagenUrl: String,
@@ -54,23 +63,24 @@ data class LibroDetalleDTO(
     val activo: Boolean,
 )
 
-data class LibroHomeUsuarioDTO(
+data class LibroFiltradoDTO(
     val id: Int,
     val imagenUrl: String,
     val titulo: String,
-    val tipoLibro: String,
-    val genero: Genero,
+    val tipoLibro: String?,
+    val genero: Genero?,
     val autor: String,
-    val idioma: Idioma,
-    val estado: EstadoLibro,
-    val editorial: String,
-    val fechaPublicacion: LocalDate,
-    val cantidadPaginas: Int,
-    val isbn13: Long,
-    val descripcion: String,
-    val rating: Double,
-    val biblioKarma : Int,
-    val userCreador : String
+    val idioma: Idioma?,
+    val estado: EstadoLibro?,
+    val editorial: String?,
+    val fechaAgregado: LocalDate?,
+    val cantidadPaginas: Int?,
+    val isbn13: Long?,
+    val descripcion: String?,
+    val rating: Double?,
+    val biblioKarma : Int?,
+    val userCreador : String,
+    val disponibilidad: String
 )
 
 data class FiltrosDeLibros(
@@ -157,4 +167,9 @@ enum class OrdenHomePage {
 enum class GetLibroDTO {
     DETALLE,
     EDICION
+}
+
+enum class OrigenLibro {
+    HOME,
+    PERFIL
 }

@@ -3,11 +3,8 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -20,6 +17,10 @@ class UsuarioService(
     val libroRepositorio: LibroRepository
 ) {
     fun getUsuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
+
+    fun getUsuarioByNombre(nombre: String) =
+        usuarioRepositorio.getByNombre(nombre)
+            ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
 
     fun usuarioUpdate(usuario: Usuario): Usuario {
         if (

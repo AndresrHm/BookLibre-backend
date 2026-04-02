@@ -90,6 +90,11 @@ class Libro(
     }
 
     fun getFechaAsString(): String = fechaAgregado.formatear()
+
+    fun tipoComoTexto(): String =
+        if (tipoLibro == conDedicatoria) "conDedicatoria"
+        else if (tipoLibro == coleccionable) "coleccionable"
+        else "comun"
 }
 
 enum class Genero {
