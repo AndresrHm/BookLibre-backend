@@ -163,7 +163,7 @@ class LibroController(
         )
     }
 
-    @GetMapping("prestadores-disponibles")
+    @GetMapping("prestadoresDisponibles")
     fun getPrestadoresDisponibles(
         @RequestParam userId: Int,
         @RequestParam(required = false, defaultValue = "") search: String,

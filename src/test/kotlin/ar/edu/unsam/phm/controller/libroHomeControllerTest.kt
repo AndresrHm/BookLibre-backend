@@ -223,7 +223,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden obtener prestadores disponibles para el desplegable`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/prestadores-disponibles")
+            MockMvcRequestBuilders.get("/libros/prestadoresDisponibles")
                 .param("userId", "1")
         )
             .andExpect(status().isOk)
@@ -234,7 +234,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden filtrar prestadores disponibles por nombre`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/prestadores-disponibles")
+            MockMvcRequestBuilders.get("/libros/prestadoresDisponibles")
                 .param("userId", "1")
                 .param("search", "bru")
         )
