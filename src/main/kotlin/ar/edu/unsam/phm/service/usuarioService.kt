@@ -18,6 +18,10 @@ class UsuarioService(
 ) {
     fun getUsuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
+    fun getUsuarioByNombre(nombre: String) =
+        usuarioRepositorio.getByNombre(nombre)
+            ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
+
     fun usuarioUpdate(usuario: Usuario): Usuario {
         if (
             camposObligatoriosVacios(usuario)

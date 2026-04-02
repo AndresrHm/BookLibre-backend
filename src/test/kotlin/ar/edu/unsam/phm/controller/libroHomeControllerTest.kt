@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -102,11 +103,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden obtener libros de home con filtros por query params`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome()
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.page").value(0))
@@ -114,54 +111,45 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(jsonPath("$.totalElements").value(3))
             .andExpect(jsonPath("$.totalPages").value(1))
             .andExpect(jsonPath("$.content", hasSize<Any>(3)))
-            .andExpect(jsonPath("$.content[*].titulo", contains("Dune", "El gran gatsby", "Foundation")))
-            .andExpect(jsonPath("$.content[*].userCreador", contains("Bruno", "Bruno", "Bruno")))
+            .andExpect(jsonPath("$.content[*].tipo", contains("HOME", "HOME", "HOME")))
+            .andExpect(jsonPath("$.content[*].libro.titulo", contains("Dune", "El gran gatsby", "Foundation")))
+            .andExpect(jsonPath("$.content[*].libro.userCreador", contains("Bruno", "Bruno", "Bruno")))
     }
 
     @Test
     fun `Se obtiene un libro por busqueda por nombre`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome()
                 .param("search", "Dune")
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.totalElements").value(1))
             .andExpect(jsonPath("$.content", hasSize<Any>(1)))
-            .andExpect(jsonPath("$.content[0].titulo").value("Dune"))
-            .andExpect(jsonPath("$.content[0].autor").value("Frank Herbert"))
+            .andExpect(jsonPath("$.content[0].tipo").value("HOME"))
+            .andExpect(jsonPath("$.content[0].libro.titulo").value("Dune"))
+            .andExpect(jsonPath("$.content[0].libro.autor").value("Frank Herbert"))
     }
 
     @Test
     fun `Se pueden enviar multiples generos como query params`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "10")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome(size = "10")
                 .param("generos", "DRAMA")
                 .param("generos", "CIENCIA_FICCION")
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.totalElements").value(2))
             .andExpect(jsonPath("$.content", hasSize<Any>(2)))
-            .andExpect(jsonPath("$.content[*].titulo", containsInAnyOrder("Dune", "Foundation")))
-            .andExpect(jsonPath("$.content[*].genero", containsInAnyOrder("CIENCIA_FICCION", "CIENCIA_FICCION")))
+            .andExpect(jsonPath("$.content[*].tipo", containsInAnyOrder("HOME", "HOME")))
+            .andExpect(jsonPath("$.content[*].libro.titulo", containsInAnyOrder("Dune", "Foundation")))
+            .andExpect(jsonPath("$.content[*].libro.genero", containsInAnyOrder("CIENCIA_FICCION", "CIENCIA_FICCION")))
     }
 
     @Test
     fun `Si el userId no existe, se retorna error 404`() {
         val usuarioIdInexistente = 999
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", usuarioIdInexistente.toString())
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome(userId = usuarioIdInexistente.toString())
         )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
@@ -172,11 +160,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el page es negativo, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "-1")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome(page = "-1")
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
@@ -187,11 +171,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si se pasan fechas invalidas en el filtro, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_ASC")
+            requestLibrosHome()
                 .param("fechaDesde", "2027-05-01")
                 .param("fechaHasta", "2026-04-01")
         )
@@ -204,14 +184,77 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Te devuelve los libros segun el orden pedido`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/filter")
-                .param("page", "0")
-                .param("size", "6")
-                .param("userId", "1")
-                .param("ordenHomePage", "NOMBRE_DESC")
+            requestLibrosHome(ordenHomePage = "NOMBRE_DESC")
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.content[*].titulo", contains("Foundation", "El gran gatsby", "Dune")))
+            .andExpect(jsonPath("$.content[*].libro.titulo", contains("Foundation", "El gran gatsby", "Dune")))
+    }
+
+    @Test
+    fun `Se puede filtrar home por usuarioPrestador por nombre`() {
+        mockMvc.perform(
+            requestLibrosHome(userId = "2")
+                .param("paginasMin", "200")
+                .param("paginasMax", "800")
+                .param("usuarioPrestador", "Ana")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.content[0].tipo").value("HOME"))
+            .andExpect(jsonPath("$.content[0].libro.titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].libro.userCreador").value("Ana"))
+    }
+
+    @Test
+    fun `Si se filtra por usuarioPrestador propio, se muestran sus libros`() {
+        mockMvc.perform(
+            requestLibrosHome(userId = "1")
+                .param("paginasMin", "200")
+                .param("paginasMax", "800")
+                .param("usuarioPrestador", "Ana")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.content[0].tipo").value("HOME"))
+            .andExpect(jsonPath("$.content[0].libro.titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].libro.userCreador").value("Ana"))
+    }
+
+    @Test
+    fun `Se pueden obtener prestadores disponibles para el desplegable`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/libros/prestadoresDisponibles")
+                .param("userId", "1")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$", hasSize<Any>(1)))
+            .andExpect(jsonPath("$[0]").value("Bruno"))
+    }
+
+    @Test
+    fun `Se pueden filtrar prestadores disponibles por nombre`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/libros/prestadoresDisponibles")
+                .param("userId", "1")
+                .param("search", "bru")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$", hasSize<Any>(1)))
+            .andExpect(jsonPath("$[0]").value("Bruno"))
+    }
+
+    private fun requestLibrosHome(
+        page: String = "0",
+        size: String = "6",
+        userId: String = "1",
+        ordenHomePage: String = "NOMBRE_ASC",
+    ): MockHttpServletRequestBuilder {
+        return MockMvcRequestBuilders.get("/libros")
+            .param("flagDiff", "HOME")
+            .param("page", page)
+            .param("size", size)
+            .param("userId", userId)
+            .param("ordenHomePage", ordenHomePage)
     }
 }
 

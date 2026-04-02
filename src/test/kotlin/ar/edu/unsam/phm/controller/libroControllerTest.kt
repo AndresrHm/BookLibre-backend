@@ -3,11 +3,14 @@ package ar.edu.unsam.phm.controller
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.dto.GetLibroDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,7 +24,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 
 @SpringBootTest
@@ -31,15 +33,32 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var libroRepository: LibroRepository
 
     @Autowired
+    private lateinit var usuarioRepository: UsuarioRepository
+
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    val libro1 = crearLibro()
-    val libro2 = crearLibro(titulo = "Segundo libro", autor = "Otro autor")
-    val libro3 = crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE)
+    private val usuarioPerfil = Usuario(
+        nombre = "Usuario",
+        apellido = "Perfil",
+        descripcion = "Usuario para tests de perfil",
+        email = "perfil@test.com",
+        celular = "11223344",
+        ciudad = "Buenos Aires",
+        tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
+        urlImagen = "https://test.com/perfil.jpg"
+    )
+
+    val libro1 = crearLibro(idPropietario = 1)
+    val libro2 = crearLibro(titulo = "Segundo libro", autor = "Otro autor", idPropietario = 1)
+    val libro3 = crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE, idPropietario = 1)
 
     @BeforeEach
     fun init() {
         libroRepository.clearInit()
+        usuarioRepository.clearInit()
+
+        usuarioRepository.create(usuarioPerfil)
         libroRepository.create(libro1)
         libroRepository.create(libro2)
         libroRepository.create(libro3)
@@ -116,10 +135,13 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     // ----- Editar un libro -----
     @Test
     fun `Se puede editar un libro`() {
-        val libroEditadoDTO = crearLibroDTO(titulo = "Nuevo título editado")
+        val libroEditadoDTO = crearLibroDTO(
+            titulo = "Nuevo título editado",
+            idPropietario = 1,
+        )
         mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", "0")
+                .param("idUsuario", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroEditadoDTO))
         ).andExpect(status().isOk())
@@ -128,14 +150,24 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se trae la lista de libros del perfil`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{usuarioId}", 0)
+            MockMvcRequestBuilders.get("/libros")
+                .param("flagDiff", "PERFIL")
+                .param("page", "0")
+                .param("size", "3")
+                .param("userId", "1")
+                .param("disponibilidadLibrosPerfil", "TODOS")
+                .param("ordenPerfilPage", "FECHA_AGREGADO")
+                .param("direccionPerfilPage", "DESCENDENTE")
         ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].titulo").value("Título de libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].titulo").value("Segundo libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].titulo").value("Tercer libro"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.page").value("0"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.size").value("3"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value("3"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].tipo").value("PERFIL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].tipo").value("PERFIL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].tipo").value("PERFIL"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].libro.titulo").value("Título de libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[1].libro.titulo").value("Segundo libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.content[2].libro.titulo").value("Tercer libro"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.page").value(0))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size").value(3))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.totalElements").value(3))
     }
 
     @Test
