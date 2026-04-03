@@ -42,7 +42,7 @@ class BootstrapData(
 
     private fun crearUsuarios(): List<Usuario> {
 
-        val usuarios = listOf(
+        val usuarios: List<Usuario> = listOf(
 
             Usuario(
                 nombre = "Juan",
@@ -178,7 +178,7 @@ class BootstrapData(
 
             )
 
-        usuarios.forEach(usuarioRepository::create)
+        usuarioRepository.saveAll(usuarios)
 
         return usuarios
     }
@@ -188,7 +188,7 @@ class BootstrapData(
 
     private fun crearLibros(): List<Libro> {
 
-        val libros = listOf(
+        val libros: List<Libro> = listOf(
 
             // ----- Libros de usuario id 1
             Libro(
@@ -996,7 +996,7 @@ class BootstrapData(
             ),
         )
 
-        libros.forEach(libroRepository::create)
+        (libroRepository.saveAll(libros))
 
         return libros
     }
@@ -1015,7 +1015,7 @@ class BootstrapData(
 
         val hoy = LocalDate.now()
 
-        val reservas = listOf(
+        val reservas: List<Reserva> = listOf(
 
             // -------- u1 presta a u2 --------
             Reserva(libros[0], u1, u2, hoy.minusDays(12), hoy.minusDays(2)), // devuelto
@@ -1104,7 +1104,7 @@ class BootstrapData(
             Reserva(libros[0], u1, u2, hoy.minusDays(1), hoy.plusDays(5)),
         )
 
-        reservas.forEach(reservaRepository::create)
+        (reservaRepository.saveAll(reservas))
 
         // Vincula cada libro al usuario propietario persistido en memoria.
         usuarios.forEach { usuario ->
@@ -1150,8 +1150,6 @@ class BootstrapData(
             .associateBy { it.reserva.libro.id to it.reserva.usuarioLector.id }
             .values
             .toList()
-        calificacionesUnicas.forEach {
-            calificacionRepository.agregarCalificacion(it)
-        }
+        calificacionRepository.saveAll(calificacionesUnicas)
     }
 }
