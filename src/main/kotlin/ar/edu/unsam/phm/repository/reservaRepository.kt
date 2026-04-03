@@ -1,10 +1,8 @@
 package ar.edu.unsam.phm.repository
 
-import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.PageResult
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.paginate
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
@@ -13,7 +11,21 @@ import java.time.LocalDate
 interface ReservaRepository : CrudRepository<Reserva, Long> {
     fun findAllByLibroId(libroId: Long): List<Reserva>
 
-    fun countReservasByLibroId(libroId: Long): Int
+    fun countByLibroId(libroId: Long): Int
+
+    @Query("""
+        SELECT DISTINCT r.libro 
+        FROM Reserva r 
+        WHERE r.fechaRecogida <= :fechaFin 
+          AND r.fechaDevolucion >= :fechaInicio
+    """)
+    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro>
+//    Queda pendiente hacer esta validación, aunque supongo que se hace automáticamente al hacer la query y al crear la reserva
+//    {
+//        val fechaInicio = if (fecha1.isBefore(fecha2)) fecha1 else fecha2
+//        val fechaFin = if (fecha1.isAfter(fecha2)) fecha1 else fecha2
+//    }
+
 }
 
 //    fun findReservasByType(

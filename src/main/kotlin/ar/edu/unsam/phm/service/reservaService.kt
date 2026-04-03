@@ -74,7 +74,7 @@ class ReservaService(
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
 
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!) //Esto luego vendrá de algún método del repo
-        val cantidadReservas = reservaRepository.countReservasByLibroId(libro.id!!)
+        val cantidadReservas = reservaRepository.countByLibroId(libro.id!!)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
@@ -101,10 +101,12 @@ class ReservaService(
         }
     }
 
+    @Transactional(readOnly = true)
     fun cantidadReservas(libroID: Long): Int {
-        return reservaRepository.countReservasByLibroId(libroID)
+        return reservaRepository.countByLibroId(libroID)
     }
 
+    @Transactional(readOnly = true)
     fun idLibrosPrestadosHoy(): Set<Long?> {
         return reservaRepository
             .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())

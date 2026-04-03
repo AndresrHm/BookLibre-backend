@@ -51,7 +51,6 @@ class ReservaController(
             reserva.fechaRecogida,
             reserva.fechaDevolucion
         )
-        reservaMapper.toCreacionReservaDTO(reservaObjeto)
 
         val mensajeExito = "Reserva creada exitosamente"
         return ResponseEntity
