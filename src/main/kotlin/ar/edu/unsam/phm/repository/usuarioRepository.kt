@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.repository
 
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import org.springframework.data.repository.CrudRepository
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UsuarioRepository : CrudRepository<Usuario, Long> {
-
 //    fun inicioSesion(usuarioLogin : String, passwordLogin : String): Int {
 //            val usuario = getElementos().find {
 //                        it.email == usuarioLogin  && it.passwordSesion == passwordLogin

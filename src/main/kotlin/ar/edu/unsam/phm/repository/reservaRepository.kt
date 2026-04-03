@@ -11,7 +11,6 @@ import java.time.LocalDate
 
 @Repository
 interface ReservaRepository : CrudRepository<Reserva, Long> {
-
 }
 
 //    fun findReservasByType(

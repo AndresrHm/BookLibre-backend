@@ -1007,11 +1007,11 @@ class BootstrapData(
         usuarios: List<Usuario>, libros: List<Libro>
     ): List<Reserva> {
 
-        val u1 = usuarios.first { it.id == 1 }
-        val u2 = usuarios.first { it.id == 2 }
-        val u3 = usuarios.first { it.id == 3 }
-        val u4 = usuarios.first { it.id == 4 }
-        val u5 = usuarios.first { it.id == 5 }
+        val u1 = usuarios.first { it.id == 1L }
+        val u2 = usuarios.first { it.id == 2L }
+        val u3 = usuarios.first { it.id == 3L }
+        val u4 = usuarios.first { it.id == 4L }
+        val u5 = usuarios.first { it.id == 5L }
 
         val hoy = LocalDate.now()
 
@@ -1136,11 +1136,12 @@ class BootstrapData(
             .map { reserva ->
                 val libro = reserva.libro
                 val usuario = reserva.usuarioLector
-                val seed = libro.id + usuario.id
+                val seed = (libro?.id ?: 0L) + (usuario.id ?: 0L)
+                val posicion = (seed % puntuaciones.size).toInt()
                 Calificacion(
                     reserva = reserva,
-                    puntuacion = puntuaciones[seed % puntuaciones.size],
-                    comentario = comentarios[seed % comentarios.size],
+                    puntuacion = puntuaciones[posicion],
+                    comentario = comentarios[posicion],
                     fecha = reserva.fechaDevolucion
                 )
             }

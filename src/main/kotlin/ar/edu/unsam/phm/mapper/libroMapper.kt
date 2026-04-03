@@ -2,16 +2,14 @@ package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.LibroUsuarioPerfilDTO
-import ar.edu.unsam.phm.domain.coleccionable
-import ar.edu.unsam.phm.domain.comun
-import ar.edu.unsam.phm.domain.conDedicatoria
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.LibroHomeUsuarioDTO
+import ar.edu.unsam.phm.dto.LibroFiltradoDTO
 import ar.edu.unsam.phm.repository.LibroRepository
 import org.springframework.stereotype.Component
 
@@ -152,17 +150,6 @@ class LibroMapper(
         )
         return libroDetalle
     }
-
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
-        LibroUsuarioPerfilDTO(
-            id = libro.id,
-            titulo = libro.titulo,
-            portada = libro.portada,
-            genero = libro.genero,
-            autor = libro.autor,
-            fechaAgregado = libro.getFechaAsString(),
-            disponibilidad = disponibilidad
-        )
 
     fun filtroDTOtoLibroFiltro(
         filtrosQuery: FiltrosLibrosQueryDTO,

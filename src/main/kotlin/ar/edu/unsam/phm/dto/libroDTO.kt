@@ -26,7 +26,7 @@ sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
 }
 
 data class LibroEdicionDTO(
-    val id: Int,
+    val id: Long?,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String,
@@ -39,11 +39,11 @@ data class LibroEdicionDTO(
     val cantidadPaginas: Int,
     val isbn13: Long,
     val descripcion: String,
-    val idPropietario: Int
+    val idPropietario: Long
 )
 
 data class LibroDetalleDTO(
-    val id: Int,
+    val id: Long?,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String,
@@ -59,12 +59,12 @@ data class LibroDetalleDTO(
     val rating: Double,
     val cantidadCalificaciones: Int,
     val calificacionesRecientes: List<CalificacionDTO>,
-    val idPropietario: Int,
+    val idPropietario: Long,
     val activo: Boolean,
 )
 
 data class LibroFiltradoDTO(
-    val id: Int,
+    val id: Long?,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String?,
@@ -105,9 +105,9 @@ data class FiltrosLibrosQueryDTO(
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaHasta: LocalDate? = null,
     val isbn13: Long? = null,
-    val usuarioPrestadorId: Int? = null,
+    val usuarioPrestadorId: Long? = null,
     val search: String? = null,
-    val usuarioLectorId: Int? = null,
+    val usuarioLectorId: Long? = null,
 )
 
 
@@ -129,7 +129,7 @@ fun FiltrosLibrosQueryDTO.DtoToLibroFiltro(
 }
 
 data class LibroUsuarioPerfilDTO(
-    val id: Int,
+    val id: Long?,
     val titulo: String,
     val autor: String,
     val portada: String,

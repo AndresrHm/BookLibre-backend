@@ -63,7 +63,7 @@ class ReservaController(
 
     @GetMapping()
     fun reservas(
-        @RequestParam usuarioId: Int,
+        @RequestParam usuarioId: Long,
         @RequestParam type: ReservaType,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 4,

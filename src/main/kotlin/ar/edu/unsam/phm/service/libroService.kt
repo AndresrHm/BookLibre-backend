@@ -43,13 +43,13 @@ class LibroService(
         return nuevoLibro
     }
 
-    fun obtenerLibro(idLibro: Int): Libro {
+    fun obtenerLibro(idLibro: Long?): Libro {
         val libro = getLibroByIdOrThrow(idLibro)
 
         return libro
     }
 
-    fun editarLibro(libroEditado: Libro, idUsuarioActual: Int): Libro {
+    fun editarLibro(libroEditado: Libro, idUsuarioActual: Long): Libro {
         val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
         if (esTipoLector(tipoUsuario)) {
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_EDITAR_LIBROS)
@@ -79,7 +79,7 @@ class LibroService(
         page: Int = 0,
         size: Int = 6,
         ordenHomePage: OrdenHomePage,
-        userId: Int,
+        userId: Long,
         flagDiff: OrigenLibro, // Luego cambiar por un enum
         // de momento, si es false, se asume que se quieren los libros del perfil,
         // y si es true, se asume que se quieren los libros de la home page
@@ -113,22 +113,22 @@ class LibroService(
         page: Int = 0,
         size: Int = 6,
         ordenHomePage: OrdenHomePage,
-        userId: Int
+        userId: Long
     ): PageResponse<Libro> {
         val filtrosNormalizados = normalizarFechasPorDefecto(filtros)
 
         validarPaginacion(page, size)
         validarRangosFiltros(filtrosNormalizados)
 
-        val librosFiltrados = try {
+        val librosFiltrados: List<Libro> = try {
             filtrosAplicables
-                .fold(repositorioLibro.filtrarLibrosActivos()) { resultado, filtro ->
+                .fold(repositorioLibro.filtrarLibrosActivos()) { resultado: List<Libro>, filtro: FiltroDeLibro ->
                     if (filtro.cumpleCondicion(filtrosNormalizados)) filtro.filtrar(
                         resultado,
                         filtrosNormalizados
                     ) else resultado
                 }
-                .let { filtrados ->
+                .let { filtrados: List<Libro> ->
                     if (filtrosNormalizados.usuarioPrestador == null) {
                         filtrados.filter { it.idPropietario != userId }
                     } else {
@@ -167,7 +167,7 @@ class LibroService(
     }
 
     fun obtenerLibrosDeUsuario(
-        usuarioId: Int,
+        usuarioId: Long,
         page: Int,
         size: Int,
         orden: OrdenLibroPerfil,
@@ -215,7 +215,7 @@ class LibroService(
     fun bringKarma(
         libro: Libro,
         cantidadReservas: Int,
-        usuarioId: Int,
+        usuarioId: Long,
         fechaIni: LocalDate?,
         fechaFin: LocalDate?
     ): Int {
@@ -227,12 +227,12 @@ class LibroService(
 
         return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
-    fun disponibilidadLibro(idLibro: Int): String {
+    fun disponibilidadLibro(idLibro: Long?): String {
         val libro = getLibroByIdOrThrow(idLibro)
         return if (repositorioReservas.estaReservado(libro)) "PRESTADO" else "DISPONIBLE"
     }
 
-    fun obtenerPrestadoresDisponibles(search: String?, userId: Int): List<String> {
+    fun obtenerPrestadoresDisponibles(search: String?, userId: Long): List<String> {
         repositorioUsuario.getById(userId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
 
@@ -247,7 +247,7 @@ class LibroService(
             .sortedBy { it.lowercase() }
     }
 
-    fun borrarLibro(idLibro: Int, idUsuario: Int) {
+    fun borrarLibro(idLibro: Long, idUsuario: Long) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
         if (repositorioReservas.estaReservado(libro)) {
@@ -258,11 +258,11 @@ class LibroService(
         }
     }
 
-    private fun getLibroByIdOrThrow(idLibro: Int): Libro =
+    private fun getLibroByIdOrThrow(idLibro: Long?): Libro =
         repositorioLibro.getById(idLibro)
             ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro))
 
-    private fun validarPropietario(libro: Libro, idUsuario: Int) {
+    private fun validarPropietario(libro: Libro, idUsuario: Long) {
         if (libro.idPropietario != idUsuario) {
             throw BusinessException(ErrorStrings.libroNoPerteneceAlUsuario(libro.id, idUsuario))
         }

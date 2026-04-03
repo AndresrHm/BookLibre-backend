@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.repository
 
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.Libro
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.CrudRepository
@@ -8,10 +9,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface CalificacionRepository : CrudRepository<Calificacion, Long> {
-    fun findByReservaLibroId(
-        libroId: Long,
-        pageable: Pageable
-    ): Page<Calificacion>
 
 //    fun obtenerCalificaciones(
 //        libro: Libro, orden: OrdenCalificacion, page: Int, size: Int

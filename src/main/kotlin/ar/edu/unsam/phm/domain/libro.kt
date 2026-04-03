@@ -32,7 +32,7 @@ class Libro(
     var fechaPublicacion: LocalDate,
     @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
-    val idPropietario: Int
+    val idPropietario: Long
 ) : Identificable {
     @Id
     @GeneratedValue
@@ -109,8 +109,8 @@ class Libro(
     fun getFechaAsString(): String = fechaAgregado.formatear()
 
     fun tipoComoTexto(): String =
-        if (tipoLibro == conDedicatoria) "conDedicatoria"
-        else if (tipoLibro == coleccionable) "coleccionable"
+        if (tipoLibro == TipoLibro.CON_DEDICATORIA) "conDedicatoria"
+        else if (tipoLibro == TipoLibro.COLECCIONABLE) "coleccionable"
         else "comun"
 }
 

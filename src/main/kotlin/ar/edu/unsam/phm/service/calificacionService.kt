@@ -29,8 +29,9 @@ class CalificacionService(
     fun calificarLibro(
         calificacion: CrearCalificacionDTO
     ) {
+// Cambiá la línea 32 y 33 por esto:
         val usuario = usuarioRepository.findById(calificacion.usuarioId)
-            ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacion.usuarioId))
+            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacion.usuarioId)) }
 
         if (esPublicador(usuario)) {
             throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
@@ -85,7 +86,7 @@ class CalificacionService(
     }
 
     fun ultimasCalificaciones(
-        libroID: Int,
+        libroID: Long,
     ): List<Calificacion> {
         val libro = libroRepository.getById(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
@@ -96,13 +97,13 @@ class CalificacionService(
     }
 
     fun promedioCalificaciones(
-        libroID: Int,
+        libroID: Long?,
     ): Double {
         return calificacionRepository.obtenerPromedioCalificaciones(libroID)
     }
 
     fun cantidadCalificaciones(
-        libroID: Int,
+        libroID: Long,
     ): Int {
         return calificacionRepository.obtenerCantidadCalificaciones(libroID)
     }

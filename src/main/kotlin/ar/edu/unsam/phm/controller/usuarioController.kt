@@ -30,7 +30,7 @@ class UsuarioController(
     }
 
     @GetMapping("{usuarioId}/{tipoDTO}")
-    fun getUsuarioType(@PathVariable usuarioId: Int, @PathVariable tipoDTO: String): SealedGetUsuarioDTO {
+    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTO: String): SealedGetUsuarioDTO {
         val usuario = usuarioService.getUsuarioById(usuarioId)
         val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTO)
 

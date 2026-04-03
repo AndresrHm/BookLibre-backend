@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 class ControllerLogin(val loginRegistroService: LoginRegistroService, private val usuarioMapper: UsuarioMapper) {
 
     @PostMapping("/iniciarUsuario")
-    fun buscarUsuarioContraseniaUsuario(@RequestBody loginRequest: LoginRequestDTO) : Int {
+    fun buscarUsuarioContraseniaUsuario(@RequestBody loginRequest: LoginRequestDTO) : Long {
         return loginRegistroService.buscarUsuarioContraseniaUsuario(loginRequest.username, loginRequest.password)
     }
 
