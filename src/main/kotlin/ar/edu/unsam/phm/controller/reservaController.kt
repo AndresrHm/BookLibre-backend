@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.controller
 
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.RegisterRequestDTO
@@ -40,14 +41,11 @@ class ReservaController(
         @RequestBody reserva: CreacionReservaDTO,
     ): ResponseEntity<ActionResponse> {
         // Busco los objetos de dominio para poder armar el objeto de dominio
-        val libro = libroService.obtenerLibro(reserva.libroId)
-        val cantidadReservas = reservaService.cantidadReservas(libro.id)
         val usuarioLector = usuarioService.getUsuarioById(reserva.usuarioLectorId)
         val usuarioPrestador = usuarioService.getUsuarioById(reserva.usuarioPrestadorId)
 
         val reservaObjeto = reservaService.crearReserva(
-            libro,
-            cantidadReservas,
+            reserva.libroId,
             usuarioLector,
             usuarioPrestador,
             reserva.fechaRecogida,
@@ -72,11 +70,11 @@ class ReservaController(
         val result = reservaService.getReservas(usuarioId, type, page, size, search)
 
         return PageResponse(
-            content = result.content.map { it ->
+            content = result.content.map { it: Reserva ->
                 reservaMapper.toReservaDetalleDTO(
                     it,
                     usuarioId,
-                    reservaService.cantidadReservas(it.libro.id),
+                    reservaService.cantidadReservas(it.libro.id!!),
                     calificacionService.promedioCalificaciones(it.libro.id),
                 )
             },

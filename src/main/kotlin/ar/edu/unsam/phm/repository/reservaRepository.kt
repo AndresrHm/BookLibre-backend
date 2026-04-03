@@ -11,6 +11,9 @@ import java.time.LocalDate
 
 @Repository
 interface ReservaRepository : CrudRepository<Reserva, Long> {
+    fun findAllByLibroId(libroId: Long): List<Reserva>
+
+    fun countReservasByLibroId(libroId: Long): Int
 }
 
 //    fun findReservasByType(

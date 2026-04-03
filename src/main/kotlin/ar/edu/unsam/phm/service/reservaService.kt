@@ -12,14 +12,18 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import kotlin.Pair
 
 @Service
 class ReservaService(
+    @Autowired
     var reservaRepository: ReservaRepository,
+    @Autowired
     val usuarioRepository: UsuarioRepository,
+    @Autowired
     val libroRepository: LibroRepository,
 ) {
     fun getReservas(
@@ -42,14 +46,17 @@ class ReservaService(
         )
     }
 
+    @Transactional(readOnly = false, rollbackFor = [Exception::class])
     fun crearReserva(
-        libro: Libro,
-        cantidadReservas: Int,
+        libroId: Long,
         usuarioLector: Usuario,
         usuarioPrestador: Usuario,
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
+        val libro = libroRepository.findById(libroId) // Lo traigo en el service para que no moleste con los tipos nulos
+            .orElseThrow { BusinessException(ErrorStrings.libroNoEncontradoPorId(libroId)) }
+
         if (esTipoPublicador(usuarioLector)) {
             throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_RESERVAR)
         }
@@ -66,8 +73,8 @@ class ReservaService(
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
 
-
-        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
+        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!) //Esto luego vendrá de algún método del repo
+        val cantidadReservas = reservaRepository.countReservasByLibroId(libro.id!!)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
@@ -77,25 +84,25 @@ class ReservaService(
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
         usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
 
-        reservaRepository.create(reserva)
-        usuarioRepository.update(usuarioLector) // Esto desaparece cuando saquemos el contador de libros leídos (y menos mal)
+        reservaRepository.save(reserva)
 
         return reserva
     }
 
-    fun obtenerFechasDeReservasDeLibro(libroId: Long?): List<Pair<LocalDate, LocalDate>> {
-        if (libroRepository.getById(libroId) != null) {
-            val reservas: List<Reserva> = reservaRepository.findByLibroId(libroId)
-            return reservas.map {
-                it.fechaRecogida to it.fechaDevolucion
-            }
-        } else {
+    @Transactional(readOnly = true)
+    fun obtenerFechasDeReservasDeLibro(libroId: Long): List<Pair<LocalDate, LocalDate>> {
+        if (!libroRepository.existsById(libroId)) {
             throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
+        }
+
+        val reservas: List<Reserva> = reservaRepository.findAllByLibroId(libroId)
+        return reservas.map {
+            it.fechaRecogida to it.fechaDevolucion
         }
     }
 
-    fun cantidadReservas(libroID: Long?): Int {
-        return reservaRepository.cantidadReservas(libroID)
+    fun cantidadReservas(libroID: Long): Int {
+        return reservaRepository.countReservasByLibroId(libroID)
     }
 
     fun idLibrosPrestadosHoy(): Set<Long?> {
