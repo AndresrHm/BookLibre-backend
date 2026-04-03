@@ -14,11 +14,16 @@ import jakarta.persistence.UniqueConstraint
 import java.time.LocalDate
 
 @Entity
-@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["libro_id", "usuario_id"])])
+@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["usuario_id", "libro_id"])])
 data class Calificacion(
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reserva_id")
-    val reserva: Reserva,
+    @JoinColumn(name = "usuario_id", nullable = false)
+    val usuario: Reserva,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "libro_id", nullable = false)
+    val libro: Libro,
+
     var puntuacion: Double,
     var comentario: String,
     var fecha: LocalDate,
