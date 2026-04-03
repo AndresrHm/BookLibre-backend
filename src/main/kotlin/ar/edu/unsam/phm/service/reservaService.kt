@@ -13,6 +13,7 @@ import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
@@ -26,23 +27,28 @@ class ReservaService(
     @Autowired
     val libroRepository: LibroRepository,
 ) {
+    @Transactional(readOnly = true)
     fun getReservas(
         userID: Long,
         type: ReservaType,
         page: Int,
         size: Int,
-        string: String?,
+        nombreFiltro: String?,
     ): PageResponse<Reserva> {
-        if (usuarioRepository.getById(userID) == null) throw BusinessException(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE)
+        if (!usuarioRepository.existsById(userID)) {
+            throw BusinessException(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE)
+        }
 
-        val pageResponse = reservaRepository.findReservasByType(userID, type, page, size, string)
+        val pedidoPaginas = PageRequest.of(page, size)
+
+        val pageResponse = reservaRepository.findReservasByType(userID, type.name, nombreFiltro, pedidoPaginas)
 
         return PageResponse(
             content = pageResponse.content,
-            page = page,
-            size = size,
-            totalElements = pageResponse.content.size,
-            totalPages = (pageResponse.totalElements + size - 1) / size,
+            page = pageResponse.number,
+            size = pageResponse.size,
+            totalElements = pageResponse.totalElements.toInt(),
+            totalPages = pageResponse.totalPages,
         )
     }
 

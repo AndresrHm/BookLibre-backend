@@ -1,7 +1,10 @@
 package ar.edu.unsam.phm.repository
 
+import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -13,18 +16,40 @@ interface ReservaRepository : CrudRepository<Reserva, Long> {
 
     fun countByLibroId(libroId: Long): Int
 
-    @Query("""
+    @Query(
+        """
         SELECT DISTINCT r.libro 
         FROM Reserva r 
         WHERE r.fechaRecogida <= :fechaFin 
           AND r.fechaDevolucion >= :fechaInicio
-    """)
+    """
+    )
     fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro>
 //    Queda pendiente hacer esta validación, aunque supongo que se hace automáticamente al hacer la query y al crear la reserva
 //    {
 //        val fechaInicio = if (fecha1.isBefore(fecha2)) fecha1 else fecha2
 //        val fechaFin = if (fecha1.isAfter(fecha2)) fecha1 else fecha2
 //    }
+
+    @Query(
+        """
+        SELECT r FROM Reserva r 
+        WHERE (
+            (:tipoReserva = 'TO_ME' AND r.usuarioLector.id = :userId) OR 
+            (:tipoReserva = 'BY_ME' AND r.usuarioPrestador.id = :userId)
+        )
+        AND (:search IS NULL OR 
+            LOWER(r.libro.titulo) LIKE LOWER(CONCAT('%', :nombreFiltro, '%')) OR 
+            LOWER(r.libro.autor) LIKE LOWER(CONCAT('%', :nombreFiltro, '%'))
+        )
+    """
+    )
+    fun findReservasByType(
+        userId: Long,
+        tipoReserva: String,
+        nombreFiltro: String?,
+        pageable: Pageable
+    ): Page<Reserva>
 
 }
 
