@@ -10,6 +10,11 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 
+    fun findByReservaLibroIdAndReservaUsuarioLectorId(
+        libroId: Long,
+        usuarioId: Long
+    ): Calificacion?
+}
 //    fun obtenerCalificaciones(
 //        libro: Libro, orden: OrdenCalificacion, page: Int, size: Int
 //    ): PageResult<Calificacion> {
@@ -61,4 +66,3 @@ interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 //    fun obtenerCantidadCalificaciones(libroID: Int): Int {
 //        return getElementos().filter { it.reserva.libro.id == libroID }.size
 //    }
-}

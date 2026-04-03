@@ -9,16 +9,19 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 import java.time.LocalDate
 
 @Entity
+@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["libro_id", "usuario_id"])])
 data class Calificacion(
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cantidad_id")
+    @JoinColumn(name = "reserva_id")
     val reserva: Reserva,
-    val puntuacion: Double,
-    val comentario: String,
-    val fecha: LocalDate,
+    var puntuacion: Double,
+    var comentario: String,
+    var fecha: LocalDate,
 ): Identificable {
     @Id
     @GeneratedValue

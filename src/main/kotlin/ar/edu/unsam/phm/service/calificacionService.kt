@@ -14,8 +14,10 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -26,32 +28,44 @@ class CalificacionService(
     var calificacionRepository: CalificacionRepository,
     var usuarioRepository: UsuarioRepository
 ) {
+    @Transactional
     fun calificarLibro(
-        calificacion: CrearCalificacionDTO
+        calificacionDTO: CrearCalificacionDTO
     ) {
-// Cambiá la línea 32 y 33 por esto:
-        val usuario = usuarioRepository.findById(calificacion.usuarioId)
-            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacion.usuarioId)) }
+        val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
+            ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
 
-        if (esPublicador(usuario)) {
-            throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
-        }
+        if (esPublicador(usuario)) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
-        val reserva = reservaRepository.getById(calificacion.reservaId)
-            ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacion.reservaId))
+        val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
+            ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacionDTO.reservaId))
 
-        if (calificacion.usuarioId != reserva.usuarioLector.id) throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
+        if (calificacionDTO.usuarioId != reserva.usuarioLector.id) throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
 
         if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
-        val nuevaCalificacion = Calificacion(
-            reserva = reserva,
-            puntuacion = calificacion.puntuacion,
-            comentario = calificacion.comentario,
-            fecha = LocalDate.now()
-        )
+        val existente = calificacionRepository
+            .findByReservaLibroIdAndReservaUsuarioLectorId(
+                reserva.libro.id!!,
+                usuario.id!!,
+            )
 
-        calificacionRepository.agregarCalificacion(nuevaCalificacion)
+        if (existente != null) {
+            existente.puntuacion = calificacionDTO.puntuacion
+            existente.comentario = calificacionDTO.comentario
+            existente.fecha = LocalDate.now()
+
+            calificacionRepository.save(existente)
+        } else {
+            val nueva = Calificacion(
+                reserva = reserva,
+                puntuacion = calificacionDTO.puntuacion,
+                comentario = calificacionDTO.comentario,
+                fecha = LocalDate.now()
+            )
+
+            calificacionRepository.save(nueva)
+        }
     }
 
     private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
@@ -62,7 +76,7 @@ class CalificacionService(
         page: Int,
         size: Int,
     ): PageResponse<Calificacion> {
-        val libro = libroRepository.getById(libroID)
+        val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
         val sort = when (orden) {
@@ -88,7 +102,7 @@ class CalificacionService(
     fun ultimasCalificaciones(
         libroID: Long,
     ): List<Calificacion> {
-        val libro = libroRepository.getById(libroID)
+        val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
         val calificaciones = calificacionRepository.obtenerUltimasCalificaciones(libro)
