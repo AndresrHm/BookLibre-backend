@@ -77,7 +77,6 @@ class CalificacionService {
         }
     }
 
-    private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 
     @Transactional(readOnly = true)
     fun obtenerCalificaciones(
@@ -109,6 +108,7 @@ class CalificacionService {
         )
     }
 
+    @Transactional(readOnly = true)
     fun ultimasCalificaciones(
         libroID: Long,
     ): List<Calificacion> {
@@ -120,15 +120,19 @@ class CalificacionService {
         return calificaciones
     }
 
+    @Transactional(readOnly = true)
     fun promedioCalificaciones(
         libroID: Long?,
     ): Double {
         return calificacionRepository.obtenerPromedioCalificaciones(libroID!!) ?: 0.0
     }
 
+    @Transactional(readOnly = true)
     fun cantidadCalificaciones(
         libroID: Long,
     ): Long {
         return calificacionRepository.countByLibroId(libroID)
     }
+
+    private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 }
