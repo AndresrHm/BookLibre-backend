@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service
 class LoginRegistroService(
     val usuarioRepository: UsuarioRepository,
 ) {
-    fun buscarUsuarioContraseniaUsuario(usuarioLogin : String, passwordLogin : String)=usuarioRepository.inicioSesion(usuarioLogin, passwordLogin)
+    fun buscarUsuarioContraseniaUsuario(usuarioLogin: String, passwordLogin: String) =
+        usuarioRepository.inicioSesion(usuarioLogin, passwordLogin)
 
-    fun crearUsuario(usuario : Usuario) {usuarioRepository.create(usuario)}
+    fun crearUsuario(usuario: Usuario) {
+        usuarioRepository.create(usuario)
+    }
 }

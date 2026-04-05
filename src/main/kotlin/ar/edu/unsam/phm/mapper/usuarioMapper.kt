@@ -1,12 +1,7 @@
 package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.RegisterRequestDTO
-import ar.edu.unsam.phm.dto.TipoDTOUsuario
-import ar.edu.unsam.phm.dto.UsarioPerfilDTO
-import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
-import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
-import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
+import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.stereotype.Component

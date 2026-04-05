@@ -1,6 +1,6 @@
 package ar.edu.unsam.phm.domain
 
-import kotlin.math.ceil
+import java.lang.Math.ceil
 
 // Solución temporal, para permitir levantar con db
 enum class TipoLibro {

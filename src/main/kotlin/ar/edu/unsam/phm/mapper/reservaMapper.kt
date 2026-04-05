@@ -43,7 +43,7 @@ class ReservaMapper {
 
     fun toCreacionReservaDTO(reserva: Reserva): CreacionReservaDTO {
         return CreacionReservaDTO(
-            libroId = reserva.libro.id,
+            libroId = reserva.libro.id!!,
             usuarioPrestadorId = reserva.usuarioPrestador.id,
             usuarioLectorId = reserva.usuarioLector.id,
             fechaRecogida = reserva.fechaRecogida,

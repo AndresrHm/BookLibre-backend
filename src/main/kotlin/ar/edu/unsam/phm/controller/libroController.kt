@@ -140,7 +140,7 @@ class LibroController(
                             calificacionService.promedioCalificaciones(it.id),
                             libroService.bringKarma(
                                 it,
-                                reservaService.cantidadReservas(it.id),
+                                reservaService.cantidadReservas(it.id!!),
                                 userId,
                                 filtrosDeHome.fechaDesde,
                                 filtrosDeHome.fechaHasta,
