@@ -16,7 +16,7 @@ class UsuarioService(
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    fun getUsuarioById(id: Int) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
+    fun getUsuarioById(id: Long?) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
     fun getUsuarioByNombre(nombre: String) =
         usuarioRepositorio.getByNombre(nombre)

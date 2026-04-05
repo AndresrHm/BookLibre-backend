@@ -23,7 +23,7 @@ class ReservaService(
     val libroRepository: LibroRepository,
 ) {
     fun getReservas(
-        userID: Int,
+        userID: Long,
         type: ReservaType,
         page: Int,
         size: Int,
@@ -83,9 +83,9 @@ class ReservaService(
         return reserva
     }
 
-    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate, LocalDate>> {
+    fun obtenerFechasDeReservasDeLibro(libroId: Long?): List<Pair<LocalDate, LocalDate>> {
         if (libroRepository.getById(libroId) != null) {
-            val reservas = reservaRepository.findByLibroId(libroId)
+            val reservas: List<Reserva> = reservaRepository.findByLibroId(libroId)
             return reservas.map {
                 it.fechaRecogida to it.fechaDevolucion
             }
@@ -94,11 +94,11 @@ class ReservaService(
         }
     }
 
-    fun cantidadReservas(libroID: Int): Int {
+    fun cantidadReservas(libroID: Long?): Int {
         return reservaRepository.cantidadReservas(libroID)
     }
 
-    fun idLibrosPrestadosHoy(): Set<Int> {
+    fun idLibrosPrestadosHoy(): Set<Long?> {
         return reservaRepository
             .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
             .map { it.id }

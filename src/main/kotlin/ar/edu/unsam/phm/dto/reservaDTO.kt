@@ -5,8 +5,8 @@ import ar.edu.unsam.phm.requireBusiness
 import java.time.LocalDate
 
 data class ReservaDTO(
-    val reservaId: Int,
-    val libroId: Int,
+    val reservaId: Long?,
+    val libroId: Long?,
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
@@ -21,9 +21,9 @@ data class ReservaDTO(
 }
 
 data class CreacionReservaDTO(
-    val libroId: Int,
-    val usuarioPrestadorId: Int,
-    val usuarioLectorId: Int,
+    val libroId: Long?,
+    val usuarioPrestadorId: Long?,
+    val usuarioLectorId: Long?,
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
 ) {

@@ -6,11 +6,9 @@ import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
-import ar.edu.unsam.phm.domain.coleccionable
-import ar.edu.unsam.phm.domain.conDedicatoria
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
@@ -47,7 +45,6 @@ class BootstrapData(
         val usuarios = listOf(
 
             Usuario(
-                id = 1,
                 nombre = "Juan",
                 apellido = "Perez",
                 descripcion = "Lector de ciencia ficción",
@@ -56,10 +53,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
-            ).apply { biblioKarma = 2000;passwordSesion = "juan123" },
+            ).apply { biblioKarma = 2000; passwordSesion = "juan123"; id = 1 },
 
             Usuario(
-                id = 2,
                 nombre = "Ana",
                 apellido = "Gomez",
                 descripcion = "Fan de novelas",
@@ -68,10 +64,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
-            ).apply { biblioKarma = 4000; passwordSesion = "ana123" },
+            ).apply { biblioKarma = 4000; passwordSesion = "ana123"; id = 2 },
 
             Usuario(
-                id = 3,
                 nombre = "Carlos",
                 apellido = "Lopez",
                 descripcion = "Devora libros",
@@ -80,10 +75,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez"
-            ).apply { biblioKarma = 1500; passwordSesion = "carlos123" },
+            ).apply { biblioKarma = 1500; passwordSesion = "carlos123"; id = 3 },
 
             Usuario(
-                id = 4,
                 nombre = "Lucia",
                 apellido = "Martinez",
                 descripcion = "Fan del realismo mágico",
@@ -92,10 +86,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez"
-            ).apply { biblioKarma = 3200; passwordSesion = "lucia123" },
+            ).apply { biblioKarma = 3200; passwordSesion = "lucia123"; id = 4 },
 
             Usuario(
-                id = 5,
                 nombre = "nombre123",
                 apellido = "apellido123",
                 descripcion = "descripcion123",
@@ -104,10 +97,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3"
-            ).apply { biblioKarma = 9999; passwordSesion = "nombre123" },
+            ).apply { biblioKarma = 9999; passwordSesion = "nombre123"; id = 5 },
 
             Usuario(
-                id = 6,
                 nombre = "Pedro",
                 apellido = "Sosa",
                 descripcion = "Lector frecuente",
@@ -116,10 +108,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa"
-            ).apply { biblioKarma = 2100; passwordSesion = "pedro123" },
+            ).apply { biblioKarma = 2100; passwordSesion = "pedro123"; id = 6 },
 
             Usuario(
-                id = 7,
                 nombre = "Marina",
                 apellido = "Ruiz",
                 descripcion = "Le gusta la fantasia",
@@ -128,10 +119,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz"
-            ).apply { biblioKarma = 1800; passwordSesion = "marina123" },
+            ).apply { biblioKarma = 1800; passwordSesion = "marina123"; id = 7 },
 
             Usuario(
-                id = 8,
                 nombre = "Diego",
                 apellido = "Fernandez",
                 descripcion = "Fan de novelas historicas",
@@ -140,10 +130,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez"
-            ).apply { biblioKarma = 2600; passwordSesion = "diego123" },
+            ).apply { biblioKarma = 2600; passwordSesion = "diego123"; id = 8 },
 
             Usuario(
-                id = 9,
                 nombre = "Sofia",
                 apellido = "Acosta",
                 descripcion = "Lee de todo",
@@ -152,10 +141,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta"
-            ).apply { biblioKarma = 1750; passwordSesion = "sofia123" },
+            ).apply { biblioKarma = 1750; passwordSesion = "sofia123"; id = 9 },
 
             Usuario(
-                id = 10,
                 nombre = "Nicolas",
                 apellido = "Vega",
                 descripcion = "Interesado en ciencia ficcion",
@@ -164,10 +152,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega"
-            ).apply { biblioKarma = 1950; passwordSesion = "nicolas123" },
+            ).apply { biblioKarma = 1950; passwordSesion = "nicolas123"; id = 10 },
 
             Usuario(
-                id = 11,
                 nombre = "Valentina",
                 apellido = "Mendez",
                 descripcion = "Colecciona clasicos",
@@ -176,10 +163,9 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez"
-            ).apply { biblioKarma = 2300; passwordSesion = "valentina123" },
+            ).apply { biblioKarma = 2300; passwordSesion = "valentina123"; id = 11 },
 
             Usuario(
-                id = 12,
                 nombre = "Tomas",
                 apellido = "Ibarra",
                 descripcion = "Lector nocturno",
@@ -188,7 +174,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra"
-            ).apply { biblioKarma = 2050; passwordSesion = "tomas123" },
+            ).apply { biblioKarma = 2050; passwordSesion = "tomas123"; id = 12 },
 
             )
 
@@ -198,7 +184,7 @@ class BootstrapData(
     }
 
     // ---------------- Libros ----------------
-    // Tenemos 50 libros, 10 para cada usuario, 17 comunes, 17 conDedicatoria y 16 coleccionables.
+    // Tenemos 50 libros, 10 para cada usuario, 17 comunes, 17 TipoLibro.CON_DEDICATORIA y 16 TipoLibro.COLECCIONABLEs.
 
     private fun crearLibros(): List<Libro> {
 
@@ -207,7 +193,7 @@ class BootstrapData(
             // ----- Libros de usuario id 1
             Libro(
                 "Dune",
-                comun,
+                TipoLibro.COMUN,
                 "Sci-fi clásica",
                 "https://covers.openlibrary.org/b/id/15092781-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -223,7 +209,7 @@ class BootstrapData(
 
             Libro(
                 "Foundation",
-                comun,
+                TipoLibro.COMUN,
                 "Saga Fundación",
                 "https://covers.openlibrary.org/b/id/14612980-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -239,7 +225,7 @@ class BootstrapData(
 
             Libro(
                 "Neuromancer",
-                comun,
+                TipoLibro.COMUN,
                 "Cyberpunk clásico",
                 "https://covers.openlibrary.org/b/id/8904053-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -255,7 +241,7 @@ class BootstrapData(
 
             Libro(
                 "Hyperion",
-                comun,
+                TipoLibro.COMUN,
                 "Ópera espacial",
                 "https://covers.openlibrary.org/b/id/6926279-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -271,7 +257,7 @@ class BootstrapData(
 
             Libro(
                 "Snow Crash",
-                comun,
+                TipoLibro.COMUN,
                 "Cyberpunk",
                 "https://covers.openlibrary.org/b/id/7004665-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -287,7 +273,7 @@ class BootstrapData(
 
             Libro(
                 "The Left Hand of Darkness",
-                comun,
+                TipoLibro.COMUN,
                 "Sci-fi social",
                 "https://covers.openlibrary.org/b/id/14920821-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -303,7 +289,7 @@ class BootstrapData(
 
             Libro(
                 "The Hobbit",
-                comun,
+                TipoLibro.COMUN,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/14627222-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -319,7 +305,7 @@ class BootstrapData(
 
             Libro(
                 "The Lord of the Rings",
-                comun,
+                TipoLibro.COMUN,
                 "Fantasía épica",
                 "https://covers.openlibrary.org/b/id/15131000-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -335,7 +321,7 @@ class BootstrapData(
 
             Libro(
                 "Brave New World",
-                comun,
+                TipoLibro.COMUN,
                 "Distopía",
                 "https://covers.openlibrary.org/b/id/14846947-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -351,7 +337,7 @@ class BootstrapData(
 
             Libro(
                 "Fahrenheit 451",
-                comun,
+                TipoLibro.COMUN,
                 "Distopía",
                 "https://www.slate.com/content/dam/slideshows/arts/brow_beat/2012/06/06/ray-bradburys-fahrenheit-451-book-covers-through-time/jcr%3Acontent/slideshow/7/images%252Fslides%252F1976_1.jpg",
                 Genero.CIENCIA_FICCION,
@@ -368,7 +354,7 @@ class BootstrapData(
             // ----- Libros de usuario id 2
             Libro(
                 "The Martian",
-                comun,
+                TipoLibro.COMUN,
                 "Sci-fi moderna",
                 "https://covers.openlibrary.org/b/id/14641755-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -384,7 +370,7 @@ class BootstrapData(
 
             Libro(
                 "1984",
-                comun,
+                TipoLibro.COMUN,
                 "Distopía política",
                 "https://covers.openlibrary.org/b/id/12693610-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -400,7 +386,7 @@ class BootstrapData(
 
             Libro(
                 "Animal Farm",
-                comun,
+                TipoLibro.COMUN,
                 "Sátira política",
                 "https://covers.openlibrary.org/b/id/15139354-L.jpg",
                 Genero.DRAMA,
@@ -416,7 +402,7 @@ class BootstrapData(
 
             Libro(
                 "El Aleph",
-                comun,
+                TipoLibro.COMUN,
                 "Cuentos",
                 "https://covers.openlibrary.org/b/id/14826417-L.jpg",
                 Genero.DRAMA,
@@ -432,7 +418,7 @@ class BootstrapData(
 
             Libro(
                 "Rayuela",
-                comun,
+                TipoLibro.COMUN,
                 "Literatura latinoamericana",
                 "https://covers.openlibrary.org/b/id/15103307-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -448,7 +434,7 @@ class BootstrapData(
 
             Libro(
                 "Don Quijote de la Mancha",
-                comun,
+                TipoLibro.COMUN,
                 "Clásico español",
                 "https://covers.openlibrary.org/b/id/13990987-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -464,7 +450,7 @@ class BootstrapData(
 
             Libro(
                 "Cien años de soledad",
-                comun,
+                TipoLibro.COMUN,
                 "Realismo mágico",
                 "https://covers.openlibrary.org/b/id/14831384-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -480,7 +466,7 @@ class BootstrapData(
 
             Libro(
                 "The Catcher in the Rye",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Novela clásica",
                 "https://covers.openlibrary.org/b/id/15172466-L.jpg",
                 Genero.DRAMA,
@@ -496,7 +482,7 @@ class BootstrapData(
 
             Libro(
                 "To Kill a Mockingbird",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Drama judicial",
                 "https://covers.openlibrary.org/b/id/14817209-L.jpg",
                 Genero.DRAMA,
@@ -512,7 +498,7 @@ class BootstrapData(
 
             Libro(
                 "The Great Gatsby",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Clásico americano",
                 "https://covers.openlibrary.org/b/id/15144214-L.jpg",
                 Genero.DRAMA,
@@ -529,7 +515,7 @@ class BootstrapData(
             // ----- Libros de usuario id 3
             Libro(
                 "Atomic Habits",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Hábitos",
                 "https://covers.openlibrary.org/b/id/15108516-L.jpg",
                 Genero.AUTOAYUDA,
@@ -545,7 +531,7 @@ class BootstrapData(
 
             Libro(
                 "Sapiens",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Historia de la humanidad",
                 "https://covers.openlibrary.org/b/id/8284312-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -561,7 +547,7 @@ class BootstrapData(
 
             Libro(
                 "The Name of the Wind",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Fantasía épica moderna",
                 "https://covers.openlibrary.org/b/id/8231856-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -577,7 +563,7 @@ class BootstrapData(
 
             Libro(
                 "Mistborn: The Final Empire",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Fantasía con sistema de magia",
                 "https://covers.openlibrary.org/b/id/8231991-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -593,7 +579,7 @@ class BootstrapData(
 
             Libro(
                 "The Road",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Post-apocalíptico",
                 "https://covers.openlibrary.org/b/id/7222246-L.jpg",
                 Genero.DRAMA,
@@ -609,7 +595,7 @@ class BootstrapData(
 
             Libro(
                 "Dracula",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Terror clásico",
                 "https://covers.openlibrary.org/b/id/8235116-L.jpg",
                 Genero.DRAMA,
@@ -625,7 +611,7 @@ class BootstrapData(
 
             Libro(
                 "Frankenstein",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Gótico y ciencia ficción",
                 "https://covers.openlibrary.org/b/id/8226191-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -641,7 +627,7 @@ class BootstrapData(
 
             Libro(
                 "Clean Code",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Buenas prácticas de programación",
                 "https://covers.openlibrary.org/b/id/9641984-L.jpg",
                 Genero.AUTOAYUDA,
@@ -657,7 +643,7 @@ class BootstrapData(
 
             Libro(
                 "The Pragmatic Programmer",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Desarrollo de software",
                 "https://covers.openlibrary.org/b/id/8097446-L.jpg",
                 Genero.AUTOAYUDA,
@@ -673,7 +659,7 @@ class BootstrapData(
 
             Libro(
                 "Thinking, Fast and Slow",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Psicología y toma de decisiones",
                 "https://covers.openlibrary.org/b/id/8228691-L.jpg",
                 Genero.AUTOAYUDA,
@@ -690,7 +676,7 @@ class BootstrapData(
             // ----- Libros de usuario id 4
             Libro(
                 "The Silent Patient",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Thriller psicológico",
                 "https://covers.openlibrary.org/b/id/9259251-L.jpg",
                 Genero.DRAMA,
@@ -706,7 +692,7 @@ class BootstrapData(
 
             Libro(
                 "Educated",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Memorias",
                 "https://covers.openlibrary.org/b/id/9251996-L.jpg",
                 Genero.DRAMA,
@@ -722,7 +708,7 @@ class BootstrapData(
 
             Libro(
                 "The Alchemist",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Fábula espiritual",
                 "https://covers.openlibrary.org/b/id/8128691-L.jpg",
                 Genero.DRAMA,
@@ -738,7 +724,7 @@ class BootstrapData(
 
             Libro(
                 "Inferno",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Thriller",
                 "https://covers.openlibrary.org/b/id/8231995-L.jpg",
                 Genero.DRAMA,
@@ -754,7 +740,7 @@ class BootstrapData(
 
             Libro(
                 "Digital Fortress",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Tecnothriller",
                 "https://covers.openlibrary.org/b/id/8231996-L.jpg",
                 Genero.DRAMA,
@@ -770,7 +756,7 @@ class BootstrapData(
 
             Libro(
                 "Angels & Demons",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Misterio",
                 "https://covers.openlibrary.org/b/id/8231997-L.jpg",
                 Genero.DRAMA,
@@ -786,7 +772,7 @@ class BootstrapData(
 
             Libro(
                 "The Da Vinci Code",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Conspiración",
                 "https://covers.openlibrary.org/b/id/8231998-L.jpg",
                 Genero.DRAMA,
@@ -802,7 +788,7 @@ class BootstrapData(
 
             Libro(
                 "The Girl with the Dragon Tattoo",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Thriller",
                 "https://covers.openlibrary.org/b/id/8231999-L.jpg",
                 Genero.DRAMA,
@@ -818,7 +804,7 @@ class BootstrapData(
 
             Libro(
                 "Gone Girl",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Suspenso",
                 "https://covers.openlibrary.org/b/id/8232000-L.jpg",
                 Genero.DRAMA,
@@ -834,7 +820,7 @@ class BootstrapData(
 
             Libro(
                 "The Shining",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Terror",
                 "https://covers.openlibrary.org/b/id/8232001-L.jpg",
                 Genero.DRAMA,
@@ -851,7 +837,7 @@ class BootstrapData(
             // ----- Libros de usuario id 5
             Libro(
                 "It",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Terror",
                 "https://covers.openlibrary.org/b/id/8232002-L.jpg",
                 Genero.DRAMA,
@@ -867,7 +853,7 @@ class BootstrapData(
 
             Libro(
                 "Carrie",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Terror",
                 "https://covers.openlibrary.org/b/id/8232003-L.jpg",
                 Genero.DRAMA,
@@ -883,7 +869,7 @@ class BootstrapData(
 
             Libro(
                 "The Outsider",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Suspenso",
                 "https://covers.openlibrary.org/b/id/8232004-L.jpg",
                 Genero.DRAMA,
@@ -899,7 +885,7 @@ class BootstrapData(
 
             Libro(
                 "The Institute",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Thriller",
                 "https://covers.openlibrary.org/b/id/8232005-L.jpg",
                 Genero.DRAMA,
@@ -915,7 +901,7 @@ class BootstrapData(
 
             Libro(
                 "A Game of Thrones",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/8232006-L.jpg",
                 Genero.DRAMA,
@@ -931,7 +917,7 @@ class BootstrapData(
 
             Libro(
                 "A Clash of Kings",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/8232007-L.jpg",
                 Genero.DRAMA,
@@ -947,7 +933,7 @@ class BootstrapData(
 
             Libro(
                 "A Storm of Swords",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/8232008-L.jpg",
                 Genero.DRAMA,
@@ -963,7 +949,7 @@ class BootstrapData(
 
             Libro(
                 "A Feast for Crows",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/8232009-L.jpg",
                 Genero.DRAMA,
@@ -979,7 +965,7 @@ class BootstrapData(
 
             Libro(
                 "A Dance with Dragons",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/8232010-L.jpg",
                 Genero.DRAMA,
@@ -995,7 +981,7 @@ class BootstrapData(
 
             Libro(
                 "Brief Answers to the Big Questions",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Ciencia",
                 "https://covers.openlibrary.org/b/id/8232011-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -1021,11 +1007,11 @@ class BootstrapData(
         usuarios: List<Usuario>, libros: List<Libro>
     ): List<Reserva> {
 
-        val u1 = usuarios.first { it.id == 1 }
-        val u2 = usuarios.first { it.id == 2 }
-        val u3 = usuarios.first { it.id == 3 }
-        val u4 = usuarios.first { it.id == 4 }
-        val u5 = usuarios.first { it.id == 5 }
+        val u1 = usuarios.first { it.id == 1L }
+        val u2 = usuarios.first { it.id == 2L }
+        val u3 = usuarios.first { it.id == 3L }
+        val u4 = usuarios.first { it.id == 4L }
+        val u5 = usuarios.first { it.id == 5L }
 
         val hoy = LocalDate.now()
 
@@ -1150,11 +1136,12 @@ class BootstrapData(
             .map { reserva ->
                 val libro = reserva.libro
                 val usuario = reserva.usuarioLector
-                val seed = libro.id + usuario.id
+                val seed = (libro?.id ?: 0L) + (usuario.id ?: 0L)
+                val posicion = (seed % puntuaciones.size).toInt()
                 Calificacion(
                     reserva = reserva,
-                    puntuacion = puntuaciones[seed % puntuaciones.size],
-                    comentario = comentarios[seed % comentarios.size],
+                    puntuacion = puntuaciones[posicion],
+                    comentario = comentarios[posicion],
                     fecha = reserva.fechaDevolucion
                 )
             }
