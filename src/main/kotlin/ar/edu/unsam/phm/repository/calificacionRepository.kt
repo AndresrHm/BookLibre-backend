@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 
-    fun findByReservaLibroIdAndReservaUsuarioLectorId(
+    fun findByLibroIdAndUsuarioId(
         libroId: Long,
         usuarioId: Long
     ): Calificacion?

@@ -53,7 +53,7 @@ class CalificacionService {
         if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
         val existente = calificacionRepository
-            .findByReservaLibroIdAndReservaUsuarioLectorId(
+            .findByLibroIdAndUsuarioId(
                 reserva.libro.id!!,
                 usuario.id!!,
             )
