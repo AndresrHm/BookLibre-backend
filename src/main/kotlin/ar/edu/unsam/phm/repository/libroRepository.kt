@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface LibroRepository : CrudRepository<Libro, Long> {
+
 }
 
 //    fun filtrarLibrosActivos() = getElementos().filter { it.activo }
