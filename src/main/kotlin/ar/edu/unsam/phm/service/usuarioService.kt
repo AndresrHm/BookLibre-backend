@@ -8,6 +8,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,11 +17,15 @@ class UsuarioService(
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    fun getUsuarioById(id: Long?) = usuarioRepositorio.getById(id) ?: throw NotFoundException("No se encontró usuario con id $id")
+    fun getUsuarioById(id: Long) =
+        usuarioRepositorio.findByIdOrNull(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
-    fun getUsuarioByNombre(nombre: String) =
-        usuarioRepositorio.getByNombre(nombre)
-            ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
+    fun getUsuarioByNombre(nombre: String): Nothing =
+        // TODO: Corregir
+        throw NotFoundException("No se encontró usuario con nombre $nombre")
+
+//        usuarioRepositorio.getByNombre(nombre)
+//            ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
 
     fun usuarioUpdate(usuario: Usuario): Usuario {
         if (
@@ -30,23 +35,28 @@ class UsuarioService(
         }
 
         when {
-            usuario.esLector() -> {
-                if (reservaRepositorio.findReservasByType(usuario.id, ReservaType.TO_ME, 1, 1, "").totalElements > 0) {
-                    throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
-                }
-                libroRepositorio.eliminarPorIDPropietario(usuario.id)}
-            usuario.esPublicador() ->
-                if (reservaRepositorio.findReservasByType(usuario.id, ReservaType.BY_ME, 1, 1, "").totalElements > 0) {
-                    throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
-                }
-            usuario.esLectorPublicador() -> {}
+            usuario.esLector() -> Unit
+//                {
+////                if (reservaRepositorio.findReservasByType(usuario.id, ReservaType.TO_ME, 1, 1, "").totalElements > 0) {
+////                    throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
+////                }
+////                //libroRepositorio.eliminarPorIDPropietario(usuario.id)
+//            }
+
+            usuario.esPublicador() -> Unit
+//                if (reservaRepositorio.findReservasByType(usuario.id, ReservaType.BY_ME, 1, 1, "").totalElements > 0) {
+//                    throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
+//                }
+
+            usuario.esLectorPublicador() -> Unit
         }
-        usuarioRepositorio.update(usuario)
+//        usuarioRepositorio.update(usuario)
         return usuario
     }
 
     private fun camposObligatoriosVacios(usuario: Usuario): Boolean =
         usuario.nombre == "" ||
-        usuario.apellido == "" ||
-        usuario.ciudad == ""
+                usuario.apellido == "" ||
+                usuario.ciudad == ""
 }
+

@@ -123,11 +123,14 @@ class LibroMapper(
             estado = libro.estadoLibro,
             rating = rating,
             biblioKarma = karmaForUserLector,
-            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+//            TODO: Testing
+            //userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+            userCreador = "TEST",
             disponibilidad = disponibilidad
         )
         return libroDetalle
     }
+
     fun libroToLibroFiltradoPerfilDto(libro: Libro, disponibilidad: String): LibroFiltradoDTO {
         val libroDetalle = LibroFiltradoDTO(
             id = libro.id,
@@ -145,7 +148,9 @@ class LibroMapper(
             estado = null,
             rating = null,
             biblioKarma = null,
-            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+            // TODO: Testing
+//            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+            userCreador = "TEST",
             disponibilidad = disponibilidad
         )
         return libroDetalle
