@@ -14,20 +14,28 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import jakarta.transaction.Transactional
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-class CalificacionService(
-    var libroRepository: LibroRepository,
-    var reservaRepository: ReservaRepository,
-    var calificacionRepository: CalificacionRepository,
-    var usuarioRepository: UsuarioRepository
-) {
+class CalificacionService {
+    @Autowired
+    lateinit var libroRepository: LibroRepository
+
+    @Autowired
+    lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    lateinit var calificacionRepository: CalificacionRepository
+
+    @Autowired
+    lateinit var usuarioRepository: UsuarioRepository
+
     @Transactional
     fun calificarLibro(
         calificacionDTO: CrearCalificacionDTO
@@ -58,7 +66,8 @@ class CalificacionService(
             calificacionRepository.save(existente)
         } else {
             val nueva = Calificacion(
-                reserva = reserva,
+                usuario = reserva.usuarioLector,
+                libro = reserva.libro,
                 puntuacion = calificacionDTO.puntuacion,
                 comentario = calificacionDTO.comentario,
                 fecha = LocalDate.now()
@@ -70,6 +79,7 @@ class CalificacionService(
 
     private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 
+    @Transactional(readOnly = true)
     fun obtenerCalificaciones(
         libroID: Long,
         orden: OrdenCalificacion,
@@ -88,7 +98,7 @@ class CalificacionService(
 
         val pageable = PageRequest.of(page, size, sort)
 
-        val result = calificacionRepository.findByReservaLibroId(libro.id!!, pageable)
+        val result = calificacionRepository.findByLibroId(libro.id!!, pageable)
 
         return PageResponse(
             content = result.content,
@@ -105,7 +115,7 @@ class CalificacionService(
         val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
-        val calificaciones = calificacionRepository.obtenerUltimasCalificaciones(libro)
+        val calificaciones = calificacionRepository.findTop2ByLibroIdOrderByFechaDesc(libro.id!!)
 
         return calificaciones
     }
@@ -113,12 +123,12 @@ class CalificacionService(
     fun promedioCalificaciones(
         libroID: Long?,
     ): Double {
-        return calificacionRepository.obtenerPromedioCalificaciones(libroID)
+        return calificacionRepository.obtenerPromedioCalificaciones(libroID!!) ?: 0.0
     }
 
     fun cantidadCalificaciones(
         libroID: Long,
-    ): Int {
-        return calificacionRepository.obtenerCantidadCalificaciones(libroID)
+    ): Long {
+        return calificacionRepository.countByLibroId(libroID)
     }
 }

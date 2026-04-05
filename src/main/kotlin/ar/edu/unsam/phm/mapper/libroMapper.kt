@@ -75,7 +75,7 @@ class LibroMapper(
     fun libroToLibroDetalleDTO(
         libro: Libro,
         rating: Double,
-        cantidadCalificaciones: Int,
+        cantidadCalificaciones: Long,
         libroCalificacionesRecientes: List<Calificacion>
     ): LibroDetalleDTO {
         val libroDetalle = LibroDetalleDTO(
