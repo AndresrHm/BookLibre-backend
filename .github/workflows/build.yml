@@ -8,14 +8,17 @@ name: build
 on:
   # Nota: Reemplazar "main, master" con las branches principales que se manejen (ej.: "main, develop")
   push:
-    branches: [ main, master ]
+    branches: [ main, development ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, development ]
 jobs:
   gradle:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
