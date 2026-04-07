@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UsuarioRepository : CrudRepository<Usuario, Long> {
+    fun findByNombre(nombre: String): MutableList<Usuario>
 //    fun inicioSesion(usuarioLogin : String, passwordLogin : String): Int {
 //            val usuario = getElementos().find {
 //                        it.email == usuarioLogin  && it.passwordSesion == passwordLogin
