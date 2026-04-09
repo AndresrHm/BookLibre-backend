@@ -1,6 +1,6 @@
 package ar.edu.unsam.phm.controller
+
 import ActionResponse
-import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LoginRequestDTO
 import ar.edu.unsam.phm.dto.RegisterRequestDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
@@ -20,8 +20,9 @@ import org.springframework.web.bind.annotation.RestController
 class ControllerLogin(val loginRegistroService: LoginRegistroService, private val usuarioMapper: UsuarioMapper) {
 
     @PostMapping("/iniciarUsuario")
-    fun buscarUsuarioContraseniaUsuario(@RequestBody loginRequest: LoginRequestDTO) : Int {
-        return loginRegistroService.buscarUsuarioContraseniaUsuario(loginRequest.username, loginRequest.password)
+    fun buscarUsuarioContraseniaUsuario(@RequestBody loginRequest: LoginRequestDTO): Long {
+        val usuario = loginRegistroService.buscarUsuarioContraseniaUsuario(loginRequest.username, loginRequest.password)
+        return usuario.id ?: throw IllegalStateException("El usuario autenticado no tiene id")
     }
 
     @PutMapping("/crearUsuario")

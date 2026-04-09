@@ -5,6 +5,7 @@ import ar.edu.unsam.phm.dto.TipoDTOUsuario
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.service.UsuarioService
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,42 +25,46 @@ class UsuarioController(
     @PutMapping
     fun updateUsuario(
         @RequestBody usuario: UsuarioEdicionDTO
-    ) {
-        val usuarioNuevo = usuarioMapper.usuarioEdicionDTOtoLibro(usuario)
+    ): ResponseEntity<Void> {
+        val usuarioExistente = usuarioService.getUsuarioById(usuario.id!!)
+        val usuarioNuevo = usuarioMapper.usuarioEdicionDTOtoUsuario(usuario, usuarioExistente)
         usuarioService.usuarioUpdate(usuarioNuevo)
+        return ResponseEntity.ok().build()
     }
 
     @GetMapping("{usuarioId}/{tipoDTO}")
-    fun getUsuarioType(@PathVariable usuarioId: Int, @PathVariable tipoDTO: String): SealedGetUsuarioDTO {
+    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTO: String): ResponseEntity<SealedGetUsuarioDTO> {
         val usuario = usuarioService.getUsuarioById(usuarioId)
         val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTO)
 
-        when (tipoDTOEnum) {
+        val response = when (tipoDTOEnum) {
             TipoDTOUsuario.HEADER -> {
                 val dto = usuarioMapper.toUsuarioHeaderDTO(usuario)
-                return SealedGetUsuarioDTO.Header(dto)
+                SealedGetUsuarioDTO.Header(dto)
             }
 
             TipoDTOUsuario.UPDATE -> {
                 val dto = usuarioMapper.toUsuarioEdicionDTO(usuario)
-                return SealedGetUsuarioDTO.Update(dto)
+                SealedGetUsuarioDTO.Update(dto)
             }
 
             TipoDTOUsuario.PERFIL -> {
                 val dto = usuarioMapper.toUsuarioPerfilDTO(usuario)
-                return SealedGetUsuarioDTO.Perfil(dto)
+                SealedGetUsuarioDTO.Perfil(dto)
             }
 
             TipoDTOUsuario.KARMA -> {
-                val dto = usuarioMapper.toUsuarioKarma(usuario)
-                return SealedGetUsuarioDTO.Karma(dto)
+                val dto = usuarioMapper.toUsuarioKarmaDTO(usuario)
+                SealedGetUsuarioDTO.Karma(dto)
             }
 
             TipoDTOUsuario.TIPOUSUARIO -> {
                 val tipo = usuario.tipoUsuario
-                return SealedGetUsuarioDTO.TipoPerfil(tipo)
+                SealedGetUsuarioDTO.TipoPerfil(tipo)
             }
         }
+        
+        return ResponseEntity.ok(response)
     }
 
 }
