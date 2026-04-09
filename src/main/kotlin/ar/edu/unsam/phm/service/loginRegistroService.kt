@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service
 class LoginRegistroService(
     val usuarioRepository: UsuarioRepository,
 ) {
-    fun buscarUsuarioContraseniaUsuario(usuarioLogin: String, passwordLogin: String) {
-//        TODO: Corregir usuarioRepository.inicioSesion(usuarioLogin, passwordLogin)
-        throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
+    fun buscarUsuarioContraseniaUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
+        val login = usuarioLogin.trim()
+
+        return usuarioRepository.findByEmailAndPasswordSesion(login, passwordLogin)
+            ?: usuarioRepository.findFirstByNombreAndPasswordSesion(login, passwordLogin)
+            ?: throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
     }
 
     fun crearUsuario(usuario: Usuario) {

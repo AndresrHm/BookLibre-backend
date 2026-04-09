@@ -122,9 +122,9 @@ class CalificacionService {
 
     @Transactional(readOnly = true)
     fun promedioCalificaciones(
-        libroID: Long?,
+        libroID: Long,
     ): Double {
-        return calificacionRepository.obtenerPromedioCalificaciones(libroID!!) ?: 0.0
+        return calificacionRepository.obtenerPromedioCalificaciones(libroID) ?: 0.0
     }
 
     @Transactional(readOnly = true)

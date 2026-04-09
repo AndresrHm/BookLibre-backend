@@ -11,11 +11,13 @@ import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroFiltradoDTO
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.stereotype.Component
 
 @Component
 class LibroMapper(
-    private val libroRepository: LibroRepository
+    private val libroRepository: LibroRepository,
+    private val usuarioService: UsuarioService
 ) {
     fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
@@ -125,36 +127,36 @@ class LibroMapper(
             biblioKarma = karmaForUserLector,
 //            TODO: Testing
             //userCreador = libroRepository.getNickUsuarioCreador(libro.id),
-            userCreador = "TEST",
+            userCreador = usuarioService.getNombreDeUsuario(libro.idPropietario) ?: "NERR",
             disponibilidad = disponibilidad
         )
         return libroDetalle
     }
 
-    fun libroToLibroFiltradoPerfilDto(libro: Libro, disponibilidad: String): LibroFiltradoDTO {
-        val libroDetalle = LibroFiltradoDTO(
-            id = libro.id,
-            titulo = libro.titulo,
-            tipoLibro = libro.tipoComoTexto(),
-            descripcion = null,
-            imagenUrl = libro.portada,
-            genero = libro.genero,
-            autor = libro.autor,
-            cantidadPaginas = null,
-            isbn13 = null,
-            idioma = null,
-            editorial = null,
-            fechaAgregado = libro.fechaPublicacion,
-            estado = null,
-            rating = null,
-            biblioKarma = null,
-            // TODO: Testing
-//            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
-            userCreador = "TEST",
-            disponibilidad = disponibilidad
-        )
-        return libroDetalle
-    }
+//    fun libroToLibroFiltradoPerfilDto(libro: Libro, disponibilidad: String): LibroFiltradoDTO {
+//        val libroDetalle = LibroFiltradoDTO(
+//            id = libro.id,
+//            titulo = libro.titulo,
+//            tipoLibro = libro.tipoComoTexto(),
+//            descripcion = null,
+//            imagenUrl = libro.portada,
+//            genero = libro.genero,
+//            autor = libro.autor,
+//            cantidadPaginas = null,
+//            isbn13 = null,
+//            idioma = null,
+//            editorial = null,
+//            fechaAgregado = libro.fechaPublicacion,
+//            estado = null,
+//            rating = null,
+//            biblioKarma = null,
+//            // TODO: Testing
+////            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
+//            userCreador = "TEST",
+//            disponibilidad = disponibilidad
+//        )
+//        return libroDetalle
+//    }
 
     fun filtroDTOtoLibroFiltro(
         filtrosQuery: FiltrosLibrosQueryDTO,
