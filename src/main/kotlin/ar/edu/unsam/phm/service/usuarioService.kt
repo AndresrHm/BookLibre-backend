@@ -56,5 +56,21 @@ class UsuarioService(
         usuario.nombre == "" ||
                 usuario.apellido == "" ||
                 usuario.ciudad == ""
+
+    @Transactional(readOnly = true)
+    fun obtenerCantidadDeLibrosPrestados(usuarioId: Long): Int {
+        return reservaRepositorio.findAll()
+            .filter { it.usuarioPrestador.id == usuarioId }
+            .toList()
+            .size
+    }
+
+    @Transactional(readOnly = true)
+    fun obtenerCantidadDeLibrosLeidos(usuarioId: Long): Int {
+        return reservaRepositorio.findAll()
+            .filter { it.usuarioLector.id == usuarioId }
+            .toList()
+            .size
+    }
 }
 

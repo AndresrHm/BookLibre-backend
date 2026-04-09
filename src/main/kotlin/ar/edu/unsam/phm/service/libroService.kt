@@ -1,114 +1,219 @@
-//package ar.edu.unsam.phm.service
-//
-//import ar.edu.unsam.phm.domain.BusquedaPorNombreFiltro
-//import ar.edu.unsam.phm.domain.EntreFechasFiltro
-//import ar.edu.unsam.phm.domain.FiltroDeLibro
-//import ar.edu.unsam.phm.domain.GeneroFiltro
-//import ar.edu.unsam.phm.domain.ISBN13Filtro
-//import ar.edu.unsam.phm.BusinessException
-//import ar.edu.unsam.phm.NotFoundException
-//import ar.edu.unsam.phm.domain.Libro
-//import ar.edu.unsam.phm.domain.PageResponse
-//import ar.edu.unsam.phm.domain.RangoDePaginasFiltro
-//import ar.edu.unsam.phm.domain.TipoUsuario
-//import ar.edu.unsam.phm.domain.UsuarioPrestadorFiltro
-//import ar.edu.unsam.phm.domain.paginate
-//import ar.edu.unsam.phm.dto.DireccionOrden
-//import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
-//import ar.edu.unsam.phm.dto.FiltrosDeLibros
-//import ar.edu.unsam.phm.dto.OrdenHomePage
-//import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-//import ar.edu.unsam.phm.dto.OrigenLibro
-//import ar.edu.unsam.phm.errors.ErrorStrings
-//import ar.edu.unsam.phm.mapper.LibroMapper
-//import ar.edu.unsam.phm.repository.LibroRepository
-//import ar.edu.unsam.phm.repository.ReservaRepository
-//import ar.edu.unsam.phm.repository.UsuarioRepository
-//import org.springframework.stereotype.Service
-//import java.time.LocalDate
-//
-//@Service
-//class LibroService(
-//    var repositorioLibro: LibroRepository,
-//    var repositorioReservas: ReservaRepository,
-//    var repositorioUsuario: UsuarioRepository,
-//    var libroMapper: LibroMapper
-//) {
-//    fun crearLibro(nuevoLibro: Libro): Libro {
-//        val tipoUsuario = repositorioUsuario.getTipoUsuario(nuevoLibro.idPropietario)
-//        if (esTipoLector(tipoUsuario)) {
-//            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
-//        }
-//        repositorioLibro.create(nuevoLibro)
-//        return nuevoLibro
-//    }
-//
-//    fun obtenerLibro(idLibro: Long?): Libro {
-//        val libro = getLibroByIdOrThrow(idLibro)
-//
-//        return libro
-//    }
-//
-//    fun editarLibro(libroEditado: Libro, idUsuarioActual: Long): Libro {
-//        val tipoUsuario = repositorioUsuario.getTipoUsuario(libroEditado.idPropietario)
-//        if (esTipoLector(tipoUsuario)) {
-//            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_EDITAR_LIBROS)
-//        }
-//
-//        val libroOriginal = getLibroByIdOrThrow(libroEditado.id)
-//        validarPropietario(libroOriginal, idUsuarioActual)
-//
-//        repositorioLibro.update(libroEditado)
-//
-//        return libroEditado
-//    }
-//
-//    private fun esTipoLector(tipoUsuario: TipoUsuario?): Boolean = tipoUsuario == TipoUsuario.LECTOR
-//
-//    private val filtrosAplicables: List<FiltroDeLibro> = listOf(
-//        BusquedaPorNombreFiltro(),
-//        EntreFechasFiltro(repositorioReservas),
-//        GeneroFiltro(),
-//        RangoDePaginasFiltro(),
-//        ISBN13Filtro(),
-//        UsuarioPrestadorFiltro()
-//    )
-//
-//    fun getLibrosPorFiltros(
-//        filtrosDeHome: FiltrosDeLibros,
-//        page: Int = 0,
-//        size: Int = 6,
-//        ordenHomePage: OrdenHomePage,
-//        userId: Long,
-//        flagDiff: OrigenLibro, // Luego cambiar por un enum
-//        // de momento, si es false, se asume que se quieren los libros del perfil,
-//        // y si es true, se asume que se quieren los libros de la home page
-//        disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil,
-//        ordenLibroPerfil: OrdenLibroPerfil,
-//        direccionOrdenPerfil: DireccionOrden
-//
-//    ): PageResponse<Libro> {
-//        validarFlagDiff(flagDiff)
-//
-//        return when (flagDiff) {
-//            OrigenLibro.HOME -> librosFiltradosHomePage(
+package ar.edu.unsam.phm.service
+
+import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.NotFoundException
+import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.dto.DireccionOrden
+import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
+import ar.edu.unsam.phm.dto.OrdenHomePage
+import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.dto.OrigenLibro
+import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
+
+@Service
+class LibroService(
+    private val libroRepository: LibroRepository,
+    private val usuarioRepository: UsuarioRepository
+) {
+
+    // Crea un libro validando que el usuario propietario sea publicador.
+    @Transactional
+    fun crearLibro(nuevoLibro: Libro): Libro {
+        val usuario = usuarioRepository.findById(nuevoLibro.idPropietario)
+            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(nuevoLibro.idPropietario)) }
+
+        if (usuario.esLector()) {
+            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
+        }
+
+        nuevoLibro.init()
+        return libroRepository.save(nuevoLibro)
+    }
+
+    // Obtiene un libro por id o lanza error si no existe.
+    @Transactional(readOnly = true)
+    fun obtenerLibro(idLibro: Long): Libro {
+        return libroRepository.findById(idLibro)
+            .orElseThrow { NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro)) }
+    }
+
+    // Edita un libro validando permisos del propietario y datos obligatorios.
+    @Transactional
+    fun editarLibro(libroEditado: Libro, idUsuarioActual: Long): Libro {
+        val usuario = usuarioRepository.findById(libroEditado.idPropietario)
+            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(libroEditado.idPropietario)) }
+
+        if (usuario.esLector()) {
+            throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_EDITAR_LIBROS)
+        }
+
+        val libroOriginal = obtenerLibro(libroEditado.id!!)
+        validarPropietario(libroOriginal, idUsuarioActual)
+
+        libroEditado.init()
+        return libroRepository.save(libroEditado)
+    }
+    // Aplica filtros y ordenamiento sobre los libros de un propietario.
+    @Transactional(readOnly = true)
+    fun obtenerLibrosPorPropietarioConFiltros(
+        propietarioId: Long,
+        filtro: FiltroDisponibilidadPerfil = FiltroDisponibilidadPerfil.TODOS,
+        orden: OrdenLibroPerfil = OrdenLibroPerfil.TITULO,
+        direccion: DireccionOrden = DireccionOrden.ASCENDENTE
+    ): List<Libro> {
+        return filtrarYOrdenarLibrosPerfil(propietarioId, filtro, orden, direccion)
+    }
+
+    // Desactiva todos los libros de un propietario.
+    @Transactional
+    fun desactivarLibrosPorPropietario(propietarioId: Long) {
+        libroRepository.eliminarPorIDPropietario(propietarioId)
+    }
+    // Borra lógicamente un libro si pertenece al usuario y no está prestado.
+    @Transactional
+    fun borrarLibro(idLibro: Long, idUsuario: Long) {
+        val libro = obtenerLibro(idLibro)
+        validarPropietario(libro, idUsuario)
+
+        val libroPrestado = libroRepository.buscarLibrosPrestados().any { it.id == idLibro }
+        if (libroPrestado) {
+            throw BusinessException(ErrorStrings.LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR)
+        }
+
+        libro.activo = false
+        libroRepository.save(libro)
+    }
+
+    // Obtiene los prestadores disponibles, filtrando por texto opcional.
+    @Transactional(readOnly = true)
+    fun obtenerPrestadoresDisponibles(search: String?, userId: Long): List<String> {
+        usuarioRepository.findById(userId)
+            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(userId)) }
+
+        val termino = search?.trim().orEmpty()
+
+        return libroRepository.filtrarLibrosActivos()
+            .filter { it.idPropietario != userId }
+            .filter { libro ->
+                libroRepository.buscarLibrosPrestados().none { it.id == libro.id }
+            }
+            .mapNotNull { libro ->
+                usuarioRepository.findById(libro.idPropietario)
+                    .map { it.nombre }
+                    .orElse(null)
+            }
+            .distinct()
+            .filter { termino.isBlank() || it.contains(termino, ignoreCase = true) }
+            .sortedBy { it.lowercase() }
+    }
+
+    private fun validarPropietario(libro: Libro, idUsuario: Long) {
+        if (libro.idPropietario != idUsuario) {
+            throw BusinessException(ErrorStrings.libroNoPerteneceAlUsuario(libro.id, idUsuario))
+        }
+    }
+
+    // Indica si un libro está prestado o disponible.
+    @Transactional(readOnly = true)
+    fun disponibilidadLibro(idLibro: Long?): String {
+        if (idLibro == null) return "DISPONIBLE"
+
+        return if (libroRepository.buscarLibrosPrestados().any { it.id == idLibro }) {
+            "PRESTADO"
+        } else {
+            "DISPONIBLE"
+        }
+    }
+
+    // Calcula el karma potencial del libro para el usuario lector.
+    @Transactional(readOnly = true)
+    fun bringKarma(
+        libro: Libro,
+        cantidadReservas: Int,
+        usuarioId: Long,
+        fechaIni: LocalDate?,
+        fechaFin: LocalDate?
+    ): Int {
+        val usuarioLector = usuarioRepository.findById(usuarioId)
+            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoPorId(usuarioId)) }
+
+        val fechaDesde = fechaIni ?: LocalDate.now()
+        val fechaHasta = fechaFin ?: LocalDate.now()
+
+        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
+    }
+
+    // Ejecuta el filtrado principal de HOME o PERFIL y pagina el resultado.
+    @Transactional(readOnly = true)
+    fun getLibrosPorFiltros(
+        filtros: FiltrosDeLibros,
+        page: Int,
+        size: Int,
+        ordenHomePage: OrdenHomePage,
+        userId: Long,
+        flagDiff: OrigenLibro,
+        disponibilidad: FiltroDisponibilidadPerfil,
+        orden: OrdenLibroPerfil,
+        direccion: DireccionOrden
+    ): PageResponse<Libro> {
+        return when (flagDiff) {
+           OrigenLibro.HOME -> {
+               paginar(emptyList(), page, size)
+           }
+               //librosFiltradosHomePage(
 //                filtrosDeHome,
 //                page,
 //                size,
 //                ordenHomePage,
 //                userId
 //            )
-//            OrigenLibro.PERFIL -> obtenerLibrosDeUsuario(
-//                usuarioId = userId,
-//                page = page,
-//                size = size,
-//                orden = ordenLibroPerfil,
-//                direccion = direccionOrdenPerfil,
-//                filtro = disponibilidadLibrosPerfil,
-//            )
-//        }
-//    }
-//    fun librosFiltradosHomePage(
+            OrigenLibro.PERFIL -> {
+                val librosOrdenados = filtrarYOrdenarLibrosPerfil(userId, disponibilidad, orden, direccion)
+                paginar(librosOrdenados, page, size)
+            }
+        }
+    }
+
+    private fun filtrarYOrdenarLibrosPerfil(
+        propietarioId: Long,
+        disponibilidad: FiltroDisponibilidadPerfil,
+        orden: OrdenLibroPerfil,
+        direccion: DireccionOrden
+    ): List<Libro> {
+        val librosDelUsuario = libroRepository.buscarPorIdPropietario(propietarioId)
+
+        val librosFiltrados = when (disponibilidad) {
+            FiltroDisponibilidadPerfil.TODOS -> librosDelUsuario
+            FiltroDisponibilidadPerfil.DISPONIBLES -> libroRepository.buscarLibrosDisponiblesPorPropietario(propietarioId)
+            FiltroDisponibilidadPerfil.PRESTADOS -> libroRepository.buscarLibrosPrestadosPorPropietario(propietarioId)
+        }
+
+        val librosPrestadosIds = libroRepository.buscarLibrosPrestados().mapNotNull { it.id }.toSet()
+
+        val comparadorBase = when (orden) {
+            OrdenLibroPerfil.TITULO -> compareBy<Libro>({ it.titulo.lowercase() }, { it.autor.lowercase() })
+            OrdenLibroPerfil.DISPONIBLE_PRESTADO -> compareBy<Libro>({ it.id in librosPrestadosIds }, { it.titulo.lowercase() }, { it.autor.lowercase() })
+            OrdenLibroPerfil.FECHA_AGREGADO -> compareBy<Libro> { it.fechaAgregado }
+        }
+
+        val comparadorFinal = when (direccion) {
+            DireccionOrden.ASCENDENTE -> comparadorBase.thenBy { it.id }
+            DireccionOrden.DESCENDENTE -> comparadorBase.reversed().thenBy { it.id }
+        }
+
+        return librosFiltrados.sortedWith(comparadorFinal)
+    }
+    //private fun filtrarYOrdenarLibrosHome(
+    //    fun librosFiltradosHomePage(
 //        filtros: FiltrosDeLibros,
 //        page: Int = 0,
 //        size: Int = 6,
@@ -165,141 +270,25 @@
 //            totalPages = totalPages
 //        )
 //    }
-//
-//    fun obtenerLibrosDeUsuario(
-//        usuarioId: Long,
-//        page: Int,
-//        size: Int,
-//        orden: OrdenLibroPerfil,
-//        direccion: DireccionOrden,
-//        filtro: FiltroDisponibilidadPerfil
-//    ): PageResponse<Libro> {
-//        validarPaginacion(page, size)
-//
-//        val idsLibrosPrestados = repositorioReservas
-//            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
-//            .map { it.id }
-//            .toSet()
-//
-//        val resultadoPagina = repositorioLibro.buscarPorIdPropietario(
-//            propietarioId = usuarioId,
-//            page = page,
-//            size = size,
-//            orden = orden,
-//            direccion = direccion,
-//            filtro = filtro,
-//            librosPrestadosIds = idsLibrosPrestados
-//        )
-//
-//        val totalPaginas = if (resultadoPagina.totalElements == 0) 0 else (resultadoPagina.totalElements + size - 1) / size
-//
-//        return PageResponse(
-//            content = resultadoPagina.content,
-//            page = page,
-//            size = size,
-//            totalElements = resultadoPagina.totalElements,
-//            totalPages = totalPaginas
-//        )
-////        return PageResponse(
-////            content = resultadoPagina.content.map { libro ->
-////                val disponibilidad = if (libro.id in idsLibrosPrestados) "PRESTADO" else "DISPONIBLE"
-////                libroMapper.libroToLibroPerfilUsuarioDTO(libro, disponibilidad)
-////            },
-////            page = page,
-////            size = size,
-////            totalElements = resultadoPagina.totalElements,
-////            totalPages = totalPaginas,
-////        )
-//    }
-//
-//    fun bringKarma(
-//        libro: Libro,
-//        cantidadReservas: Int,
-//        usuarioId: Long,
-//        fechaIni: LocalDate?,
-//        fechaFin: LocalDate?
-//    ): Int {
-//        val usuarioLector = repositorioUsuario.getById(usuarioId)
-//            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(usuarioId))
-//
-//        val fechaDesde = fechaIni ?: LocalDate.now()
-//        val fechaHasta = fechaFin ?: LocalDate.now()
-//
-//        return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
-//    }
-//    fun disponibilidadLibro(idLibro: Long?): String {
-//        val libro = getLibroByIdOrThrow(idLibro)
-//        return if (repositorioReservas.estaReservado(libro)) "PRESTADO" else "DISPONIBLE"
-//    }
-//
-//    fun obtenerPrestadoresDisponibles(search: String?, userId: Long): List<String> {
-//        repositorioUsuario.getById(userId)
-//            ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
-//
-//        val termino = search?.trim().orEmpty()
-//
-//        return repositorioLibro.filtrarLibrosActivos()
-//            .filter { it.idPropietario != userId }
-//            .filter { !repositorioReservas.estaReservado(it) }
-//            .mapNotNull { repositorioUsuario.getById(it.idPropietario)?.nombre }
-//            .distinct()
-//            .filter { termino.isBlank() || it.contains(termino, ignoreCase = true) }
-//            .sortedBy { it.lowercase() }
-//    }
-//
-//    fun borrarLibro(idLibro: Long, idUsuario: Long) {
-//        val libro = getLibroByIdOrThrow(idLibro)
-//        validarPropietario(libro, idUsuario)
-//        if (repositorioReservas.estaReservado(libro)) {
-//            throw BusinessException(ErrorStrings.LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR)
-//        } else {
-//            libro.activo = false
-//            repositorioLibro.update(libro)
-//        }
-//    }
-//
-//    private fun getLibroByIdOrThrow(idLibro: Long?): Libro =
-//        repositorioLibro.getById(idLibro)
-//            ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro))
-//
-//    private fun validarPropietario(libro: Libro, idUsuario: Long) {
-//        if (libro.idPropietario != idUsuario) {
-//            throw BusinessException(ErrorStrings.libroNoPerteneceAlUsuario(libro.id, idUsuario))
-//        }
-//    }
-//
-//    private fun validarPaginacion(page: Int, size: Int) {
-//        if (page < 0) throw BusinessException(ErrorStrings.PAGE_NO_PUEDE_SER_NEGATIVO)
-//        if (size <= 0) throw BusinessException(ErrorStrings.SIZE_DEBE_SER_MAYOR_A_CERO)
-//    }
-//
-//    private fun validarRangosFiltros(filtros: FiltrosDeLibros) {
-//        val fechaDesde = filtros.fechaDesde
-//        val fechaHasta = filtros.fechaHasta
-//        if (entreFechas(fechaDesde, fechaHasta)) {
-//            throw BusinessException(ErrorStrings.FECHA_DESDE_MAYOR_A_FECHA_HASTA)
-//        }
-//
-//        val paginasMin = filtros.paginasMin
-//        val paginasMax = filtros.paginasMax
-//        if (paginasMin != null && paginasMax != null && paginasMin > paginasMax) {
-//            throw BusinessException(ErrorStrings.PAGINAS_MIN_MAYOR_A_PAGINAS_MAX)
-//        }
-//    }
-//
-//    private fun entreFechas(fechaDesde: LocalDate?, fechaHasta: LocalDate?): Boolean =
-//        fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)
-//
-//    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibros): FiltrosDeLibros {
-//        if (filtros.fechaDesde != null || filtros.fechaHasta != null) return filtros
-//
-//        val hoy = LocalDate.now()
-//        return filtros.copy(fechaDesde = hoy, fechaHasta = hoy)
-//    }
-//
-//    private fun validarFlagDiff(flagDiff: OrigenLibro) {
-//        if (flagDiff != OrigenLibro.HOME && flagDiff != OrigenLibro.PERFIL) {
-//            throw BusinessException(ErrorStrings.FLAG_DIFF_INVALIDO)
-//        }
-//    }
-//}
+
+    private fun paginar(libros: List<Libro>, page: Int, size: Int): PageResponse<Libro> {
+        val start = page * size
+        val end = start + size
+        val paginatedContent = if (start < libros.size) {
+            libros.subList(start, minOf(end, libros.size))
+        } else {
+            emptyList()
+        }
+
+        val totalPages = (libros.size + size - 1) / size
+
+        return PageResponse(
+            content = paginatedContent,
+            page = page,
+            size = size,
+            totalElements = libros.size,
+            totalPages = totalPages
+        )
+    }
+}
+

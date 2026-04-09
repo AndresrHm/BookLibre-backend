@@ -9,12 +9,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UsuarioRepository : CrudRepository<Usuario, Long> {
     fun findByNombre(nombre: String): MutableList<Usuario>
-//    fun inicioSesion(usuarioLogin : String, passwordLogin : String): Int {
-//            val usuario = getElementos().find {
-//                        it.email == usuarioLogin  && it.passwordSesion == passwordLogin
-//                    }
-//                    return usuario?.id ?: throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
-//        }
-//
-//    fun getTipoUsuario(id: Int) = getById(id)?.tipoUsuario
+    fun findByEmailAndPasswordSesion(email: String, passwordSesion: String): Usuario?
+    fun findFirstByNombreAndPasswordSesion(nombre: String, passwordSesion: String): Usuario?
 }
