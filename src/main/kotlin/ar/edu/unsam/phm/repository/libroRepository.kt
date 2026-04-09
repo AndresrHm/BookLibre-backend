@@ -1,19 +1,21 @@
 package ar.edu.unsam.phm.repository
 
-import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.PageResult
-import ar.edu.unsam.phm.domain.paginate
-import ar.edu.unsam.phm.dto.DireccionOrden
-import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
-import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-import ar.edu.unsam.phm.errors.ErrorStrings
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
 interface LibroRepository : CrudRepository<Libro, Long> {
 
+    @Modifying
+    @Query("""
+            UPDATE Libro l
+            SET l.activo = false
+            where l.idPropietario = :idPropietario""")
+
+    fun eliminarPorIDPropietario (idPropietario: Long)
 }
 
 //    fun filtrarLibrosActivos() = getElementos().filter { it.activo }
