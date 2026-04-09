@@ -72,5 +72,9 @@ class UsuarioService(
             .toList()
             .size
     }
+
+    fun getNombreDeUsuario(id: Long): String? {
+        return usuarioRepositorio.findNombreById(id)
+    }
 }
 
