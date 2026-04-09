@@ -27,22 +27,6 @@ interface LibroRepository : CrudRepository<Libro, Long> {
     @Query("SELECT l FROM Libro l WHERE l.activo = true AND l.idPropietario = :idPropietario")
     fun buscarPorIdPropietario(idPropietario: Long): List<Libro>
 
-    // Buscar libros activos por propietario con paginación
-    @Query("SELECT l FROM Libro l WHERE l.activo = true AND l.idPropietario = :idPropietario")
-    fun buscarPorIdPropietarioPaginado(idPropietario: Long, pageable: Pageable): Page<Libro>
-
-    // Buscar libros disponibles (no prestados)
-    @Query("""
-        SELECT l FROM Libro l
-        WHERE l.activo = true
-        AND l.id NOT IN (
-            SELECT r.libro.id FROM Reserva r
-            WHERE r.fechaRecogida <= CURRENT_DATE
-            AND r.fechaDevolucion >= CURRENT_DATE
-        )
-    """)
-    fun buscarLibrosDisponibles(): List<Libro>
-
     // Buscar libros disponibles del propietario
     @Query("""
         SELECT l FROM Libro l 

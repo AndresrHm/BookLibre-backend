@@ -62,22 +62,6 @@ class LibroService(
         libroEditado.init()
         return libroRepository.save(libroEditado)
     }
-    // Aplica filtros y ordenamiento sobre los libros de un propietario.
-    @Transactional(readOnly = true)
-    fun obtenerLibrosPorPropietarioConFiltros(
-        propietarioId: Long,
-        filtro: FiltroDisponibilidadPerfil = FiltroDisponibilidadPerfil.TODOS,
-        orden: OrdenLibroPerfil = OrdenLibroPerfil.TITULO,
-        direccion: DireccionOrden = DireccionOrden.ASCENDENTE
-    ): List<Libro> {
-        return filtrarYOrdenarLibrosPerfil(propietarioId, filtro, orden, direccion)
-    }
-
-    // Desactiva todos los libros de un propietario.
-    @Transactional
-    fun desactivarLibrosPorPropietario(propietarioId: Long) {
-        libroRepository.eliminarPorIDPropietario(propietarioId)
-    }
     // Borra lógicamente un libro si pertenece al usuario y no está prestado.
     @Transactional
     fun borrarLibro(idLibro: Long, idUsuario: Long) {
