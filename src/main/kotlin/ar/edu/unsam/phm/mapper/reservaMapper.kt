@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.dto.ReservaDTO
 import org.springframework.stereotype.Component
@@ -38,16 +37,6 @@ class ReservaMapper {
             estado = obj.estado(),
             puedeCalificar = puedeCalificar,
             biblioKarma = obj.libro.darKarma(obj, cantidadReservas),
-        )
-    }
-
-    fun toCreacionReservaDTO(reserva: Reserva): CreacionReservaDTO {
-        return CreacionReservaDTO(
-            libroId = reserva.libro.id!!,
-            usuarioPrestadorId = reserva.usuarioPrestador.id,
-            usuarioLectorId = reserva.usuarioLector.id,
-            fechaRecogida = reserva.fechaRecogida,
-            fechaDevolucion = reserva.fechaDevolucion
         )
     }
 }

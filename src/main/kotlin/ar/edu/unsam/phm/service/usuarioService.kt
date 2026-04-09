@@ -54,6 +54,7 @@ class UsuarioService(
 
     private fun camposObligatoriosVacios(usuario: Usuario): Boolean =
         usuario.nombre == "" ||
-        usuario.apellido == "" ||
-        usuario.ciudad == ""
+                usuario.apellido == "" ||
+                usuario.ciudad == ""
 }
+

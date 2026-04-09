@@ -57,7 +57,7 @@ data class LibroDetalleDTO(
     val isbn13: Long,
     val descripcion: String,
     val rating: Double,
-    val cantidadCalificaciones: Int,
+    val cantidadCalificaciones: Long,
     val calificacionesRecientes: List<CalificacionDTO>,
     val idPropietario: Long,
     val activo: Boolean,

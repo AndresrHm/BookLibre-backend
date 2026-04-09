@@ -14,55 +14,78 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-class CalificacionService(
-    var libroRepository: LibroRepository,
-    var reservaRepository: ReservaRepository,
-    var calificacionRepository: CalificacionRepository,
-    var usuarioRepository: UsuarioRepository
-) {
+class CalificacionService {
+    @Autowired
+    lateinit var libroRepository: LibroRepository
+
+    @Autowired
+    lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    lateinit var calificacionRepository: CalificacionRepository
+
+    @Autowired
+    lateinit var usuarioRepository: UsuarioRepository
+
+    @Transactional
     fun calificarLibro(
-        calificacion: CrearCalificacionDTO
+        calificacionDTO: CrearCalificacionDTO
     ) {
-// Cambiá la línea 32 y 33 por esto:
-        val usuario = usuarioRepository.findById(calificacion.usuarioId)
-            .orElseThrow { NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacion.usuarioId)) }
+        val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
+            ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
 
-        if (esPublicador(usuario)) {
-            throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
-        }
+        if (esPublicador(usuario)) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
-        val reserva = reservaRepository.getById(calificacion.reservaId)
-            ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacion.reservaId))
+        val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
+            ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacionDTO.reservaId))
 
-        if (calificacion.usuarioId != reserva.usuarioLector.id) throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
+        if (calificacionDTO.usuarioId != reserva.usuarioLector.id) throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
 
         if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
-        val nuevaCalificacion = Calificacion(
-            reserva = reserva,
-            puntuacion = calificacion.puntuacion,
-            comentario = calificacion.comentario,
-            fecha = LocalDate.now()
-        )
+        val existente = calificacionRepository
+            .findByLibroIdAndUsuarioId(
+                reserva.libro.id!!,
+                usuario.id!!,
+            )
 
-        calificacionRepository.agregarCalificacion(nuevaCalificacion)
+        if (existente != null) {
+            existente.puntuacion = calificacionDTO.puntuacion
+            existente.comentario = calificacionDTO.comentario
+            existente.fecha = LocalDate.now()
+
+            calificacionRepository.save(existente)
+        } else {
+            val nueva = Calificacion(
+                usuario = reserva.usuarioLector,
+                libro = reserva.libro,
+                puntuacion = calificacionDTO.puntuacion,
+                comentario = calificacionDTO.comentario,
+                fecha = LocalDate.now()
+            )
+
+            calificacionRepository.save(nueva)
+        }
     }
 
-    private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 
+    @Transactional(readOnly = true)
     fun obtenerCalificaciones(
         libroID: Long,
         orden: OrdenCalificacion,
         page: Int,
         size: Int,
     ): PageResponse<Calificacion> {
-        val libro = libroRepository.getById(libroID)
+        val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
         val sort = when (orden) {
@@ -74,7 +97,7 @@ class CalificacionService(
 
         val pageable = PageRequest.of(page, size, sort)
 
-        val result = calificacionRepository.findByReservaLibroId(libro.id!!, pageable)
+        val result = calificacionRepository.findByLibroId(libro.id!!, pageable)
 
         return PageResponse(
             content = result.content,
@@ -85,26 +108,31 @@ class CalificacionService(
         )
     }
 
+    @Transactional(readOnly = true)
     fun ultimasCalificaciones(
         libroID: Long,
     ): List<Calificacion> {
-        val libro = libroRepository.getById(libroID)
+        val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
-        val calificaciones = calificacionRepository.obtenerUltimasCalificaciones(libro)
+        val calificaciones = calificacionRepository.findTop2ByLibroIdOrderByFechaDesc(libro.id!!)
 
         return calificaciones
     }
 
+    @Transactional(readOnly = true)
     fun promedioCalificaciones(
         libroID: Long?,
     ): Double {
-        return calificacionRepository.obtenerPromedioCalificaciones(libroID)
+        return calificacionRepository.obtenerPromedioCalificaciones(libroID!!) ?: 0.0
     }
 
+    @Transactional(readOnly = true)
     fun cantidadCalificaciones(
         libroID: Long,
-    ): Int {
-        return calificacionRepository.obtenerCantidadCalificaciones(libroID)
+    ): Long {
+        return calificacionRepository.countByLibroId(libroID)
     }
+
+    private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 }

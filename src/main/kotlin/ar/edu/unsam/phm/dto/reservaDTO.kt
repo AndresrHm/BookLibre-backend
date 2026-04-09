@@ -22,8 +22,8 @@ data class ReservaDTO(
 
 data class CreacionReservaDTO(
     val libroId: Long,
-    val usuarioPrestadorId: Long?,
-    val usuarioLectorId: Long?,
+    val usuarioPrestadorId: Long,
+    val usuarioLectorId: Long,
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
 ) {
