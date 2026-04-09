@@ -10,6 +10,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import org.springframework.cglib.core.Local
 
 const val MAX_CARACTERES_DESCRIPCION = 500
 const val MAX_PAGINAS_LIBRO = 1500
@@ -37,7 +38,7 @@ class Libro(
     @Id
     @GeneratedValue
     override var id: Long? = null
-    val fechaAgregado: LocalDate = LocalDate.now()
+    var fechaAgregado = LocalDate.now()
     var activo = true
 
     fun init() {

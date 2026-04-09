@@ -18,6 +18,7 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.LocalDate
+import kotlin.random.Random
 
 @Configuration
 class BootstrapData(
@@ -188,6 +189,8 @@ class BootstrapData(
 
     private fun crearLibros(): List<Libro> {
 
+        val hoy = LocalDate.now()
+        val random = Random(42)
         val libros: List<Libro> = listOf(
 
             // ----- Libros de usuario id 1
@@ -994,7 +997,12 @@ class BootstrapData(
                 EstadoLibro.EXCELENTE,
                 5
             ),
-        )
+        ).map { libro ->
+            libro.apply {
+                // Fecha aleatoria dentro de los ultimos 365 dias (sin futuras).
+                fechaAgregado = hoy.minusDays(random.nextLong(0, 366))
+            }
+        }
 
         (libroRepository.saveAll(libros))
 
