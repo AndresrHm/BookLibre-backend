@@ -1136,10 +1136,11 @@ class BootstrapData(
             .map { reserva ->
                 val libro = reserva.libro
                 val usuario = reserva.usuarioLector
-                val seed = (libro?.id ?: 0L) + (usuario.id ?: 0L)
+                val seed = (libro.id ?: 0L) + (usuario.id ?: 0L)
                 val posicion = (seed % puntuaciones.size).toInt()
                 Calificacion(
-                    reserva = reserva,
+                    usuario = reserva.usuarioLector,
+                    libro = reserva.libro,
                     puntuacion = puntuaciones[posicion],
                     comentario = comentarios[posicion],
                     fecha = reserva.fechaDevolucion
@@ -1147,7 +1148,7 @@ class BootstrapData(
             }
         val calificacionesUnicas = calificaciones
             .sortedBy { it.fecha }
-            .associateBy { it.reserva.libro.id to it.reserva.usuarioLector.id }
+            .associateBy { it.libro.id to it.usuario.id }
             .values
             .toList()
         calificacionRepository.saveAll(calificacionesUnicas)

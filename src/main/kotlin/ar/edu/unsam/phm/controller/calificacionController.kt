@@ -38,7 +38,7 @@ class CalificacionController(val calificacionService: CalificacionService) {
     @GetMapping("{libroId}")
     fun calificacionesLibro(
         @PathVariable libroId: Long,
-        @RequestParam page: Int,
+        @RequestParam page: Int = 0,
         @RequestParam size: Int = 2,
         @RequestParam orden: OrdenCalificacion = OrdenCalificacion.DATE_DESC,
     ): PageResponse<CalificacionDTO> {
