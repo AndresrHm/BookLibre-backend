@@ -11,11 +11,13 @@ import ar.edu.unsam.phm.dto.LibroDetalleDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.LibroFiltradoDTO
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.stereotype.Component
 
 @Component
 class LibroMapper(
-    private val libroRepository: LibroRepository
+    private val libroRepository: LibroRepository,
+    private val usuarioService: UsuarioService
 ) {
     fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
@@ -125,7 +127,7 @@ class LibroMapper(
             biblioKarma = karmaForUserLector,
 //            TODO: Testing
             //userCreador = libroRepository.getNickUsuarioCreador(libro.id),
-            userCreador = "TEST",
+            userCreador = libro.autor,
             disponibilidad = disponibilidad
         )
         return libroDetalle

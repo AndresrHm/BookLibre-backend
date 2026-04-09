@@ -132,27 +132,30 @@ class LibroController(
         )
 
         return PageResponse(
-            content = pageResult.content.map {
+            content = pageResult.content.mapNotNull { libro ->
+                // Validar que el libro tiene ID antes de procesar
+                val libroId = libro.id ?: return@mapNotNull null
+
                 when (flagDiff) {
                     OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
                         libroMapper.libroToLibroFiltradoDTO(
-                            it,
-                            calificacionService.promedioCalificaciones(it.id),
+                            libro,
+                            calificacionService.promedioCalificaciones(libroId),
                             libroService.bringKarma(
-                                it,
-                                reservaService.cantidadReservas(it.id!!),
+                                libro,
+                                reservaService.cantidadReservas(libroId),
                                 userId,
                                 filtrosDeHome.fechaDesde,
                                 filtrosDeHome.fechaHasta,
                             ),
-                            libroService.disponibilidadLibro(it.id)
+                            libroService.disponibilidadLibro(libroId)
                         )
                     )
 
                     OrigenLibro.PERFIL -> SealedGetLibroFiltradoDTO.Perfil(
                         libroMapper.libroToLibroPerfilUsuarioDTO(
-                            it,
-                            libroService.disponibilidadLibro(it.id)
+                            libro,
+                            libroService.disponibilidadLibro(libro.id!!)
                         )
                     )
                 }

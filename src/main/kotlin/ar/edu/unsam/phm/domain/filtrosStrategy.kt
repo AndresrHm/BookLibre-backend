@@ -25,6 +25,8 @@ class EntreFechasFiltro(
     }
 }
 
+
+
 class GeneroFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibros): Boolean {
         return !queFiltrar.generos.isNullOrEmpty()
@@ -79,4 +81,6 @@ class UsuarioPrestadorFiltro : FiltroDeLibro {
         return libros.filter { it.idPropietario == usuarioPrestador.id }
 
     }
+
+
 }
