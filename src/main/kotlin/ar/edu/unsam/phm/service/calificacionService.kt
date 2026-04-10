@@ -24,7 +24,7 @@ import java.time.LocalDate
 
 @Service
 class CalificacionService {
-    @Autowired
+    @Autowired // buscar una mejor alternativa
     lateinit var libroRepository: LibroRepository
 
     @Autowired
@@ -40,11 +40,13 @@ class CalificacionService {
     fun calificarLibro(
         calificacionDTO: CrearCalificacionDTO
     ) {
+        // lectura
         val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
 
         if (esPublicador(usuario)) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
+        // lecutra
         val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
             ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacionDTO.reservaId))
 
@@ -52,6 +54,7 @@ class CalificacionService {
 
         if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
+        // lectura
         val existente = calificacionRepository
             .findByLibroIdAndUsuarioId(
                 reserva.libro.id!!,
@@ -63,6 +66,7 @@ class CalificacionService {
             existente.comentario = calificacionDTO.comentario
             existente.fecha = LocalDate.now()
 
+            // escritura
             calificacionRepository.save(existente)
         } else {
             val nueva = Calificacion(
@@ -72,7 +76,7 @@ class CalificacionService {
                 comentario = calificacionDTO.comentario,
                 fecha = LocalDate.now()
             )
-
+            // escritura
             calificacionRepository.save(nueva)
         }
     }

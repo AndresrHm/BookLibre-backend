@@ -18,7 +18,7 @@ interface LibroRepository : CrudRepository<Libro, Long> {
             SET l.activo = false
             where l.idPropietario = :idPropietario""")
     fun eliminarPorIDPropietario(idPropietario: Long)
-
+    fun findLibrosByActivo(activo : Boolean) : List<Libro> // transformar las query posibles asi
     // Filtrar libros activos
     @Query("SELECT l FROM Libro l WHERE l.activo = true")
     fun filtrarLibrosActivos(): List<Libro>

@@ -190,14 +190,14 @@ class LibroService(
         return if (estaReservadoHoy(libro.id!!)) "PRESTADO" else "DISPONIBLE"
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)  // quitar las transsaciones que no hacen nada
     fun obtenerPrestadoresDisponibles(search: String?, userId: Long): List<String> {
         repositorioUsuario.findByIdOrNull(userId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
 
         val termino = search?.trim().orEmpty()
 
-        return repositorioLibro.filtrarLibrosActivos()
+        return repositorioLibro.findLibrosByActivo(true)
             .filter { it.idPropietario != userId }
             .filter { !estaReservadoHoy(it.id!!) }
             .mapNotNull { repositorioUsuario.findByIdOrNull(it.idPropietario)?.nombre }

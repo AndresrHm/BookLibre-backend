@@ -60,6 +60,7 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
+        // lectura
         val libro = libroRepository.findById(libroId) // Lo traigo en el service para que no moleste con los tipos nulos
             .orElseThrow { BusinessException(ErrorStrings.libroNoEncontradoPorId(libroId)) }
 
@@ -78,20 +79,21 @@ class ReservaService(
 
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
-
+        // lectura
         val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!) //Esto luego vendrá de algún método del repo
+        // lectura
         val cantidadReservas = reservaRepository.countByLibroId(libro.id!!)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
             throw BusinessException(ErrorStrings.EXISTE_RESERVA_EN_RANGO)
         }
-
+        // crea el objeto
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
+        // escritura
         usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
-
+        // escritura
         reservaRepository.save(reserva)
-
         return reserva
     }
 
