@@ -4,7 +4,6 @@ import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import java.time.LocalDate
 import io.kotest.matchers.shouldBe
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
@@ -12,6 +11,7 @@ import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
@@ -25,7 +25,8 @@ import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
 
-class EspecTest : DescribeSpec({
+class SpecTest : DescribeSpec({
+
     isolationMode = IsolationMode.InstancePerTest
 
     describe("Test de Busqueda de libros Basico") {
@@ -43,7 +44,6 @@ class EspecTest : DescribeSpec({
         val direccionPerfilPage = DireccionOrden.DESCENDENTE
         val disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS
         val usuario1 = crearUsuario(
-            id = 1,
             nombre = "Juan",
             apellido = "Perez",
             descripcion = "Lector apasionado de ciencia ficcion",
@@ -55,7 +55,6 @@ class EspecTest : DescribeSpec({
         )
 
         val usuario2 = Usuario(
-            id = 2,
             nombre = "Maria",
             apellido = "Gomez",
             descripcion = "Coleccionista de libros clasicos",
@@ -68,7 +67,7 @@ class EspecTest : DescribeSpec({
 
         val libro1 = crearLibro(
             titulo = "El Aleph",
-            tipoLibro = comun,
+            tipoLibro = TipoLibro.COMUN,
             descripcion = "Cuentos",
             genero = Genero.DRAMA,
             autor = "Jorge Luis Borges",
@@ -83,7 +82,7 @@ class EspecTest : DescribeSpec({
 
         val libro2 = crearLibro(
             titulo = "Dune",
-            tipoLibro = comun,
+            tipoLibro = TipoLibro.COMUN,
             descripcion = "Sci-fi clasica",
             genero = Genero.CIENCIA_FICCION,
             autor = "Frank Herbert",
@@ -99,7 +98,7 @@ class EspecTest : DescribeSpec({
 
         val libro3 = crearLibro(
             titulo = "Orgullo y Prejuicio",
-            tipoLibro = comun,
+            tipoLibro = TipoLibro.COMUN,
             descripcion = "Novela romantica",
             genero = Genero.ROMANCE,
             autor = "Jane Austen",
@@ -114,7 +113,7 @@ class EspecTest : DescribeSpec({
 
         val libro4 = crearLibro(
             titulo = "Habitos Atomicos",
-            tipoLibro = comun,
+            tipoLibro = TipoLibro.COMUN,
             descripcion = "Mejora personal",
             genero = Genero.AUTOAYUDA,
             autor = "James Clear",
@@ -128,7 +127,7 @@ class EspecTest : DescribeSpec({
 
         val libro5 = crearLibro(
             titulo = "Rayuela",
-            tipoLibro = comun,
+            tipoLibro = TipoLibro.COMUN,
             descripcion = "Literatura latinoamericana",
             genero = Genero.LITERATURA_CLASICA,
             autor = "Julio Cortazar",
@@ -142,7 +141,7 @@ class EspecTest : DescribeSpec({
 
         val libro6 = crearLibro(
             titulo = "Dune Messiah",
-            tipoLibro = comun,
+            tipoLibro = TipoLibro.COMUN,
             descripcion = "Segunda parte de Dune",
             genero = Genero.CIENCIA_FICCION,
             autor = "Frank Herbert",
@@ -154,16 +153,16 @@ class EspecTest : DescribeSpec({
             estadoLibro = EstadoLibro.MUY_BUENO
         )
         it("se crea un libro") {
-            repositoryLibros.create(libro1)
+            repositoryLibros.save(libro1)
             repositoryLibros.getById(libro1.id) shouldBe libro1
         }
 
         it("se devuelve libros solo con filtro de fechas") {
-            repositoryLibros.create(libro1)
-            repositoryLibros.create(libro2)
-            repositoryLibros.create(libro3)
-            repositoryLibros.create(libro4)
-            repositoryLibros.create(libro5)
+            repositoryLibros.save(libro1)
+            repositoryLibros.save(libro2)
+            repositoryLibros.save(libro3)
+            repositoryLibros.save(libro4)
+            repositoryLibros.save(libro5)
             val reserva1 = Reserva(
                 libro = libro1,
                 usuarioPrestador = usuario2,
@@ -180,8 +179,8 @@ class EspecTest : DescribeSpec({
                 fechaDevolucion = LocalDate.of(2026, 4, 20)
             )
 
-            repositoryReservas.create(reserva1)
-            repositoryReservas.create(reserva2)
+            repositoryReservas.save(reserva1)
+            repositoryReservas.save(reserva2)
 
             val filtroDeLibros = FiltrosDeLibros(
                 fechaDesde = LocalDate.of(2026, 4, 5),
@@ -209,11 +208,11 @@ class EspecTest : DescribeSpec({
             librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
         }
         it("devuelve libros con filtro de genero y fechas") {
-            repositoryLibros.create(libro1)
-            repositoryLibros.create(libro2)
-            repositoryLibros.create(libro3)
-            repositoryLibros.create(libro4)
-            repositoryLibros.create(libro5)
+            repositoryLibros.save(libro1)
+            repositoryLibros.save(libro2)
+            repositoryLibros.save(libro3)
+            repositoryLibros.save(libro4)
+            repositoryLibros.save(libro5)
 
             val reserva1 = Reserva(
                 libro = libro1,
@@ -231,8 +230,8 @@ class EspecTest : DescribeSpec({
                 fechaDevolucion = LocalDate.of(2026, 4, 20)
             )
 
-            repositoryReservas.create(reserva1)
-            repositoryReservas.create(reserva2)
+            repositoryReservas.save(reserva1)
+            repositoryReservas.save(reserva2)
 
             val filtroDeLibros = FiltrosDeLibros(
                 fechaDesde = LocalDate.of(2026, 4, 5),
@@ -258,12 +257,12 @@ class EspecTest : DescribeSpec({
             librosFiltrados.content shouldBe listOf(libro2)
         }
         it("devuelve libros por nombre") {
-            repositoryLibros.create(libro1)
-            repositoryLibros.create(libro2)
-            repositoryLibros.create(libro3)
-            repositoryLibros.create(libro4)
-            repositoryLibros.create(libro5)
-            repositoryLibros.create(libro6)
+            repositoryLibros.save(libro1)
+            repositoryLibros.save(libro2)
+            repositoryLibros.save(libro3)
+            repositoryLibros.save(libro4)
+            repositoryLibros.save(libro5)
+            repositoryLibros.save(libro6)
 
             val filtroDeLibros = FiltrosDeLibros(
                 fechaDesde = null,

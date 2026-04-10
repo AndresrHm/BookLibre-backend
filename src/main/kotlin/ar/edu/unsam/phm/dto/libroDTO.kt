@@ -28,7 +28,7 @@ sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
 }
 
 data class LibroEdicionDTO(
-    val id: Long?,
+    val id: Long,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String,

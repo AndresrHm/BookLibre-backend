@@ -55,13 +55,13 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
-        libroRepository.clearInit()
-        usuarioRepository.clearInit()
+        libroRepository.deleteAll()
+        usuarioRepository.deleteAll()
 
-        usuarioRepository.create(usuarioPerfil)
-        libroRepository.create(libro1)
-        libroRepository.create(libro2)
-        libroRepository.create(libro3)
+        usuarioRepository.save(usuarioPerfil)
+        libroRepository.save(libro1)
+        libroRepository.save(libro2)
+        libroRepository.save(libro3)
     }
 
     // ----- Crear un libro -----
@@ -91,7 +91,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andReturn().resolvedException?.message
 
         assertEquals(ErrorStrings.LIBRO_DEBE_TENER_TITULO, errorMessage)
-        assertEquals(libroRepository.getElementos().size, 3) // El libro no fue agregado al repositorio
+        assertEquals(libroRepository.count(), 3) // El libro no fue agregado al repositorio
     }
 
     // ----- Obtener detalle de libro -----
@@ -245,7 +245,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 }
 
 fun crearLibroDTO(
-    id: Int = 1,
+    id: Long = 1,
     titulo: String = "Título de libro",
     tipoLibro: String = "comun",
     descripcion: String = "Descripción de libro",
@@ -258,7 +258,7 @@ fun crearLibroDTO(
     editorial: String = "Editorial de libro",
     fechaPublicacion: LocalDate = LocalDate.of(2026, 3, 23),
     estadoLibro: EstadoLibro = EstadoLibro.BUENO,
-    idPropietario: Int = 0
+    idPropietario: Long = 0
 ): LibroEdicionDTO {
     return LibroEdicionDTO(
         id = id,

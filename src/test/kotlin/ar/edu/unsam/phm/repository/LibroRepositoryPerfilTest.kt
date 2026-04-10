@@ -5,7 +5,6 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.TipoLibro
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
@@ -23,8 +22,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val disponible = crearLibro(titulo = "Disponible", autor = "Autor A", idPropietario = 10)
             val prestado = crearLibro(titulo = "Prestado", autor = "Autor B", idPropietario = 10)
 
-            libroRepository.create(disponible)
-            libroRepository.create(prestado)
+            libroRepository.save(disponible)
+            libroRepository.save(prestado)
 
             val resultado = libroRepository.buscarPorIdPropietario(
                 propietarioId = 10,
@@ -48,9 +47,9 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val libroAutorA = crearLibro(titulo = "Mismo", autor = "Alfa", idPropietario = 5)
             val libroTituloB = crearLibro(titulo = "Zoo", autor = "Beta", idPropietario = 5)
 
-            libroRepository.create(libroAutorZ)
-            libroRepository.create(libroAutorA)
-            libroRepository.create(libroTituloB)
+            libroRepository.save(libroAutorZ)
+            libroRepository.save(libroAutorA)
+            libroRepository.save(libroTituloB)
 
             val resultado = libroRepository.buscarPorIdPropietario(
                 propietarioId = 5,
@@ -73,8 +72,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val disponible = crearLibro(titulo = "Disponible", autor = "Autor A", idPropietario = 8)
             val prestado = crearLibro(titulo = "Prestado", autor = "Autor B", idPropietario = 8)
 
-            libroRepository.create(disponible)
-            libroRepository.create(prestado)
+            libroRepository.save(disponible)
+            libroRepository.save(prestado)
 
             val resultado = libroRepository.buscarPorIdPropietario(
                 propietarioId = 8,
