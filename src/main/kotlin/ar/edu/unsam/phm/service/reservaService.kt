@@ -24,11 +24,8 @@ import org.springframework.data.domain.Page
 
 @Service
 class ReservaService(
-    @Autowired
     var reservaRepository: ReservaRepository,
-    @Autowired
     val usuarioRepository: UsuarioRepository,
-    @Autowired
     val libroRepository: LibroRepository,
 ) {
     fun getReservas(
@@ -63,7 +60,7 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
-        val libro = libroRepository.findById(libroId) // Lo traigo en el service para que no moleste con los tipos nulos
+        val libro = libroRepository.findById(libroId)
             .orElseThrow { BusinessException(ErrorStrings.libroNoEncontradoPorId(libroId)) }
 
         if (esTipoPublicador(usuarioLector)) {
@@ -94,6 +91,7 @@ class ReservaService(
 
         usuarioRepository.save(usuarioLector)
         reservaRepository.save(reserva)
+
         return reserva
     }
 
