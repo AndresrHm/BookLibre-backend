@@ -23,19 +23,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-class CalificacionService {
-    @Autowired // buscar una mejor alternativa
-    lateinit var libroRepository: LibroRepository
-
-    @Autowired
-    lateinit var reservaRepository: ReservaRepository
-
-    @Autowired
-    lateinit var calificacionRepository: CalificacionRepository
-
-    @Autowired
-    lateinit var usuarioRepository: UsuarioRepository
-
+class CalificacionService(
+    private val calificacionRepository: CalificacionRepository,
+    private val usuarioRepository: UsuarioRepository,
+    private val libroRepository: LibroRepository,
+    private val reservaRepository: ReservaRepository,
+) {
     fun calificarLibro(
         calificacionDTO: CrearCalificacionDTO
     ) {
