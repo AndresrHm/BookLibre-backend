@@ -5,8 +5,8 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.EstadoReserva
@@ -41,7 +41,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro1usuario1 = crearLibro(
         "1984",
-        comun,
+        TipoLibro.COMUN,
         "Distopía política",
         "https://covers.openlibrary.org/b/id/12693610-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -57,7 +57,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro2usuario1 = crearLibro(
         "Cien años de soledad",
-        comun,
+        TipoLibro.COMUN,
         "Realismo mágico",
         "https://covers.openlibrary.org/b/id/14831384-L.jpg",
         Genero.LITERATURA_CLASICA,
@@ -73,7 +73,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro1usuario2 = crearLibro(
         "Dune",
-        comun,
+        TipoLibro.COMUN,
         "Sci-fi clásica",
         "https://covers.openlibrary.org/b/id/15092781-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -89,7 +89,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro2usuario2 = crearLibro(
         "Foundation",
-        comun,
+        TipoLibro.COMUN,
         "Saga Fundación",
         "https://covers.openlibrary.org/b/id/14612980-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -148,22 +148,22 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
-        reservaRepository.clearInit()
-        usuarioRepository.clearInit()
-        libroRepository.clearInit()
+        reservaRepository.deleteAll()
+        usuarioRepository.deleteAll()
+        libroRepository.deleteAll()
 
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
 
-        libroRepository.create(libro1usuario1)
-        libroRepository.create(libro2usuario1)
-        libroRepository.create(libro1usuario2)
-        libroRepository.create(libro2usuario2)
+        libroRepository.save(libro1usuario1)
+        libroRepository.save(libro2usuario1)
+        libroRepository.save(libro1usuario2)
+        libroRepository.save(libro2usuario2)
 
-        reservaRepository.create(reserva1)
-        reservaRepository.create(reserva2)
-        reservaRepository.create(reserva3)
-        reservaRepository.create(reserva4)
+        reservaRepository.save(reserva1)
+        reservaRepository.save(reserva2)
+        reservaRepository.save(reserva3)
+        reservaRepository.save(reserva4)
     }
 
     // ----- Reservas Realizadas -----

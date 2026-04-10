@@ -31,13 +31,13 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
-        usuarioRepository.clearInit()
+        usuarioRepository.deleteAll()
         usuario1.biblioKarma = 50
         usuario2.biblioKarma = 150
         usuario3.biblioKarma = 300
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
-        usuarioRepository.create(usuario3)
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
+        usuarioRepository.save(usuario3)
     }
 
     // ----- Obtener información del header -----
@@ -53,7 +53,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se encuentra información del header si el usuario no existe`() {
-        val usuarioIdInexistente = -1
+        val usuarioIdInexistente = -1L
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/header", usuarioIdInexistente)
         ).andExpect(status().isNotFound)
@@ -77,7 +77,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se encuentra el perfil si el usuario no existe`() {
-        val usuarioIdInexistente = -1
+        val usuarioIdInexistente = -1L
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/perfil", usuarioIdInexistente)
         ).andExpect(status().isNotFound)
@@ -113,7 +113,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se encuentra el tipo de usuario si el usuario no existe`() {
-        val usuarioIdInexistente = -1
+        val usuarioIdInexistente = -1L
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", usuarioIdInexistente)
         ).andExpect(status().isNotFound)

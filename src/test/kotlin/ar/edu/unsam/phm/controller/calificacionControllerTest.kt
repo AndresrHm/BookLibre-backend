@@ -4,8 +4,9 @@ import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
-import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.comun
+import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.TipoLibro
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
@@ -13,6 +14,7 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +26,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
-import kotlin.test.assertEquals
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,7 +44,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro1usuario1 = crearLibro(
         "1984",
-        comun,
+        TipoLibro.COMUN,
         "Distopía política",
         "https://covers.openlibrary.org/b/id/12693610-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -91,7 +92,8 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
     private val fechaCalificacion1 = hoy.minusDays(2)
     val calificacion1 = crearCalificacion(
-        reserva1,
+        reserva1.usuarioLector,
+        reserva1.libro,
         4.5,
         "Muy bueno!",
         fechaCalificacion1
@@ -99,20 +101,20 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
-        reservaRepository.clearInit()
-        usuarioRepository.clearInit()
-        libroRepository.clearInit()
-        calificacionRepository.clearInit()
+        reservaRepository.deleteAll()
+        usuarioRepository.deleteAll()
+        libroRepository.deleteAll()
+        calificacionRepository.deleteAll()
 
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
 
-        libroRepository.create(libro1usuario1)
+        libroRepository.save(libro1usuario1)
 
-        reservaRepository.create(reserva1)
-        reservaRepository.create(reserva2)
+        reservaRepository.save(reserva1)
+        reservaRepository.save(reserva2)
 
-        calificacionRepository.create((calificacion1))
+        calificacionRepository.save((calificacion1))
     }
 
     // ----- Obtener calificaciones de un libro -----
@@ -211,13 +213,15 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 }
 
 fun crearCalificacion(
-    reserva: Reserva,
-    puntuacion: Double,
-    comentario: String,
-    fecha: LocalDate,
+    usuario: Usuario = crearUsuario(),
+    libro: Libro = crearLibro(),
+    puntuacion: Double = 1.0,
+    comentario: String = "Comentario",
+    fecha: LocalDate = LocalDate.now(),
 ): Calificacion {
     return Calificacion(
-        reserva,
+        usuario,
+        libro,
         puntuacion,
         comentario,
         fecha,

@@ -20,7 +20,8 @@ class UsuarioService(
     val libroRepositorio: LibroRepository
 ) {
     @Transactional(readOnly = true)
-    fun getUsuarioById(id: Long) = usuarioRepositorio.findByIdOrNull(id) ?: throw NotFoundException("No se encontró usuario con id $id")
+    fun getUsuarioById(id: Long) =
+        usuarioRepositorio.findByIdOrNull(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
     @Transactional(readOnly = true)
     fun getUsuarioByNombre(nombre: String) =
@@ -28,24 +29,27 @@ class UsuarioService(
 
     @Transactional(readOnly = false, rollbackFor = [Exception::class])
     fun usuarioUpdate(usuario: Usuario): Usuario {
-        if (
-            camposObligatoriosVacios(usuario)
-        ) {
+        if (camposObligatoriosVacios(usuario)) {
             throw BusinessException(ErrorStrings.CAMPOS_OBLIGATORIOS_INCOMPLETOS)
         }
 
-        val pedidoPaginas = PageRequest.of(1, 1)
-
         when {
             usuario.esLector() -> {
-                if (reservaRepositorio.findReservasByType(usuario.id!!, ReservaType.TO_ME.name, "" ,pedidoPaginas).totalElements > 0) {
+                if (
+                    reservaRepositorio.countByUsuarioLectorId(usuario.id!!) > 0
+                ) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
                 }
-                libroRepositorio.eliminarPorIDPropietario(usuario.id!!)}
+                libroRepositorio.eliminarPorIDPropietario(usuario.id!!)
+            }
+
             usuario.esPublicador() ->
-                if (reservaRepositorio.findReservasByType(usuario.id!!, ReservaType.BY_ME.name, "", pedidoPaginas).totalElements > 0) {
+                if (
+                    reservaRepositorio.countByUsuarioPrestadorId(usuario.id!!) > 0
+                ) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
                 }
+
             usuario.esLectorPublicador() -> {}
         }
         usuarioRepositorio.save(usuario)

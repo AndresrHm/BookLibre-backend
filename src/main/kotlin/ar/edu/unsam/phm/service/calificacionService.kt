@@ -23,30 +23,20 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service
-class CalificacionService {
-    @Autowired // buscar una mejor alternativa
-    lateinit var libroRepository: LibroRepository
-
-    @Autowired
-    lateinit var reservaRepository: ReservaRepository
-
-    @Autowired
-    lateinit var calificacionRepository: CalificacionRepository
-
-    @Autowired
-    lateinit var usuarioRepository: UsuarioRepository
-
-    @Transactional
+class CalificacionService(
+    private val calificacionRepository: CalificacionRepository,
+    private val usuarioRepository: UsuarioRepository,
+    private val libroRepository: LibroRepository,
+    private val reservaRepository: ReservaRepository,
+) {
     fun calificarLibro(
         calificacionDTO: CrearCalificacionDTO
     ) {
-        // lectura
         val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
 
         if (esPublicador(usuario)) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
-        // lecutra
         val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
             ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacionDTO.reservaId))
 
@@ -54,7 +44,6 @@ class CalificacionService {
 
         if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
-        // lectura
         val existente = calificacionRepository
             .findByLibroIdAndUsuarioId(
                 reserva.libro.id!!,
@@ -66,7 +55,6 @@ class CalificacionService {
             existente.comentario = calificacionDTO.comentario
             existente.fecha = LocalDate.now()
 
-            // escritura
             calificacionRepository.save(existente)
         } else {
             val nueva = Calificacion(
@@ -76,13 +64,10 @@ class CalificacionService {
                 comentario = calificacionDTO.comentario,
                 fecha = LocalDate.now()
             )
-            // escritura
             calificacionRepository.save(nueva)
         }
     }
 
-
-    @Transactional(readOnly = true)
     fun obtenerCalificaciones(
         libroID: Long,
         orden: OrdenCalificacion,
@@ -112,7 +97,6 @@ class CalificacionService {
         )
     }
 
-    @Transactional(readOnly = true)
     fun ultimasCalificaciones(
         libroID: Long,
     ): List<Calificacion> {
@@ -124,14 +108,12 @@ class CalificacionService {
         return calificaciones
     }
 
-    @Transactional(readOnly = true)
     fun promedioCalificaciones(
         libroID: Long,
     ): Double {
         return calificacionRepository.obtenerPromedioCalificaciones(libroID) ?: 0.0
     }
 
-    @Transactional(readOnly = true)
     fun cantidadCalificaciones(
         libroID: Long,
     ): Long {
