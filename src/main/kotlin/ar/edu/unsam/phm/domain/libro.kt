@@ -10,7 +10,6 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
-import org.springframework.cglib.core.Local
 
 const val MAX_CARACTERES_DESCRIPCION = 500
 const val MAX_PAGINAS_LIBRO = 1500
@@ -58,7 +57,7 @@ class Libro(
         fechaIni: LocalDate,
         fechaFin: LocalDate
     ): Int =
-        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector(this, cantidadReservas, usuarioLector)
+        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.calcularKarma(this, cantidadReservas, usuarioLector)
 
     // Validaciones de creación/edición
     private fun verificarTitulo() {
