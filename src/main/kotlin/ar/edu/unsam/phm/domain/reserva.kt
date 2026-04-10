@@ -36,7 +36,7 @@ class Reserva(
 
     // TODO: Revisar la forma de obtener cantidad reservas
     fun darKarma(cantidadReservas: Int): Int {
-        return diasEntre(fechaDevolucion, fechaRecogida) * 5 + libro.darKarma(this, cantidadReservas)
+        return diasEntre(fechaRecogida, fechaDevolucion) * 5 + libro.darKarma(this, cantidadReservas)
     }
 
     fun estado(hoy: LocalDate = LocalDate.now()): EstadoReserva {

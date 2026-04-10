@@ -86,6 +86,7 @@ class ReservaService(
         }
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
         usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
+
         usuarioRepository.save(usuarioLector)
         reservaRepository.save(reserva)
         return reserva
