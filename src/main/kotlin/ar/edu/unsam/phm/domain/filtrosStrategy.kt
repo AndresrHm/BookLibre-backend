@@ -20,10 +20,12 @@ class EntreFechasFiltro(
     override fun filtrar(libros: List<Libro>, queFiltrar: FiltrosDeLibros): List<Libro> {
         val desde= queFiltrar.fechaDesde!!
         val hasta= queFiltrar.fechaHasta!!
-        val reservados= reservaRepo.getLibrosReservadosEntreFechas(desde, hasta)
-        return libros.filter { it !in reservados }
+        val reservados = reservaRepo.getLibrosReservadosEntreFechas(desde, hasta)
+        return libros.filter { it in reservados }
     }
 }
+
+
 
 class GeneroFiltro : FiltroDeLibro {
     override fun cumpleCondicion(queFiltrar: FiltrosDeLibros): Boolean {
@@ -79,4 +81,6 @@ class UsuarioPrestadorFiltro : FiltroDeLibro {
         return libros.filter { it.idPropietario == usuarioPrestador.id }
 
     }
+
+
 }

@@ -21,18 +21,18 @@ sealed class SealedGetUsuarioDTO(val tipo: String) {
 }
 
 data class UsuarioHeaderDTO(
-    val id: Int,
+    val id: Long?,
     val urlImagen: String,
     val biblioKarma: Int
 )
 
 data class UsuarioKarmaDTO(
-    val id: Int,
+    val id: Long?,
     val biblioKarma: Int
 )
 
 data class UsuarioEdicionDTO(
-    val id: Int,
+    val id: Long?,
     val nombre: String,
     val apellido: String,
     val descripcion: String,
@@ -42,7 +42,7 @@ data class UsuarioEdicionDTO(
 )
 
 data class UsarioPerfilDTO(
-    val id: Int,
+    val id: Long?,
     val nombre: String,
     val apellido: String,
     val descripcion: String,

@@ -30,7 +30,7 @@ class UsuarioSpec : DescribeSpec({
 })
 
 fun crearUsuario(
-    id: Int = 1,
+    id: Long = 1,
     nombre: String = "NombreUsuario",
     apellido: String = "ApellidoUsuario",
     descripcion: String = "DescripcionUsuario",
@@ -41,7 +41,6 @@ fun crearUsuario(
     urlImagen: String = "imagenUsuario"
 ): Usuario {
     return Usuario(
-        id = id,
         nombre = nombre,
         apellido = apellido,
         descripcion = descripcion,
