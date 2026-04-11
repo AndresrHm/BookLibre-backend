@@ -18,16 +18,10 @@ interface LibroRepository : CrudRepository<Libro, Long> {
             SET l.activo = false
             where l.idPropietario = :idPropietario""")
     fun eliminarPorIDPropietario(idPropietario: Long)
-    fun findLibrosByActivo(activo : Boolean) : List<Libro> // transformar las query posibles asi
-    // Filtrar libros activos
-    @Query("SELECT l FROM Libro l WHERE l.activo = true")
-    fun filtrarLibrosActivos(): List<Libro>
 
-    // Buscar libros activos por propietario
-    @Query("SELECT l FROM Libro l WHERE l.activo = true AND l.idPropietario = :idPropietario")
-    fun buscarPorIdPropietario(idPropietario: Long): List<Libro>
+    fun findByActivoTrue(): List<Libro>
+    fun findByActivoTrueAndIdPropietario(idPropietario: Long): List<Libro>
 
-    // Buscar libros disponibles del propietario
     @Query("""
         SELECT l FROM Libro l 
         WHERE l.activo = true 
@@ -40,7 +34,6 @@ interface LibroRepository : CrudRepository<Libro, Long> {
     """)
     fun buscarLibrosDisponiblesPorPropietario(idPropietario: Long): List<Libro>
 
-    // Buscar libros prestados (actualmente reservados)
     @Query("""
         SELECT DISTINCT l FROM Libro l 
         WHERE l.activo = true 
@@ -52,7 +45,6 @@ interface LibroRepository : CrudRepository<Libro, Long> {
     """)
     fun buscarLibrosPrestados(): List<Libro>
 
-    // Buscar libros prestados del propietario
     @Query("""
         SELECT DISTINCT l FROM Libro l 
         WHERE l.activo = true 

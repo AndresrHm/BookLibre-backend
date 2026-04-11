@@ -1,9 +1,6 @@
 package ar.edu.unsam.phm.controller
 
-import io.kotest.core.spec.IsolationMode
-import io.kotest.core.spec.style.DescribeSpec
 import java.time.LocalDate
-import io.kotest.matchers.shouldBe
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
@@ -14,36 +11,54 @@ import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.crearLibro
-import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrigenLibro
-import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import kotlin.test.assertEquals
 
-class SpecTest : DescribeSpec({
+@SpringBootTest
+class HomePageTest {
 
-    isolationMode = IsolationMode.InstancePerTest
+    @Autowired
+    private lateinit var repositoryLibros: LibroRepository
 
-    describe("Test de Busqueda de libros Basico") {
-        val repositoryReservas = ReservaRepository()
-        val repositoryUsuario = UsuarioRepository()
-        val repositoryLibros = LibroRepository( repositoryUsuario)
-        val serviceLibros = LibroService(
-            repositoryLibros,
-            repositoryReservas,
-            repositoryUsuario,
-            LibroMapper(repositoryLibros)
-        )
-        val userIdConsulta = 999
-        val ordenPerfilPage = OrdenLibroPerfil.FECHA_AGREGADO
-        val direccionPerfilPage = DireccionOrden.DESCENDENTE
-        val disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS
-        val usuario1 = crearUsuario(
+    @Autowired
+    private lateinit var repositoryReservas: ReservaRepository
+
+    @Autowired
+    private lateinit var repositoryUsuario: UsuarioRepository
+
+    @Autowired
+    private lateinit var serviceLibros: LibroService
+    private val userIdConsulta = 999L
+    private val ordenPerfilPage = OrdenLibroPerfil.FECHA_AGREGADO
+    private val direccionPerfilPage = DireccionOrden.DESCENDENTE
+    private val disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS
+
+    private lateinit var usuario1: Usuario
+    private lateinit var usuario2: Usuario
+    private lateinit var libro1: ar.edu.unsam.phm.domain.Libro
+    private lateinit var libro2: ar.edu.unsam.phm.domain.Libro
+    private lateinit var libro3: ar.edu.unsam.phm.domain.Libro
+    private lateinit var libro4: ar.edu.unsam.phm.domain.Libro
+    private lateinit var libro5: ar.edu.unsam.phm.domain.Libro
+    private lateinit var libro6: ar.edu.unsam.phm.domain.Libro
+
+    @BeforeEach
+    fun setUp() {
+        repositoryLibros.deleteAll()
+        repositoryReservas.deleteAll()
+        repositoryUsuario.deleteAll()
+
+        usuario1 = crearUsuario(
             nombre = "Juan",
             apellido = "Perez",
             descripcion = "Lector apasionado de ciencia ficcion",
@@ -54,7 +69,7 @@ class SpecTest : DescribeSpec({
             urlImagen = "https://www.grupocos.org"
         )
 
-        val usuario2 = Usuario(
+        usuario2 = Usuario(
             nombre = "Maria",
             apellido = "Gomez",
             descripcion = "Coleccionista de libros clasicos",
@@ -65,7 +80,7 @@ class SpecTest : DescribeSpec({
             urlImagen = "https://www.grupocos.org"
         )
 
-        val libro1 = crearLibro(
+        libro1 = crearLibro(
             titulo = "El Aleph",
             tipoLibro = TipoLibro.COMUN,
             descripcion = "Cuentos",
@@ -80,7 +95,7 @@ class SpecTest : DescribeSpec({
             idPropietario = 2,
         )
 
-        val libro2 = crearLibro(
+        libro2 = crearLibro(
             titulo = "Dune",
             tipoLibro = TipoLibro.COMUN,
             descripcion = "Sci-fi clasica",
@@ -96,7 +111,7 @@ class SpecTest : DescribeSpec({
         )
 
 
-        val libro3 = crearLibro(
+        libro3 = crearLibro(
             titulo = "Orgullo y Prejuicio",
             tipoLibro = TipoLibro.COMUN,
             descripcion = "Novela romantica",
@@ -111,7 +126,7 @@ class SpecTest : DescribeSpec({
             idPropietario = 2
         )
 
-        val libro4 = crearLibro(
+        libro4 = crearLibro(
             titulo = "Habitos Atomicos",
             tipoLibro = TipoLibro.COMUN,
             descripcion = "Mejora personal",
@@ -125,7 +140,7 @@ class SpecTest : DescribeSpec({
             estadoLibro = EstadoLibro.EXCELENTE
         )
 
-        val libro5 = crearLibro(
+        libro5 = crearLibro(
             titulo = "Rayuela",
             tipoLibro = TipoLibro.COMUN,
             descripcion = "Literatura latinoamericana",
@@ -139,7 +154,7 @@ class SpecTest : DescribeSpec({
             estadoLibro = EstadoLibro.BUENO
         )
 
-        val libro6 = crearLibro(
+        libro6 = crearLibro(
             titulo = "Dune Messiah",
             tipoLibro = TipoLibro.COMUN,
             descripcion = "Segunda parte de Dune",
@@ -152,142 +167,201 @@ class SpecTest : DescribeSpec({
             fechaPublicacion = LocalDate.of(1969, 6, 1),
             estadoLibro = EstadoLibro.MUY_BUENO
         )
-        it("se crea un libro") {
-            repositoryLibros.save(libro1)
-            repositoryLibros.getById(libro1.id) shouldBe libro1
-        }
-
-        it("se devuelve libros solo con filtro de fechas") {
-            repositoryLibros.save(libro1)
-            repositoryLibros.save(libro2)
-            repositoryLibros.save(libro3)
-            repositoryLibros.save(libro4)
-            repositoryLibros.save(libro5)
-            val reserva1 = Reserva(
-                libro = libro1,
-                usuarioPrestador = usuario2,
-                usuarioLector = usuario1,
-                fechaRecogida = LocalDate.of(2026, 4, 1),
-                fechaDevolucion = LocalDate.of(2026, 4, 15)
-            )
-
-            val reserva2 = Reserva(
-                libro = libro3,
-                usuarioPrestador = usuario2,
-                usuarioLector = usuario1,
-                fechaRecogida = LocalDate.of(2026, 4, 10),
-                fechaDevolucion = LocalDate.of(2026, 4, 20)
-            )
-
-            repositoryReservas.save(reserva1)
-            repositoryReservas.save(reserva2)
-
-            val filtroDeLibros = FiltrosDeLibros(
-                fechaDesde = LocalDate.of(2026, 4, 5),
-                fechaHasta = LocalDate.of(2026, 4, 12),
-                generos = null,
-                paginasMin = null,
-                paginasMax = null,
-                isbn13 = null,
-                usuarioPrestador = null,
-                search = null,
-                usuarioLector = null,
-            )
-
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
-                filtroDeLibros,
-                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-                userId = userIdConsulta,
-                flagDiff = OrigenLibro.HOME,
-                disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
-                ordenLibroPerfil = ordenPerfilPage,
-                direccionOrdenPerfil = direccionPerfilPage
-
-
-            )
-            librosFiltrados.content shouldBe listOf(libro2, libro4, libro5)
-        }
-        it("devuelve libros con filtro de genero y fechas") {
-            repositoryLibros.save(libro1)
-            repositoryLibros.save(libro2)
-            repositoryLibros.save(libro3)
-            repositoryLibros.save(libro4)
-            repositoryLibros.save(libro5)
-
-            val reserva1 = Reserva(
-                libro = libro1,
-                usuarioPrestador = usuario2,
-                usuarioLector = usuario1,
-                fechaRecogida = LocalDate.of(2026, 4, 1),
-                fechaDevolucion = LocalDate.of(2026, 4, 15)
-            )
-
-            val reserva2 = Reserva(
-                libro = libro3,
-                usuarioPrestador = usuario2,
-                usuarioLector = usuario1,
-                fechaRecogida = LocalDate.of(2026, 4, 10),
-                fechaDevolucion = LocalDate.of(2026, 4, 20)
-            )
-
-            repositoryReservas.save(reserva1)
-            repositoryReservas.save(reserva2)
-
-            val filtroDeLibros = FiltrosDeLibros(
-                fechaDesde = LocalDate.of(2026, 4, 5),
-                fechaHasta = LocalDate.of(2026, 4, 12),
-                generos = listOf(Genero.CIENCIA_FICCION),
-                paginasMin = null,
-                paginasMax = null,
-                isbn13 = null,
-                usuarioPrestador = null,
-                search = null,
-                usuarioLector = null
-            )
-
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
-                filtroDeLibros,
-                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-                userId = userIdConsulta,
-                flagDiff = OrigenLibro.HOME,
-                disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
-                ordenLibroPerfil = ordenPerfilPage,
-                direccionOrdenPerfil = direccionPerfilPage
-            )
-            librosFiltrados.content shouldBe listOf(libro2)
-        }
-        it("devuelve libros por nombre") {
-            repositoryLibros.save(libro1)
-            repositoryLibros.save(libro2)
-            repositoryLibros.save(libro3)
-            repositoryLibros.save(libro4)
-            repositoryLibros.save(libro5)
-            repositoryLibros.save(libro6)
-
-            val filtroDeLibros = FiltrosDeLibros(
-                fechaDesde = null,
-                fechaHasta = null,
-                generos = null,
-                paginasMin = null,
-                paginasMax = null,
-                isbn13 = null,
-                usuarioPrestador = null,
-                search = "Dune",
-                usuarioLector = null
-            )
-
-            val librosFiltrados = serviceLibros.getLibrosPorFiltros(
-                filtroDeLibros,
-                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-                userId = userIdConsulta ,
-                flagDiff = OrigenLibro.HOME,
-                disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
-                ordenLibroPerfil = ordenPerfilPage,
-                direccionOrdenPerfil = direccionPerfilPage
-            )
-            librosFiltrados.content shouldBe listOf(libro2, libro6)
-        }
-
-
+        repositoryUsuario.save(usuario1)
+        repositoryUsuario.save(usuario2)
     }
-})
+
+    @Test
+    fun `se crea un libro`() {
+        val guardado = repositoryLibros.save(libro1)
+        val recuperado = repositoryLibros.findById(guardado.id!!).orElseThrow()
+        assertEquals(guardado.id, recuperado.id)
+    }
+
+    @Test
+    fun `se devuelve libros solo con filtro de fechas`() {
+        repositoryLibros.save(libro1)
+        repositoryLibros.save(libro2)
+        repositoryLibros.save(libro3)
+        repositoryLibros.save(libro4)
+        repositoryLibros.save(libro5)
+        val reserva1 = Reserva(
+            libro = libro1,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida = LocalDate.of(2026, 4, 1),
+            fechaDevolucion = LocalDate.of(2026, 4, 15)
+        )
+
+        val reserva2 = Reserva(
+            libro = libro3,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida = LocalDate.of(2026, 4, 10),
+            fechaDevolucion = LocalDate.of(2026, 4, 20)
+        )
+
+        repositoryReservas.save(reserva1)
+        repositoryReservas.save(reserva2)
+
+        val filtroDeLibros = FiltrosDeLibros(
+            fechaDesde = LocalDate.of(2026, 4, 5),
+            fechaHasta = LocalDate.of(2026, 4, 12),
+            generos = null,
+            paginasMin = null,
+            paginasMax = null,
+            isbn13 = null,
+            usuarioPrestador = null,
+            search = null,
+            usuarioLector = null,
+        )
+
+        val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+            filtroDeLibros,
+            ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+            userId = userIdConsulta,
+            flagDiff = OrigenLibro.HOME,
+            disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
+            ordenLibroPerfil = ordenPerfilPage,
+            direccionOrdenPerfil = direccionPerfilPage
+        )
+        assertEquals(listOf(libro2, libro4, libro5), librosFiltrados.content)
+    }
+
+    @Test
+    fun `devuelve libros con filtro de genero y fechas`() {
+        repositoryLibros.save(libro1)
+        repositoryLibros.save(libro2)
+        repositoryLibros.save(libro3)
+        repositoryLibros.save(libro4)
+        repositoryLibros.save(libro5)
+
+        val reserva1 = Reserva(
+            libro = libro1,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida = LocalDate.of(2026, 4, 1),
+            fechaDevolucion = LocalDate.of(2026, 4, 15)
+        )
+
+        val reserva2 = Reserva(
+            libro = libro3,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida = LocalDate.of(2026, 4, 10),
+            fechaDevolucion = LocalDate.of(2026, 4, 20)
+        )
+
+        repositoryReservas.save(reserva1)
+        repositoryReservas.save(reserva2)
+
+        val filtroDeLibros = FiltrosDeLibros(
+            fechaDesde = LocalDate.of(2026, 4, 5),
+            fechaHasta = LocalDate.of(2026, 4, 12),
+            generos = listOf(Genero.CIENCIA_FICCION),
+            paginasMin = null,
+            paginasMax = null,
+            isbn13 = null,
+            usuarioPrestador = null,
+            search = null,
+            usuarioLector = null
+        )
+
+        val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+            filtroDeLibros,
+            ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+            userId = userIdConsulta,
+            flagDiff = OrigenLibro.HOME,
+            disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
+            ordenLibroPerfil = ordenPerfilPage,
+            direccionOrdenPerfil = direccionPerfilPage
+        )
+        assertEquals(listOf(libro2), librosFiltrados.content)
+    }
+
+    @Test
+    fun `devuelve libros por nombre`() {
+        repositoryLibros.save(libro1)
+        repositoryLibros.save(libro2)
+        repositoryLibros.save(libro3)
+        repositoryLibros.save(libro4)
+        repositoryLibros.save(libro5)
+        repositoryLibros.save(libro6)
+
+        val filtroDeLibros = FiltrosDeLibros(
+            fechaDesde = null,
+            fechaHasta = null,
+            generos = null,
+            paginasMin = null,
+            paginasMax = null,
+            isbn13 = null,
+            usuarioPrestador = null,
+            search = "Dune",
+            usuarioLector = null
+        )
+
+        val librosFiltrados = serviceLibros.getLibrosPorFiltros(
+            filtroDeLibros,
+            ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+            userId = userIdConsulta ,
+            flagDiff = OrigenLibro.HOME,
+            disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
+            ordenLibroPerfil = ordenPerfilPage,
+            direccionOrdenPerfil = direccionPerfilPage
+        )
+        assertEquals(listOf(libro2, libro6), librosFiltrados.content)
+    }
+}
+
+private fun crearUsuario(
+    nombre: String,
+    apellido: String,
+    descripcion: String,
+    email: String,
+    celular: String,
+    ciudad: String,
+    tipoUsuario: TipoUsuario,
+    urlImagen: String
+): Usuario {
+    return Usuario(
+        nombre = nombre,
+        apellido = apellido,
+        descripcion = descripcion,
+        email = email,
+        celular = celular,
+        ciudad = ciudad,
+        tipoUsuario = tipoUsuario,
+        urlImagen = urlImagen,
+    )
+}
+
+private fun crearLibro(
+    titulo: String,
+    tipoLibro: TipoLibro,
+    descripcion: String,
+    genero: Genero,
+    autor: String,
+    cantidadPaginas: Int,
+    isbn13: Long,
+    idioma: Idioma,
+    editorial: String,
+    fechaPublicacion: LocalDate,
+    estadoLibro: EstadoLibro,
+    idPropietario: Int = 1,
+): ar.edu.unsam.phm.domain.Libro {
+    return ar.edu.unsam.phm.domain.Libro(
+        titulo = titulo,
+        tipoLibro = tipoLibro,
+        descripcion = descripcion,
+        portada = "https://img.test/${titulo.lowercase().replace(" ", "-")}.jpg",
+        genero = genero,
+        autor = autor,
+        cantidadPaginas = cantidadPaginas,
+        isbn13 = isbn13,
+        idioma = idioma,
+        editorial = editorial,
+        fechaPublicacion = fechaPublicacion,
+        estadoLibro = estadoLibro,
+        idPropietario = idPropietario.toLong(),
+    )
+}

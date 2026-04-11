@@ -1,6 +1,5 @@
 package ar.edu.unsam.phm.domain
 
-import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
@@ -33,10 +32,10 @@ class Libro(
     @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
     val idPropietario: Long
-) : Identificable {
+) {
     @Id
     @GeneratedValue
-    override var id: Long? = null
+    var id: Long? = 0
     var fechaAgregado = LocalDate.now()
     var activo = true
 
