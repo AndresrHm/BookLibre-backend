@@ -31,7 +31,7 @@ class Reserva(
 ) {
     @Id
     @GeneratedValue
-    var id: Long? = 0
+    var id: Long? = null
 
     // TODO: Revisar la forma de obtener cantidad reservas
     fun darKarma(cantidadReservas: Int): Int {

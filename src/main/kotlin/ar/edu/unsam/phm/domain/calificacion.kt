@@ -27,5 +27,5 @@ data class Calificacion(
 ){
     @Id
     @GeneratedValue
-    var id: Long? = 0
+    var id: Long? = null
 }
