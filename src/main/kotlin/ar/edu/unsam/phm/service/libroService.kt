@@ -197,7 +197,7 @@ class LibroService(
 
         val termino = search?.trim().orEmpty()
 
-        return repositorioLibro.findLibrosByActivo(true)
+        return repositorioLibro.findByActivoTrue()
             .filter { it.idPropietario != userId }
             .filter { !estaReservadoHoy(it.id!!) }
             .mapNotNull { repositorioUsuario.findByIdOrNull(it.idPropietario)?.nombre }
@@ -234,7 +234,7 @@ class LibroService(
         direccion: DireccionOrden,
     ): List<Libro> {
         val librosFiltrados = when (disponibilidad) {
-            FiltroDisponibilidadPerfil.TODOS -> repositorioLibro.buscarPorIdPropietario(propietarioId)
+            FiltroDisponibilidadPerfil.TODOS -> repositorioLibro.findByActivoTrueAndIdPropietario(propietarioId)
             FiltroDisponibilidadPerfil.DISPONIBLES -> repositorioLibro.buscarLibrosDisponiblesPorPropietario(propietarioId)
             FiltroDisponibilidadPerfil.PRESTADOS -> repositorioLibro.buscarLibrosPrestadosPorPropietario(propietarioId)
         }
