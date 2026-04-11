@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.requireBusiness
-import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.utils.diasEntre
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -29,10 +28,10 @@ class Reserva(
 
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
-) : Identificable {
+) {
     @Id
     @GeneratedValue
-    override var id: Long? = null
+    var id: Long? = 0
 
     // TODO: Revisar la forma de obtener cantidad reservas
     fun darKarma(cantidadReservas: Int): Int {

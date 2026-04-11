@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.domain
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.repository.Identificable
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -21,10 +20,10 @@ class Usuario(
     var ciudad: String,
     var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
-) : Identificable {
+) {
     @Id
     @GeneratedValue
-    override var id: Long? = null
+    var id: Long? = 0
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "libros_para_prestar")
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
