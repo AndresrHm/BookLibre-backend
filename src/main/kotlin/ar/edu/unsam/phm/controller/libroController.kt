@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.controller
 
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
@@ -55,7 +56,7 @@ class LibroController(
     }
 
     @GetMapping("{idLibro}/{tipoDTO}")
-    fun obtenerLibro(@PathVariable idLibro: Int, @PathVariable tipoDTO: GetLibroDTO): SealedGetLibroDTO {
+    fun obtenerLibro(@PathVariable idLibro: Long, @PathVariable tipoDTO: GetLibroDTO): SealedGetLibroDTO {
         val libro = libroService.obtenerLibro(idLibro)
 
         when (tipoDTO) {
@@ -80,7 +81,7 @@ class LibroController(
     @PutMapping
     fun editarLibro(
         @RequestBody libro: LibroEdicionDTO,
-        @RequestParam idUsuario: Int,
+        @RequestParam idUsuario: Long,
     ): ResponseEntity<ActionResponse> {
         val libroObjeto = libroMapper.libroEdicionDTOToLibro(libro)
         val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
@@ -92,26 +93,25 @@ class LibroController(
             .body(ActionResponse(mensajeExito))
     }
 
-    @GetMapping("")
+    @GetMapping
     fun getLibrosFilter(
-
-        @RequestParam flagDiff : OrigenLibro,
+        @RequestParam flagDiff: OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @RequestParam page: Int = 0,
         @RequestParam size: Int,
-        @RequestParam userId: Int,
-        @RequestParam ordenHomePage : OrdenHomePage ? = OrdenHomePage.NOMBRE_ASC,
-        @RequestParam ordenPerfilPage: OrdenLibroPerfil ? = OrdenLibroPerfil.FECHA_AGREGADO,
-        @RequestParam direccionPerfilPage: DireccionOrden ? = DireccionOrden.DESCENDENTE,
-        @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil ? = FiltroDisponibilidadPerfil.TODOS,
+        @RequestParam userId: Long,
+        @RequestParam ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
+        @RequestParam ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,
+        @RequestParam direccionPerfilPage: DireccionOrden? = DireccionOrden.DESCENDENTE,
+        @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil? = FiltroDisponibilidadPerfil.TODOS,
         @RequestParam(required = false) usuarioPrestador: String?,
 
-    ): PageResponse<SealedGetLibroFiltradoDTO> {
-        val usuarioPrestadorFiltrado = filtrosQuery.usuarioPrestadorId
+        ): PageResponse<SealedGetLibroFiltradoDTO> {
+        val usuarioPrestadorFiltrado: Usuario? = filtrosQuery.usuarioPrestadorId
             ?.let { usuarioService.getUsuarioById(it) }
             ?: usuarioPrestador
                 ?.takeIf { it.isNotBlank() }
-                ?.let { usuarioService.getUsuarioByNombre(it) }
+                ?.let { usuarioService.getUsuarioByNombre(it).firstOrNull() }
 
         val filtrosDeHome = libroMapper.filtroDTOtoLibroFiltro(
             filtrosQuery,
@@ -128,34 +128,39 @@ class LibroController(
             flagDiff,
             disponibilidadLibrosPerfil!!,
             ordenPerfilPage!!,
-            direccionPerfilPage!!)
+            direccionPerfilPage!!
+        )
 
         return PageResponse(
-            content = pageResult.content.map {
+            content = pageResult.content.mapNotNull { libro ->
+                // Validar que el libro tiene ID antes de procesar
+                val libroId = libro.id ?: return@mapNotNull null
+
                 when (flagDiff) {
                     OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
                         libroMapper.libroToLibroFiltradoDTO(
-                            it,
-                            calificacionService.promedioCalificaciones(it.id),
+                            libro,
+                            calificacionService.promedioCalificaciones(libroId),
                             libroService.bringKarma(
-                                it,
-                                reservaService.cantidadReservas(it.id),
+                                libro,
+                                reservaService.cantidadReservas(libroId),
                                 userId,
                                 filtrosDeHome.fechaDesde,
                                 filtrosDeHome.fechaHasta,
                             ),
-                            libroService.disponibilidadLibro(it.id)
+                            libroService.disponibilidadLibro(libroId)
                         )
                     )
+
                     OrigenLibro.PERFIL -> SealedGetLibroFiltradoDTO.Perfil(
                         libroMapper.libroToLibroPerfilUsuarioDTO(
-                            it,
-                            libroService.disponibilidadLibro(it.id)
+                            libro,
+                            libroService.disponibilidadLibro(libro.id!!)
                         )
                     )
                 }
 
-            } ,
+            },
             page = pageResult.page,
             size = pageResult.size,
             totalElements = pageResult.totalElements,
@@ -165,14 +170,14 @@ class LibroController(
 
     @GetMapping("prestadoresDisponibles")
     fun getPrestadoresDisponibles(
-        @RequestParam userId: Int,
+        @RequestParam userId: Long,
         @RequestParam(required = false, defaultValue = "") search: String,
     ): List<String> = libroService.obtenerPrestadoresDisponibles(search, userId)
 
     @DeleteMapping("{idLibro}")
     fun borrarLibro(
-        @PathVariable idLibro: Int,
-        @RequestParam idUsuario: Int
+        @PathVariable idLibro: Long,
+        @RequestParam idUsuario: Long
     ): ResponseEntity<ActionResponse> {
         libroService.borrarLibro(idLibro, idUsuario)
 

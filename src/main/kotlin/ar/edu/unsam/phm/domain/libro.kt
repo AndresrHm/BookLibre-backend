@@ -5,51 +5,69 @@ import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import org.springframework.cglib.core.Local
 
 const val MAX_CARACTERES_DESCRIPCION = 500
 const val MAX_PAGINAS_LIBRO = 1500
 
+@Entity
 class Libro(
     var titulo: String,
+    @Enumerated(EnumType.STRING)
     val tipoLibro: TipoLibro,
     var descripcion: String,
     var portada: String,
+    @Enumerated(EnumType.STRING)
     var genero: Genero,
     var autor: String,
     var cantidadPaginas: Int,
     var isbn13: Long,
+    @Enumerated(EnumType.STRING)
     var idioma: Idioma,
     var editorial: String,
     var fechaPublicacion: LocalDate,
+    @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
-    val idPropietario: Int
+    val idPropietario: Long
 ) : Identificable {
-    override var id: Int = -1
-    val fechaAgregado = LocalDate.now()
+    @Id
+    @GeneratedValue
+    override var id: Long? = null
+    var fechaAgregado = LocalDate.now()
     var activo = true
 
     fun init() {
-        verficarTitulo()
-        verficarDescripcion()
-        verficarAutor()
-        verficarEditorial()
-        verficarPaginas()
-        verficarCodigo()
+        verificarTitulo()
+        verificarDescripcion()
+        verificarAutor()
+        verificarEditorial()
+        verificarPaginas()
+        verificarCodigo()
     }
 
     fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(reserva, cantidadReservas)
 
-    fun calcularKarmaHomePage(usuarioLector: Usuario, cantidadReservas: Int, fechaIni: LocalDate, fechaFin: LocalDate): Int =
+    fun calcularKarmaHomePage(
+        usuarioLector: Usuario,
+        cantidadReservas: Int,
+        fechaIni: LocalDate,
+        fechaFin: LocalDate
+    ): Int =
         diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector(this, cantidadReservas, usuarioLector)
 
     // Validaciones de creación/edición
-    private fun verficarTitulo() {
+    private fun verificarTitulo() {
         if (titulo.isBlank()) {
             throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_TITULO)
         }
     }
 
-    private fun verficarDescripcion() {
+    private fun verificarDescripcion() {
         if (descripcion.isBlank()) {
             throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_DESCRIPCION)
         }
@@ -58,19 +76,19 @@ class Libro(
         }
     }
 
-    private fun verficarAutor() {
+    private fun verificarAutor() {
         if (autor.isBlank()) {
             throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_AUTOR)
         }
     }
 
-    private fun verficarEditorial() {
+    private fun verificarEditorial() {
         if (editorial.isBlank()) {
             throw BusinessException(ErrorStrings.LIBRO_DEBE_TENER_EDITORIAL)
         }
     }
 
-    private fun verficarPaginas() {
+    private fun verificarPaginas() {
         if (cantidadPaginas <= 0) {
             throw BusinessException(ErrorStrings.LIBRO_CANTIDAD_PAGINAS_POSITIVA)
         }
@@ -79,7 +97,7 @@ class Libro(
         }
     }
 
-    private fun verficarCodigo() {
+    private fun verificarCodigo() {
         if (isbn13 <= 0) {
             throw BusinessException(ErrorStrings.ISBN13_DEBE_SER_POSITIVO)
         }
@@ -92,8 +110,8 @@ class Libro(
     fun getFechaAsString(): String = fechaAgregado.formatear()
 
     fun tipoComoTexto(): String =
-        if (tipoLibro == conDedicatoria) "conDedicatoria"
-        else if (tipoLibro == coleccionable) "coleccionable"
+        if (tipoLibro == TipoLibro.CON_DEDICATORIA) "conDedicatoria"
+        else if (tipoLibro == TipoLibro.COLECCIONABLE) "coleccionable"
         else "comun"
 }
 

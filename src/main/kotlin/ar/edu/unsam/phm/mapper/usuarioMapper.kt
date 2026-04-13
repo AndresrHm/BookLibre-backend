@@ -1,37 +1,30 @@
 package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.RegisterRequestDTO
-import ar.edu.unsam.phm.dto.TipoDTOUsuario
-import ar.edu.unsam.phm.dto.UsarioPerfilDTO
-import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
-import ar.edu.unsam.phm.dto.UsuarioHeaderDTO
-import ar.edu.unsam.phm.dto.UsuarioKarmaDTO
-import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.stereotype.Component
 
 @Component
 class UsuarioMapper(
-    private val reservaRepository: ReservaRepository,
     private val usuarioService: UsuarioService
 ) {
-    fun usuarioEdicionDTOtoLibro(usuarioEdicionDTO: UsuarioEdicionDTO): Usuario {
-        val usuario = usuarioService.getUsuarioById(usuarioEdicionDTO.id)
-        val usuarioNuevo = Usuario(
+
+    fun usuarioEdicionDTOtoUsuario(usuarioEdicionDTO: UsuarioEdicionDTO, usuarioExistente: Usuario): Usuario {
+        return Usuario(
             nombre = usuarioEdicionDTO.nombre,
             apellido = usuarioEdicionDTO.apellido,
             descripcion = usuarioEdicionDTO.descripcion,
             ciudad = usuarioEdicionDTO.ciudad,
             tipoUsuario = usuarioEdicionDTO.tipoUsuario,
             urlImagen = usuarioEdicionDTO.urlImagen,
-            email = usuario.email,
-            celular = usuario.celular
-        )
-        usuarioNuevo.id = usuarioEdicionDTO.id
-        usuarioNuevo.biblioKarma = usuario.biblioKarma
-
-        return usuarioNuevo
+            email = usuarioExistente.email,
+            celular = usuarioExistente.celular
+        ).apply {
+            id = usuarioEdicionDTO.id
+            biblioKarma = usuarioExistente.biblioKarma
+            passwordSesion = usuarioExistente.passwordSesion
+        }
     }
 
     fun toUsuarioPerfilDTO(usuario: Usuario): UsarioPerfilDTO = UsarioPerfilDTO(
@@ -46,8 +39,8 @@ class UsuarioMapper(
         celular = usuario.celular,
         biblioKarma = usuario.biblioKarma,
         fechaCreacion = usuario.getFechaCreacionAsString(),
-        cantidadDePrestamos = reservaRepository.obtenerCantidadDeReservasDeAlgunDuenio(usuario.id),
-        cantidadDeLibrosLeidos = reservaRepository.obtenerCantidadDeLibrosPedidos(usuario.id)
+        cantidadDePrestamos = usuarioService.obtenerCantidadDeLibrosPrestados(usuario.id!!),
+        cantidadDeLibrosLeidos = usuarioService.obtenerCantidadDeLibrosLeidos(usuario.id!!)
     )
 
     fun toUsuarioHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(
@@ -66,13 +59,12 @@ class UsuarioMapper(
         urlImagen = usuario.urlImagen
     )
 
-    fun toUsuarioKarma(usuario: Usuario): UsuarioKarmaDTO = UsuarioKarmaDTO(
+    fun toUsuarioKarmaDTO(usuario: Usuario): UsuarioKarmaDTO = UsuarioKarmaDTO(
         id = usuario.id,
         biblioKarma = usuario.biblioKarma
     )
 
     fun registerRequestDTOtoUsuario(register: RegisterRequestDTO): Usuario = Usuario(
-        id = 0,
         nombre = register.nombre,
         apellido = register.apellido,
         descripcion = "",
@@ -80,9 +72,10 @@ class UsuarioMapper(
         tipoUsuario = register.tipoDeUsuario,
         urlImagen = "",
         email = register.email,
-        celular = register.celular,
+        celular = register.celular
+    ).apply {
+        passwordSesion = register.password
+    }
 
-    ).apply {passwordSesion = register.password}
-
-    fun toTipoDTOUsuario(tipo: String) = TipoDTOUsuario.valueOf(tipo.uppercase())
+    fun toTipoDTOUsuario(tipo: String): TipoDTOUsuario = TipoDTOUsuario.valueOf(tipo.uppercase())
 }

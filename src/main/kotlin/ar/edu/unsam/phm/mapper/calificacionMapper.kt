@@ -6,8 +6,8 @@ import ar.edu.unsam.phm.dto.CalificacionDTO
 object CalificacionMapper {
     fun toDTO(obj: Calificacion): CalificacionDTO {
         return CalificacionDTO(
-            nombreUsuario = obj.reserva.usuarioLector.nombre + " " + obj.reserva.usuarioLector.apellido,
-            imagenUsuario = obj.reserva.usuarioLector.urlImagen,
+            nombreUsuario = obj.usuario.nombre + " " + obj.usuario.apellido,
+            imagenUsuario = obj.usuario.urlImagen,
             puntuacion = obj.puntuacion,
             comentario = obj.comentario,
             fecha = obj.fecha,
