@@ -9,7 +9,9 @@ import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.dto.GetLibroDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -36,6 +38,12 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var usuarioRepository: UsuarioRepository
 
     @Autowired
+    private lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
     private var usuarioPerfilId: Long = 0
@@ -43,6 +51,9 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
+        // Limpieza en orden de dependencias FK para evitar violaciones de integridad.
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
 
