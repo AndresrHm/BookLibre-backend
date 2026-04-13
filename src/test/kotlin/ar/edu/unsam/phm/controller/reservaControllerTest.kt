@@ -11,6 +11,7 @@ import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -38,6 +39,9 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Autowired
     private lateinit var libroRepository: LibroRepository
+
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
 
     val libro1usuario1 = crearLibro(
         "1984",
@@ -148,9 +152,10 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
+        calificacionRepository.deleteAll()
         reservaRepository.deleteAll()
-        usuarioRepository.deleteAll()
         libroRepository.deleteAll()
+        usuarioRepository.deleteAll()
 
         usuarioRepository.save(usuario1)
         usuarioRepository.save(usuario2)
@@ -171,12 +176,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (donde el usuario es lector)`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", usuario1.id.toString())
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-            )
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", usuario1.id.toString())
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+        )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content[*].titulo").value(containsInAnyOrder("Dune", "Foundation")))
 
@@ -210,12 +215,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request`() {
 
         val errorMessage = mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", "-1")
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-            ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", "-1")
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+        ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
 
         assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
@@ -224,13 +229,13 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `El filtrado funciona correctamente`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", usuario1.id.toString())
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-                    .param("search", "dun")
-            ).andExpect(status().isOk)
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", usuario1.id.toString())
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+                .param("search", "dun")
+        ).andExpect(status().isOk)
 
             .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(6))
             .andExpect(jsonPath("$.totalElements").value(1))

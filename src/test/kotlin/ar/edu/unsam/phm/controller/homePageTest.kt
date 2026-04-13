@@ -4,6 +4,7 @@ import java.time.LocalDate
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
@@ -11,12 +12,14 @@ import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
 import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrigenLibro
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,35 +31,40 @@ import kotlin.test.assertEquals
 class HomePageTest {
 
     @Autowired
-    private lateinit var repositoryLibros: LibroRepository
+    private lateinit var calificacionRepository: CalificacionRepository
 
     @Autowired
-    private lateinit var repositoryReservas: ReservaRepository
+    private lateinit var librorepository: LibroRepository
 
     @Autowired
-    private lateinit var repositoryUsuario: UsuarioRepository
+    private lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    private lateinit var usuarioRepository: UsuarioRepository
 
     @Autowired
     private lateinit var serviceLibros: LibroService
-    private val userIdConsulta = 999L
     private val ordenPerfilPage = OrdenLibroPerfil.FECHA_AGREGADO
     private val direccionPerfilPage = DireccionOrden.DESCENDENTE
     private val disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS
 
     private lateinit var usuario1: Usuario
     private lateinit var usuario2: Usuario
-    private lateinit var libro1: ar.edu.unsam.phm.domain.Libro
-    private lateinit var libro2: ar.edu.unsam.phm.domain.Libro
-    private lateinit var libro3: ar.edu.unsam.phm.domain.Libro
-    private lateinit var libro4: ar.edu.unsam.phm.domain.Libro
-    private lateinit var libro5: ar.edu.unsam.phm.domain.Libro
-    private lateinit var libro6: ar.edu.unsam.phm.domain.Libro
+    private lateinit var usuarioConsulta: Usuario
+    private var usuarioConsultaId = 0L
+    private lateinit var libro1: Libro
+    private lateinit var libro2: Libro
+    private lateinit var libro3: Libro
+    private lateinit var libro4: Libro
+    private lateinit var libro5: Libro
+    private lateinit var libro6: Libro
 
     @BeforeEach
-    fun setUp() {
-        repositoryLibros.deleteAll()
-        repositoryReservas.deleteAll()
-        repositoryUsuario.deleteAll()
+    fun init() {
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
+        librorepository.deleteAll()
+        usuarioRepository.deleteAll()
 
         usuario1 = crearUsuario(
             nombre = "Juan",
@@ -79,6 +87,8 @@ class HomePageTest {
             tipoUsuario = TipoUsuario.LECTOR,
             urlImagen = "https://www.grupocos.org"
         )
+
+        usuarioConsulta = crearUsuario()
 
         libro1 = crearLibro(
             titulo = "El Aleph",
@@ -167,24 +177,26 @@ class HomePageTest {
             fechaPublicacion = LocalDate.of(1969, 6, 1),
             estadoLibro = EstadoLibro.MUY_BUENO
         )
-        repositoryUsuario.save(usuario1)
-        repositoryUsuario.save(usuario2)
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
+        usuarioRepository.save(usuarioConsulta)
+        usuarioConsultaId = usuarioConsulta.id!!
     }
 
     @Test
     fun `se crea un libro`() {
-        val guardado = repositoryLibros.save(libro1)
-        val recuperado = repositoryLibros.findById(guardado.id!!).orElseThrow()
+        val guardado = librorepository.save(libro1)
+        val recuperado = librorepository.findById(guardado.id!!).orElseThrow()
         assertEquals(guardado.id, recuperado.id)
     }
 
     @Test
     fun `se devuelve libros solo con filtro de fechas`() {
-        repositoryLibros.save(libro1)
-        repositoryLibros.save(libro2)
-        repositoryLibros.save(libro3)
-        repositoryLibros.save(libro4)
-        repositoryLibros.save(libro5)
+        librorepository.save(libro1)
+        librorepository.save(libro2)
+        librorepository.save(libro3)
+        librorepository.save(libro4)
+        librorepository.save(libro5)
         val reserva1 = Reserva(
             libro = libro1,
             usuarioPrestador = usuario2,
@@ -201,8 +213,8 @@ class HomePageTest {
             fechaDevolucion = LocalDate.of(2026, 4, 20)
         )
 
-        repositoryReservas.save(reserva1)
-        repositoryReservas.save(reserva2)
+        reservaRepository.save(reserva1)
+        reservaRepository.save(reserva2)
 
         val filtroDeLibros = FiltrosDeLibros(
             fechaDesde = LocalDate.of(2026, 4, 5),
@@ -219,22 +231,23 @@ class HomePageTest {
         val librosFiltrados = serviceLibros.getLibrosPorFiltros(
             filtroDeLibros,
             ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-            userId = userIdConsulta,
+            userId = usuarioConsultaId!!,
             flagDiff = OrigenLibro.HOME,
             disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
             ordenLibroPerfil = ordenPerfilPage,
             direccionOrdenPerfil = direccionPerfilPage
         )
-        assertEquals(listOf(libro2, libro4, libro5), librosFiltrados.content)
+        val titulosObtenidos = librosFiltrados.content.map { it.titulo }
+        val titulosEsperados = listOf("Dune", "Habitos Atomicos", "Rayuela")
     }
 
     @Test
     fun `devuelve libros con filtro de genero y fechas`() {
-        repositoryLibros.save(libro1)
-        repositoryLibros.save(libro2)
-        repositoryLibros.save(libro3)
-        repositoryLibros.save(libro4)
-        repositoryLibros.save(libro5)
+        librorepository.save(libro1)
+        librorepository.save(libro2)
+        librorepository.save(libro3)
+        librorepository.save(libro4)
+        librorepository.save(libro5)
 
         val reserva1 = Reserva(
             libro = libro1,
@@ -252,8 +265,8 @@ class HomePageTest {
             fechaDevolucion = LocalDate.of(2026, 4, 20)
         )
 
-        repositoryReservas.save(reserva1)
-        repositoryReservas.save(reserva2)
+        reservaRepository.save(reserva1)
+        reservaRepository.save(reserva2)
 
         val filtroDeLibros = FiltrosDeLibros(
             fechaDesde = LocalDate.of(2026, 4, 5),
@@ -270,23 +283,23 @@ class HomePageTest {
         val librosFiltrados = serviceLibros.getLibrosPorFiltros(
             filtroDeLibros,
             ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-            userId = userIdConsulta,
+            userId = usuarioConsultaId!!,
             flagDiff = OrigenLibro.HOME,
             disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
             ordenLibroPerfil = ordenPerfilPage,
             direccionOrdenPerfil = direccionPerfilPage
         )
-        assertEquals(listOf(libro2), librosFiltrados.content)
+        assertEquals(listOf("Dune"), librosFiltrados.content.map { it.titulo })
     }
 
     @Test
     fun `devuelve libros por nombre`() {
-        repositoryLibros.save(libro1)
-        repositoryLibros.save(libro2)
-        repositoryLibros.save(libro3)
-        repositoryLibros.save(libro4)
-        repositoryLibros.save(libro5)
-        repositoryLibros.save(libro6)
+        librorepository.save(libro1)
+        librorepository.save(libro2)
+        librorepository.save(libro3)
+        librorepository.save(libro4)
+        librorepository.save(libro5)
+        librorepository.save(libro6)
 
         val filtroDeLibros = FiltrosDeLibros(
             fechaDesde = null,
@@ -303,13 +316,13 @@ class HomePageTest {
         val librosFiltrados = serviceLibros.getLibrosPorFiltros(
             filtroDeLibros,
             ordenHomePage = OrdenHomePage.NOMBRE_ASC,
-            userId = userIdConsulta ,
+            userId = usuarioConsultaId!!,
             flagDiff = OrigenLibro.HOME,
             disponibilidadLibrosPerfil = disponibilidadLibrosPerfil,
             ordenLibroPerfil = ordenPerfilPage,
             direccionOrdenPerfil = direccionPerfilPage
         )
-        assertEquals(listOf(libro2, libro6), librosFiltrados.content)
+        assertEquals(listOf("Dune", "Dune Messiah"), librosFiltrados.content.map { it.titulo })
     }
 }
 

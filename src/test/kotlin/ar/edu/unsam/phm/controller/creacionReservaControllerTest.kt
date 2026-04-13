@@ -1,9 +1,11 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -19,12 +21,16 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
+
 val HOY = LocalDate.now()
 
 //Lo moví a una clase aparte porque usa datos mockeados
 @SpringBootTest
 @AutoConfigureMockMvc
 class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
     @Autowired
     private lateinit var reservaRepository: ReservaRepository
 
@@ -39,23 +45,29 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val usuarioLector = crearUsuario(nombre = "Lector")
     val usuarioPrestador = crearUsuario(nombre = "Prestador")
-    val libro = crearLibro(idPropietario = 2, titulo = "Título")
+    lateinit var libro: Libro
 
     @BeforeEach
     fun init() {
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
-        reservaRepository.deleteAll()
+
+        usuarioRepository.save(usuarioLector)
+        usuarioRepository.save(usuarioPrestador)
+        libro = crearLibro(idPropietario = usuarioPrestador.id!!, titulo = "Título")
+        libroRepository.save(libro)
     }
 
     // Tests de creación de reservas
     @Test
     fun `Se puede reservar un libro`() {
-        usuarioRepository.save(usuarioLector)
-        usuarioRepository.save(usuarioPrestador)
-        libroRepository.save(libro)
-
-        val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
+        val reserva = crearCreacionReservaDTO(
+            usuarioLectorId = usuarioLector.id!!,
+            usuarioPrestadorId = usuarioPrestador.id!!,
+            libroId = libro.id!!
+        )
 
         mockMvc
             .perform(
@@ -69,8 +81,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `La reserva falla si el libro no existe`() {
-        usuarioRepository.save(usuarioLector)
-        usuarioRepository.save(usuarioPrestador)
+        libroRepository.deleteAll()
 
         val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
 
@@ -83,13 +94,12 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.libroNoEncontradoPorId(1), errorMessage)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(1), errorMessage)
     }
 
     @Test
     fun `La reserva falla si el usuario prestador no existe`() {
-        usuarioRepository.save(usuarioLector)
-        libroRepository.save(libro)
+        usuarioRepository.delete(usuarioPrestador)
 
         val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
 
@@ -102,13 +112,12 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(2), errorMessage)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(1), errorMessage)
     }
 
     @Test
     fun `La reserva falla si el usuario lector no existe`() {
-        usuarioRepository.save(usuarioPrestador)
-        libroRepository.save(libro)
+        usuarioRepository.delete(usuarioLector)
 
         val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
 
@@ -121,16 +130,17 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(2), errorMessage)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(1), errorMessage)
     }
 
     @Test
     fun `La reserva falla si se usan datos no permitidos`() {
-        usuarioRepository.save(usuarioLector)
-        usuarioRepository.save(usuarioPrestador)
-        libroRepository.save(libro)
-
-        val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1, fechaRecogida = HOY.minusDays(1))
+        val reserva = crearCreacionReservaDTO(
+            usuarioLectorId = usuarioLector.id!!,
+            usuarioPrestadorId = usuarioPrestador.id!!,
+            libroId = libro.id!!,
+            fechaRecogida = HOY.minusDays(1)
+        )
 
         val errorMessage = mockMvc
             .perform(

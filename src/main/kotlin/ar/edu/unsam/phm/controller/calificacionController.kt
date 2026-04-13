@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.controller
 
 import ActionResponse
-import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
