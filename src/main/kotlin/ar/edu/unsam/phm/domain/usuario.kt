@@ -23,7 +23,7 @@ class Usuario(
 ) {
     @Id
     @GeneratedValue
-    var id: Long? = 0
+    var id: Long? = null
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "libros_para_prestar")
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()

@@ -33,7 +33,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 10)
             val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 10)
 
-            every { repositorioLibro.findByActivoTrueAndIdPropietario(10) } returns listOf(disponible, prestado)
+            every { repositorioLibro.buscarLibrosDisponiblesPorPropietario(10) } returns listOf(disponible)
             every { repositorioLibro.buscarLibrosPrestados() } returns listOf(prestado)
 
             val resultado = servicio.getLibrosPorFiltros(

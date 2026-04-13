@@ -35,7 +35,7 @@ class Libro(
 ) {
     @Id
     @GeneratedValue
-    var id: Long? = 0
+    var id: Long? = null
     var fechaAgregado = LocalDate.now()
     var activo = true
 
