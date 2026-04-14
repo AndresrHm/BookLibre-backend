@@ -7,16 +7,16 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.paginate
-import ar.edu.unsam.phm.dto.DireccionOrden
-import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
-import ar.edu.unsam.phm.dto.FiltrosDeLibros
-import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-import ar.edu.unsam.phm.dto.OrigenLibro
+import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import ar.edu.unsam.phm.predicate.LibroSpecifications.activo
+import ar.edu.unsam.phm.predicate.LibroSpecifications.dePropietario
+import ar.edu.unsam.phm.predicate.LibroSpecifications.disponibleHoy
+import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -125,7 +125,7 @@ class LibroService(
 
         val filtrarGeneros = !filtrosNormalizados.generos.isNullOrEmpty()
         val generos: List<Genero> = if (filtrarGeneros) {
-            filtrosNormalizados.generos!!
+            filtrosNormalizados.generos
         } else {
             Genero.entries.toList()
         }
@@ -233,13 +233,18 @@ class LibroService(
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
     ): List<Libro> {
-        val librosFiltrados = when (disponibilidad) {
-            FiltroDisponibilidadPerfil.TODOS -> repositorioLibro.findByActivoTrueAndIdPropietario(propietarioId)
-            FiltroDisponibilidadPerfil.DISPONIBLES -> repositorioLibro.buscarLibrosDisponiblesPorPropietario(propietarioId)
-            FiltroDisponibilidadPerfil.PRESTADOS -> repositorioLibro.buscarLibrosPrestadosPorPropietario(propietarioId)
+        val baseSpec = Specification.where(activo()).and(dePropietario(propietarioId))
+
+        val specFinal = when (disponibilidad) {
+            FiltroDisponibilidadPerfil.TODOS -> baseSpec
+            FiltroDisponibilidadPerfil.DISPONIBLES -> baseSpec.and(disponibleHoy())
+            FiltroDisponibilidadPerfil.PRESTADOS -> baseSpec.and(reservadoHoy())
         }
 
-        val librosPrestadosIds = repositorioLibro.buscarLibrosPrestados().mapNotNull { it.id }.toSet()
+        val librosFiltrados = repositorioLibro.findAll(specFinal)
+
+        val librosPrestadosIds = repositorioLibro.findAll(Specification.where(activo()).and(reservadoHoy()))
+            .mapNotNull { it.id }.toSet()
 
         val comparadorBase = when (orden) {
             OrdenLibroPerfil.TITULO -> compareBy<Libro>({ it.titulo.lowercase() }, { it.autor.lowercase() })

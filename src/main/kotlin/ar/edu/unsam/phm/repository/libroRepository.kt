@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.repository
 
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Libro
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
 @Repository
-interface LibroRepository : CrudRepository<Libro, Long> {
+interface LibroRepository : CrudRepository<Libro, Long>, JpaSpecificationExecutor<Libro> {
 
     @Modifying
     @Query("""
@@ -20,42 +21,6 @@ interface LibroRepository : CrudRepository<Libro, Long> {
     fun eliminarPorIDPropietario(idPropietario: Long)
 
     fun findByActivoTrue(): List<Libro>
-    fun findByActivoTrueAndIdPropietario(idPropietario: Long): List<Libro>
-
-    @Query("""
-        SELECT l FROM Libro l 
-        WHERE l.activo = true 
-        AND l.idPropietario = :idPropietario
-        AND l.id NOT IN (
-            SELECT r.libro.id FROM Reserva r 
-            WHERE r.fechaRecogida <= CURRENT_DATE 
-            AND r.fechaDevolucion >= CURRENT_DATE
-        )
-    """)
-    fun buscarLibrosDisponiblesPorPropietario(idPropietario: Long): List<Libro>
-
-    @Query("""
-        SELECT DISTINCT l FROM Libro l 
-        WHERE l.activo = true 
-        AND l.id IN (
-            SELECT r.libro.id FROM Reserva r 
-            WHERE r.fechaRecogida <= CURRENT_DATE 
-            AND r.fechaDevolucion >= CURRENT_DATE
-        )
-    """)
-    fun buscarLibrosPrestados(): List<Libro>
-
-    @Query("""
-        SELECT DISTINCT l FROM Libro l 
-        WHERE l.activo = true 
-        AND l.idPropietario = :idPropietario
-        AND l.id IN (
-            SELECT r.libro.id FROM Reserva r 
-            WHERE r.fechaRecogida <= CURRENT_DATE 
-            AND r.fechaDevolucion >= CURRENT_DATE
-        )
-    """)
-    fun buscarLibrosPrestadosPorPropietario(idPropietario: Long): List<Libro>
 
     @Query(
         value = """
