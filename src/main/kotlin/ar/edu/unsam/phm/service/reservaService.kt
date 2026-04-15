@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.service
 
+import FechasReserva
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
@@ -17,17 +18,16 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
+import org.springframework.data.jpa.domain.Specification
+import jakarta.persistence.criteria.Predicate
+import org.springframework.data.domain.Page
 
 @Service
 class ReservaService(
-    @Autowired
     var reservaRepository: ReservaRepository,
-    @Autowired
     val usuarioRepository: UsuarioRepository,
-    @Autowired
     val libroRepository: LibroRepository,
 ) {
-    @Transactional(readOnly = true)
     fun getReservas(
         userID: Long,
         type: ReservaType,
@@ -41,7 +41,7 @@ class ReservaService(
 
         val pedidoPaginas = PageRequest.of(page, size)
 
-        val pageResponse = reservaRepository.findReservasByType(userID, type.name, nombreFiltro, pedidoPaginas)
+        val pageResponse = buscarReservasPorTipo(userID, type.name, nombreFiltro, pedidoPaginas)
 
         return PageResponse(
             content = pageResponse.content,
@@ -60,8 +60,7 @@ class ReservaService(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
-        // lectura
-        val libro = libroRepository.findById(libroId) // Lo traigo en el service para que no moleste con los tipos nulos
+        val libro = libroRepository.findById(libroId)
             .orElseThrow { BusinessException(ErrorStrings.libroNoEncontradoPorId(libroId)) }
 
         if (esTipoPublicador(usuarioLector)) {
@@ -79,47 +78,73 @@ class ReservaService(
 
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
-        // lectura
-        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!) //Esto luego vendrá de algún método del repo
-        // lectura
+        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!)
         val cantidadReservas = reservaRepository.countByLibroId(libro.id!!)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
             throw BusinessException(ErrorStrings.EXISTE_RESERVA_EN_RANGO)
         }
-        // crea el objeto
+
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
-        // escritura
         usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
-        // escritura
+
+        usuarioRepository.save(usuarioLector)
         reservaRepository.save(reserva)
+
         return reserva
     }
 
-    @Transactional(readOnly = true)
     fun obtenerFechasDeReservasDeLibro(libroId: Long): List<Pair<LocalDate, LocalDate>> {
         if (!libroRepository.existsById(libroId)) {
             throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
         }
 
-        val reservas: List<Reserva> = reservaRepository.findAllByLibroId(libroId)
+        val reservas: List<FechasReserva> = reservaRepository.findFechasByLibroId(libroId)
         return reservas.map {
             it.fechaRecogida to it.fechaDevolucion
         }
     }
 
-    @Transactional(readOnly = true)
     fun cantidadReservas(libroID: Long): Int {
         return reservaRepository.countByLibroId(libroID)
     }
 
-    @Transactional(readOnly = true)
-    fun idLibrosPrestadosHoy(): Set<Long?> {
-        return reservaRepository
-            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
-            .map { it.id }
-            .toSet()
+    private fun buscarReservasPorTipo(
+        userId: Long,
+        tipoReserva: String,
+        search: String?,
+        pageRequest: PageRequest,
+    ): Page<Reserva> {
+        val especificacion = Specification<Reserva> { root, query, cb ->
+            val condiciones = mutableListOf<Predicate>()
+
+            // Predicate para el filtro de Usuario (según el tipo)
+            if (tipoReserva == "TO_ME") {
+                // WHERE usuarioLector.id = :userId
+                condiciones.add(cb.equal(root.get<Usuario>("usuarioLector").get<Long>("id"), userId))
+            } else {
+                // WHERE usuarioPrestador.id = :userId
+                condiciones.add(cb.equal(root.get<Usuario>("usuarioPrestador").get<Long>("id"), userId))
+            }
+
+            // Predicate para el buscador por palabra
+            search?.takeIf { it.isNotBlank() }?.let { texto ->
+                val textoABuscar = "%${texto.lowercase()}%"
+
+                // Creamos las condiciones de título || autor
+                val tituloLike = cb.like(cb.lower(root.get<Libro>("libro").get("titulo")), textoABuscar)
+                val autorLike = cb.like(cb.lower(root.get<Libro>("libro").get("autor")), textoABuscar)
+
+                // Las unimos con un OR: (titulo LIKE ... OR autor LIKE ...)
+                condiciones.add(cb.or(tituloLike, autorLike))
+            }
+
+            // Unimos todas las condiciones con un AND final
+            cb.and(*condiciones.toTypedArray())
+        }
+
+        return reservaRepository.findAll(especificacion, pageRequest)
     }
 
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =

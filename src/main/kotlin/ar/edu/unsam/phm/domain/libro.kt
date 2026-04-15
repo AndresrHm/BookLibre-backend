@@ -1,6 +1,5 @@
 package ar.edu.unsam.phm.domain
 
-import ar.edu.unsam.phm.repository.Identificable
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
@@ -10,7 +9,6 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
-import org.springframework.cglib.core.Local
 
 const val MAX_CARACTERES_DESCRIPCION = 500
 const val MAX_PAGINAS_LIBRO = 1500
@@ -34,10 +32,10 @@ class Libro(
     @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
     val idPropietario: Long
-) : Identificable {
+) {
     @Id
     @GeneratedValue
-    override var id: Long? = null
+    var id: Long? = null
     var fechaAgregado = LocalDate.now()
     var activo = true
 
@@ -58,7 +56,7 @@ class Libro(
         fechaIni: LocalDate,
         fechaFin: LocalDate
     ): Int =
-        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.posibleKarmaALector(this, cantidadReservas, usuarioLector)
+        diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.calcularKarma(this, cantidadReservas, usuarioLector)
 
     // Validaciones de creación/edición
     private fun verificarTitulo() {

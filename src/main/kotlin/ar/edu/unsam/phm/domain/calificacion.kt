@@ -1,6 +1,5 @@
 package ar.edu.unsam.phm.domain
 
-import ar.edu.unsam.phm.repository.Identificable
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -25,8 +24,8 @@ data class Calificacion(
     var puntuacion: Double,
     var comentario: String,
     var fecha: LocalDate,
-): Identificable {
+){
     @Id
     @GeneratedValue
-    override var id: Long? = null
+    var id: Long? = null
 }

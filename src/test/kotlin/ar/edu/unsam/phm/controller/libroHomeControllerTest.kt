@@ -8,6 +8,7 @@ import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -24,12 +25,14 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.time.LocalDate
 import kotlin.test.assertEquals
 
 @SpringBootTest
 @AutoConfigureMockMvc
 class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
+
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
 
     @Autowired
     private lateinit var libroRepository: LibroRepository
@@ -43,67 +46,87 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     private val usuario1 = crearUsuario(nombre = "Ana", email = "ana@test.com")
     private val usuario2 = crearUsuario(nombre = "Bruno", email = "bruno@test.com")
 
-    private val libro1Usuario1 = crearLibro(
-        titulo = "1984",
-        genero = Genero.CIENCIA_FICCION,
-        autor = "George Orwell",
-        cantidadPaginas = 328,
-        isbn13 = 9780451524935,
-        idPropietario = 1,
-    )
-    private val libro2Usuario1 = crearLibro(
-        titulo = "Hamlet",
-        genero = Genero.DRAMA,
-        autor = "William Shakespeare",
-        cantidadPaginas = 160,
-        isbn13 = 9780141015866,
-        idPropietario = 1,
-    )
-    private val libro1Usuario2 = crearLibro(
-        titulo = "Dune",
-        genero = Genero.CIENCIA_FICCION,
-        autor = "Frank Herbert",
-        cantidadPaginas = 412,
-        isbn13 = 9780441172719,
-        idPropietario = 2,
-    )
-    private val libro2Usuario2 = crearLibro(
-        titulo = "Foundation",
-        genero = Genero.CIENCIA_FICCION,
-        autor = "Isaac Asimov",
-        cantidadPaginas = 255,
-        isbn13 = 9780553293357,
-        idPropietario = 2,
-    )
-    private val libro3Usuario2 = crearLibro(
-        titulo = "El gran gatsby",
-        genero = Genero.LITERATURA_CLASICA,
-        autor = "F. Scott Fitzgerald",
-        cantidadPaginas = 180,
-        isbn13 = 9780743273565,
-        idPropietario = 2,
-    )
+    var usuario1Id = 0L
+    var usuario2Id = 0L
+
+    private lateinit var libro1Usuario1: Libro
+    private lateinit var libro2Usuario1: Libro
+    private lateinit var libro1Usuario2: Libro
+    private lateinit var libro2Usuario2: Libro
+    private lateinit var libro3Usuario2: Libro
 
     @BeforeEach
     fun init() {
-        libroRepository.deleteAll()
         reservaRepository.deleteAll()
+        calificacionRepository.deleteAll()
+        libroRepository.deleteAll()
         usuarioRepository.deleteAll()
 
         usuarioRepository.save(usuario1)
         usuarioRepository.save(usuario2)
 
-        libroRepository.save(libro1Usuario1)
-        libroRepository.save(libro2Usuario1)
-        libroRepository.save(libro1Usuario2)
-        libroRepository.save(libro2Usuario2)
-        libroRepository.save(libro3Usuario2)
+        usuario1Id = usuario1.id!!
+        usuario2Id = usuario2.id!!
+
+        libro1Usuario1 = crearLibro(
+            titulo = "1984",
+            genero = Genero.CIENCIA_FICCION,
+            autor = "George Orwell",
+            cantidadPaginas = 328,
+            isbn13 = 9780451524935,
+            idPropietario = usuario1Id // ID real de Ana
+        )
+
+        libro2Usuario1 = crearLibro(
+            titulo = "Hamlet",
+            genero = Genero.DRAMA,
+            autor = "William Shakespeare",
+            cantidadPaginas = 160,
+            isbn13 = 9780141015866,
+            idPropietario = usuario1Id
+        )
+
+        libro1Usuario2 = crearLibro(
+            titulo = "Dune",
+            genero = Genero.CIENCIA_FICCION,
+            autor = "Frank Herbert",
+            cantidadPaginas = 412,
+            isbn13 = 9780441172719,
+            idPropietario = usuario2Id // ID real de Bruno
+        )
+
+        libro2Usuario2 = crearLibro(
+            titulo = "Foundation",
+            genero = Genero.CIENCIA_FICCION,
+            autor = "Isaac Asimov",
+            cantidadPaginas = 255,
+            isbn13 = 9780553293357,
+            idPropietario = usuario2Id
+        )
+
+        libro3Usuario2 = crearLibro(
+            titulo = "El gran gatsby",
+            genero = Genero.LITERATURA_CLASICA,
+            autor = "F. Scott Fitzgerald",
+            cantidadPaginas = 180,
+            isbn13 = 9780743273565,
+            idPropietario = usuario2Id
+        )
+        libroRepository.saveAll(
+            listOf(
+                libro1Usuario1,
+                libro2Usuario1,
+                libro1Usuario2,
+                libro2Usuario2,
+                libro3Usuario2
+            )
+        )
     }
 
     @Test
     fun `Se pueden obtener libros de home con filtros por query params`() {
         mockMvc.perform(
-            requestLibrosHome()
+            requestLibrosHome(userId = usuario1Id.toString())
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.page").value(0))
@@ -119,7 +142,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se obtiene un libro por busqueda por nombre`() {
         mockMvc.perform(
-            requestLibrosHome()
+            requestLibrosHome(userId = usuario1Id.toString())
                 .param("search", "Dune")
         )
             .andExpect(status().isOk)
@@ -133,7 +156,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se pueden enviar multiples generos como query params`() {
         mockMvc.perform(
-            requestLibrosHome(size = "10")
+            requestLibrosHome(size = "10", userId = usuario1Id.toString())
                 .param("generos", "DRAMA")
                 .param("generos", "CIENCIA_FICCION")
         )
@@ -147,7 +170,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Si el userId no existe, se retorna error 404`() {
-        val usuarioIdInexistente : Long = 999
+        val usuarioIdInexistente: Long = 999
         val errorMessage = mockMvc.perform(
             requestLibrosHome(userId = usuarioIdInexistente.toString())
         )
@@ -160,7 +183,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si el page es negativo, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            requestLibrosHome(page = "-1")
+            requestLibrosHome(page = "-1", userId = usuario1Id.toString())
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
@@ -171,7 +194,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si se pasan fechas invalidas en el filtro, se retorna error 400`() {
         val errorMessage = mockMvc.perform(
-            requestLibrosHome()
+            requestLibrosHome(userId = usuario1Id.toString())
                 .param("fechaDesde", "2027-05-01")
                 .param("fechaHasta", "2026-04-01")
         )
@@ -184,7 +207,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Te devuelve los libros segun el orden pedido`() {
         mockMvc.perform(
-            requestLibrosHome(ordenHomePage = "NOMBRE_DESC")
+            requestLibrosHome(ordenHomePage = "NOMBRE_DESC", userId = usuario1Id.toString())
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content[*].libro.titulo", contains("Foundation", "El gran gatsby", "Dune")))
@@ -193,7 +216,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se puede filtrar home por usuarioPrestador por nombre`() {
         mockMvc.perform(
-            requestLibrosHome(userId = "2")
+            requestLibrosHome(userId = usuario2Id.toString())
                 .param("paginasMin", "200")
                 .param("paginasMax", "800")
                 .param("usuarioPrestador", "Ana")
@@ -208,7 +231,7 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Si se filtra por usuarioPrestador propio, se muestran sus libros`() {
         mockMvc.perform(
-            requestLibrosHome(userId = "1")
+            requestLibrosHome(userId = usuario2Id.toString())
                 .param("paginasMin", "200")
                 .param("paginasMax", "800")
                 .param("usuarioPrestador", "Ana")
@@ -281,7 +304,7 @@ private fun crearLibro(
     autor: String,
     cantidadPaginas: Int,
     isbn13: Long,
-    idPropietario: Int,
+    idPropietario: Long,
 ): Libro {
     return Libro(
         titulo = titulo,
@@ -296,6 +319,6 @@ private fun crearLibro(
         editorial = "Editorial Test",
         fechaPublicacion = java.time.LocalDate.of(2020, 1, 1),
         estadoLibro = EstadoLibro.BUENO,
-        idPropietario = idPropietario.toLong(),
+        idPropietario = idPropietario,
     )
 }

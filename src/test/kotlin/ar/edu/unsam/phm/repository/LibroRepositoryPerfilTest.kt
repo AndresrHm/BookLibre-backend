@@ -5,120 +5,170 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.TipoLibro
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
+import ar.edu.unsam.phm.dto.FiltrosDeLibros
+import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
+import ar.edu.unsam.phm.dto.OrigenLibro
+import ar.edu.unsam.phm.service.LibroService
+import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import org.springframework.data.jpa.domain.Specification
 import java.time.LocalDate
 
 class LibroRepositoryPerfilTest : DescribeSpec({
+    isolationMode = IsolationMode.InstancePerTest
+
     describe("Busqueda de libros por propietario con filtros y orden") {
         it("filtra solo disponibles") {
-            val reservaRepository = ReservaRepository()
-            val userRepository = UsuarioRepository()
-            val libroRepository = LibroRepository( userRepository)
+            val repositorioLibro = mockk<LibroRepository>()
+            val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
+            val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
+            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val disponible = crearLibro(titulo = "Disponible", autor = "Autor A", idPropietario = 10)
-            val prestado = crearLibro(titulo = "Prestado", autor = "Autor B", idPropietario = 10)
+            val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 10)
+            val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 10)
 
-            libroRepository.create(disponible)
-            libroRepository.create(prestado)
+            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(disponible) andThen listOf(prestado)
 
-            val resultado = libroRepository.buscarPorIdPropietario(
-                propietarioId = 10,
+            val resultado = servicio.getLibrosPorFiltros(
+                filtrosDeHome = filtrosVacios(),
                 page = 0,
                 size = 10,
-                orden = OrdenLibroPerfil.FECHA_AGREGADO,
-                direccion = DireccionOrden.ASCENDENTE,
-                filtro = FiltroDisponibilidadPerfil.DISPONIBLES,
-                librosPrestadosIds = setOf(prestado.id)
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = 10,
+                flagDiff = OrigenLibro.PERFIL,
+                disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.DISPONIBLES,
+                ordenLibroPerfil = OrdenLibroPerfil.FECHA_AGREGADO,
+                direccionOrdenPerfil = DireccionOrden.ASCENDENTE,
             )
 
             resultado.content.map { it.id } shouldContainExactly listOf(disponible.id)
+            resultado.totalElements shouldBe 1
         }
 
-        it("ordena por titulo y luego por autor") {
-            val reservaRepository = ReservaRepository()
-            val userRepository = UsuarioRepository()
-            val libroRepository = LibroRepository( userRepository)
+        it("ordena por titulo") {
+            val repositorioLibro = mockk<LibroRepository>()
+            val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
+            val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
+            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val libroAutorZ = crearLibro(titulo = "Mismo", autor = "Zulu", idPropietario = 5)
-            val libroAutorA = crearLibro(titulo = "Mismo", autor = "Alfa", idPropietario = 5)
-            val libroTituloB = crearLibro(titulo = "Zoo", autor = "Beta", idPropietario = 5)
+            val libroAutorZ = crearLibro(id = 1, titulo = "Mismo", autor = "Zulu", idPropietario = 5)
+            val libroAutorA = crearLibro(id = 2, titulo = "Mismo", autor = "Alfa", idPropietario = 5)
+            val libroTituloB = crearLibro(id = 3, titulo = "Zoo", autor = "Beta", idPropietario = 5)
 
-            libroRepository.create(libroAutorZ)
-            libroRepository.create(libroAutorA)
-            libroRepository.create(libroTituloB)
+            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(libroAutorZ, libroTituloB, libroAutorA) andThen emptyList()
 
-            val resultado = libroRepository.buscarPorIdPropietario(
-                propietarioId = 5,
+            val resultado = servicio.getLibrosPorFiltros(
+                filtrosDeHome = filtrosVacios(),
                 page = 0,
                 size = 10,
-                orden = OrdenLibroPerfil.TITULO,
-                direccion = DireccionOrden.ASCENDENTE,
-                filtro = FiltroDisponibilidadPerfil.TODOS,
-                librosPrestadosIds = emptySet()
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = 5,
+                flagDiff = OrigenLibro.PERFIL,
+                disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
+                ordenLibroPerfil = OrdenLibroPerfil.TITULO,
+                direccionOrdenPerfil = DireccionOrden.ASCENDENTE,
             )
 
             resultado.content.map { it.id } shouldContainExactly listOf(libroAutorA.id, libroAutorZ.id, libroTituloB.id)
         }
 
         it("ordena por disponibilidad en descendente dejando prestados primero") {
-            val reservaRepository = ReservaRepository()
-            val userRepository = UsuarioRepository()
-            val libroRepository = LibroRepository( userRepository)
+            val repositorioLibro = mockk<LibroRepository>()
+            val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
+            val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
+            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val disponible = crearLibro(titulo = "Disponible", autor = "Autor A", idPropietario = 8)
-            val prestado = crearLibro(titulo = "Prestado", autor = "Autor B", idPropietario = 8)
+            val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 8)
+            val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 8)
 
-            libroRepository.create(disponible)
-            libroRepository.create(prestado)
+            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(disponible, prestado) andThen listOf(prestado)
 
-            val resultado = libroRepository.buscarPorIdPropietario(
-                propietarioId = 8,
+            val resultado = servicio.getLibrosPorFiltros(
+                filtrosDeHome = filtrosVacios(),
                 page = 0,
                 size = 10,
-                orden = OrdenLibroPerfil.DISPONIBLE_PRESTADO,
-                direccion = DireccionOrden.DESCENDENTE,
-                filtro = FiltroDisponibilidadPerfil.TODOS,
-                librosPrestadosIds = setOf(prestado.id)
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = 8,
+                flagDiff = OrigenLibro.PERFIL,
+                disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
+                ordenLibroPerfil = OrdenLibroPerfil.DISPONIBLE_PRESTADO,
+                direccionOrdenPerfil = DireccionOrden.DESCENDENTE,
             )
 
             resultado.content.map { it.id } shouldContainExactly listOf(prestado.id, disponible.id)
         }
+
+        it("ordena por fecha agregada") {
+            val repositorioLibro = mockk<LibroRepository>()
+            val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
+            val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
+            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
+
+            val libroViejo = crearLibro(id = 1, titulo = "Viejo", autor = "Autor A", idPropietario = 3, fechaAgregado = LocalDate.of(2020, 1, 1))
+            val libroMedio = crearLibro(id = 2, titulo = "Medio", autor = "Autor B", idPropietario = 3, fechaAgregado = LocalDate.of(2021, 1, 1))
+            val libroNuevo = crearLibro(id = 3, titulo = "Nuevo", autor = "Autor C", idPropietario = 3, fechaAgregado = LocalDate.of(2022, 1, 1))
+
+            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(libroNuevo, libroViejo, libroMedio) andThen emptyList()
+
+            val resultado = servicio.getLibrosPorFiltros(
+                filtrosDeHome = filtrosVacios(),
+                page = 0,
+                size = 10,
+                ordenHomePage = OrdenHomePage.NOMBRE_ASC,
+                userId = 3,
+                flagDiff = OrigenLibro.PERFIL,
+                disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
+                ordenLibroPerfil = OrdenLibroPerfil.FECHA_AGREGADO,
+                direccionOrdenPerfil = DireccionOrden.ASCENDENTE,
+            )
+
+            resultado.content.map { it.id } shouldContainExactly listOf(libroViejo.id, libroMedio.id, libroNuevo.id)
+        }
     }
 })
 
+private fun filtrosVacios() = FiltrosDeLibros(
+    generos = null,
+    paginasMin = null,
+    paginasMax = null,
+    fechaDesde = null,
+    fechaHasta = null,
+    isbn13 = null,
+    usuarioPrestador = null,
+    search = null,
+    usuarioLector = null,
+)
+
 private fun crearLibro(
+    id: Long,
     titulo: String,
-    tipoLibro: TipoLibro = comun,
-    descripcion: String = "Descripcion",
-    portada: String = "Portada",
-    genero: Genero = Genero.CIENCIA_FICCION,
     autor: String,
-    cantidadPaginas: Int = 200,
-    isbn13: Long = 1234567890123,
-    idioma: Idioma = Idioma.ESPANOL,
-    editorial: String = "Editorial",
-    fechaPublicacion: LocalDate = LocalDate.of(2020, 1, 1),
-    estadoLibro: EstadoLibro = EstadoLibro.BUENO,
-    idPropietario: Int
+    idPropietario: Long,
+    fechaAgregado: LocalDate = LocalDate.of(2024, 1, 1),
 ): Libro {
-    return Libro(
+    val libro = Libro(
         titulo = titulo,
-        tipoLibro = tipoLibro,
-        descripcion = descripcion,
-        portada = portada,
-        genero = genero,
+        tipoLibro = TipoLibro.COMUN,
+        descripcion = "Descripcion",
+        portada = "Portada",
+        genero = Genero.CIENCIA_FICCION,
         autor = autor,
-        cantidadPaginas = cantidadPaginas,
-        isbn13 = isbn13,
-        idioma = idioma,
-        editorial = editorial,
-        fechaPublicacion = fechaPublicacion,
-        estadoLibro = estadoLibro,
-        idPropietario = idPropietario
+        cantidadPaginas = 200,
+        isbn13 = 1234567890123,
+        idioma = Idioma.ESPANOL,
+        editorial = "Editorial",
+        fechaPublicacion = LocalDate.of(2020, 1, 1),
+        estadoLibro = EstadoLibro.BUENO,
+        idPropietario = idPropietario,
     )
+    libro.id = id
+    libro.fechaAgregado = fechaAgregado
+    return libro
 }
