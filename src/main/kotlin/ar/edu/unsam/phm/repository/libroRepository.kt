@@ -1,14 +1,11 @@
 package ar.edu.unsam.phm.repository
 
-import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Libro
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
-import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
 
 @Repository
 interface LibroRepository : CrudRepository<Libro, Long>, JpaSpecificationExecutor<Libro> {
@@ -21,42 +18,4 @@ interface LibroRepository : CrudRepository<Libro, Long>, JpaSpecificationExecuto
     fun eliminarPorIDPropietario(idPropietario: Long)
 
     fun findByActivoTrue(): List<Libro>
-
-    @Query(
-        value = """
-        SELECT l
-        FROM Libro l
-        WHERE l.activo = true
-          AND (:searchPattern = '' OR LOWER(l.titulo) LIKE :searchPattern)
-          AND (:isbn13 IS NULL OR l.isbn13 = :isbn13)
-          AND (:paginasMin IS NULL OR l.cantidadPaginas >= :paginasMin)
-          AND (:paginasMax IS NULL OR l.cantidadPaginas <= :paginasMax)
-          AND (:filtrarGeneros = false OR l.genero IN :generos)
-          AND (:usuarioPrestadorId IS NULL OR l.idPropietario = :usuarioPrestadorId)
-          AND (:usuarioPrestadorId IS NOT NULL OR l.idPropietario <> :userId)
-          AND (
-                :aplicarFiltroFecha = false
-                OR NOT EXISTS (
-                    SELECT 1
-                    FROM Reserva r
-                    WHERE r.libro.id = l.id
-                      AND r.fechaRecogida <= :fechaHasta
-                      AND r.fechaDevolucion >= :fechaDesde
-                )
-              )
-        """,
-    )
-    fun buscarHomePorFiltros(
-        @Param("searchPattern") searchPattern: String,
-        @Param("isbn13") isbn13: Long?,
-        @Param("paginasMin") paginasMin: Int?,
-        @Param("paginasMax") paginasMax: Int?,
-        @Param("filtrarGeneros") filtrarGeneros: Boolean,
-        @Param("generos") generos: List<Genero>,
-        @Param("usuarioPrestadorId") usuarioPrestadorId: Long?,
-        @Param("userId") userId: Long,
-        @Param("aplicarFiltroFecha") aplicarFiltroFecha: Boolean,
-        @Param("fechaDesde") fechaDesde: LocalDate,
-        @Param("fechaHasta") fechaHasta: LocalDate,
-    ): List<Libro>
 }
