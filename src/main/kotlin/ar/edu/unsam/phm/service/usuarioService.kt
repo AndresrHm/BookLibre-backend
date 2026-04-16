@@ -19,11 +19,11 @@ class UsuarioService(
     val reservaRepositorio: ReservaRepository,
     val libroRepositorio: LibroRepository
 ) {
-    @Transactional(readOnly = true)
+
     fun getUsuarioById(id: Long) =
         usuarioRepositorio.findByIdOrNull(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
-    @Transactional(readOnly = true)
+
     fun getUsuarioByNombre(nombre: String) =
         usuarioRepositorio.findByNombre(nombre) ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
 
@@ -61,7 +61,7 @@ class UsuarioService(
                 usuario.apellido == "" ||
                 usuario.ciudad == ""
 
-    @Transactional(readOnly = true)
+
     fun obtenerCantidadDeLibrosPrestados(usuarioId: Long): Int {
         return reservaRepositorio.findAll()
             .filter { it.usuarioPrestador.id == usuarioId }
@@ -69,7 +69,6 @@ class UsuarioService(
             .size
     }
 
-    @Transactional(readOnly = true)
     fun obtenerCantidadDeLibrosLeidos(usuarioId: Long): Int {
         return reservaRepositorio.findAll()
             .filter { it.usuarioLector.id == usuarioId }
