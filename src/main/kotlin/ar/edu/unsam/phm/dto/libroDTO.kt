@@ -102,9 +102,9 @@ data class FiltrosLibrosQueryDTO(
     val generos: List<Genero>? = null,
     val paginasMin: Int? = null,
     val paginasMax: Int? = null,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaDesde: LocalDate? = null,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaHasta: LocalDate? = null,
     val isbn13: Long? = null,
     val usuarioPrestadorId: Long? = null,
@@ -112,23 +112,6 @@ data class FiltrosLibrosQueryDTO(
     val usuarioLectorId: Long? = null,
 )
 
-
-fun FiltrosLibrosQueryDTO.DtoToLibroFiltro(
-    usuarioPrestador: Usuario?,
-    usuarioLector: Usuario?,
-): FiltrosDeLibros {
-    return FiltrosDeLibros(
-        generos = generos,
-        paginasMin = paginasMin,
-        paginasMax = paginasMax,
-        fechaDesde = fechaDesde,
-        fechaHasta = fechaHasta,
-        isbn13 = isbn13,
-        usuarioPrestador = usuarioPrestador,
-        search = search,
-        usuarioLector = usuarioLector,
-    )
-}
 
 data class LibroUsuarioPerfilDTO(
     val id: Long?,
