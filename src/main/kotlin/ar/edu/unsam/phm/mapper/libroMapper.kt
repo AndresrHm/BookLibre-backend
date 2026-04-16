@@ -103,7 +103,7 @@ class LibroMapper(
         return libroDetalle
     }
 
-    fun libroToLibroFiltradoDTO(
+    fun toFiltradoDTO(
         libro: Libro,
         rating: Double,
         karmaForUserLector: Int,

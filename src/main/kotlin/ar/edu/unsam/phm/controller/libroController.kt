@@ -98,7 +98,7 @@ class LibroController(
         @RequestParam flagDiff: OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int,
+        @RequestParam size: Int = 10,
         @RequestParam userId: Long,
         @RequestParam ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
         @RequestParam ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,

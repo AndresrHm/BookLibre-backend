@@ -37,6 +37,8 @@ class UsuarioController(
         val usuario = usuarioService.getUsuarioById(usuarioId)
         val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTOUsuario)
 
+
+        // Ver como hacer con mapa
         val response = when (tipoDTOEnum) {
             TipoDTOUsuario.HEADER -> {
                 val dto = usuarioMapper.toUsuarioHeaderDTO(usuario)
