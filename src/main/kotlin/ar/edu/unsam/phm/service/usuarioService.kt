@@ -78,7 +78,7 @@ class UsuarioService(
     }
 
     fun getNombreDeUsuario(id: Long): String? {
-        return usuarioRepositorio.findNombreById(id)
+        return usuarioRepositorio.findByIdOrNull(id)?.nombre
     }
 }
 
