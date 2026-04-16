@@ -9,7 +9,9 @@ import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.dto.GetLibroDTO
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -36,38 +38,54 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var usuarioRepository: UsuarioRepository
 
     @Autowired
+    private lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    private val usuarioPerfil = Usuario(
-        nombre = "Usuario",
-        apellido = "Perfil",
-        descripcion = "Usuario para tests de perfil",
-        email = "perfil@test.com",
-        celular = "11223344",
-        ciudad = "Buenos Aires",
-        tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-        urlImagen = "https://test.com/perfil.jpg"
-    )
-
-    val libro1 = crearLibro(idPropietario = 1)
-    val libro2 = crearLibro(titulo = "Segundo libro", autor = "Otro autor", idPropietario = 1)
-    val libro3 = crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE, idPropietario = 1)
+    private var usuarioPerfilId: Long = 0
+    private var libro1Id: Long = 0
 
     @BeforeEach
     fun init() {
-        libroRepository.clearInit()
-        usuarioRepository.clearInit()
+        // Limpieza en orden de dependencias FK para evitar violaciones de integridad.
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
+        libroRepository.deleteAll()
+        usuarioRepository.deleteAll()
 
-        usuarioRepository.create(usuarioPerfil)
-        libroRepository.create(libro1)
-        libroRepository.create(libro2)
-        libroRepository.create(libro3)
+        val usuarioGuardado = usuarioRepository.save(
+            Usuario(
+                nombre = "Usuario",
+                apellido = "Perfil",
+                descripcion = "Usuario para tests de perfil",
+                email = "perfil@test.com",
+                celular = "11223344",
+                ciudad = "Buenos Aires",
+                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
+                urlImagen = "https://test.com/perfil.jpg"
+            )
+        )
+
+        usuarioPerfilId = usuarioGuardado.id!!
+
+        val libro1 = libroRepository.save(crearLibro(idPropietario = usuarioPerfilId))
+        libroRepository.save(crearLibro(titulo = "Segundo libro", autor = "Otro autor", idPropietario = usuarioPerfilId))
+        libroRepository.save(crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE, idPropietario = usuarioPerfilId))
+
+        libro1Id = libro1.id!!
+
+        // Sanity check: los tres libros base deben quedar persistidos para los asserts del perfil.
+        assertEquals(3, libroRepository.count())
     }
 
     // ----- Crear un libro -----
     @Test
     fun `Se puede crear un libro`() {
-        val libroValido = crearLibroDTO()
+        val libroValido = crearLibroDTO(idPropietario = usuarioPerfilId)
         mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/libros")
@@ -80,7 +98,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se puede crear un libro que no pase las validaciones`() {
-        val libroInvalido = crearLibroDTO(titulo = "")
+        val libroInvalido = crearLibroDTO(titulo = "", idPropietario = usuarioPerfilId)
         val errorMessage = mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/libros")
@@ -91,14 +109,14 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andReturn().resolvedException?.message
 
         assertEquals(ErrorStrings.LIBRO_DEBE_TENER_TITULO, errorMessage)
-        assertEquals(libroRepository.getElementos().size, 3) // El libro no fue agregado al repositorio
+        assertEquals(libroRepository.count(), 3)
     }
 
     // ----- Obtener detalle de libro -----
     @Test
     fun `Cuando se provee un id, devuelve el libro asociado a ese id (detalle)`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", 1, GetLibroDTO.DETALLE)
+            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", libro1Id, GetLibroDTO.DETALLE)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.libro.titulo").value("Título de libro"))
     }
@@ -117,7 +135,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Cuando se provee un id, devuelve el libro asociado a ese id (edición)`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", 1, GetLibroDTO.EDICION)
+            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", libro1Id, GetLibroDTO.EDICION)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.libro.titulo").value("Título de libro"))
     }
@@ -136,12 +154,13 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se puede editar un libro`() {
         val libroEditadoDTO = crearLibroDTO(
+            id = libro1Id,
             titulo = "Nuevo título editado",
-            idPropietario = 1,
+            idPropietario = usuarioPerfilId,
         )
         mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", "1")
+                .param("idUsuario", usuarioPerfilId.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroEditadoDTO))
         ).andExpect(status().isOk())
@@ -154,7 +173,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 .param("flagDiff", "PERFIL")
                 .param("page", "0")
                 .param("size", "3")
-                .param("userId", "1")
+                .param("userId", usuarioPerfilId.toString())
                 .param("disponibilidadLibrosPerfil", "TODOS")
                 .param("ordenPerfilPage", "FECHA_AGREGADO")
                 .param("direccionPerfilPage", "DESCENDENTE")
@@ -172,7 +191,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se puede editar un libro si el usuario no es el propietario`() {
-        val libroDTO = crearLibroDTO(idPropietario = -1)
+        val libroDTO = crearLibroDTO(id = libro1Id, idPropietario = usuarioPerfilId)
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
@@ -183,16 +202,16 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(1, -1), errorMessage)
+        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(libro1Id, -1), errorMessage)
     }
 
     @Test
     fun `No se puede editar un libro que no se encuentra en la base de datos`() {
-        val libroDTO = crearLibroDTO(id = -1)
+        val libroDTO = crearLibroDTO(id = -1, idPropietario = usuarioPerfilId)
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", "0")
+                .param("idUsuario", usuarioPerfilId.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroDTO))
         )
@@ -204,11 +223,11 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `No se puede editar un libro con datos no permitidos`() {
-        val libroDTO = crearLibroDTO(titulo = "")
+        val libroDTO = crearLibroDTO(id = libro1Id, titulo = "", idPropietario = usuarioPerfilId)
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", "0")
+                .param("idUsuario", usuarioPerfilId.toString())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroDTO))
         )
@@ -223,7 +242,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `No se puede eliminar un libro que no está en la base de datos`() {
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.delete("/libros/0")
-                .param("idUsuario", "0")
+                .param("idUsuario", usuarioPerfilId.toString())
         )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
@@ -234,18 +253,18 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `No se puede eliminar un libro que no pertenece al usuario que lo solicita`() {
         val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.delete("/libros/1")
+            MockMvcRequestBuilders.delete("/libros/$libro1Id")
                 .param("idUsuario", "-1")
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(1, -1), errorMessage)
+        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(libro1Id, -1), errorMessage)
     }
 }
 
 fun crearLibroDTO(
-    id: Int = 1,
+    id: Long = 1,
     titulo: String = "Título de libro",
     tipoLibro: String = "comun",
     descripcion: String = "Descripción de libro",
@@ -258,7 +277,7 @@ fun crearLibroDTO(
     editorial: String = "Editorial de libro",
     fechaPublicacion: LocalDate = LocalDate.of(2026, 3, 23),
     estadoLibro: EstadoLibro = EstadoLibro.BUENO,
-    idPropietario: Int = 0
+    idPropietario: Long = 0
 ): LibroEdicionDTO {
     return LibroEdicionDTO(
         id = id,

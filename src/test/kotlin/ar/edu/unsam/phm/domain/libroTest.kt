@@ -127,7 +127,7 @@ class LibroSpec : DescribeSpec({
 
 fun crearLibro(
     titulo: String = "Título de libro",
-    tipoLibro: TipoLibro = comun,
+    tipoLibro: TipoLibro = TipoLibro.COMUN,
     descripcion: String = "Descripción de libro",
     portada: String = "Portada de libro",
     genero: Genero = Genero.CIENCIA_FICCION,
@@ -138,7 +138,7 @@ fun crearLibro(
     editorial: String = "Editorial de libro",
     fechaPublicacion: LocalDate = LocalDate.now(),
     estadoLibro: EstadoLibro = EstadoLibro.BUENO,
-    idPropietario: Int = 0
+    idPropietario: Long = 0
 ): Libro {
     return Libro(
         titulo,

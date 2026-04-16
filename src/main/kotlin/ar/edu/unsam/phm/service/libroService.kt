@@ -2,21 +2,24 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
-import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.paginate
-import ar.edu.unsam.phm.dto.DireccionOrden
-import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
-import ar.edu.unsam.phm.dto.FiltrosDeLibros
-import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-import ar.edu.unsam.phm.dto.OrigenLibro
+import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.predicate.LibroSpecifications.activo
+import ar.edu.unsam.phm.predicate.LibroSpecifications.dePropietario
+import ar.edu.unsam.phm.predicate.LibroSpecifications.disponibleHoy
+import ar.edu.unsam.phm.predicate.LibroSpecifications.filtrosHome
+import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -41,7 +44,7 @@ class LibroService(
         return nuevoLibro
     }
 
-    @Transactional(readOnly = true)
+    
     fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
 
     @Transactional
@@ -72,7 +75,7 @@ class LibroService(
         return libroOriginal
     }
 
-    @Transactional
+
     fun getLibrosPorFiltros(
         filtrosDeHome: FiltrosDeLibros,
         page: Int = 0,
@@ -107,7 +110,7 @@ class LibroService(
         }
     }
 
-    @Transactional(readOnly = true)
+
     fun librosFiltradosHomePage(
         filtros: FiltrosDeLibros,
         page: Int = 0,
@@ -123,51 +126,32 @@ class LibroService(
         validarPaginacion(page, size)
         validarRangosFiltros(filtrosNormalizados)
 
-        val filtrarGeneros = !filtrosNormalizados.generos.isNullOrEmpty()
-        val generos: List<Genero> = if (filtrarGeneros) {
-            filtrosNormalizados.generos!!
-        } else {
-            Genero.entries.toList()
-        }
+        val sort = sortHomePage(ordenHomePage)
+        val pageable = PageRequest.of(page, size, sort)
 
-        val searchPattern = filtrosNormalizados.search
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-            ?.lowercase()
-            ?.let { "%$it%" }
-            ?: ""
-
-        val aplicarFiltroFecha = filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null
-        val fechaDesde = filtrosNormalizados.fechaDesde ?: LocalDate.now()
-        val fechaHasta = filtrosNormalizados.fechaHasta ?: fechaDesde
-
-        val resultado = repositorioLibro.buscarHomePorFiltros(
-            searchPattern = searchPattern,
+        val spec = filtrosHome(
+            search = filtrosNormalizados.search,
             isbn13 = filtrosNormalizados.isbn13,
             paginasMin = filtrosNormalizados.paginasMin,
             paginasMax = filtrosNormalizados.paginasMax,
-            filtrarGeneros = filtrarGeneros,
-            generos = generos,
+            generos = filtrosNormalizados.generos,
             usuarioPrestadorId = filtrosNormalizados.usuarioPrestador?.id,
             userId = userId,
-            aplicarFiltroFecha = aplicarFiltroFecha,
-            fechaDesde = fechaDesde,
-            fechaHasta = fechaHasta,
+            fechaDesde = filtrosNormalizados.fechaDesde,
+            fechaHasta = filtrosNormalizados.fechaHasta,
         )
 
-        val librosPorFiltroOrdenado = when (ordenHomePage) {
-            OrdenHomePage.NOMBRE_ASC -> resultado.sortedBy { it.titulo.lowercase() }
-            OrdenHomePage.NOMBRE_DESC -> resultado.sortedByDescending { it.titulo.lowercase() }
-            OrdenHomePage.AUTOR_ASC -> resultado.sortedBy { it.autor.lowercase() }
-            OrdenHomePage.AUTOR_DESC -> resultado.sortedByDescending { it.autor.lowercase() }
-            OrdenHomePage.USER_ASC -> resultado
-            OrdenHomePage.USER_DESC -> resultado
-        }
+        val resultado: Page<Libro> = repositorioLibro.findAll(spec, pageable)
 
-        return paginar(librosPorFiltroOrdenado, page, size)
+        return PageResponse(
+            content = resultado.content,
+            page = page,
+            size = size,
+            totalElements = resultado.totalElements.toInt(),
+            totalPages = resultado.totalPages,
+        )
     }
 
-    @Transactional
     fun bringKarma(
         libro: Libro,
         cantidadReservas: Int,
@@ -184,20 +168,18 @@ class LibroService(
         return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
 
-    @Transactional(readOnly = true)
     fun disponibilidadLibro(idLibro: Long): String {
         val libro = getLibroByIdOrThrow(idLibro)
         return if (estaReservadoHoy(libro.id!!)) "PRESTADO" else "DISPONIBLE"
     }
 
-    @Transactional(readOnly = true)  // quitar las transsaciones que no hacen nada
     fun obtenerPrestadoresDisponibles(search: String?, userId: Long): List<String> {
         repositorioUsuario.findByIdOrNull(userId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
 
         val termino = search?.trim().orEmpty()
 
-        return repositorioLibro.findLibrosByActivo(true)
+        return repositorioLibro.findByActivoTrue()
             .filter { it.idPropietario != userId }
             .filter { !estaReservadoHoy(it.id!!) }
             .mapNotNull { repositorioUsuario.findByIdOrNull(it.idPropietario)?.nombre }
@@ -227,19 +209,33 @@ class LibroService(
         return libroId in idsReservados
     }
 
+    private fun sortHomePage(ordenHomePage: OrdenHomePage): Sort = when (ordenHomePage) {
+        OrdenHomePage.NOMBRE_ASC -> Sort.by(Sort.Order.asc("titulo").ignoreCase())
+        OrdenHomePage.NOMBRE_DESC -> Sort.by(Sort.Order.desc("titulo").ignoreCase())
+        OrdenHomePage.AUTOR_ASC -> Sort.by(Sort.Order.asc("autor").ignoreCase())
+        OrdenHomePage.AUTOR_DESC -> Sort.by(Sort.Order.desc("autor").ignoreCase())
+        OrdenHomePage.USER_ASC -> Sort.unsorted()
+        OrdenHomePage.USER_DESC -> Sort.unsorted()
+    }
+
     private fun filtrarYOrdenarLibrosPerfil(
         propietarioId: Long,
         disponibilidad: FiltroDisponibilidadPerfil,
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
     ): List<Libro> {
-        val librosFiltrados = when (disponibilidad) {
-            FiltroDisponibilidadPerfil.TODOS -> repositorioLibro.buscarPorIdPropietario(propietarioId)
-            FiltroDisponibilidadPerfil.DISPONIBLES -> repositorioLibro.buscarLibrosDisponiblesPorPropietario(propietarioId)
-            FiltroDisponibilidadPerfil.PRESTADOS -> repositorioLibro.buscarLibrosPrestadosPorPropietario(propietarioId)
+        val baseSpec = Specification.where(activo()).and(dePropietario(propietarioId))
+
+        val specFinal = when (disponibilidad) {
+            FiltroDisponibilidadPerfil.TODOS -> baseSpec
+            FiltroDisponibilidadPerfil.DISPONIBLES -> baseSpec.and(disponibleHoy())
+            FiltroDisponibilidadPerfil.PRESTADOS -> baseSpec.and(reservadoHoy())
         }
 
-        val librosPrestadosIds = repositorioLibro.buscarLibrosPrestados().mapNotNull { it.id }.toSet()
+        val librosFiltrados = repositorioLibro.findAll(specFinal)
+
+        val librosPrestadosIds = repositorioLibro.findAll(Specification.where(activo()).and(reservadoHoy()))
+            .mapNotNull { it.id }.toSet()
 
         val comparadorBase = when (orden) {
             OrdenLibroPerfil.TITULO -> compareBy<Libro>({ it.titulo.lowercase() }, { it.autor.lowercase() })

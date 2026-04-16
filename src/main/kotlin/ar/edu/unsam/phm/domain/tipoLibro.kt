@@ -5,39 +5,27 @@ import java.lang.Math.ceil
 // Solución temporal, para permitir levantar con db
 enum class TipoLibro {
     COMUN {
-        override fun darKarma(reserva: Reserva, cantidadReservas: Int): Int {
-            val coefPorLector = if (reserva.usuarioLector.biblioKarma > 1000) 5 else 2
-
-            return reserva.libro.cantidadPaginas * coefPorLector
-        }
-
-        override fun posibleKarmaALector(libro: Libro, cantidadReservas: Int, user: Usuario): Int {
+        override fun calcularKarma(libro: Libro, cantidadReservas: Int, user: Usuario): Int {
             val coefPorLector = if (user.biblioKarma > 1000) 5 else 2
 
             return libro.cantidadPaginas * coefPorLector
         }
     },
     CON_DEDICATORIA {
-        override fun darKarma(reserva: Reserva, cantidadReservas: Int): Int {
-            return cantidadReservas * 10 + 200
-        }
-
-        override fun posibleKarmaALector(libro: Libro, cantidadReservas: Int, user: Usuario): Int {
+        override fun calcularKarma(libro: Libro, cantidadReservas: Int, user: Usuario): Int {
             return cantidadReservas * 10 + 200
         }
     },
     COLECCIONABLE {
-        override fun darKarma(reserva: Reserva, cantidadReservas: Int): Int {
-            return ceil(reserva.usuarioLector.biblioKarma / 5.0).toInt() + reserva.libro.cantidadPaginas
-        }
-
-        override fun posibleKarmaALector(libro: Libro, cantidadReservas: Int, user: Usuario): Int {
+        override fun calcularKarma(libro: Libro, cantidadReservas: Int, user: Usuario): Int {
             return ceil(user.biblioKarma / 5.0).toInt() + libro.cantidadPaginas
         }
     };
 
-    abstract fun darKarma(reserva: Reserva, cantidadReservas: Int): Int
-    abstract fun posibleKarmaALector(libro: Libro, cantidadReservas: Int, user: Usuario): Int
+    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int {
+        return calcularKarma(reserva.libro, cantidadReservas, reserva.usuarioLector)
+    }
+    abstract fun calcularKarma(libro: Libro, cantidadReservas: Int, user: Usuario): Int
 
 }
 

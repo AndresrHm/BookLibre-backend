@@ -1,10 +1,12 @@
 package ar.edu.unsam.phm.repository
 
+import FechasReserva
 import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
@@ -12,8 +14,8 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
 @Repository
-interface ReservaRepository : CrudRepository<Reserva, Long> {
-    fun findAllByLibroId(libroId: Long): List<Reserva>
+interface ReservaRepository : CrudRepository<Reserva, Long>, JpaSpecificationExecutor<Reserva> {
+    fun findFechasByLibroId(libroId: Long): List<FechasReserva>
 
     fun countByLibroId(libroId: Long): Int
 
@@ -26,32 +28,32 @@ interface ReservaRepository : CrudRepository<Reserva, Long> {
     """
     )
     fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro>
-//    Queda pendiente hacer esta validación, aunque supongo que se hace automáticamente al hacer la query y al crear la reserva
-//    {
-//        val fechaInicio = if (fecha1.isBefore(fecha2)) fecha1 else fecha2
-//        val fechaFin = if (fecha1.isAfter(fecha2)) fecha1 else fecha2
-//    }
 
-    @Query(
+    //Reemplazado por un findAll con predicate
+    /*
+        @Query(
+            """
+            SELECT r FROM Reserva r
+            WHERE (
+                (:tipoReserva = 'TO_ME' AND r.usuarioLector.id = :userId) OR
+                (:tipoReserva = 'BY_ME' AND r.usuarioPrestador.id = :userId)
+            )
+            AND (:search IS NULL OR
+                LOWER(r.libro.titulo) LIKE LOWER(CONCAT('%', :search, '%')) OR
+                LOWER(r.libro.autor) LIKE LOWER(CONCAT('%', :search, '%'))
+            )
         """
-        SELECT r FROM Reserva r 
-        WHERE (
-            (:tipoReserva = 'TO_ME' AND r.usuarioLector.id = :userId) OR 
-            (:tipoReserva = 'BY_ME' AND r.usuarioPrestador.id = :userId)
         )
-        AND (:search IS NULL OR 
-            LOWER(r.libro.titulo) LIKE LOWER(CONCAT('%', :search, '%')) OR 
-            LOWER(r.libro.autor) LIKE LOWER(CONCAT('%', :search, '%'))
-        )
-    """
-    )
-    fun findReservasByType(
-        @Param("userId") userId: Long,
-        @Param("tipoReserva") tipoReserva: String,
-        @Param("search") search: String?,
-        pageable: Pageable
-    ): Page<Reserva>
+        fun findReservasByType(
+            @Param("userId") userId: Long,
+            @Param("tipoReserva") tipoReserva: String,
+            @Param("search") search: String?,
+            pageable: Pageable
+        ): Page<Reserva>
+    */
 
+    fun countByUsuarioLectorId(usuarioId: Long): Int
+    fun countByUsuarioPrestadorId(usuarioId: Long): Int
 }
 
 //    fun findReservasByType(

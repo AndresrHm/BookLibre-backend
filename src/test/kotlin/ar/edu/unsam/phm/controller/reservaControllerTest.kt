@@ -5,12 +5,13 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -39,9 +40,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var libroRepository: LibroRepository
 
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
     val libro1usuario1 = crearLibro(
         "1984",
-        comun,
+        TipoLibro.COMUN,
         "Distopía política",
         "https://covers.openlibrary.org/b/id/12693610-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -57,7 +61,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro2usuario1 = crearLibro(
         "Cien años de soledad",
-        comun,
+        TipoLibro.COMUN,
         "Realismo mágico",
         "https://covers.openlibrary.org/b/id/14831384-L.jpg",
         Genero.LITERATURA_CLASICA,
@@ -73,7 +77,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro1usuario2 = crearLibro(
         "Dune",
-        comun,
+        TipoLibro.COMUN,
         "Sci-fi clásica",
         "https://covers.openlibrary.org/b/id/15092781-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -89,7 +93,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro2usuario2 = crearLibro(
         "Foundation",
-        comun,
+        TipoLibro.COMUN,
         "Saga Fundación",
         "https://covers.openlibrary.org/b/id/14612980-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -148,22 +152,23 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
-        reservaRepository.clearInit()
-        usuarioRepository.clearInit()
-        libroRepository.clearInit()
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
+        libroRepository.deleteAll()
+        usuarioRepository.deleteAll()
 
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
 
-        libroRepository.create(libro1usuario1)
-        libroRepository.create(libro2usuario1)
-        libroRepository.create(libro1usuario2)
-        libroRepository.create(libro2usuario2)
+        libroRepository.save(libro1usuario1)
+        libroRepository.save(libro2usuario1)
+        libroRepository.save(libro1usuario2)
+        libroRepository.save(libro2usuario2)
 
-        reservaRepository.create(reserva1)
-        reservaRepository.create(reserva2)
-        reservaRepository.create(reserva3)
-        reservaRepository.create(reserva4)
+        reservaRepository.save(reserva1)
+        reservaRepository.save(reserva2)
+        reservaRepository.save(reserva3)
+        reservaRepository.save(reserva4)
     }
 
     // ----- Reservas Realizadas -----
@@ -171,12 +176,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (donde el usuario es lector)`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", usuario1.id.toString())
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-            )
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", usuario1.id.toString())
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+        )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content[*].titulo").value(containsInAnyOrder("Dune", "Foundation")))
 
@@ -210,12 +215,12 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request`() {
 
         val errorMessage = mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", "-1")
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-            ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", "-1")
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+        ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
 
         assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
@@ -224,13 +229,13 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `El filtrado funciona correctamente`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", usuario1.id.toString())
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-                    .param("search", "dun")
-            ).andExpect(status().isOk)
+            MockMvcRequestBuilders.get("/reservas")
+                .param("usuarioId", usuario1.id.toString())
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+                .param("search", "dun")
+        ).andExpect(status().isOk)
 
             .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(6))
             .andExpect(jsonPath("$.totalElements").value(1))

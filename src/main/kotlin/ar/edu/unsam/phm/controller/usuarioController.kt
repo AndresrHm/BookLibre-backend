@@ -32,10 +32,10 @@ class UsuarioController(
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("{usuarioId}/{tipoDTO}")
-    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTO: String): ResponseEntity<SealedGetUsuarioDTO> {
+    @GetMapping("{usuarioId}/{tipoDTOUsuario}")
+    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOUsuario: String): ResponseEntity<SealedGetUsuarioDTO> {
         val usuario = usuarioService.getUsuarioById(usuarioId)
-        val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTO)
+        val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTOUsuario)
 
         val response = when (tipoDTOEnum) {
             TipoDTOUsuario.HEADER -> {

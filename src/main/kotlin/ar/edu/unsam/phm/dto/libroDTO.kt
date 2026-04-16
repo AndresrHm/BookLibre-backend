@@ -11,22 +11,24 @@ sealed class SealedGetLibroDTO(val tipo: String) {
     data class Edicion(
         val libro: LibroEdicionDTO
     ) : SealedGetLibroDTO("EDICION")
+
     data class Detalle(
         val libro: LibroDetalleDTO
-    ): SealedGetLibroDTO("DETALLE")
+    ) : SealedGetLibroDTO("DETALLE")
 }
 
 sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
     data class Home(
         val libro: LibroFiltradoDTO
     ) : SealedGetLibroFiltradoDTO("HOME")
+
     data class Perfil(
         val libro: LibroUsuarioPerfilDTO
     ) : SealedGetLibroFiltradoDTO("PERFIL")
 }
 
 data class LibroEdicionDTO(
-    val id: Long?,
+    val id: Long,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String,
@@ -78,8 +80,8 @@ data class LibroFiltradoDTO(
     val isbn13: Long?,
     val descripcion: String?,
     val rating: Double?,
-    val biblioKarma : Int?,
-    val userCreador : String,
+    val biblioKarma: Int?,
+    val userCreador: String,
     val disponibilidad: String
 )
 
@@ -100,9 +102,9 @@ data class FiltrosLibrosQueryDTO(
     val generos: List<Genero>? = null,
     val paginasMin: Int? = null,
     val paginasMax: Int? = null,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaDesde: LocalDate? = null,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaHasta: LocalDate? = null,
     val isbn13: Long? = null,
     val usuarioPrestadorId: Long? = null,
@@ -110,23 +112,6 @@ data class FiltrosLibrosQueryDTO(
     val usuarioLectorId: Long? = null,
 )
 
-
-fun FiltrosLibrosQueryDTO.DtoToLibroFiltro(
-    usuarioPrestador: Usuario?,
-    usuarioLector: Usuario?,
-): FiltrosDeLibros {
-    return FiltrosDeLibros(
-        generos = generos,
-        paginasMin = paginasMin,
-        paginasMax = paginasMax,
-        fechaDesde = fechaDesde,
-        fechaHasta = fechaHasta,
-        isbn13 = isbn13,
-        usuarioPrestador = usuarioPrestador,
-        search = search,
-        usuarioLector = usuarioLector,
-    )
-}
 
 data class LibroUsuarioPerfilDTO(
     val id: Long?,
@@ -156,12 +141,7 @@ enum class FiltroDisponibilidadPerfil {
 }
 
 enum class OrdenHomePage {
-    NOMBRE_ASC
-    , NOMBRE_DESC
-    , AUTOR_ASC
-    , AUTOR_DESC
-    , USER_ASC
-    , USER_DESC
+    NOMBRE_ASC, NOMBRE_DESC, AUTOR_ASC, AUTOR_DESC, USER_ASC, USER_DESC
 }
 
 enum class GetLibroDTO {
