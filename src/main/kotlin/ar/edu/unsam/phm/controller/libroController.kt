@@ -138,7 +138,7 @@ class LibroController(
 
                 when (flagDiff) {
                     OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
-                        libroMapper.libroToLibroFiltradoDTO(
+                        libroMapper.toFiltradoDTO(
                             libro,
                             calificacionService.promedioCalificaciones(libroId),
                             libroService.bringKarma(

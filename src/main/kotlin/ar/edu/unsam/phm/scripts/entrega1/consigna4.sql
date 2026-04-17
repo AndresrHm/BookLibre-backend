@@ -5,6 +5,5 @@ WHERE biblio_karma IS NULL;
 
 -- Setear constraint: biblioKarma no puede ser nulo
 ALTER TABLE usuario
-    ALTER COLUMN biblio_karma SET NOT NULL;
-
-
+    ADD CONSTRAINT chk_biblio_karma_not_null
+    CHECK (biblio_karma IS NOT NULL);
