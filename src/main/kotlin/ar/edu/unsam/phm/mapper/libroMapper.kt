@@ -19,7 +19,7 @@ class LibroMapper(
     private val libroRepository: LibroRepository,
     private val usuarioService: UsuarioService
 ) {
-    fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
+    fun fromEdicionDTO(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
             tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") TipoLibro.CON_DEDICATORIA else if (libroEdicionDTO.tipoLibro == "coleccionable") TipoLibro.COLECCIONABLE else TipoLibro.COMUN,
@@ -43,7 +43,7 @@ class LibroMapper(
         return libro
     }
 
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
+    fun toPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
         LibroUsuarioPerfilDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -54,7 +54,7 @@ class LibroMapper(
             disponibilidad = disponibilidad
         )
 
-    fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
+    fun toEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
             id = libro.id!!,
             titulo = libro.titulo,
@@ -74,7 +74,7 @@ class LibroMapper(
         return libroEdicionDTO
     }
 
-    fun libroToLibroDetalleDTO(
+    fun toDetalleDTO(
         libro: Libro,
         rating: Double,
         cantidadCalificaciones: Long,
@@ -133,32 +133,7 @@ class LibroMapper(
         return libroDetalle
     }
 
-//    fun libroToLibroFiltradoPerfilDto(libro: Libro, disponibilidad: String): LibroFiltradoDTO {
-//        val libroDetalle = LibroFiltradoDTO(
-//            id = libro.id,
-//            titulo = libro.titulo,
-//            tipoLibro = libro.tipoComoTexto(),
-//            descripcion = null,
-//            imagenUrl = libro.portada,
-//            genero = libro.genero,
-//            autor = libro.autor,
-//            cantidadPaginas = null,
-//            isbn13 = null,
-//            idioma = null,
-//            editorial = null,
-//            fechaAgregado = libro.fechaPublicacion,
-//            estado = null,
-//            rating = null,
-//            biblioKarma = null,
-//            // TODO: Testing
-////            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
-//            userCreador = "TEST",
-//            disponibilidad = disponibilidad
-//        )
-//        return libroDetalle
-//    }
-
-    fun filtroDTOtoLibroFiltro(
+    fun filtroDTOtoFiltro(
         filtrosQuery: FiltrosLibrosQueryDTO,
         usuarioPrestador: Usuario?,
         usuarioLector: Usuario?

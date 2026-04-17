@@ -66,7 +66,7 @@ class ReservaController(
                 val libroId = reserva.libro.id
                     ?: throw IllegalStateException("La reserva ${reserva.id} no tiene libro con id persistido")
 
-                reservaMapper.toReservaDetalleDTO(
+                reservaMapper.toDetalleDTO(
                     reserva,
                     usuarioId,
                     reservaService.cantidadReservas(libroId),

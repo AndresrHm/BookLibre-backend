@@ -45,9 +45,9 @@ class LibroController(
 
     @PostMapping
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
-        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+        val libroConvertido = libroMapper.fromEdicionDTO(libro)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
-        libroMapper.libroToLibroEdicionDTO(nuevoLibro)
+        libroMapper.toEdicionDTO(nuevoLibro)
 
         val mensajeExito = "Se creó el libro ${nuevoLibro.titulo} exitosamente"
         return ResponseEntity
@@ -61,7 +61,7 @@ class LibroController(
 
         when (tipoDTO) {
             GetLibroDTO.EDICION -> {
-                val dto = libroMapper.libroToLibroEdicionDTO(libro)
+                val dto = libroMapper.toEdicionDTO(libro)
                 return SealedGetLibroDTO.Edicion(dto)
             }
 
@@ -70,7 +70,7 @@ class LibroController(
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
                 val ultimas = calificacionService.ultimasCalificaciones(idLibro)
 
-                val dtoDetalle = libroMapper.libroToLibroDetalleDTO(
+                val dtoDetalle = libroMapper.toDetalleDTO(
                     libro, promedio, cantidad, ultimas
                 )
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
@@ -83,9 +83,9 @@ class LibroController(
         @RequestBody libro: LibroEdicionDTO,
         @RequestParam idUsuario: Long,
     ): ResponseEntity<ActionResponse> {
-        val libroObjeto = libroMapper.libroEdicionDTOToLibro(libro)
+        val libroObjeto = libroMapper.fromEdicionDTO(libro)
         val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
-        libroMapper.libroToLibroEdicionDTO(libroEditado)
+        libroMapper.toEdicionDTO(libroEditado)
 
         val mensajeExito = "Se editó el libro ${libroEditado.titulo} exitosamente"
         return ResponseEntity
@@ -113,7 +113,7 @@ class LibroController(
                 ?.takeIf { it.isNotBlank() }
                 ?.let { usuarioService.getUsuarioByNombre(it).firstOrNull() }
 
-        val filtrosDeHome = libroMapper.filtroDTOtoLibroFiltro(
+        val filtrosDeHome = libroMapper.filtroDTOtoFiltro(
             filtrosQuery,
             usuarioPrestador = usuarioPrestadorFiltrado,
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
@@ -153,7 +153,7 @@ class LibroController(
                     )
 
                     OrigenLibro.PERFIL -> SealedGetLibroFiltradoDTO.Perfil(
-                        libroMapper.libroToLibroPerfilUsuarioDTO(
+                        libroMapper.toPerfilUsuarioDTO(
                             libro,
                             libroService.disponibilidadLibro(libro.id!!)
                         )

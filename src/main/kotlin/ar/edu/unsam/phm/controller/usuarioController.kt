@@ -27,7 +27,7 @@ class UsuarioController(
         @RequestBody usuario: UsuarioEdicionDTO
     ): ResponseEntity<Void> {
         val usuarioExistente = usuarioService.getUsuarioById(usuario.id!!)
-        val usuarioNuevo = usuarioMapper.usuarioEdicionDTOtoUsuario(usuario, usuarioExistente)
+        val usuarioNuevo = usuarioMapper.fromEdicionDTO(usuario, usuarioExistente)
         usuarioService.usuarioUpdate(usuarioNuevo)
         return ResponseEntity.ok().build()
     }
@@ -35,28 +35,28 @@ class UsuarioController(
     @GetMapping("{usuarioId}/{tipoDTOUsuario}")
     fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOUsuario: String): ResponseEntity<SealedGetUsuarioDTO> {
         val usuario = usuarioService.getUsuarioById(usuarioId)
-        val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTOUsuario)
+        val tipoDTOEnum = usuarioMapper.toTipoDTO(tipoDTOUsuario)
 
 
         // Ver como hacer con mapa
         val response = when (tipoDTOEnum) {
             TipoDTOUsuario.HEADER -> {
-                val dto = usuarioMapper.toUsuarioHeaderDTO(usuario)
+                val dto = usuarioMapper.toHeaderDTO(usuario)
                 SealedGetUsuarioDTO.Header(dto)
             }
 
             TipoDTOUsuario.UPDATE -> {
-                val dto = usuarioMapper.toUsuarioEdicionDTO(usuario)
+                val dto = usuarioMapper.toEdicionDTO(usuario)
                 SealedGetUsuarioDTO.Update(dto)
             }
 
             TipoDTOUsuario.PERFIL -> {
-                val dto = usuarioMapper.toUsuarioPerfilDTO(usuario)
+                val dto = usuarioMapper.toPerfilDTO(usuario)
                 SealedGetUsuarioDTO.Perfil(dto)
             }
 
             TipoDTOUsuario.KARMA -> {
-                val dto = usuarioMapper.toUsuarioKarmaDTO(usuario)
+                val dto = usuarioMapper.toKarmaDTO(usuario)
                 SealedGetUsuarioDTO.Karma(dto)
             }
 
