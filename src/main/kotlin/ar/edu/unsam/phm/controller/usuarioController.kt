@@ -32,40 +32,22 @@ class UsuarioController(
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("{usuarioId}/{tipoDTOUsuario}")
-    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOUsuario: String): ResponseEntity<SealedGetUsuarioDTO> {
+    @GetMapping("{usuarioId}/{tipoDTOString}")
+    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOString: String): ResponseEntity<SealedGetUsuarioDTO> {
         val usuario = usuarioService.getUsuarioById(usuarioId)
-        val tipoDTOEnum = usuarioMapper.toTipoDTO(tipoDTOUsuario)
+        val tipoDTOEnum = usuarioMapper.toTipoDTO(tipoDTOString)
 
+        val handlers: Map<TipoDTOUsuario, () -> SealedGetUsuarioDTO> = mapOf(
+            TipoDTOUsuario.HEADER      to { SealedGetUsuarioDTO.Header(usuarioMapper.toHeaderDTO(usuario)) },
+            TipoDTOUsuario.UPDATE      to { SealedGetUsuarioDTO.Update(usuarioMapper.toEdicionDTO(usuario)) },
+            TipoDTOUsuario.PERFIL      to { SealedGetUsuarioDTO.Perfil(usuarioMapper.toPerfilDTO(usuario)) },
+            TipoDTOUsuario.KARMA       to { SealedGetUsuarioDTO.Karma(usuarioMapper.toKarmaDTO(usuario)) },
+            TipoDTOUsuario.TIPOUSUARIO to { SealedGetUsuarioDTO.TipoPerfil(usuario.tipoUsuario) },
+        )
 
-        // Ver como hacer con mapa
-        val response = when (tipoDTOEnum) {
-            TipoDTOUsuario.HEADER -> {
-                val dto = usuarioMapper.toHeaderDTO(usuario)
-                SealedGetUsuarioDTO.Header(dto)
-            }
+        val response = handlers[tipoDTOEnum]?.invoke()
+            ?: throw IllegalArgumentException("Tipo DTO invalido: $tipoDTOEnum")
 
-            TipoDTOUsuario.UPDATE -> {
-                val dto = usuarioMapper.toEdicionDTO(usuario)
-                SealedGetUsuarioDTO.Update(dto)
-            }
-
-            TipoDTOUsuario.PERFIL -> {
-                val dto = usuarioMapper.toPerfilDTO(usuario)
-                SealedGetUsuarioDTO.Perfil(dto)
-            }
-
-            TipoDTOUsuario.KARMA -> {
-                val dto = usuarioMapper.toKarmaDTO(usuario)
-                SealedGetUsuarioDTO.Karma(dto)
-            }
-
-            TipoDTOUsuario.TIPOUSUARIO -> {
-                val tipo = usuario.tipoUsuario
-                SealedGetUsuarioDTO.TipoPerfil(tipo)
-            }
-        }
-        
         return ResponseEntity.ok(response)
     }
 
