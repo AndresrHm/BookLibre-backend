@@ -24,12 +24,21 @@ interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 
     fun findTop2ByLibroIdOrderByFechaDesc(libroId: Long): List<Calificacion>
 
-    @Query("""
+    @Query(
+        """
         SELECT AVG(c.puntuacion)
         FROM Calificacion c
         WHERE c.libro.id = :libroId
-    """)
+    """
+    )
     fun obtenerPromedioCalificaciones(@Param("libroId") libroId: Long): Double?
 
     fun countByLibroId(libroId: Long): Long
+
+    @Query("""
+    SELECT c.libro.id, AVG(c.puntuacion)
+    FROM Calificacion c
+    GROUP BY c.libro.id
+""")
+    fun obtenerPromediosPorLibro(): List<Array<Any>>
 }

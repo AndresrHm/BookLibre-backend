@@ -66,7 +66,7 @@ class LibroController(
             }
 
             GetLibroDTO.DETALLE -> {
-                val promedio = calificacionService.promedioCalificaciones(idLibro)
+                val promedio = libro.calificacionPromedio()
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
                 val ultimas = calificacionService.ultimasCalificaciones(idLibro)
 
@@ -140,7 +140,7 @@ class LibroController(
                     OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
                         libroMapper.libroToLibroFiltradoDTO(
                             libro,
-                            calificacionService.promedioCalificaciones(libroId),
+                            libro.calificacionPromedio(),
                             libroService.bringKarma(
                                 libro,
                                 reservaService.cantidadReservas(libroId),

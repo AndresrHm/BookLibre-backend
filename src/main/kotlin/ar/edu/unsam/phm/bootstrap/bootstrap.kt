@@ -17,6 +17,7 @@ import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import kotlin.random.Random
 
@@ -25,7 +26,7 @@ class BootstrapData(
     val reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,
     val libroRepository: LibroRepository,
-    val calificacionRepository: CalificacionRepository
+//    val calificacionRepository: CalificacionRepository
 ) {
 
     @Bean
@@ -35,7 +36,7 @@ class BootstrapData(
         val libros = crearLibros()
         val reservas = crearReservas(usuarios, libros)
 
-        crearCalificaciones(reservas)
+//        crearCalificaciones(reservas)
     }
 
     // ---------------- Usuarios ----------------
@@ -1056,6 +1057,7 @@ class BootstrapData(
             Reserva(libros[27], u3, u4, hoy.minusDays(6), hoy.plusDays(3)),
 
             // -------- u3 presta a u5 --------
+            Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.minusDays(1)),
             Reserva(libros[28], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
             Reserva(libros[29], u3, u5, hoy.minusDays(1), hoy.plusDays(2)),
             Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.plusDays(8)),
@@ -1124,41 +1126,71 @@ class BootstrapData(
 
     // ---------------- Calificaciones ----------------
 
-    private fun crearCalificaciones(
-        reservas: List<Reserva>,
-    ) {
-        val hoy = LocalDate.now()
-        val comentarios = listOf(
-            "Muy bueno",
-            "Excelente lectura",
-            "Me encantó",
-            "Interesante",
-            "Recomendado",
-            "No era lo que esperaba",
-            "Volvería a leerlo",
-            "Comentario excesivamente largo: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent at sollicitudin justo, sed tempor mi. Maecenas vehicula fringilla suscipit. Nulla dapibus nam."
-        )
-        val puntuaciones = listOf(2.5, 3.0, 3.5, 4.0, 4.5, 5.0)
-        val calificaciones = reservas
-            .filter { it.estado(hoy) == EstadoReserva.DEVUELTO }
-            .map { reserva ->
-                val libro = reserva.libro
-                val usuario = reserva.usuarioLector
-                val seed = (libro.id ?: 0L) + (usuario.id ?: 0L)
-                val posicion = (seed % puntuaciones.size).toInt()
-                Calificacion(
-                    usuario = reserva.usuarioLector,
-                    libro = reserva.libro,
-                    puntuacion = puntuaciones[posicion],
-                    comentario = comentarios[posicion],
-                    fecha = reserva.fechaDevolucion
-                )
-            }
-        val calificacionesUnicas = calificaciones
-            .sortedBy { it.fecha }
-            .associateBy { it.libro.id to it.usuario.id }
-            .values
-            .toList()
-        calificacionRepository.saveAll(calificacionesUnicas)
-    }
+//    private fun crearCalificaciones(
+//        reservas: List<Reserva>,
+//    ) {
+//        val hoy = LocalDate.now()
+//
+//        val comentarios = listOf(
+//            "Muy bueno",
+//            "Excelente lectura",
+//            "Me encantó",
+//            "Interesante",
+//            "Recomendado",
+//            "No era lo que esperaba",
+//            "Volvería a leerlo",
+//            "Comentario excesivamente largo: Lorem ipsum dolor sit amet..."
+//        )
+//
+//        val puntuaciones = listOf(2.5, 3.0, 3.5, 4.0, 4.5, 5.0)
+//
+//        val calificaciones = reservas
+//            .filter { it.estado(hoy) == EstadoReserva.DEVUELTO }
+//            .map { reserva ->
+//                val libro = reserva.libro
+//                val usuario = reserva.usuarioLector
+//                val seed = (libro.id ?: 0L) + (usuario.id ?: 0L)
+//                val posicion = (seed % puntuaciones.size).toInt()
+//
+//                Calificacion(
+//                    usuario = usuario,
+//                    libro = libro,
+//                    puntuacion = puntuaciones[posicion],
+//                    comentario = comentarios[posicion],
+//                    fecha = reserva.fechaDevolucion
+//                )
+//            }
+//
+//        val calificacionesUnicas = calificaciones
+//            .sortedBy { it.fecha }
+//            .associateBy { it.libro.id to it.usuario.id }
+//            .values
+//            .toList()
+//
+//        // 🔴 IMPORTANTE: limpiar antes para evitar mezcla de datos
+//        calificacionRepository.deleteAll()
+//
+//        calificacionRepository.saveAll(calificacionesUnicas)
+//
+//        // ✅ recalcular promedio desde TODA la tabla (no desde el subset)
+//        val promedios = calificacionRepository.obtenerPromediosPorLibro()
+//
+//        promedios.forEach { row ->
+//            val libroId = row[0] as Long
+//            val promedio = row[1] as Double
+//
+//            val libro = libroRepository.findByIdOrNull(libroId)
+//                ?: return@forEach
+//
+//            libro.calificacion = promedio
+//        }
+//
+//        // ✅ guardar en batch (mejor performance y consistencia)
+//        libroRepository.saveAll(
+//            promedios.mapNotNull { row ->
+//                val libroId = row[0] as Long
+//                libroRepository.findByIdOrNull(libroId)
+//            }
+//        )
+//    }
 }
