@@ -1,5 +1,7 @@
 package ar.edu.unsam.phm.security
 
+import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.ErrorStrings
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -68,7 +70,7 @@ class TokenUtils {
 
             // Token no tiene usuario
             if (claims.subject == null || claims.subject.isBlank()) {
-                throw CredencialesInvalidasException() TODO
+                throw BusinessException(ErrorStrings.CREDENCIALES_INVALIDAS)
             }
 
             logger.info("Token decoded, user: " + claims.subject + " - roles: " + claims["roles"])
@@ -76,7 +78,7 @@ class TokenUtils {
             val roles = (claims["roles"] as List<*>).map { SimpleGrantedAuthority(it.toString()) }
             return UsernamePasswordAuthenticationToken(claims.subject, null, roles)
         } catch (expiredJwtException: ExpiredJwtException) {
-            throw TokenExpiradoException("Sesión vencida") TODO
+            throw BusinessException(ErrorStrings.TOKEN_EXPIRADO)
         }
     }
 }
