@@ -33,7 +33,6 @@ class Reserva(
     @GeneratedValue
     var id: Long? = null
 
-    // TODO: Revisar la forma de obtener cantidad reservas
     fun darKarma(cantidadReservas: Int): Int {
         return diasEntre(fechaRecogida, fechaDevolucion) * 5 + libro.darKarma(this, cantidadReservas)
     }
