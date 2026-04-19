@@ -35,10 +35,6 @@ interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 
     fun countByLibroId(libroId: Long): Long
 
-    @Query("""
-    SELECT c.libro.id, AVG(c.puntuacion)
-    FROM Calificacion c
-    GROUP BY c.libro.id
-""")
-    fun obtenerPromediosPorLibro(): List<Array<Any>>
+    @Query("SELECT AVG(c.puntuacion) FROM Calificacion c WHERE c.libro.id = :libroId")
+    fun promedioPorLibro(@Param("libroId") libroId: Long): Double?
 }
