@@ -20,6 +20,7 @@ class Usuario(
     var ciudad: String,
     var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
+    var passwordSesion: String
 ) {
     @Id
     @GeneratedValue
@@ -29,7 +30,6 @@ class Usuario(
     val listaDeLibrosParaPrestar = mutableListOf<Libro>()
     var biblioKarma: Int = 0
     val fechaDeCreacion: LocalDate = LocalDate.now()
-    lateinit var passwordSesion: String
 
     fun agregarLibroParaPrestar(libro: Libro) {
         listaDeLibrosParaPrestar.add(libro)
@@ -54,6 +54,4 @@ class Usuario(
 enum class TipoUsuario {
     LECTOR, PUBLICADOR, LECTORPUBLICADOR
 }
-
-
 
