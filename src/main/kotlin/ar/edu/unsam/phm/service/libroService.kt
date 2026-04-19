@@ -31,7 +31,6 @@ class LibroService(
     var repositorioReservas: ReservaRepository,
     var repositorioUsuario: UsuarioRepository,
 ) {
-    @Transactional
     fun crearLibro(nuevoLibro: Libro): Libro {
         val prestador = repositorioUsuario.findByIdOrNull(nuevoLibro.idPropietario)
             ?: throw BusinessException(ErrorStrings.usuarioNoExistePorId(nuevoLibro.idPropietario))
