@@ -45,7 +45,7 @@ class HeladeriaSecurityConfig {
                 it.csrfTokenRequestHandler(SpaCsrfTokenRequestHandler())
             }
             .authorizeHttpRequests {
-                // Queremos que cualquier persona se pueda loguear y mostrar errores
+                // Queremos que cualquier persona se pueda loguear, registrar y poder mostrar errores
                 // Importante: no definirlo solo para el method POST
                 // porque CORS requiere que también puedas mandar el OPTIONS para hacer el pre-flight
                 it.requestMatchers("/auth/login").permitAll()
