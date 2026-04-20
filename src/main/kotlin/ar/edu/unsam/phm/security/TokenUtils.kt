@@ -1,6 +1,8 @@
 package ar.edu.unsam.phm.security
 
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
@@ -29,16 +31,16 @@ class TokenUtils {
 
     val logger: Logger = LoggerFactory.getLogger(TokenUtils::class.java)
 
-    fun createToken(nombre: String, roles: List<String>): String? {
+    fun createToken(usuarioId: String, rol: TipoUsuario): String {
         val longExpirationTime = accessTokenMinutes.minutes.inWholeMilliseconds
-
         val now = Date()
 
+        // acá construimos el token
         return Jwts.builder()
-            .subject(nombre)
+            .subject(usuarioId)
             .issuedAt(now)
             .expiration(Date(now.time + longExpirationTime))
-            .claim("roles", roles)
+            .claim("rol", rol.roleName)
             .signWith(Keys.hmacShaKeyFor(secretKey.toByteArray()))
             .compact()
     }
@@ -75,8 +77,8 @@ class TokenUtils {
 
             logger.info("Token decoded, user: " + claims.subject + " - roles: " + claims["roles"])
 
-            val roles = (claims["roles"] as List<*>).map { SimpleGrantedAuthority(it.toString()) }
-            return UsernamePasswordAuthenticationToken(claims.subject, null, roles)
+            val rol = SimpleGrantedAuthority(claims["rol"].toString())
+            return UsernamePasswordAuthenticationToken(claims.subject, null, listOf(rol))
         } catch (expiredJwtException: ExpiredJwtException) {
             throw BusinessException(ErrorStrings.TOKEN_EXPIRADO)
         }
