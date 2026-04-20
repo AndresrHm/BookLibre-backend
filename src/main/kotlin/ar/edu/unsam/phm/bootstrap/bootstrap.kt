@@ -54,7 +54,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
-            ).apply { biblioKarma = 2000; passwordSesion = "juan123"; id = 1 },
+            ).apply { biblioKarma = 2000; password = "juan123"; id = 1 },
 
             Usuario(
                 nombre = "Ana",
@@ -65,7 +65,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
-            ).apply { biblioKarma = 4000; passwordSesion = "ana123"; id = 2 },
+            ).apply { biblioKarma = 4000; password = "ana123"; id = 2 },
 
             Usuario(
                 nombre = "Carlos",
@@ -76,7 +76,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez"
-            ).apply { biblioKarma = 1500; passwordSesion = "carlos123"; id = 3 },
+            ).apply { biblioKarma = 1500; password = "carlos123"; id = 3 },
 
             Usuario(
                 nombre = "Lucia",
@@ -87,7 +87,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez"
-            ).apply { biblioKarma = 3200; passwordSesion = "lucia123"; id = 4 },
+            ).apply { biblioKarma = 3200; password = "lucia123"; id = 4 },
 
             Usuario(
                 nombre = "nombre123",
@@ -98,7 +98,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3"
-            ).apply { biblioKarma = 9999; passwordSesion = "nombre123"; id = 5 },
+            ).apply { biblioKarma = 9999; password = "nombre123"; id = 5 },
 
             Usuario(
                 nombre = "Pedro",
@@ -109,7 +109,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa"
-            ).apply { biblioKarma = 2100; passwordSesion = "pedro123"; id = 6 },
+            ).apply { biblioKarma = 2100; password = "pedro123"; id = 6 },
 
             Usuario(
                 nombre = "Marina",
@@ -120,7 +120,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz"
-            ).apply { biblioKarma = 1800; passwordSesion = "marina123"; id = 7 },
+            ).apply { biblioKarma = 1800; password = "marina123"; id = 7 },
 
             Usuario(
                 nombre = "Diego",
@@ -131,7 +131,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez"
-            ).apply { biblioKarma = 2600; passwordSesion = "diego123"; id = 8 },
+            ).apply { biblioKarma = 2600; password = "diego123"; id = 8 },
 
             Usuario(
                 nombre = "Sofia",
@@ -142,7 +142,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta"
-            ).apply { biblioKarma = 1750; passwordSesion = "sofia123"; id = 9 },
+            ).apply { biblioKarma = 1750; password = "sofia123"; id = 9 },
 
             Usuario(
                 nombre = "Nicolas",
@@ -153,7 +153,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega"
-            ).apply { biblioKarma = 1950; passwordSesion = "nicolas123"; id = 10 },
+            ).apply { biblioKarma = 1950; password = "nicolas123"; id = 10 },
 
             Usuario(
                 nombre = "Valentina",
@@ -164,7 +164,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez"
-            ).apply { biblioKarma = 2300; passwordSesion = "valentina123"; id = 11 },
+            ).apply { biblioKarma = 2300; password = "valentina123"; id = 11 },
 
             Usuario(
                 nombre = "Tomas",
@@ -175,7 +175,7 @@ class BootstrapData(
                 ciudad = "Buenos Aires",
                 tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
                 urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra"
-            ).apply { biblioKarma = 2050; passwordSesion = "tomas123"; id = 12 },
+            ).apply { biblioKarma = 2050; password = "tomas123"; id = 12 },
 
             )
 

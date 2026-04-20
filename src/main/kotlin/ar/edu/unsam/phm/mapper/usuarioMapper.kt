@@ -23,7 +23,7 @@ class UsuarioMapper(
         ).apply {
             id = usuarioEdicionDTO.id
             biblioKarma = usuarioExistente.biblioKarma
-            passwordSesion = usuarioExistente.passwordSesion
+            password = usuarioExistente.password
         }
     }
 
@@ -74,7 +74,7 @@ class UsuarioMapper(
         email = register.email,
         celular = register.celular
     ).apply {
-        passwordSesion = register.password
+        password = register.password
     }
 
     fun toTipoDTOUsuario(tipo: String): TipoDTOUsuario = TipoDTOUsuario.valueOf(tipo.uppercase())

@@ -5,10 +5,25 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
+import jakarta.persistence.Table
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDate
+
+@Entity
+@Table(name = "roles")
+class Rol(
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
+    var name: String = ""
+}
+
 
 @Entity
 class Usuario(
@@ -20,7 +35,7 @@ class Usuario(
     var ciudad: String,
     var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
-    var passwordSesion: String
+    var password: String
 ) {
     @Id
     @GeneratedValue
@@ -44,11 +59,22 @@ class Usuario(
 
     fun getFechaCreacionAsString(): String = fechaDeCreacion.formatear()
 
+
     fun esLector(): Boolean = this.tipoUsuario == TipoUsuario.LECTOR
 
     fun esPublicador(): Boolean = this.tipoUsuario == TipoUsuario.PUBLICADOR
 
     fun esLectorPublicador(): Boolean = this.tipoUsuario == TipoUsuario.LECTORPUBLICADOR
+
+    fun validarCredenciales(passwordAVerificar: String) {
+        if (!getDefaultEncoder().matches(passwordAVerificar, password)) {
+            throw BusinessException(ErrorStrings.CREDENCIALES_INVALIDAS)
+        }
+    }
+
+    private fun getDefaultEncoder(): PasswordEncoder {
+        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()!!
+    }
 }
 
 enum class TipoUsuario {

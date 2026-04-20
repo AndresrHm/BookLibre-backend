@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.security
 
 
+import ar.edu.unsam.phm.domain.TipoUsuario
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.Logger
@@ -47,14 +48,13 @@ class HeladeriaSecurityConfig {
                 // Queremos que cualquier persona se pueda loguear y mostrar errores
                 // Importante: no definirlo solo para el method POST
                 // porque CORS requiere que también puedas mandar el OPTIONS para hacer el pre-flight
-                it.requestMatchers("/login").permitAll()
-                it.requestMatchers("/refresh").permitAll()
+                it.requestMatchers("/auth/login").permitAll()
+                it.requestMatchers("/auth/register").permitAll()
+                it.requestMatchers("/options").permitAll()
                 it.requestMatchers("/error").permitAll()
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
                 // Permisos de admin para modificar
-                it.requestMatchers(HttpMethod.POST, "/heladerias").hasAuthority(ROLES.ADMIN.name)
-                it.requestMatchers(HttpMethod.POST, "/duenios").hasAuthority(ROLES.ADMIN.name)
-                it.requestMatchers(HttpMethod.PUT, "/heladerias/**").hasAuthority(ROLES.ADMIN.name)
+                it.requestMatchers(HttpMethod.GET, "/libros").hasAuthority(TipoUsuario.LECTORPUBLICADOR)
                     // Default: que se autentique para poder ver información
                     .anyRequest().authenticated()
             }
