@@ -18,3 +18,9 @@ spring:
 logging:
   level:
     root: INFO
+
+security:
+  # Esta secret-key deberíamos configurarla como variable de entorno
+  secret-key: 0fa79b9640de2f9e8a47c47643f5bd84ac6164c6bd669990c7ed75562202360a3a35e990c36c0c374bb5c6d24660e42fa33808e026a6e3cf556b9226960dc885
+  access-token-minutes: 30
+  refresh-token-days: 1
