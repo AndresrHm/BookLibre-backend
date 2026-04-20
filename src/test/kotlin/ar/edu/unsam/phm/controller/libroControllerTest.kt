@@ -65,7 +65,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 email = "perfil@test.com",
                 celular = "11223344",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
+                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
                 urlImagen = "https://test.com/perfil.jpg"
             )
         )

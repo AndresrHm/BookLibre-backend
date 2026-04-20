@@ -293,7 +293,7 @@ private fun crearUsuario(
         email = email,
         celular = "11111111",
         ciudad = "Buenos Aires",
-        tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
+        tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
         urlImagen = "https://img.test/user.jpg",
     )
 }

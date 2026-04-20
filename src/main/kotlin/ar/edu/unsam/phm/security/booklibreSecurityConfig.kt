@@ -50,11 +50,14 @@ class HeladeriaSecurityConfig {
                 // porque CORS requiere que también puedas mandar el OPTIONS para hacer el pre-flight
                 it.requestMatchers("/auth/login").permitAll()
                 it.requestMatchers("/auth/register").permitAll()
-                it.requestMatchers("/options").permitAll()
                 it.requestMatchers("/error").permitAll()
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
-                // Permisos de admin para modificar
-                it.requestMatchers(HttpMethod.GET, "/libros").hasAuthority(TipoUsuario.LECTORPUBLICADOR)
+                // Permisos de usuario
+                // Ejemplo, solo lectores y lectores publicadores pueden ver el home.
+                it.requestMatchers(HttpMethod.GET, "/libros").hasAnyAuthority(
+                    TipoUsuario.LECTOR_PUBLICADOR.roleName,
+                    TipoUsuario.LECTOR.roleName
+                )
                     // Default: que se autentique para poder ver información
                     .anyRequest().authenticated()
             }

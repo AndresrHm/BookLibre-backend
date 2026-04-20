@@ -15,17 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDate
 
 @Entity
-@Table(name = "roles")
-class Rol(
-) {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
-    var name: String = ""
-}
-
-
-@Entity
 class Usuario(
     var nombre: String,
     var apellido: String,
@@ -37,8 +26,7 @@ class Usuario(
     var urlImagen: String,
     var password: String
 ) {
-    @Id
-    @GeneratedValue
+    @Id @GeneratedValue
     var id: Long? = null
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "libros_para_prestar")
@@ -64,7 +52,7 @@ class Usuario(
 
     fun esPublicador(): Boolean = this.tipoUsuario == TipoUsuario.PUBLICADOR
 
-    fun esLectorPublicador(): Boolean = this.tipoUsuario == TipoUsuario.LECTORPUBLICADOR
+    fun esLectorPublicador(): Boolean = this.tipoUsuario == TipoUsuario.LECTOR_PUBLICADOR
 
     fun validarCredenciales(passwordAVerificar: String) {
         if (!getDefaultEncoder().matches(passwordAVerificar, password)) {
@@ -77,7 +65,9 @@ class Usuario(
     }
 }
 
-enum class TipoUsuario {
-    LECTOR, PUBLICADOR, LECTORPUBLICADOR
+enum class TipoUsuario(val roleName: String) {
+    LECTOR("LECTOR"),
+    PUBLICADOR("PUBLICADOR"),
+    LECTOR_PUBLICADOR("LECTOR_PUBLICADOR");
 }
 
