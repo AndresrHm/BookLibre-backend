@@ -17,10 +17,12 @@ import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import java.time.LocalDate
 import kotlin.random.Random
 
 @Configuration
+@EnableJpaAuditing
 class BootstrapData(
     val reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,

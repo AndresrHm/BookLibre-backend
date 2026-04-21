@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.domain
 
+import BaseEntity
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import jakarta.persistence.Entity
@@ -20,7 +21,7 @@ class Usuario(
     var ciudad: String,
     var tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
     var urlImagen: String,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue
     var id: Long? = null
