@@ -125,38 +125,11 @@ class LibroMapper(
             estado = libro.estadoLibro,
             rating = rating,
             biblioKarma = karmaForUserLector,
-//            TODO: Testing
-            //userCreador = libroRepository.getNickUsuarioCreador(libro.id),
-            userCreador = usuarioService.getNombreDeUsuario(libro.idPropietario) ?: "NERR",
+            userCreador = usuarioService.getNombreDeUsuario(libro.idPropietario) ?: "USERNAME",
             disponibilidad = disponibilidad
         )
         return libroDetalle
     }
-
-//    fun libroToLibroFiltradoPerfilDto(libro: Libro, disponibilidad: String): LibroFiltradoDTO {
-//        val libroDetalle = LibroFiltradoDTO(
-//            id = libro.id,
-//            titulo = libro.titulo,
-//            tipoLibro = libro.tipoComoTexto(),
-//            descripcion = null,
-//            imagenUrl = libro.portada,
-//            genero = libro.genero,
-//            autor = libro.autor,
-//            cantidadPaginas = null,
-//            isbn13 = null,
-//            idioma = null,
-//            editorial = null,
-//            fechaAgregado = libro.fechaPublicacion,
-//            estado = null,
-//            rating = null,
-//            biblioKarma = null,
-//            // TODO: Testing
-////            userCreador = libroRepository.getNickUsuarioCreador(libro.id),
-//            userCreador = "TEST",
-//            disponibilidad = disponibilidad
-//        )
-//        return libroDetalle
-//    }
 
     fun filtroDTOtoLibroFiltro(
         filtrosQuery: FiltrosLibrosQueryDTO,

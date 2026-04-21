@@ -29,24 +29,34 @@ class CalificacionService(
     private val libroRepository: LibroRepository,
     private val reservaRepository: ReservaRepository,
 ) {
+
+    @Transactional
     fun calificarLibro(
         calificacionDTO: CrearCalificacionDTO
     ) {
+        // Usuario
         val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
 
         if (esPublicador(usuario)) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
+        // Reserva
         val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
             ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacionDTO.reservaId))
 
-        if (calificacionDTO.usuarioId != reserva.usuarioLector.id) throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
+        if (calificacionDTO.usuarioId != reserva.usuarioLector.id)
+            throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
 
-        if (reserva.estado() != EstadoReserva.DEVUELTO) throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
+        if (reserva.estado() != EstadoReserva.DEVUELTO)
+            throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
+        // Libro
+        val libro = reserva.libro
+
+        // Save
         val existente = calificacionRepository
             .findByLibroIdAndUsuarioId(
-                reserva.libro.id!!,
+                libro.id!!,
                 usuario.id!!,
             )
 
@@ -59,13 +69,17 @@ class CalificacionService(
         } else {
             val nueva = Calificacion(
                 usuario = reserva.usuarioLector,
-                libro = reserva.libro,
+                libro = libro,
                 puntuacion = calificacionDTO.puntuacion,
                 comentario = calificacionDTO.comentario,
                 fecha = LocalDate.now()
             )
             calificacionRepository.save(nueva)
         }
+
+        val nuevoPromedio = calificacionRepository.obtenerPromedioCalificaciones(libro.id!!)
+        libro.actualizarCalificacion(nuevoPromedio!!)
+        libroRepository.save(libro)
     }
 
     fun obtenerCalificaciones(
@@ -106,12 +120,6 @@ class CalificacionService(
         val calificaciones = calificacionRepository.findTop2ByLibroIdOrderByFechaDesc(libro.id!!)
 
         return calificaciones
-    }
-
-    fun promedioCalificaciones(
-        libroID: Long,
-    ): Double {
-        return calificacionRepository.obtenerPromedioCalificaciones(libroID) ?: 0.0
     }
 
     fun cantidadCalificaciones(

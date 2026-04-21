@@ -14,9 +14,12 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import jakarta.persistence.EntityManager
+import jakarta.persistence.PersistenceContext
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import kotlin.random.Random
 
@@ -36,6 +39,7 @@ class BootstrapData(
         val reservas = crearReservas(usuarios, libros)
 
         crearCalificaciones(reservas)
+        actualizarCalificacionesLibros()
     }
 
     // ---------------- Usuarios ----------------
@@ -1056,6 +1060,7 @@ class BootstrapData(
             Reserva(libros[27], u3, u4, hoy.minusDays(6), hoy.plusDays(3)),
 
             // -------- u3 presta a u5 --------
+            Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.minusDays(1)),
             Reserva(libros[28], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
             Reserva(libros[29], u3, u5, hoy.minusDays(1), hoy.plusDays(2)),
             Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.plusDays(8)),
@@ -1161,4 +1166,24 @@ class BootstrapData(
             .toList()
         calificacionRepository.saveAll(calificacionesUnicas)
     }
+
+    private fun actualizarCalificacionesLibros() {
+
+        val libros = libroRepository.findAll()
+
+        libros.forEach { libro ->
+
+            val promedio = calificacionRepository
+                .obtenerPromedioCalificaciones(libro.id!!)
+
+            val promedioFinal = promedio ?: 0.0
+
+            println("Libro ${libro.id} -> promedio calculado: $promedioFinal")
+
+            libro.actualizarCalificacion(promedioFinal)
+        }
+
+        libroRepository.saveAll(libros)
+    }
 }
+

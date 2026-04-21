@@ -5,6 +5,7 @@ import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.LibroReservaCount
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
@@ -145,6 +146,10 @@ class ReservaService(
         }
 
         return reservaRepository.findAll(especificacion, pageRequest)
+    }
+
+    fun countReservasByLibroIds(libroIds: List<Long>): List<LibroReservaCount> {
+        return reservaRepository.countReservasByLibroIds(libroIds)
     }
 
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =

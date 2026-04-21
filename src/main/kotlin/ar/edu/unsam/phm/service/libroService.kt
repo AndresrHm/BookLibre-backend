@@ -31,7 +31,6 @@ class LibroService(
     var repositorioReservas: ReservaRepository,
     var repositorioUsuario: UsuarioRepository,
 ) {
-    @Transactional
     fun crearLibro(nuevoLibro: Libro): Libro {
         val prestador = repositorioUsuario.findByIdOrNull(nuevoLibro.idPropietario)
             ?: throw BusinessException(ErrorStrings.usuarioNoExistePorId(nuevoLibro.idPropietario))
@@ -44,23 +43,17 @@ class LibroService(
         return nuevoLibro
     }
 
-    
-    fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
-
-    @Transactional
     fun editarLibro(libroEditado: Libro, idUsuarioActual: Long): Libro {
         val prestador = repositorioUsuario.findByIdOrNull(libroEditado.idPropietario)
             ?: throw BusinessException(ErrorStrings.usuarioNoExistePorId(libroEditado.idPropietario))
 
-        if (esTipoLector(prestador.tipoUsuario)) {
+        if (esTipoLector(prestador.tipoUsuario))
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
-        }
 
         val libroOriginal = getLibroByIdOrThrow(libroEditado.id!!)
         validarPropietario(libroOriginal, idUsuarioActual)
 
         libroOriginal.titulo = libroEditado.titulo
-        // tipoLibro e idPropietario son inmutables en la entidad.
         libroOriginal.genero = libroEditado.genero
         libroOriginal.autor = libroEditado.autor
         libroOriginal.idioma = libroEditado.idioma
@@ -72,6 +65,7 @@ class LibroService(
         libroOriginal.descripcion = libroEditado.descripcion
         libroOriginal.portada = libroEditado.portada
 
+        repositorioLibro.save(libroOriginal)
         return libroOriginal
     }
 
@@ -201,6 +195,8 @@ class LibroService(
         repositorioLibro.save(libro)
     }
 
+    fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
+
     private fun estaReservadoHoy(libroId: Long): Boolean {
         val hoy = LocalDate.now()
         val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
@@ -244,6 +240,7 @@ class LibroService(
                 { it.titulo.lowercase() },
                 { it.autor.lowercase() }
             )
+
             OrdenLibroPerfil.FECHA_AGREGADO -> compareBy { it.fechaAgregado }
         }
 

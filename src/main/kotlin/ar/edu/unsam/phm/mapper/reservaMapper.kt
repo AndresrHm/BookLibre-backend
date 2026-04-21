@@ -10,7 +10,7 @@ class ReservaMapper {
     fun toReservaDetalleDTO(
         obj: Reserva,
         userID: Long,
-        cantidadReservas: Int,
+        cantidadReservas: Long,
         calificacionLibro: Double
     ): ReservaDTO {
         val puedeCalificar =
@@ -36,7 +36,7 @@ class ReservaMapper {
             fechaFin = obj.fechaDevolucion,
             estado = obj.estado(),
             puedeCalificar = puedeCalificar,
-            biblioKarma = obj.libro.darKarma(obj, cantidadReservas),
+            biblioKarma = obj.libro.darKarma(obj, cantidadReservas.toInt()), // long to int no es para nada recomendado TODO: refactor
         )
     }
 }
