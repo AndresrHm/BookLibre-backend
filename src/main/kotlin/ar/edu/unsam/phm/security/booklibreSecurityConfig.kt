@@ -52,23 +52,27 @@ class HeladeriaSecurityConfig {
                 it.requestMatchers("/auth/register").permitAll()
                 it.requestMatchers("/error").permitAll()
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
-                // Permisos de usuario //
+
                 // Permisos de libros
-                it.requestMatchers(HttpMethod.POST, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName) // Ejemplo, solo lectores pueden ver el home.
-                it.requestMatchers(HttpMethod.PUT, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/libros").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/libros/prestadoresDisponibles").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/libros/*/*").hasAuthority(TipoUsuario.LECTOR.roleName)
+                it.requestMatchers(HttpMethod.PUT, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
+                it.requestMatchers(HttpMethod.POST, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName) // Ejemplo, solo lectores pueden ver el home.
                 it.requestMatchers(HttpMethod.DELETE, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
+
                 // Permisos de calificaciones
-                it.requestMatchers(HttpMethod.POST, "/calificaciones").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/calificaciones/*").hasAuthority(TipoUsuario.LECTOR.roleName)
+                it.requestMatchers(HttpMethod.POST, "/calificaciones").hasAuthority(TipoUsuario.LECTOR.roleName)
+
                 // Permisos de reservas
-                it.requestMatchers(HttpMethod.POST, "/reservas").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/reservas").permitAll() // Hechas por lector / Participa un publicador
+                it.requestMatchers(HttpMethod.POST, "/reservas").hasAuthority(TipoUsuario.LECTOR.roleName)
+
                 // Permisos de configuración de usuarioRepository
-                it.requestMatchers(HttpMethod.PUT, "/usuario").permitAll()
                 it.requestMatchers(HttpMethod.GET, "/usuario/*/*").permitAll()
+                it.requestMatchers(HttpMethod.PUT, "/usuario").permitAll()
+
                     // Default: que se autentique para poder ver información
                     .anyRequest().authenticated()
             }

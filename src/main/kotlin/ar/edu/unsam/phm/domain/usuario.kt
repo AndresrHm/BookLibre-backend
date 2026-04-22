@@ -24,7 +24,7 @@ class Usuario(
     var email: String,
     var celular: String,
     var ciudad: String,
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "usuario_roles",
         joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],

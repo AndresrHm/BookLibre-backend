@@ -30,7 +30,7 @@ class TokenUtils {
 
     val logger: Logger = LoggerFactory.getLogger(TokenUtils::class.java)
 
-    fun createToken(usuarioId: String, roles: List<TipoUsuario>): String {
+    fun createToken(usuarioId: String, roles: Collection<String>): String {
         val longExpirationTime = accessTokenMinutes.minutes.inWholeMilliseconds
         val now = Date()
 
@@ -76,8 +76,15 @@ class TokenUtils {
 
             logger.info("Token decoded, user: " + claims.subject + " - roles: " + claims["roles"])
 
-            val rol = SimpleGrantedAuthority(claims["rol"].toString())
-            return UsernamePasswordAuthenticationToken(claims.subject, null, listOf(rol))
+            val rolesClaim = claims["roles"]
+            val authorities = if (rolesClaim is List<*>) {
+                rolesClaim.filterIsInstance<String>()
+                    .map { SimpleGrantedAuthority(it) }
+            } else {
+                emptyList()
+            }
+
+            return UsernamePasswordAuthenticationToken(claims.subject, null, authorities)
         } catch (expiredJwtException: ExpiredJwtException) {
             throw BusinessException(ErrorStrings.TOKEN_EXPIRADO)
         }

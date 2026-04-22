@@ -27,13 +27,11 @@ class JWTAuthorizationFilter : OncePerRequestFilter(
         filterChain: FilterChain
     ) {
         try {
-            val bearerToken = request.getHeader("Authorization")
-            if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-                val token = bearerToken.substringAfter("Bearer ")
+            val token = request.cookies?.find { it.name == "access_token" }?.value
+
+            if (token != null) {
                 val usernamePAT = tokenUtils.getAuthentication(token)
-                usuarioService.validarExistenciaUsuario(usernamePAT.name.toLong()) // todo: revisar .toLong()
                 SecurityContextHolder.getContext().authentication = usernamePAT
-                logger.info("username PAT: $usernamePAT")
             }
             filterChain.doFilter(request, response)
         } catch (e: BusinessException) {
