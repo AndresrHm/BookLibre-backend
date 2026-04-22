@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("calificaciones")
-@CrossOrigin("*")
 class CalificacionController(val calificacionService: CalificacionService) {
 
     @PostMapping

@@ -44,10 +44,6 @@ class AuthController(
             .sameSite("Lax")
             .build()
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
-
-        println("entre a login")
-
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(mapOf("message" to "Usuario logueado con éxito"))

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("usuario")
-@CrossOrigin("*")
 class UsuarioController(
     val usuarioService: UsuarioService,
     val usuarioMapper: UsuarioMapper

@@ -1195,8 +1195,6 @@ class BootstrapData(
 
             val promedioFinal = promedio ?: 0.0
 
-            println("Libro ${libro.id} -> promedio calculado: $promedioFinal")
-
             libro.actualizarCalificacion(promedioFinal)
         }
 

@@ -78,11 +78,22 @@ class TokenUtils {
             logger.info("Token decoded, user: " + claims.subject + " - roles: " + claims["roles"])
 
             val rolesClaim = claims["roles"]
-            val authorities = if (rolesClaim is List<*>) {
-                rolesClaim.filterIsInstance<String>()
-                    .map { SimpleGrantedAuthority(it) }
-            } else {
-                emptyList()
+            val authorities = mutableListOf<SimpleGrantedAuthority>()
+            if (rolesClaim is List<*>) {
+                rolesClaim.forEach { role ->
+                    // Si el rol es un String, lo tomamos directo
+                    if (role is String) {
+                        authorities.add(SimpleGrantedAuthority(role))
+                    }
+                    // Si el rol es un Mapa (porque es un objeto Rol serializado),
+                    // buscamos el campo que contiene el nombre del rol (ej: "name", "roleName", etc.)
+                    else if (role is Map<*, *>) {
+                        val roleName = role["roleName"]?.toString() ?: role["name"]?.toString()
+                        if (roleName != null) {
+                            authorities.add(SimpleGrantedAuthority(roleName))
+                        }
+                    }
+                }
             }
 
             return UsernamePasswordAuthenticationToken(claims.subject, null, authorities)

@@ -30,7 +30,7 @@ import java.util.function.Supplier
 
 @Configuration
 @EnableWebSecurity
-class HeladeriaSecurityConfig {
+class BooklibreSecurityConfig {
 
     @Autowired
     lateinit var jwtAuthorizationFilter: JWTAuthorizationFilter
@@ -54,11 +54,11 @@ class HeladeriaSecurityConfig {
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
 
                 // Permisos de libros
-                it.requestMatchers(HttpMethod.GET, "/libros").hasAuthority(TipoUsuario.LECTOR.roleName)
+                it.requestMatchers(HttpMethod.GET, "/libros").hasAuthority(TipoUsuario.LECTOR.roleName) // Ejemplo, solo lectores pueden ver el home.
                 it.requestMatchers(HttpMethod.GET, "/libros/prestadoresDisponibles").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/libros/*/*").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.PUT, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
-                it.requestMatchers(HttpMethod.POST, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName) // Ejemplo, solo lectores pueden ver el home.
+                it.requestMatchers(HttpMethod.POST, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
                 it.requestMatchers(HttpMethod.DELETE, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
 
                 // Permisos de calificaciones
@@ -80,7 +80,7 @@ class HeladeriaSecurityConfig {
             .sessionManagement { configurer ->
                 configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            // agregado para JWT, si comentás estas dos líneas tendrías Basic Auth
+            // agregado para JWT
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter::class.java)
             // fin agregado
             .exceptionHandling(Customizer.withDefaults())

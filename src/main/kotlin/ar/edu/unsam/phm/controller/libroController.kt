@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 
 @RestController
 @RequestMapping("libros")
-@CrossOrigin("*")
 class LibroController(
     val libroService: LibroService,
     val reservaService: ReservaService,

@@ -57,7 +57,7 @@ class Usuario(
 
     fun esLector(): Boolean = roles.any { it.name == TipoUsuario.LECTOR.roleName }
 
-    fun esPublicador(): Boolean = roles.any { it.name == TipoUsuario.LECTOR.roleName }
+    fun esPublicador(): Boolean = roles.any { it.name == TipoUsuario.PUBLICADOR.roleName }
 
     fun esLectorPublicador(): Boolean = esLector() && esPublicador()
 

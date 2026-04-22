@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("reservas")
-@CrossOrigin("*")
 class ReservaController(
     val reservaService: ReservaService,
     val usuarioService: UsuarioService,
