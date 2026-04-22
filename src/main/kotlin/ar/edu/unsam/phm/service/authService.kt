@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val usuarioRepository: UsuarioRepository,
 ) {
-    fun buscarUsuarioContraseniaUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
+    fun findUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
         val login = usuarioLogin.trim()
 
         return usuarioRepository.findByEmailAndPassword(login, passwordLogin)
@@ -18,7 +18,7 @@ class AuthService(
             ?: throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
     }
 
-    fun crearUsuario(usuario: Usuario) {
+    fun saveUsuario(usuario: Usuario) {
         usuarioRepository.save(usuario)
     }
 }
