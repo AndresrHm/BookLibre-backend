@@ -34,10 +34,10 @@ class AuthController(
             loginRequest.password
         )
 
-        val token = tokenUtils.createToken(usuario.id.toString())
+        val token = tokenUtils.createToken(usuario.id.toString(), usuario.roles)
 
         val cookie = ResponseCookie.from("access_token", token)
-            .httpOnly(true)
+            .httpOnly(false) // lo dejo en false para que lo podamos ver
             .secure(false) // todavía no tenemos https
             .path("/")
             .maxAge(300) // 5 min
@@ -46,7 +46,11 @@ class AuthController(
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
 
-        return ResponseEntity.ok(mapOf("message" to "Usuario logueado con éxito"))
+        println("entre a login")
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(mapOf("message" to "Usuario logueado con éxito"))
     }
 
     @PostMapping("/register")

@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.security
 
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import io.jsonwebtoken.ExpiredJwtException
@@ -30,7 +31,7 @@ class TokenUtils {
 
     val logger: Logger = LoggerFactory.getLogger(TokenUtils::class.java)
 
-    fun createToken(usuarioId: String, roles: Collection<String>): String {
+    fun createToken(usuarioId: String, roles: MutableSet<Rol>): String {
         val longExpirationTime = accessTokenMinutes.minutes.inWholeMilliseconds
         val now = Date()
 

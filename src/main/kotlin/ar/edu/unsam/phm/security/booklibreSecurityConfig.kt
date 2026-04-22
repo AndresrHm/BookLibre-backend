@@ -40,7 +40,7 @@ class HeladeriaSecurityConfig {
         return httpSecurity
             .cors(Customizer.withDefaults())
             .csrf {
-                it.ignoringRequestMatchers("/login", "/refresh")
+                it.ignoringRequestMatchers("/auth/login", "/auth/register", "/refresh")
                 it.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 it.csrfTokenRequestHandler(SpaCsrfTokenRequestHandler())
             }
