@@ -8,10 +8,6 @@ import java.time.LocalDateTime
 @MappedSuperclass // Indica que es una clase para heredar, no es una tabla propia
 @EntityListeners(AuditingEntityListener::class)
 abstract class BaseEntity {
-    //Se actualiza automáticamente al instanciar una entidad
-    @CreatedDate
-    var createdAt: LocalDateTime? = null
-
     //Se actualiza automáticamente al actualizar un objeto
     @LastModifiedDate
     var updatedAt: LocalDateTime? = null
