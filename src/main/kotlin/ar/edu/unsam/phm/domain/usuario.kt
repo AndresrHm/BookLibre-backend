@@ -75,7 +75,6 @@ class Usuario(
 enum class TipoUsuario(val roleName: String) {
     LECTOR("LECTOR"),
     PUBLICADOR("PUBLICADOR"),
-    LECTOR_PUBLICADOR("LECTOR_PUBLICADOR");
 }
 
 @Entity
