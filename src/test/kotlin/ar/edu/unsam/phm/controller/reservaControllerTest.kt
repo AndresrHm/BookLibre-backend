@@ -5,7 +5,9 @@ import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoLibro
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
@@ -14,6 +16,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.BeforeEach
@@ -42,6 +45,9 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Autowired
     private lateinit var calificacionRepository: CalificacionRepository
+
+    @Autowired
+    private lateinit var rolRepository: RolRepository
 
     val libro1usuario1 = crearLibro(
         "1984",
@@ -107,13 +113,11 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         2
     )
 
-    val usuario1 = crearUsuario(
-        id = 1
-    )
+    lateinit var usuario1: Usuario
+    lateinit var usuario2: Usuario
 
-    val usuario2 = crearUsuario(
-        id = 2
-    )
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
 
     val fechaRecogida = LocalDate.of(2026, 3, 20)
     val fechaDevolucion = LocalDate.of(2026, 3, 21)
@@ -156,6 +160,14 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
+
+        usuario1 = crearUsuario(id = 1, roles = mutableSetOf(rolLector, rolPublicador))
+        usuario2 = crearUsuario(id = 2, roles = mutableSetOf(rolLector, rolPublicador))
 
         usuarioRepository.save(usuario1)
         usuarioRepository.save(usuario2)

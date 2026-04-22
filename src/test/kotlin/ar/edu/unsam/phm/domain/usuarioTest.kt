@@ -5,12 +5,14 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import java.time.LocalDate
 
 class UsuarioSpec : DescribeSpec({
+    val rol = Rol().apply{
+        this.name = "LECTOR"
+    }
     isolationMode = IsolationMode.InstancePerTest
     describe("Test de Usuario") {
-        val usuario = crearUsuario()
+        val usuario = crearUsuario(roles = mutableSetOf(rol))
         it("un usuario puede sumar karma") {
             usuario.biblioKarma.shouldBe(0)
 
@@ -38,6 +40,8 @@ fun crearUsuario(
     celular: String = "1111111111",
     ciudad: String = "CiudadUsuario",
     tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
+    roles: MutableSet<Rol>,
+    password: String = "passwordUsuario",
     urlImagen: String = "imagenUsuario"
 ): Usuario {
     return Usuario(
@@ -47,7 +51,8 @@ fun crearUsuario(
         email = email,
         celular = celular,
         ciudad = ciudad,
-        tipoUsuario = tipoUsuario,
+        roles = roles,
+        password = password,
         urlImagen = urlImagen
     )
 }

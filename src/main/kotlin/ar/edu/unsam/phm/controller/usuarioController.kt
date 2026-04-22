@@ -59,7 +59,7 @@ class UsuarioController(
             }
 
             TipoDTOUsuario.TIPOUSUARIO -> {
-                val tipo = usuario.tipoUsuario
+                val tipo = usuario.roles
                 SealedGetUsuarioDTO.TipoPerfil(tipo)
             }
         }

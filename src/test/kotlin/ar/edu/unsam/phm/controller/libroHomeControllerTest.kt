@@ -4,6 +4,7 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
@@ -11,6 +12,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -43,8 +45,14 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var usuarioRepository: UsuarioRepository
 
-    private val usuario1 = crearUsuario(nombre = "Ana", email = "ana@test.com")
-    private val usuario2 = crearUsuario(nombre = "Bruno", email = "bruno@test.com")
+    @Autowired
+    private lateinit var rolRepository: RolRepository
+
+    private lateinit var usuario1: Usuario
+    private lateinit var usuario2: Usuario
+
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
 
     var usuario1Id = 0L
     var usuario2Id = 0L
@@ -57,10 +65,18 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @BeforeEach
     fun init() {
-        reservaRepository.deleteAll()
         calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
+
+        usuario1 = crearUsuario(nombre = "Ana", email = "ana@test.com", roles = mutableSetOf(rolLector, rolPublicador))
+        usuario2 = crearUsuario(nombre = "Bruno", email = "bruno@test.com", roles = mutableSetOf(rolLector, rolPublicador))
 
         usuarioRepository.save(usuario1)
         usuarioRepository.save(usuario2)
@@ -280,11 +296,10 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
             .param("userId", userId)
             .param("ordenHomePage", ordenHomePage)
     }
-}
-
 private fun crearUsuario(
     nombre: String,
     email: String,
+    roles: MutableSet<Rol>
 ): Usuario {
     return Usuario(
         nombre = nombre,
@@ -293,10 +308,13 @@ private fun crearUsuario(
         email = email,
         celular = "11111111",
         ciudad = "Buenos Aires",
-        tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+        roles = roles,
+        password = "password",
         urlImagen = "https://img.test/user.jpg",
     )
 }
+}
+
 
 private fun crearLibro(
     titulo: String,

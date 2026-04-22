@@ -7,19 +7,18 @@ import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import kotlin.random.Random
 
@@ -28,11 +27,17 @@ class BootstrapData(
     val reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,
     val libroRepository: LibroRepository,
-    val calificacionRepository: CalificacionRepository
+    val calificacionRepository: CalificacionRepository,
+    val rolRepository: RolRepository
 ) {
+    lateinit var rolLector: Rol
+    lateinit var rolPublicador: Rol
 
     @Bean
     fun initData() = CommandLineRunner {
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
 
         val usuarios = crearUsuarios()
         val libros = crearLibros()
@@ -56,7 +61,7 @@ class BootstrapData(
                 email = "juan@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez",
                 password = "juan123"
             ).apply { biblioKarma = 2000; id = 1 },
@@ -68,7 +73,7 @@ class BootstrapData(
                 email = "ana@mail.com",
                 celular = "222222",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez",
                 password = "ana123"
             ).apply { biblioKarma = 4000; id = 2 },
@@ -80,7 +85,7 @@ class BootstrapData(
                 email = "carlos@mail.com",
                 celular = "333333",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez",
                 password = "carlos123"
             ).apply { biblioKarma = 1500; id = 3 },
@@ -92,7 +97,7 @@ class BootstrapData(
                 email = "lucia@mail.com",
                 celular = "444444",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez",
                 password = "lucia123"
             ).apply { biblioKarma = 3200; id = 4 },
@@ -104,7 +109,7 @@ class BootstrapData(
                 email = "email123@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3",
                 password = "nombre123"
             ).apply { biblioKarma = 9999; id = 5 },
@@ -116,7 +121,7 @@ class BootstrapData(
                 email = "pedro@mail.com",
                 celular = "666666",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa",
                 password = "pedro123"
             ).apply { biblioKarma = 2100; id = 6 },
@@ -128,7 +133,7 @@ class BootstrapData(
                 email = "marina@mail.com",
                 celular = "777777",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz",
                 password = "marina123"
             ).apply { biblioKarma = 1800; id = 7 },
@@ -140,7 +145,7 @@ class BootstrapData(
                 email = "diego@mail.com",
                 celular = "888888",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez",
                 password = "diego123"
             ).apply { biblioKarma = 2600; id = 8 },
@@ -152,7 +157,7 @@ class BootstrapData(
                 email = "sofia@mail.com",
                 celular = "999999",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta",
                 password = "sofia123"
             ).apply { biblioKarma = 1750; id = 9 },
@@ -164,7 +169,7 @@ class BootstrapData(
                 email = "nicolas@mail.com",
                 celular = "101010",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega",
                 password = "nicolas123"
             ).apply { biblioKarma = 1950; id = 10 },
@@ -176,7 +181,7 @@ class BootstrapData(
                 email = "valentina@mail.com",
                 celular = "111110",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez",
                 password = "valentina123"
             ).apply { biblioKarma = 2300; id = 11 },
@@ -188,7 +193,7 @@ class BootstrapData(
                 email = "tomas@mail.com",
                 celular = "121212",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra",
                 password = "tomas123"
             ).apply { biblioKarma = 2050; id = 12 },

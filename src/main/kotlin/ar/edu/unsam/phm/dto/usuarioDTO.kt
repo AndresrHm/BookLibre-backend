@@ -1,6 +1,6 @@
 package ar.edu.unsam.phm.dto
 
-import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Rol
 
 sealed class SealedGetUsuarioDTO(val tipo: String) {
     data class Header(
@@ -16,7 +16,7 @@ sealed class SealedGetUsuarioDTO(val tipo: String) {
         val usuario: UsarioPerfilDTO
     ): SealedGetUsuarioDTO("PERFIL")
     data class TipoPerfil(
-        val usuario: TipoUsuario
+        val usuario: Set<Rol>
     ): SealedGetUsuarioDTO("TIPOUSUARIO")
 }
 
@@ -37,7 +37,7 @@ data class UsuarioEdicionDTO(
     val apellido: String,
     val descripcion: String,
     val ciudad: String,
-    val tipoUsuario: TipoUsuario,
+    val tipoUsuario: MutableSet<Rol>,
     val urlImagen: String
 )
 
@@ -47,7 +47,7 @@ data class UsarioPerfilDTO(
     val apellido: String,
     val descripcion: String,
     val ciudad: String,
-    val tipoUsuario: TipoUsuario,
+    val tipoUsuario: MutableSet<Rol>,
     val urlImagen: String,
     val biblioKarma: Int,
     val celular: String,
