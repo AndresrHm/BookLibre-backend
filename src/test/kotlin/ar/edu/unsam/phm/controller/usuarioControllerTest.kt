@@ -8,7 +8,6 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,7 +39,7 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
     val usuario2 =
         crearUsuario(nombre = "María", apellido = "González", tipoUsuario = TipoUsuario.PUBLICADOR)
     val usuario3 =
-        crearUsuario(nombre = "Carlos", apellido = "López", tipoUsuario = TipoUsuario.LECTORPUBLICADOR)
+        crearUsuario(nombre = "Carlos", apellido = "López", tipoUsuario = TipoUsuario.LECTOR_PUBLICADOR)
 
     var usuario1Id = 0L // Los seteo en el init porque el deleteAll() no reinicia el contador de ids
     var usuario2Id = 0L

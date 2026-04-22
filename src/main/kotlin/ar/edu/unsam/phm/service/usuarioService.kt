@@ -2,30 +2,28 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
-import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UsuarioService(
-    val usuarioRepositorio: UsuarioRepository,
-    val reservaRepositorio: ReservaRepository,
-    val libroRepositorio: LibroRepository
+    val usuarioRepository: UsuarioRepository,
+    val reservaRepository: ReservaRepository,
+    val libroRepository: LibroRepository
 ) {
 
     fun getUsuarioById(id: Long) =
-        usuarioRepositorio.findByIdOrNull(id) ?: throw NotFoundException("No se encontró usuario con id $id")
+        usuarioRepository.findByIdOrNull(id) ?: throw NotFoundException("No se encontró usuario con id $id")
 
 
     fun getUsuarioByNombre(nombre: String) =
-        usuarioRepositorio.findByNombre(nombre) ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
+        usuarioRepository.findByNombre(nombre) ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
 
     @Transactional(readOnly = false, rollbackFor = [Exception::class])
     fun usuarioUpdate(usuario: Usuario): Usuario {
@@ -36,23 +34,23 @@ class UsuarioService(
         when {
             usuario.esLector() -> {
                 if (
-                    reservaRepositorio.countByUsuarioLectorId(usuario.id!!) > 0
+                    reservaRepository.countByUsuarioLectorId(usuario.id!!) > 0
                 ) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
                 }
-                libroRepositorio.eliminarPorIDPropietario(usuario.id!!)
+                libroRepository.eliminarPorIDPropietario(usuario.id!!)
             }
 
             usuario.esPublicador() ->
                 if (
-                    reservaRepositorio.countByUsuarioPrestadorId(usuario.id!!) > 0
+                    reservaRepository.countByUsuarioPrestadorId(usuario.id!!) > 0
                 ) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
                 }
 
             usuario.esLectorPublicador() -> {}
         }
-        usuarioRepositorio.save(usuario)
+        usuarioRepository.save(usuario)
         return usuario
     }
 
@@ -63,21 +61,25 @@ class UsuarioService(
 
 
     fun obtenerCantidadDeLibrosPrestados(usuarioId: Long): Int {
-        return reservaRepositorio.findAll()
+        return reservaRepository.findAll()
             .filter { it.usuarioPrestador.id == usuarioId }
             .toList()
             .size
     }
 
     fun obtenerCantidadDeLibrosLeidos(usuarioId: Long): Int {
-        return reservaRepositorio.findAll()
+        return reservaRepository.findAll()
             .filter { it.usuarioLector.id == usuarioId }
             .toList()
             .size
     }
 
     fun getNombreDeUsuario(id: Long): String? {
-        return usuarioRepositorio.findByIdOrNull(id)?.nombre
+        return usuarioRepository.findByIdOrNull(id)?.nombre
     }
+
+    // por ahora dejo email, no deberíamos permitir que un email sea compartido (podríamos meter validaciones)
+    fun validarExistenciaUsuario(usuarioId: Long): Usuario =
+        usuarioRepository.findById(usuarioId).orElseThrow { BusinessException(ErrorStrings.CREDENCIALES_INVALIDAS) }
 }
 

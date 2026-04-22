@@ -13,8 +13,8 @@ class LoginRegistroService(
     fun buscarUsuarioContraseniaUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
         val login = usuarioLogin.trim()
 
-        return usuarioRepository.findByEmailAndPasswordSesion(login, passwordLogin)
-            ?: usuarioRepository.findFirstByNombreAndPasswordSesion(login, passwordLogin)
+        return usuarioRepository.findByEmailAndPassword(login, passwordLogin)
+            ?: usuarioRepository.findFirstByNombreAndPassword(login, passwordLogin)
             ?: throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
     }
 

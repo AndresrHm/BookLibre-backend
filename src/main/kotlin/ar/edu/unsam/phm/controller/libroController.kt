@@ -129,8 +129,8 @@ class LibroController(
             disponibilidadLibrosPerfil!!,
             ordenPerfilPage!!,
             direccionPerfilPage!!
-        )
 
+        )
         return PageResponse(
             content = pageResult.content.mapNotNull { libro ->
                 // Validar que el libro tiene ID antes de procesar
