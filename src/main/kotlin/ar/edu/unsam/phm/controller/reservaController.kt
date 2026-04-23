@@ -73,7 +73,7 @@ class ReservaController(
                 val libroId = reserva.libro.id
                     ?: throw IllegalStateException("Reserva sin libro persistido")
 
-                reservaMapper.toReservaDetalleDTO(
+                reservaMapper.toDetalleDTO(
                     reserva,
                     usuarioId,
                     counts[libroId] ?: 0L,

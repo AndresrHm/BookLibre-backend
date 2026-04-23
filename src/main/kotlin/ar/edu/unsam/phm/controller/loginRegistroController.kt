@@ -27,7 +27,7 @@ class ControllerLogin(val loginRegistroService: LoginRegistroService, private va
 
     @PutMapping("/crearUsuario")
     fun crearUsuario(@RequestBody registerRequest: RegisterRequestDTO): ResponseEntity<ActionResponse> {
-        loginRegistroService.crearUsuario(usuarioMapper.registerRequestDTOtoUsuario(registerRequest))
+        loginRegistroService.crearUsuario(usuarioMapper.fromRegisterRequestDTO(registerRequest))
 
         val mensajeExito = "Usuario creado exitosamente"
         return ResponseEntity

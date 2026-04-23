@@ -34,12 +34,9 @@ class UsuarioService(
         }
 
         when {
+            // Para eliminar usuario, no aca
+            // Si el usuario tiene libros prestados, puede ser eliminado, pero la baja es logica...
             usuario.esLector() -> {
-                if (
-                    reservaRepositorio.countByUsuarioLectorId(usuario.id!!) > 0
-                ) {
-                    throw BusinessException(ErrorStrings.USUARIO_TIENE_LIBROS_PRESTADOS)
-                }
                 libroRepositorio.eliminarPorIDPropietario(usuario.id!!)
             }
 

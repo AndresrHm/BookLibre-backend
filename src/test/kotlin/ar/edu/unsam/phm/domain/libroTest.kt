@@ -95,33 +95,6 @@ class LibroSpec : DescribeSpec({
                 }
             }
         }
-
-        // TODO: quedó obsoleto
-//        describe(name = "Validación de calificación y reserva") {
-//            val libro = crearLibro()
-//
-//            it("Si se actualiza el rating, aumenta la cantida de reseñas") {
-//                libro.rating().shouldBe(0.0)
-//                libro.cantidadResenias.shouldBe(0)
-//
-//                libro.actualizarRating(1.0)
-//
-//                libro.rating().shouldBe(1.0)
-//                libro.cantidadResenias.shouldBe(1)
-//            }
-//
-//            it("La calificación de un libro debe ubicarse en cierto rango") {
-//                val libroSinResenias = crearLibro()
-//                libroSinResenias.rating().shouldBe(0.0)
-//                libroSinResenias.cantidadResenias.shouldBe(0)
-//
-//                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(-1.0) }
-//                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(5.1) }
-//
-//                libroSinResenias.rating().shouldBe(0.0)
-//                libroSinResenias.cantidadResenias.shouldBe(0)
-//            }
-//        }
     }
 })
 

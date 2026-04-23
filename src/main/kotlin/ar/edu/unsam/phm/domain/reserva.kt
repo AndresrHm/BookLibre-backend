@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.domain
 
+import BaseEntity
 import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.requireBusiness
 import ar.edu.unsam.phm.utils.diasEntre
@@ -28,7 +29,7 @@ class Reserva(
 
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue
     var id: Long? = null

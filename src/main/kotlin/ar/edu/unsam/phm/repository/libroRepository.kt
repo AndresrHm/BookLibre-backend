@@ -12,9 +12,14 @@ interface LibroRepository : CrudRepository<Libro, Long>, JpaSpecificationExecuto
 
     @Modifying
     @Query("""
-            UPDATE Libro l
-            SET l.activo = false
-            where l.idPropietario = :idPropietario""")
+        UPDATE Libro l
+        SET l.activo = false
+        WHERE l.idPropietario = :idPropietario
+        AND l.id NOT IN (
+            SELECT r.libro.id
+            FROM Reserva r
+            WHERE r.libro.id = l.id
+        )""")
     fun eliminarPorIDPropietario(idPropietario: Long)
 
     fun findByActivoTrue(): List<Libro>

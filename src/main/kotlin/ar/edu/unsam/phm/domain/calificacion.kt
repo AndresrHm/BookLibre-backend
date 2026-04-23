@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.domain
 
+import BaseEntity
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -24,7 +25,7 @@ data class Calificacion(
     var puntuacion: Double,
     var comentario: String,
     var fecha: LocalDate,
-){
+) : BaseEntity() {
     @Id
     @GeneratedValue
     var id: Long? = null

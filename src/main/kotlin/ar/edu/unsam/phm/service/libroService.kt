@@ -39,7 +39,6 @@ class LibroService(
         if (esTipoLector(prestador.tipoUsuario)) {
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
         }
-
         repositorioLibro.save(nuevoLibro)
         return nuevoLibro
     }
@@ -176,15 +175,14 @@ class LibroService(
         val termino = search?.trim().orEmpty()
 
         return repositorioLibro.findByActivoTrue()
-            .filter { it.idPropietario != userId }
-            .filter { !estaReservadoHoy(it.id!!) }
+            .filter { it.idPropietario != userId && !estaReservadoHoy(it.id!!) }
             .mapNotNull { repositorioUsuario.findByIdOrNull(it.idPropietario)?.nombre }
             .distinct()
-            .filter { termino.isBlank() || it.contains(termino, ignoreCase = true) }
+            .filter { (termino.isBlank() || it.contains(termino, ignoreCase = true)) }
             .sortedBy { it.lowercase() }
     }
 
-    @Transactional
+    //@Transactional
     fun borrarLibro(idLibro: Long, idUsuario: Long) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
