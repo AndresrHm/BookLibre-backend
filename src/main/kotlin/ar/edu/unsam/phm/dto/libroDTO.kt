@@ -112,6 +112,13 @@ data class FiltrosLibrosQueryDTO(
     val usuarioLectorId: Long? = null,
 )
 
+data class OrdenamientosLibrosDTO(
+    val ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
+    val ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,
+    val direccionPerfilPage: DireccionOrden? = DireccionOrden.DESCENDENTE,
+    val disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil? = FiltroDisponibilidadPerfil.TODOS,
+)
+
 
 data class LibroUsuarioPerfilDTO(
     val id: Long?,

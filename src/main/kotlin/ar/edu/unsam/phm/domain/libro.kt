@@ -37,8 +37,9 @@ class Libro(
     @Id
     @GeneratedValue
     var id: Long? = null
-    var fechaAgregado = LocalDate.now()
+    var fechaAgregado: LocalDate? = LocalDate.now()
     var activo = true
+    var calificacion: Double = 0.0
 
     fun init() {
         verificarTitulo()
@@ -58,6 +59,12 @@ class Libro(
         fechaFin: LocalDate
     ): Int =
         diasEntre(fechaIni, fechaFin) * 5 + tipoLibro.calcularKarma(this, cantidadReservas, usuarioLector)
+
+    fun actualizarCalificacion(nuevaCalificacion: Double) {
+        calificacion = nuevaCalificacion
+    }
+
+    fun calificacionPromedio() = calificacion
 
     // Validaciones de creación/edición
     private fun verificarTitulo() {
@@ -106,7 +113,7 @@ class Libro(
         }
     }
 
-    fun getFechaAsString(): String = fechaAgregado.formatear()
+    fun getFechaAsString(): String = fechaAgregado?.formatear() ?: ""
 
     fun tipoComoTexto(): String =
         if (tipoLibro == TipoLibro.CON_DEDICATORIA) "conDedicatoria"
@@ -124,4 +131,9 @@ enum class Idioma {
 
 enum class EstadoLibro {
     EXCELENTE, MUY_BUENO, BUENO, MALO, REGULAR
+}
+
+interface LibroReservaCount {
+    fun getLibroId(): Long
+    fun getTotal(): Long
 }

@@ -61,16 +61,23 @@ class ReservaController(
     ): PageResponse<ReservaDTO> {
         val result = reservaService.getReservas(usuarioId, type, page, size, search)
 
+        val libroIds = result.content
+            .mapNotNull { it.libro.id }
+            .distinct()
+
+        val counts = reservaService.countReservasByLibroIds(libroIds)
+            .associate { it.getLibroId() to it.getTotal() }
+
         return PageResponse(
             content = result.content.map { reserva: Reserva ->
                 val libroId = reserva.libro.id
-                    ?: throw IllegalStateException("La reserva ${reserva.id} no tiene libro con id persistido")
+                    ?: throw IllegalStateException("Reserva sin libro persistido")
 
                 reservaMapper.toDetalleDTO(
                     reserva,
                     usuarioId,
-                    reservaService.cantidadReservas(libroId),
-                    calificacionService.promedioCalificaciones(libroId),
+                    counts[libroId] ?: 0L,
+                    reserva.libro.calificacionPromedio(),
                 )
             },
             page = result.page,

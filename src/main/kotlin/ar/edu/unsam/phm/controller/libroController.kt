@@ -3,13 +3,10 @@ package ar.edu.unsam.phm.controller
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
+import ar.edu.unsam.phm.dto.OrdenamientosLibrosDTO
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
 import ar.edu.unsam.phm.dto.SealedGetLibroFiltradoDTO
@@ -45,9 +42,9 @@ class LibroController(
 
     @PostMapping
     fun crearLibro(@RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
-        val libroConvertido = libroMapper.fromEdicionDTO(libro)
+        val libroConvertido = libroMapper.toLibro(libro)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
-        libroMapper.toEdicionDTO(nuevoLibro)
+        libroMapper.toLibroEdicionDTO(nuevoLibro)
 
         val mensajeExito = "Se creó el libro ${nuevoLibro.titulo} exitosamente"
         return ResponseEntity
@@ -61,16 +58,16 @@ class LibroController(
 
         when (tipoDTO) {
             GetLibroDTO.EDICION -> {
-                val dto = libroMapper.toEdicionDTO(libro)
+                val dto = libroMapper.toLibroEdicionDTO(libro)
                 return SealedGetLibroDTO.Edicion(dto)
             }
 
             GetLibroDTO.DETALLE -> {
-                val promedio = calificacionService.promedioCalificaciones(idLibro)
+                val promedio = libro.calificacionPromedio()
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
                 val ultimas = calificacionService.ultimasCalificaciones(idLibro)
 
-                val dtoDetalle = libroMapper.toDetalleDTO(
+                val dtoDetalle = libroMapper.toDetalleLibroDTO(
                     libro, promedio, cantidad, ultimas
                 )
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
@@ -83,9 +80,9 @@ class LibroController(
         @RequestBody libro: LibroEdicionDTO,
         @RequestParam idUsuario: Long,
     ): ResponseEntity<ActionResponse> {
-        val libroObjeto = libroMapper.fromEdicionDTO(libro)
+        val libroObjeto = libroMapper.toLibro(libro)
         val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
-        libroMapper.toEdicionDTO(libroEditado)
+        libroMapper.toLibroEdicionDTO(libroEditado)
 
         val mensajeExito = "Se editó el libro ${libroEditado.titulo} exitosamente"
         return ResponseEntity
@@ -97,15 +94,11 @@ class LibroController(
     fun getLibrosFilter(
         @RequestParam flagDiff: OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
+        @ModelAttribute ordenamientosLibros: OrdenamientosLibrosDTO,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int = 10,
+        @RequestParam size: Int = 6,
         @RequestParam userId: Long,
-        @RequestParam ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
-        @RequestParam ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,
-        @RequestParam direccionPerfilPage: DireccionOrden? = DireccionOrden.DESCENDENTE,
-        @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil? = FiltroDisponibilidadPerfil.TODOS,
         @RequestParam(required = false) usuarioPrestador: String?,
-
         ): PageResponse<SealedGetLibroFiltradoDTO> {
         val usuarioPrestadorFiltrado: Usuario? = filtrosQuery.usuarioPrestadorId
             ?.let { usuarioService.getUsuarioById(it) }
@@ -113,7 +106,7 @@ class LibroController(
                 ?.takeIf { it.isNotBlank() }
                 ?.let { usuarioService.getUsuarioByNombre(it).firstOrNull() }
 
-        val filtrosDeHome = libroMapper.filtroDTOtoFiltro(
+        val filtrosDeHome = libroMapper.toLibroFiltro(
             filtrosQuery,
             usuarioPrestador = usuarioPrestadorFiltrado,
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
@@ -123,12 +116,12 @@ class LibroController(
             filtrosDeHome,
             page,
             size,
-            ordenHomePage!!,
+            ordenamientosLibros.ordenHomePage!!,
             userId,
             flagDiff,
-            disponibilidadLibrosPerfil!!,
-            ordenPerfilPage!!,
-            direccionPerfilPage!!
+            ordenamientosLibros.disponibilidadLibrosPerfil!!,
+            ordenamientosLibros.ordenPerfilPage!!,
+            ordenamientosLibros.direccionPerfilPage!!
         )
 
         return PageResponse(
@@ -138,9 +131,9 @@ class LibroController(
 
                 when (flagDiff) {
                     OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
-                        libroMapper.toFiltradoDTO(
+                        libroMapper.toLibroFiltradoDTO(
                             libro,
-                            calificacionService.promedioCalificaciones(libroId),
+                            libro.calificacionPromedio(),
                             libroService.bringKarma(
                                 libro,
                                 reservaService.cantidadReservas(libroId),
@@ -153,7 +146,7 @@ class LibroController(
                     )
 
                     OrigenLibro.PERFIL -> SealedGetLibroFiltradoDTO.Perfil(
-                        libroMapper.toPerfilUsuarioDTO(
+                        libroMapper.toLibroPerfilUsuarioDTO(
                             libro,
                             libroService.disponibilidadLibro(libro.id!!)
                         )

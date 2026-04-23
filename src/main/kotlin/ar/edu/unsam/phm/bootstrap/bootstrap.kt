@@ -18,6 +18,7 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import kotlin.random.Random
 
@@ -38,6 +39,7 @@ class BootstrapData(
         val reservas = crearReservas(usuarios, libros)
 
         crearCalificaciones(reservas)
+        actualizarCalificacionesLibros()
     }
 
     // ---------------- Usuarios ----------------
@@ -1162,5 +1164,24 @@ class BootstrapData(
             .values
             .toList()
         calificacionRepository.saveAll(calificacionesUnicas)
+    }
+
+    private fun actualizarCalificacionesLibros() {
+
+        val libros = libroRepository.findAll()
+
+        libros.forEach { libro ->
+
+            val promedio = calificacionRepository
+                .obtenerPromedioCalificaciones(libro.id!!)
+
+            val promedioFinal = promedio ?: 0.0
+
+            println("Libro ${libro.id} -> promedio calculado: $promedioFinal")
+
+            libro.actualizarCalificacion(promedioFinal)
+        }
+
+        libroRepository.saveAll(libros)
     }
 }

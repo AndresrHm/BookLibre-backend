@@ -8,10 +8,10 @@ import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.predicate.LibroSpecifications.activo
-import ar.edu.unsam.phm.predicate.LibroSpecifications.dePropietario
+import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.activo
+import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.dePropietario
+import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.filtrosHome
 import ar.edu.unsam.phm.predicate.LibroSpecifications.disponibleHoy
-import ar.edu.unsam.phm.predicate.LibroSpecifications.filtrosHome
 import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
@@ -42,23 +42,17 @@ class LibroService(
         return nuevoLibro
     }
 
-    
-    fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
-
-    @Transactional
     fun editarLibro(libroEditado: Libro, idUsuarioActual: Long): Libro {
         val prestador = repositorioUsuario.findByIdOrNull(libroEditado.idPropietario)
             ?: throw BusinessException(ErrorStrings.usuarioNoExistePorId(libroEditado.idPropietario))
 
-        if (esTipoLector(prestador.tipoUsuario)) {
+        if (esTipoLector(prestador.tipoUsuario))
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
-        }
 
         val libroOriginal = getLibroByIdOrThrow(libroEditado.id!!)
         validarPropietario(libroOriginal, idUsuarioActual)
 
         libroOriginal.titulo = libroEditado.titulo
-        // tipoLibro e idPropietario son inmutables en la entidad.
         libroOriginal.genero = libroEditado.genero
         libroOriginal.autor = libroEditado.autor
         libroOriginal.idioma = libroEditado.idioma
@@ -70,6 +64,7 @@ class LibroService(
         libroOriginal.descripcion = libroEditado.descripcion
         libroOriginal.portada = libroEditado.portada
 
+        repositorioLibro.save(libroOriginal)
         return libroOriginal
     }
 
@@ -198,6 +193,8 @@ class LibroService(
         repositorioLibro.save(libro)
     }
 
+    fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
+
     private fun estaReservadoHoy(libroId: Long): Boolean {
         val hoy = LocalDate.now()
         val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
@@ -241,6 +238,7 @@ class LibroService(
                 { it.titulo.lowercase() },
                 { it.autor.lowercase() }
             )
+
             OrdenLibroPerfil.FECHA_AGREGADO -> compareBy { it.fechaAgregado }
         }
 
