@@ -3,9 +3,13 @@ package ar.edu.unsam.phm.controller
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.dto.DireccionOrden
+import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
+import ar.edu.unsam.phm.dto.OrdenHomePage
+import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrdenamientosLibrosDTO
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
@@ -98,14 +102,8 @@ class LibroController(
         @ModelAttribute ordenamientosLibros: OrdenamientosLibrosDTO,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
-        @RequestParam ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
-        @RequestParam ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,
-        @RequestParam direccionPerfilPage: DireccionOrden? = DireccionOrden.DESCENDENTE,
-        @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil? = FiltroDisponibilidadPerfil.TODOS,
-
         @RequestParam(required = false) usuarioPrestador: String?,
-        ): PageResponse<SealedGetLibroFiltradoDTO> {
-        // no se valida el user que pide?
+    ): PageResponse<SealedGetLibroFiltradoDTO> {
         val userId = authentication.name.toLong()
 
         val usuarioPrestadorFiltrado: Usuario? = filtrosQuery.usuarioPrestadorId
@@ -127,15 +125,11 @@ class LibroController(
             ordenamientosLibros.ordenHomePage!!,
             userId,
             flagDiff,
-            disponibilidadLibrosPerfil!!,
-            ordenPerfilPage!!,
-            direccionPerfilPage!!
             ordenamientosLibros.disponibilidadLibrosPerfil!!,
             ordenamientosLibros.ordenPerfilPage!!,
             ordenamientosLibros.direccionPerfilPage!!
         )
 
-        )
         return PageResponse(
             content = pageResult.content.mapNotNull { libro ->
                 // Validar que el libro tiene ID antes de procesar
