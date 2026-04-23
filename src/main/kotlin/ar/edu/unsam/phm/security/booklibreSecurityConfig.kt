@@ -76,7 +76,7 @@ class BooklibreSecurityConfig {
                     // Default: que se autentique para poder ver información
                     .anyRequest().authenticated()
             }
-            .httpBasic(Customizer.withDefaults())
+            //.httpBasic(Customizer.withDefaults()) Lo comento porque da error 500, supuestamente choca con el JWTAuthorizationFilter
             .sessionManagement { configurer ->
                 configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }

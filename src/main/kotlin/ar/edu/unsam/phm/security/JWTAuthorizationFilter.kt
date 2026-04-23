@@ -18,9 +18,6 @@ class JWTAuthorizationFilter : OncePerRequestFilter(
     @Autowired
     lateinit var tokenUtils: TokenUtils
 
-    @Autowired
-    lateinit var usuarioService: UsuarioService
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
