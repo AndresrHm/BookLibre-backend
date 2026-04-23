@@ -1,14 +1,16 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.TipoDTOUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,12 +37,15 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var usuarioRepository: UsuarioRepository
 
-    val usuario1 =
-        crearUsuario(nombre = "Juan", apellido = "Pérez", tipoUsuario = TipoUsuario.LECTOR)
-    val usuario2 =
-        crearUsuario(nombre = "María", apellido = "González", tipoUsuario = TipoUsuario.PUBLICADOR)
-    val usuario3 =
-        crearUsuario(nombre = "Carlos", apellido = "López", tipoUsuario = TipoUsuario.LECTORPUBLICADOR)
+    @Autowired
+    private lateinit var rolRepository: RolRepository
+
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
+
+    lateinit var usuario1: Usuario
+    lateinit var usuario2: Usuario
+    lateinit var usuario3: Usuario
 
     var usuario1Id = 0L // Los seteo en el init porque el deleteAll() no reinicia el contador de ids
     var usuario2Id = 0L
@@ -54,6 +59,18 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
         reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
+
+        usuario1 =
+            crearUsuario(nombre = "Juan", apellido = "Pérez", roles = mutableSetOf(rolLector, rolPublicador))
+        usuario2 =
+            crearUsuario(nombre = "María", apellido = "González", roles = mutableSetOf(rolLector, rolPublicador))
+        usuario3 =
+            crearUsuario(nombre = "Carlos", apellido = "López", roles = mutableSetOf(rolLector, rolPublicador))
         usuario1.biblioKarma = 50
         usuario2.biblioKarma = 150
         usuario3.biblioKarma = 300

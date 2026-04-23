@@ -3,6 +3,7 @@ package ar.edu.unsam.phm.controller
 import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
@@ -12,6 +13,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -44,10 +46,16 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var calificacionRepository: CalificacionRepository
 
     @Autowired
+    private lateinit var rolRepository: RolRepository
+
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
     private var usuarioPerfilId: Long = 0
     private var libro1Id: Long = 0
+
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
 
     @BeforeEach
     fun init() {
@@ -56,6 +64,11 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
 
         val usuarioGuardado = usuarioRepository.save(
             Usuario(
@@ -65,7 +78,8 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
                 email = "perfil@test.com",
                 celular = "11223344",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
+                roles = mutableSetOf(rolLector, rolPublicador),
+                password = "contrasena123",
                 urlImagen = "https://test.com/perfil.jpg"
             )
         )

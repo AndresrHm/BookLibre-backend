@@ -7,18 +7,18 @@ import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 
 @Service
-class LoginRegistroService(
-    val usuarioRepository: UsuarioRepository,
+class AuthService(
+    private val usuarioRepository: UsuarioRepository,
 ) {
-    fun buscarUsuarioContraseniaUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
+    fun findUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
         val login = usuarioLogin.trim()
 
-        return usuarioRepository.findByEmailAndPasswordSesion(login, passwordLogin)
-            ?: usuarioRepository.findFirstByNombreAndPasswordSesion(login, passwordLogin)
+        return usuarioRepository.findByEmailAndPassword(login, passwordLogin)
+            ?: usuarioRepository.findFirstByNombreAndPassword(login, passwordLogin)
             ?: throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
     }
 
-    fun crearUsuario(usuario: Usuario) {
+    fun saveUsuario(usuario: Usuario) {
         usuarioRepository.save(usuario)
     }
 }

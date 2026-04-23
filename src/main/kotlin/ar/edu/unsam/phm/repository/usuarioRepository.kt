@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UsuarioRepository : CrudRepository<Usuario, Long> {
     fun findByNombre(nombre: String): MutableList<Usuario>
-    fun findByEmailAndPasswordSesion(email: String, passwordSesion: String): Usuario?
-    fun findFirstByNombreAndPasswordSesion(nombre: String, passwordSesion: String): Usuario?
+
+    fun findByEmailAndPassword(email: String, passwordSesion: String): Usuario?
+
+    fun findFirstByNombreAndPassword(nombre: String, passwordSesion: String): Usuario?
 }

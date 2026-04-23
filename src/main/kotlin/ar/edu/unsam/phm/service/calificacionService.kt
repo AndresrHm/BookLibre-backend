@@ -14,7 +14,6 @@ import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
@@ -38,7 +37,7 @@ class CalificacionService(
         val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
 
-        if (esPublicador(usuario)) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
+        if (!usuario.esLector()) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
         // Reserva
         val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
@@ -127,6 +126,4 @@ class CalificacionService(
     ): Long {
         return calificacionRepository.countByLibroId(libroID)
     }
-
-    private fun esPublicador(usuario: Usuario): Boolean = usuario.tipoUsuario == TipoUsuario.PUBLICADOR
 }

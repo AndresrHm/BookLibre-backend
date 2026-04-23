@@ -16,14 +16,14 @@ class UsuarioMapper(
             apellido = usuarioEdicionDTO.apellido,
             descripcion = usuarioEdicionDTO.descripcion,
             ciudad = usuarioEdicionDTO.ciudad,
-            tipoUsuario = usuarioEdicionDTO.tipoUsuario,
+            roles = usuarioEdicionDTO.tipoUsuario,
             urlImagen = usuarioEdicionDTO.urlImagen,
             email = usuarioExistente.email,
-            celular = usuarioExistente.celular
+            celular = usuarioExistente.celular,
+            password = usuarioExistente.password
         ).apply {
             id = usuarioEdicionDTO.id
             biblioKarma = usuarioExistente.biblioKarma
-            passwordSesion = usuarioExistente.passwordSesion
         }
     }
 
@@ -33,7 +33,7 @@ class UsuarioMapper(
         apellido = usuario.apellido,
         descripcion = usuario.descripcion,
         ciudad = usuario.ciudad,
-        tipoUsuario = usuario.tipoUsuario,
+        tipoUsuario = usuario.roles,
         urlImagen = usuario.urlImagen,
         email = usuario.email,
         celular = usuario.celular,
@@ -55,7 +55,7 @@ class UsuarioMapper(
         apellido = usuario.apellido,
         descripcion = usuario.descripcion,
         ciudad = usuario.ciudad,
-        tipoUsuario = usuario.tipoUsuario,
+        tipoUsuario = usuario.roles,
         urlImagen = usuario.urlImagen
     )
 
@@ -69,13 +69,12 @@ class UsuarioMapper(
         apellido = register.apellido,
         descripcion = "",
         ciudad = register.ciudad,
-        tipoUsuario = register.tipoDeUsuario,
+        roles = register.tipoUsuario,
         urlImagen = "",
         email = register.email,
-        celular = register.celular
-    ).apply {
-        passwordSesion = register.password
-    }
+        celular = register.celular,
+        password = register.password
+    )
 
     fun toTipoDTO(tipo: String): TipoDTOUsuario = TipoDTOUsuario.valueOf(tipo.uppercase())
 }

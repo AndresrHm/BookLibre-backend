@@ -5,7 +5,9 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoLibro
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
@@ -13,6 +15,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -42,6 +45,9 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var calificacionRepository: CalificacionRepository
 
+    @Autowired
+    private lateinit var rolRepository: RolRepository
+
     val libro1usuario1 = crearLibro(
         "1984",
         TipoLibro.COMUN,
@@ -58,17 +64,14 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         1
     )
 
-    val usuario1 = crearUsuario(
-    )
+    lateinit var usuario1: Usuario
+    lateinit var usuario2: Usuario
 
-    var idUsuario1 = usuario1.id
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
 
-    val usuario2 = crearUsuario(
-        nombre = "Juan",
-        apellido = "Perez",
-        urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
-    )
-    var idUsuario2 = usuario2.id
+    var idUsuario1 = 0L
+    var idUsuario2 = 0L
 
     private val hoy = LocalDate.now()
     private val fechaRecogida = hoy.minusDays(10)
@@ -110,11 +113,26 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
         reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
+
+        usuario1 = crearUsuario(
+            roles = mutableSetOf(rolLector, rolPublicador)
+        )
+        usuario2 = crearUsuario(
+            nombre = "Juan",
+            apellido = "Perez",
+            urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez",
+            roles = mutableSetOf(rolLector, rolPublicador)
+        )
 
         usuarioRepository.save(usuario1)
         usuarioRepository.save(usuario2)
-        idUsuario1 = usuario1.id // Los seteo porque no se reinician los ids al hacer deleteAll()
-        idUsuario2 = usuario2.id
+        idUsuario1 = usuario1.id!! // Los seteo porque no se reinician los ids al hacer deleteAll()
+        idUsuario2 = usuario2.id!!
 
         libroRepository.save(libro1usuario1)
 
@@ -216,20 +234,21 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         assertEquals(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA, errorMessage)
     }
+
+    fun crearCalificacion(
+        usuario: Usuario = crearUsuario(roles = mutableSetOf(rolLector, rolPublicador)),
+        libro: Libro = crearLibro(),
+        puntuacion: Double = 1.0,
+        comentario: String = "Comentario",
+        fecha: LocalDate = LocalDate.now(),
+    ): Calificacion {
+        return Calificacion(
+            usuario,
+            libro,
+            puntuacion,
+            comentario,
+            fecha,
+        )
+    }
 }
 
-fun crearCalificacion(
-    usuario: Usuario = crearUsuario(),
-    libro: Libro = crearLibro(),
-    puntuacion: Double = 1.0,
-    comentario: String = "Comentario",
-    fecha: LocalDate = LocalDate.now(),
-): Calificacion {
-    return Calificacion(
-        usuario,
-        libro,
-        puntuacion,
-        comentario,
-        fecha,
-    )
-}

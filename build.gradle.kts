@@ -38,6 +38,14 @@ dependencies {
 
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 
+    // Seguridad y Autenticación
+    val jwtVersion = "0.13.0"
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
+    implementation("io.jsonwebtoken:jjwt-api:$jwtVersion")
+    implementation("io.jsonwebtoken:jjwt-impl:$jwtVersion")
+    implementation("io.jsonwebtoken:jjwt-jackson:$jwtVersion")
+
     // testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.mockk:mockk:1.13.9")

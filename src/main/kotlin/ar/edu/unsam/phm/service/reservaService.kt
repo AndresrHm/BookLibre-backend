@@ -67,7 +67,7 @@ class ReservaService(
         val libro = libroRepository.findById(libroId)
             .orElseThrow { BusinessException(ErrorStrings.libroNoEncontradoPorId(libroId)) }
 
-        if (esTipoPublicador(usuarioLector)) {
+        if (!usuarioLector.esLector()) {
             throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_RESERVAR)
         }
 
@@ -132,8 +132,6 @@ class ReservaService(
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
         fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
 
-    private fun esTipoPublicador(usuarioLector: Usuario): Boolean = usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR
-
     private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
         usuarioLector.id == libro.idPropietario
 
@@ -149,4 +147,3 @@ class ReservaService(
         }
     }
 }
-

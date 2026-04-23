@@ -36,9 +36,9 @@ class LibroService(
         val prestador = repositorioUsuario.findByIdOrNull(nuevoLibro.idPropietario)
             ?: throw BusinessException(ErrorStrings.usuarioNoExistePorId(nuevoLibro.idPropietario))
 
-        if (esTipoLector(prestador.tipoUsuario)) {
+        if (!prestador.esPublicador())
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
-        }
+
         repositorioLibro.save(nuevoLibro)
         return nuevoLibro
     }
@@ -47,7 +47,7 @@ class LibroService(
         val prestador = repositorioUsuario.findByIdOrNull(libroEditado.idPropietario)
             ?: throw BusinessException(ErrorStrings.usuarioNoExistePorId(libroEditado.idPropietario))
 
-        if (esTipoLector(prestador.tipoUsuario))
+        if (!prestador.esPublicador())
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
 
         val libroOriginal = getLibroByIdOrThrow(libroEditado.id!!)
@@ -311,6 +311,4 @@ class LibroService(
             throw BusinessException(ErrorStrings.FLAG_DIFF_INVALIDO)
         }
     }
-
-    private fun esTipoLector(tipoUsuario: TipoUsuario?): Boolean = tipoUsuario == TipoUsuario.LECTOR
 }

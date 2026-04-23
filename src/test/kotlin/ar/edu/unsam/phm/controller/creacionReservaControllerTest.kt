@@ -1,6 +1,9 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.Rol
+import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
@@ -8,6 +11,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
@@ -41,10 +45,17 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var usuarioRepository: UsuarioRepository
 
     @Autowired
+    private lateinit var rolRepository: RolRepository
+
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
-    val usuarioLector = crearUsuario(nombre = "Lector")
-    val usuarioPrestador = crearUsuario(nombre = "Prestador")
+    lateinit var usuarioLector: Usuario
+    lateinit var usuarioPrestador: Usuario
+
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
+
     lateinit var libro: Libro
 
     @BeforeEach
@@ -53,6 +64,14 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         reservaRepository.deleteAll()
         libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
+
+        usuarioLector = crearUsuario(nombre = "Lector", roles = mutableSetOf(rolLector))
+        usuarioPrestador = crearUsuario(nombre = "Prestador", roles = mutableSetOf(rolLector))
 
         usuarioRepository.save(usuarioLector)
         usuarioRepository.save(usuarioPrestador)

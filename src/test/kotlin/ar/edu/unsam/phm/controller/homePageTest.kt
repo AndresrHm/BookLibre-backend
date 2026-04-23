@@ -9,10 +9,10 @@ import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.crearUsuario
 import ar.edu.unsam.phm.dto.DireccionOrden
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosDeLibros
@@ -20,6 +20,7 @@ import ar.edu.unsam.phm.dto.OrdenHomePage
 import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.repository.CalificacionRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -34,13 +35,16 @@ class HomePageTest {
     private lateinit var calificacionRepository: CalificacionRepository
 
     @Autowired
-    private lateinit var librorepository: LibroRepository
+    private lateinit var libroRepository: LibroRepository
 
     @Autowired
     private lateinit var reservaRepository: ReservaRepository
 
     @Autowired
     private lateinit var usuarioRepository: UsuarioRepository
+
+    @Autowired
+    private lateinit var rolRepository: RolRepository
 
     @Autowired
     private lateinit var serviceLibros: LibroService
@@ -50,6 +54,8 @@ class HomePageTest {
 
     private lateinit var usuario1: Usuario
     private lateinit var usuario2: Usuario
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
     private lateinit var usuarioConsulta: Usuario
     private var usuarioConsultaId = 0L
     private lateinit var libro1: Libro
@@ -63,8 +69,13 @@ class HomePageTest {
     fun init() {
         calificacionRepository.deleteAll()
         reservaRepository.deleteAll()
-        librorepository.deleteAll()
+        libroRepository.deleteAll()
         usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
 
         usuario1 = crearUsuario(
             nombre = "Juan",
@@ -73,7 +84,8 @@ class HomePageTest {
             email = "juan.perez@example.com",
             celular = "+54 11 1234-5678",
             ciudad = "Buenos Aires",
-            tipoUsuario = TipoUsuario.LECTOR,
+            tipoUsuario = mutableSetOf(rolLector),
+            password = "contrasena",
             urlImagen = "https://www.grupocos.org"
         )
 
@@ -84,11 +96,12 @@ class HomePageTest {
             email = "maria.gomez@example.com",
             celular = "+54 11 8765-4321",
             ciudad = "Cordoba",
-            tipoUsuario = TipoUsuario.LECTOR,
+            roles = mutableSetOf(rolLector),
+            password = "contrasena123",
             urlImagen = "https://www.grupocos.org"
         )
 
-        usuarioConsulta = crearUsuario()
+        usuarioConsulta = crearUsuario(tipoUsuario = mutableSetOf(rolLector, rolPublicador))
 
         libro1 = crearLibro(
             titulo = "El Aleph",
@@ -185,18 +198,18 @@ class HomePageTest {
 
     @Test
     fun `se crea un libro`() {
-        val guardado = librorepository.save(libro1)
-        val recuperado = librorepository.findById(guardado.id!!).orElseThrow()
+        val guardado = libroRepository.save(libro1)
+        val recuperado = libroRepository.findById(guardado.id!!).orElseThrow()
         assertEquals(guardado.id, recuperado.id)
     }
 
     @Test
     fun `se devuelve libros solo con filtro de fechas`() {
-        librorepository.save(libro1)
-        librorepository.save(libro2)
-        librorepository.save(libro3)
-        librorepository.save(libro4)
-        librorepository.save(libro5)
+        libroRepository.save(libro1)
+        libroRepository.save(libro2)
+        libroRepository.save(libro3)
+        libroRepository.save(libro4)
+        libroRepository.save(libro5)
         val reserva1 = Reserva(
             libro = libro1,
             usuarioPrestador = usuario2,
@@ -243,11 +256,11 @@ class HomePageTest {
 
     @Test
     fun `devuelve libros con filtro de genero y fechas`() {
-        librorepository.save(libro1)
-        librorepository.save(libro2)
-        librorepository.save(libro3)
-        librorepository.save(libro4)
-        librorepository.save(libro5)
+        libroRepository.save(libro1)
+        libroRepository.save(libro2)
+        libroRepository.save(libro3)
+        libroRepository.save(libro4)
+        libroRepository.save(libro5)
 
         val reserva1 = Reserva(
             libro = libro1,
@@ -294,12 +307,12 @@ class HomePageTest {
 
     @Test
     fun `devuelve libros por nombre`() {
-        librorepository.save(libro1)
-        librorepository.save(libro2)
-        librorepository.save(libro3)
-        librorepository.save(libro4)
-        librorepository.save(libro5)
-        librorepository.save(libro6)
+        libroRepository.save(libro1)
+        libroRepository.save(libro2)
+        libroRepository.save(libro3)
+        libroRepository.save(libro4)
+        libroRepository.save(libro5)
+        libroRepository.save(libro6)
 
         val filtroDeLibros = FiltrosDeLibros(
             fechaDesde = null,
@@ -324,29 +337,32 @@ class HomePageTest {
         )
         assertEquals(listOf("Dune", "Dune Messiah"), librosFiltrados.content.map { it.titulo })
     }
+
+    private fun crearUsuario(
+        nombre: String = "Nombre",
+        apellido: String = "Apellido",
+        descripcion: String = "Desc",
+        email: String = "mail@mail.com",
+        celular: String = "121212",
+        ciudad: String = "Ciudad Mágica",
+        tipoUsuario: MutableSet<Rol>,
+        password: String = "password",
+        urlImagen: String = "urlImagen",
+    ): Usuario {
+        return Usuario(
+            nombre = nombre,
+            apellido = apellido,
+            descripcion = descripcion,
+            email = email,
+            celular = celular,
+            ciudad = ciudad,
+            roles = tipoUsuario,
+            password = password,
+            urlImagen = urlImagen,
+        )
+    }
 }
 
-private fun crearUsuario(
-    nombre: String,
-    apellido: String,
-    descripcion: String,
-    email: String,
-    celular: String,
-    ciudad: String,
-    tipoUsuario: TipoUsuario,
-    urlImagen: String
-): Usuario {
-    return Usuario(
-        nombre = nombre,
-        apellido = apellido,
-        descripcion = descripcion,
-        email = email,
-        celular = celular,
-        ciudad = ciudad,
-        tipoUsuario = tipoUsuario,
-        urlImagen = urlImagen,
-    )
-}
 
 private fun crearLibro(
     titulo: String,

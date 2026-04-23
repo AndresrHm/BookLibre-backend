@@ -3,9 +3,13 @@ package ar.edu.unsam.phm.controller
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.dto.DireccionOrden
+import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
+import ar.edu.unsam.phm.dto.OrdenHomePage
+import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrdenamientosLibrosDTO
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
@@ -27,11 +31,11 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.RequestMapping
 
 @RestController
 @RequestMapping("libros")
-@CrossOrigin("*")
 class LibroController(
     val libroService: LibroService,
     val reservaService: ReservaService,
@@ -92,14 +96,16 @@ class LibroController(
 
     @GetMapping
     fun getLibrosFilter(
+        authentication: Authentication,
         @RequestParam flagDiff: OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @ModelAttribute ordenamientosLibros: OrdenamientosLibrosDTO,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 6,
-        @RequestParam userId: Long,
         @RequestParam(required = false) usuarioPrestador: String?,
-        ): PageResponse<SealedGetLibroFiltradoDTO> {
+    ): PageResponse<SealedGetLibroFiltradoDTO> {
+        val userId = authentication.name.toLong()
+
         val usuarioPrestadorFiltrado: Usuario? = filtrosQuery.usuarioPrestadorId
             ?.let { usuarioService.getUsuarioById(it) }
             ?: usuarioPrestador
