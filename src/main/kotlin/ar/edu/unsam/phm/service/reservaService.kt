@@ -14,6 +14,7 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import ar.edu.unsam.phm.utils.sanitizarSearch
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -36,13 +37,14 @@ class ReservaService(
         size: Int,
         nombreFiltro: String?,
     ): PageResponse<Reserva> {
+        val nombreSanitizado = sanitizarSearch(nombreFiltro)
         if (!usuarioRepository.existsById(userID)) {
             throw BusinessException(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE)
         }
 
         val pedidoPaginas = PageRequest.of(page, size)
 
-        val pageResponse = buscarReservasPorTipo(userID, type.name, nombreFiltro, pedidoPaginas)
+        val pageResponse = buscarReservasPorTipo(userID, type.name, nombreSanitizado, pedidoPaginas)
 
         return PageResponse(
             content = pageResponse.content,
