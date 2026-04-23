@@ -11,6 +11,7 @@ import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -52,12 +53,14 @@ class ReservaController(
 
     @GetMapping()
     fun reservas(
-        @RequestParam usuarioId: Long,
+        authentication: Authentication,
         @RequestParam type: ReservaType,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 4,
         @RequestParam search: String?,
     ): PageResponse<ReservaDTO> {
+        val usuarioId = authentication.name.toLong()
+
         val result = reservaService.getReservas(usuarioId, type, page, size, search)
 
         val libroIds = result.content
