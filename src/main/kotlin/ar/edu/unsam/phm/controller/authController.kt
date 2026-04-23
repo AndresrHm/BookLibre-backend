@@ -53,7 +53,7 @@ class AuthController(
     fun register(
         @RequestBody registerRequest: RegisterRequestDTO
     ): ResponseEntity<ActionResponse> {
-        authService.saveUsuario(usuarioMapper.registerRequestDTOtoUsuario(registerRequest))
+        authService.saveUsuario(usuarioMapper.fromRegisterRequestDTO(registerRequest))
 
         return ResponseEntity
             .status(HttpStatus.CREATED)

@@ -19,10 +19,13 @@ import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
+import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDate
 import kotlin.random.Random
 
 @Configuration
+@EnableJpaAuditing
 class BootstrapData(
     val reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,
@@ -1077,7 +1080,6 @@ class BootstrapData(
             Reserva(libros[27], u3, u4, hoy.minusDays(6), hoy.plusDays(3)),
 
             // -------- u3 presta a u5 --------
-            Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.minusDays(1)),
             Reserva(libros[28], u3, u5, hoy.minusDays(11), hoy.minusDays(4)),
             Reserva(libros[29], u3, u5, hoy.minusDays(1), hoy.plusDays(2)),
             Reserva(libros[20], u3, u5, hoy.minusDays(3), hoy.plusDays(8)),
@@ -1201,4 +1203,3 @@ class BootstrapData(
         libroRepository.saveAll(libros)
     }
 }
-

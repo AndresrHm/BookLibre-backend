@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class ReservaMapper {
-    fun toReservaDetalleDTO(
+    fun toDetalleDTO(
         obj: Reserva,
         userID: Long,
         cantidadReservas: Long,

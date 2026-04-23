@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.domain
 
+import BaseEntity
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import jakarta.persistence.Entity
@@ -32,8 +33,10 @@ class Usuario(
     )
     var roles: MutableSet<Rol> = mutableSetOf(),
     var urlImagen: String,
+    @Id
+    @GeneratedValue
     var password: String
-) {
+) : BaseEntity() {
     @Id @GeneratedValue
     var id: Long? = null
     @OneToMany(fetch = FetchType.LAZY)
