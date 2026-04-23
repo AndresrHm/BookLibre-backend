@@ -19,7 +19,7 @@ class LibroMapper(
     private val libroRepository: LibroRepository,
     private val usuarioService: UsuarioService
 ) {
-    fun libroEdicionDTOToLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
+    fun toLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
             tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") TipoLibro.CON_DEDICATORIA else if (libroEdicionDTO.tipoLibro == "coleccionable") TipoLibro.COLECCIONABLE else TipoLibro.COMUN,
@@ -43,7 +43,7 @@ class LibroMapper(
         return libro
     }
 
-    fun libroToLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
+    fun toLibroPerfilUsuarioDTO(libro: Libro, disponibilidad: String): LibroUsuarioPerfilDTO =
         LibroUsuarioPerfilDTO(
             id = libro.id,
             titulo = libro.titulo,
@@ -54,7 +54,7 @@ class LibroMapper(
             disponibilidad = disponibilidad
         )
 
-    fun libroToLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
+    fun toLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
             id = libro.id!!,
             titulo = libro.titulo,
@@ -74,7 +74,7 @@ class LibroMapper(
         return libroEdicionDTO
     }
 
-    fun libroToLibroDetalleDTO(
+    fun toDetalleLibroDTO(
         libro: Libro,
         rating: Double,
         cantidadCalificaciones: Long,
@@ -103,7 +103,7 @@ class LibroMapper(
         return libroDetalle
     }
 
-    fun libroToLibroFiltradoDTO(
+    fun toLibroFiltradoDTO(
         libro: Libro,
         rating: Double,
         karmaForUserLector: Int,
@@ -131,7 +131,7 @@ class LibroMapper(
         return libroDetalle
     }
 
-    fun filtroDTOtoLibroFiltro(
+    fun toLibroFiltro(
         filtrosQuery: FiltrosLibrosQueryDTO,
         usuarioPrestador: Usuario?,
         usuarioLector: Usuario?
