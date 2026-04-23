@@ -6,6 +6,7 @@ import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -31,8 +32,14 @@ class UsuarioController(
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("{usuarioId}/{tipoDTOUsuario}")
-    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOUsuario: String): ResponseEntity<SealedGetUsuarioDTO> {
+    @GetMapping("{tipoDTOUsuario}")
+    fun getUsuarioType(
+        authentication: Authentication,
+        @PathVariable tipoDTOUsuario: String
+    ): ResponseEntity<SealedGetUsuarioDTO> {
+
+        val usuarioId = authentication.name.toLong()
+
         val usuario = usuarioService.getUsuarioById(usuarioId)
         val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTOUsuario)
 
