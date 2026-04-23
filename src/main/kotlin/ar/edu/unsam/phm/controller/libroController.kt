@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.RequestMapping
 
 @RestController
@@ -94,11 +95,11 @@ class LibroController(
 
     @GetMapping
     fun getLibrosFilter(
+        authentication: Authentication,
         @RequestParam flagDiff: OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
         @RequestParam page: Int = 0,
         @RequestParam size: Int,
-        @RequestParam userId: Long,
         @RequestParam ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
         @RequestParam ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,
         @RequestParam direccionPerfilPage: DireccionOrden? = DireccionOrden.DESCENDENTE,
@@ -106,6 +107,9 @@ class LibroController(
         @RequestParam(required = false) usuarioPrestador: String?,
 
         ): PageResponse<SealedGetLibroFiltradoDTO> {
+        // no se valida el user que pide?
+        val userId = authentication.name.toLong()
+
         val usuarioPrestadorFiltrado: Usuario? = filtrosQuery.usuarioPrestadorId
             ?.let { usuarioService.getUsuarioById(it) }
             ?: usuarioPrestador

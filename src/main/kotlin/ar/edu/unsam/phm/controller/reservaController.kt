@@ -31,6 +31,7 @@ class ReservaController(
 
     @PostMapping
     fun reservarLibro(
+        // TODO: Validar con token
         @RequestBody reserva: CreacionReservaDTO,
     ): ResponseEntity<ActionResponse> {
         // Busco los objetos de dominio para poder armar el objeto de dominio
