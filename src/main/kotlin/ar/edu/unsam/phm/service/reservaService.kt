@@ -11,6 +11,7 @@ import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.predicate.reservaPorTipoSpecifications
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -53,7 +54,7 @@ class ReservaService(
         )
     }
 
-    @Transactional(readOnly = false, rollbackFor = [Exception::class])
+    @Transactional
     fun crearReserva(
         libroId: Long,
         usuarioLector: Usuario,
@@ -117,33 +118,7 @@ class ReservaService(
         search: String?,
         pageRequest: PageRequest,
     ): Page<Reserva> {
-        val especificacion = Specification<Reserva> { root, query, cb ->
-            val condiciones = mutableListOf<Predicate>()
-
-            // Predicate para el filtro de Usuario (según el tipo)
-            if (tipoReserva == "TO_ME") {
-                // WHERE usuarioLector.id = :userId
-                condiciones.add(cb.equal(root.get<Usuario>("usuarioLector").get<Long>("id"), userId))
-            } else {
-                // WHERE usuarioPrestador.id = :userId
-                condiciones.add(cb.equal(root.get<Usuario>("usuarioPrestador").get<Long>("id"), userId))
-            }
-
-            // Predicate para el buscador por palabra
-            search?.takeIf { it.isNotBlank() }?.let { texto ->
-                val textoABuscar = "%${texto.lowercase()}%"
-
-                // Creamos las condiciones de título || autor
-                val tituloLike = cb.like(cb.lower(root.get<Libro>("libro").get("titulo")), textoABuscar)
-                val autorLike = cb.like(cb.lower(root.get<Libro>("libro").get("autor")), textoABuscar)
-
-                // Las unimos con un OR: (titulo LIKE ... OR autor LIKE ...)
-                condiciones.add(cb.or(tituloLike, autorLike))
-            }
-
-            // Unimos todas las condiciones con un AND final
-            cb.and(*condiciones.toTypedArray())
-        }
+        val especificacion = reservaPorTipoSpecifications(tipoReserva, userId, search)
 
         return reservaRepository.findAll(especificacion, pageRequest)
     }
@@ -172,3 +147,4 @@ class ReservaService(
         }
     }
 }
+

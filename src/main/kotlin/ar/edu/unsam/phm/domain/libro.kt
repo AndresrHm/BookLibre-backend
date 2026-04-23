@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.domain
 
+import BaseEntity
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import java.time.LocalDate
@@ -32,7 +33,7 @@ class Libro(
     @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
     val idPropietario: Long
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue
     var id: Long? = null

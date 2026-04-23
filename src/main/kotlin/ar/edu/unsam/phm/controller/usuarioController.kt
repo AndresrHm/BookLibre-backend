@@ -27,43 +27,27 @@ class UsuarioController(
         @RequestBody usuario: UsuarioEdicionDTO
     ): ResponseEntity<Void> {
         val usuarioExistente = usuarioService.getUsuarioById(usuario.id!!)
-        val usuarioNuevo = usuarioMapper.usuarioEdicionDTOtoUsuario(usuario, usuarioExistente)
+        val usuarioNuevo = usuarioMapper.fromEdicionDTO(usuario, usuarioExistente)
         usuarioService.usuarioUpdate(usuarioNuevo)
         return ResponseEntity.ok().build()
     }
 
-    @GetMapping("{usuarioId}/{tipoDTOUsuario}")
-    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOUsuario: String): ResponseEntity<SealedGetUsuarioDTO> {
+    @GetMapping("{usuarioId}/{tipoDTOString}")
+    fun getUsuarioType(@PathVariable usuarioId: Long, @PathVariable tipoDTOString: String): ResponseEntity<SealedGetUsuarioDTO> {
         val usuario = usuarioService.getUsuarioById(usuarioId)
-        val tipoDTOEnum = usuarioMapper.toTipoDTOUsuario(tipoDTOUsuario)
+        val tipoDTOEnum = usuarioMapper.toTipoDTO(tipoDTOString)
 
-        val response = when (tipoDTOEnum) {
-            TipoDTOUsuario.HEADER -> {
-                val dto = usuarioMapper.toUsuarioHeaderDTO(usuario)
-                SealedGetUsuarioDTO.Header(dto)
-            }
+        val handlers: Map<TipoDTOUsuario, () -> SealedGetUsuarioDTO> = mapOf(
+            TipoDTOUsuario.HEADER      to { SealedGetUsuarioDTO.Header(usuarioMapper.toHeaderDTO(usuario)) },
+            TipoDTOUsuario.UPDATE      to { SealedGetUsuarioDTO.Update(usuarioMapper.toEdicionDTO(usuario)) },
+            TipoDTOUsuario.PERFIL      to { SealedGetUsuarioDTO.Perfil(usuarioMapper.toPerfilDTO(usuario)) },
+            TipoDTOUsuario.KARMA       to { SealedGetUsuarioDTO.Karma(usuarioMapper.toKarmaDTO(usuario)) },
+            TipoDTOUsuario.TIPOUSUARIO to { SealedGetUsuarioDTO.TipoPerfil(usuario.tipoUsuario) },
+        )
 
-            TipoDTOUsuario.UPDATE -> {
-                val dto = usuarioMapper.toUsuarioEdicionDTO(usuario)
-                SealedGetUsuarioDTO.Update(dto)
-            }
+        val response = handlers[tipoDTOEnum]?.invoke()
+            ?: throw IllegalArgumentException("Tipo DTO invalido: $tipoDTOEnum")
 
-            TipoDTOUsuario.PERFIL -> {
-                val dto = usuarioMapper.toUsuarioPerfilDTO(usuario)
-                SealedGetUsuarioDTO.Perfil(dto)
-            }
-
-            TipoDTOUsuario.KARMA -> {
-                val dto = usuarioMapper.toUsuarioKarmaDTO(usuario)
-                SealedGetUsuarioDTO.Karma(dto)
-            }
-
-            TipoDTOUsuario.TIPOUSUARIO -> {
-                val tipo = usuario.tipoUsuario
-                SealedGetUsuarioDTO.TipoPerfil(tipo)
-            }
-        }
-        
         return ResponseEntity.ok(response)
     }
 

@@ -10,7 +10,7 @@ class UsuarioMapper(
     private val usuarioService: UsuarioService
 ) {
 
-    fun usuarioEdicionDTOtoUsuario(usuarioEdicionDTO: UsuarioEdicionDTO, usuarioExistente: Usuario): Usuario {
+    fun fromEdicionDTO(usuarioEdicionDTO: UsuarioEdicionDTO, usuarioExistente: Usuario): Usuario {
         return Usuario(
             nombre = usuarioEdicionDTO.nombre,
             apellido = usuarioEdicionDTO.apellido,
@@ -27,7 +27,7 @@ class UsuarioMapper(
         }
     }
 
-    fun toUsuarioPerfilDTO(usuario: Usuario): UsarioPerfilDTO = UsarioPerfilDTO(
+    fun toPerfilDTO(usuario: Usuario): UsarioPerfilDTO = UsarioPerfilDTO(
         id = usuario.id,
         nombre = usuario.nombre,
         apellido = usuario.apellido,
@@ -43,13 +43,13 @@ class UsuarioMapper(
         cantidadDeLibrosLeidos = usuarioService.obtenerCantidadDeLibrosLeidos(usuario.id!!)
     )
 
-    fun toUsuarioHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(
+    fun toHeaderDTO(usuario: Usuario): UsuarioHeaderDTO = UsuarioHeaderDTO(
         id = usuario.id,
         urlImagen = usuario.urlImagen,
         biblioKarma = usuario.biblioKarma
     )
 
-    fun toUsuarioEdicionDTO(usuario: Usuario): UsuarioEdicionDTO = UsuarioEdicionDTO(
+    fun toEdicionDTO(usuario: Usuario): UsuarioEdicionDTO = UsuarioEdicionDTO(
         id = usuario.id,
         nombre = usuario.nombre,
         apellido = usuario.apellido,
@@ -59,12 +59,12 @@ class UsuarioMapper(
         urlImagen = usuario.urlImagen
     )
 
-    fun toUsuarioKarmaDTO(usuario: Usuario): UsuarioKarmaDTO = UsuarioKarmaDTO(
+    fun toKarmaDTO(usuario: Usuario): UsuarioKarmaDTO = UsuarioKarmaDTO(
         id = usuario.id,
         biblioKarma = usuario.biblioKarma
     )
 
-    fun registerRequestDTOtoUsuario(register: RegisterRequestDTO): Usuario = Usuario(
+    fun fromRegisterRequestDTO(register: RegisterRequestDTO): Usuario = Usuario(
         nombre = register.nombre,
         apellido = register.apellido,
         descripcion = "",
@@ -77,5 +77,5 @@ class UsuarioMapper(
         passwordSesion = register.password
     }
 
-    fun toTipoDTOUsuario(tipo: String): TipoDTOUsuario = TipoDTOUsuario.valueOf(tipo.uppercase())
+    fun toTipoDTO(tipo: String): TipoDTOUsuario = TipoDTOUsuario.valueOf(tipo.uppercase())
 }
