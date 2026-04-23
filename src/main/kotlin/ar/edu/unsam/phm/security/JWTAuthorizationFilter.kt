@@ -15,8 +15,12 @@ import java.net.http.HttpResponse
 class JWTAuthorizationFilter : OncePerRequestFilter(
 ) {
 
+    // ver si podemos mejorar lo del autowired
     @Autowired
     lateinit var tokenUtils: TokenUtils
+
+    @Autowired
+    lateinit var usuarioService: UsuarioService
 
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -28,6 +32,7 @@ class JWTAuthorizationFilter : OncePerRequestFilter(
 
             if (token != null) {
                 val usernamePAT = tokenUtils.getAuthentication(token)
+                usuarioService.validarExistenciaUsuario(usernamePAT.name.toLong()) // revisar
                 SecurityContextHolder.getContext().authentication = usernamePAT
             }
             filterChain.doFilter(request, response)
