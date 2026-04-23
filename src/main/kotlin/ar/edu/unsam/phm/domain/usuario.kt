@@ -33,8 +33,6 @@ class Usuario(
     )
     var roles: MutableSet<Rol> = mutableSetOf(),
     var urlImagen: String,
-    @Id
-    @GeneratedValue
     var password: String
 ) : BaseEntity() {
     @Id @GeneratedValue
