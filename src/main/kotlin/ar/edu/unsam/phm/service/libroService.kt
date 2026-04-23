@@ -16,6 +16,7 @@ import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import ar.edu.unsam.phm.utils.sanitizarSearch
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -115,6 +116,7 @@ class LibroService(
             ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
 
         val filtrosNormalizados = normalizarFechasPorDefecto(filtros)
+        val searchSanitizado = sanitizarSearch(filtrosNormalizados.search)
 
         validarPaginacion(page, size)
         validarRangosFiltros(filtrosNormalizados)
@@ -123,7 +125,7 @@ class LibroService(
         val pageable = PageRequest.of(page, size, sort)
 
         val spec = filtrosHome(
-            search = filtrosNormalizados.search,
+            search = searchSanitizado,
             isbn13 = filtrosNormalizados.isbn13,
             paginasMin = filtrosNormalizados.paginasMin,
             paginasMax = filtrosNormalizados.paginasMax,
