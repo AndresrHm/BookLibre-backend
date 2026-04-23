@@ -8,10 +8,10 @@ import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.predicate.LibroSpecifications.activo
-import ar.edu.unsam.phm.predicate.LibroSpecifications.dePropietario
+import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.activo
+import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.dePropietario
+import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.filtrosHome
 import ar.edu.unsam.phm.predicate.LibroSpecifications.disponibleHoy
-import ar.edu.unsam.phm.predicate.LibroSpecifications.filtrosHome
 import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository

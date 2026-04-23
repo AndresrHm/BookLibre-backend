@@ -9,100 +9,118 @@ import java.time.LocalDate
 
 object LibroSpecifications {
 
-    /** Devuelve libros marcados como activos. */
-    fun activo(): Specification<Libro> = Specification { root, _, cb ->
-        cb.equal(root.get<Boolean>("activo"), true)
-    }
+    object LibroSpecifications {
 
-    /** Filtra los libros de un propietario específico. */
-    fun dePropietario(idPropietario: Long): Specification<Libro> = Specification { root, _, cb ->
-        cb.equal(root.get<Long>("idPropietario"), idPropietario)
-    }
+        private fun <T> eq(field: String, value: T?): Specification<Libro>? =
+            value?.let {
+                Specification { root, _, cb -> cb.equal(root.get<T>(field), it) }
+            }
 
-    fun tituloContiene(searchPattern: String?): Specification<Libro>? =
-        searchPattern
-            ?.trim()
-            ?.takeIf { it.isNotBlank() }
-            ?.lowercase()
-            ?.let { pattern ->
+        private fun likeIgnoreCase(field: String, value: String?): Specification<Libro>? =
+            value
+                ?.trim()
+                ?.takeIf { it.isNotBlank() }
+                ?.lowercase()
+                ?.let { pattern ->
+                    Specification { root, _, cb ->
+                        cb.like(cb.lower(root.get(field)), "%$pattern%")
+                    }
+                }
+
+        private fun <T : Comparable<T>> gte(field: String, value: T?): Specification<Libro>? =
+            value?.let {
                 Specification { root, _, cb ->
-                    cb.like(cb.lower(root.get("titulo")), "%$pattern%")
+                    cb.greaterThanOrEqualTo(root.get(field), it)
                 }
             }
 
-    fun isbnIgual(isbn13: Long?): Specification<Libro>? = isbn13?.let { isbn ->
-        Specification { root, _, cb -> cb.equal(root.get<Long>("isbn13"), isbn) }
-    }
-
-    fun paginasMinimas(paginasMin: Int?): Specification<Libro>? = paginasMin?.let { min ->
-        Specification { root, _, cb -> cb.greaterThanOrEqualTo(root.get("cantidadPaginas"), min) }
-    }
-
-    fun paginasMaximas(paginasMax: Int?): Specification<Libro>? = paginasMax?.let { max ->
-        Specification { root, _, cb -> cb.lessThanOrEqualTo(root.get("cantidadPaginas"), max) }
-    }
-
-    fun generoEn(generos: List<Genero>?): Specification<Libro>? =
-        generos
-            ?.takeIf { it.isNotEmpty() }
-            ?.let { generosFiltrados ->
-                Specification { root, _, _ -> root.get<Genero>("genero").`in`(generosFiltrados) }
+        private fun <T : Comparable<T>> lte(field: String, value: T?): Specification<Libro>? =
+            value?.let {
+                Specification { root, _, cb ->
+                    cb.lessThanOrEqualTo(root.get(field), it)
+                }
             }
 
-    fun excluirPropietario(usuarioId: Long): Specification<Libro> = Specification { root, _, cb ->
-        cb.notEqual(root.get<Long>("idPropietario"), usuarioId)
-    }
+        private fun <T> inside(field: String, values: List<T>?): Specification<Libro>? =
+            values
+                ?.takeIf { it.isNotEmpty() }
+                ?.let {
+                    Specification { root, _, _ ->
+                        root.get<T>(field).`in`(it)
+                    }
+                }
 
-    fun overlapReserva(fechaDesde: LocalDate, fechaHasta: LocalDate): Specification<Libro> =
-        Specification { root, query, cb ->
-            val subquery: Subquery<Long> = query.subquery(Long::class.java)
-            val reservaRoot = subquery.from(Reserva::class.java)
+        private fun andAll(specs: List<Specification<Libro>?>): Specification<Libro> =
+            specs
+                .filterNotNull()
+                .reduce { acc, spec -> acc.and(spec) }
 
-            subquery.select(cb.literal(1L))
-            subquery.where(
-                cb.equal(reservaRoot.get<Libro>("libro"), root),
-                cb.lessThanOrEqualTo(reservaRoot.get<LocalDate>("fechaRecogida"), fechaHasta),
-                cb.greaterThanOrEqualTo(reservaRoot.get<LocalDate>("fechaDevolucion"), fechaDesde),
+        fun activo(): Specification<Libro> =
+            Specification { root, _, cb -> cb.isTrue(root.get("activo")) }
+
+        fun dePropietario(id: Long): Specification<Libro> =
+            Specification { root, _, cb -> cb.equal(root.get<Long>("idPropietario"), id) }
+
+        fun excluirPropietario(id: Long): Specification<Libro> =
+            Specification { root, _, cb -> cb.notEqual(root.get<Long>("idPropietario"), id) }
+
+        fun overlapReserva(fechaDesde: LocalDate, fechaHasta: LocalDate): Specification<Libro> =
+            Specification { root, query, cb ->
+
+                val sub = query.subquery(Long::class.java)
+                val reserva = sub.from(Reserva::class.java)
+
+                sub.select(cb.literal(1L))
+                sub.where(
+                    cb.equal(reserva.get<Libro>("libro"), root),
+                    cb.lessThanOrEqualTo(reserva.get("fechaRecogida"), fechaHasta),
+                    cb.greaterThanOrEqualTo(reserva.get("fechaDevolucion"), fechaDesde),
+                )
+
+                cb.exists(sub)
+            }
+
+        fun disponibleEntreFechas(fechaDesde: LocalDate, fechaHasta: LocalDate): Specification<Libro> =
+            Specification.not(overlapReserva(fechaDesde, fechaHasta))
+
+        // =========================
+        // Composición principal
+        // =========================
+
+        fun filtrosHome(
+            search: String?,
+            isbn13: Long?,
+            paginasMin: Int?,
+            paginasMax: Int?,
+            generos: List<Genero>?,
+            usuarioPrestadorId: Long?,
+            userId: Long,
+            fechaDesde: LocalDate?,
+            fechaHasta: LocalDate?,
+        ): Specification<Libro> {
+
+            val propietarioSpec =
+                usuarioPrestadorId?.let { dePropietario(it) }
+                    ?: excluirPropietario(userId)
+
+            val disponibilidadSpec =
+                if (fechaDesde != null && fechaHasta != null)
+                    disponibleEntreFechas(fechaDesde, fechaHasta)
+                else null
+
+            return andAll(
+                listOf(
+                    activo(),
+                    likeIgnoreCase("titulo", search),
+                    eq("isbn13", isbn13),
+                    gte("cantidadPaginas", paginasMin),
+                    lte("cantidadPaginas", paginasMax),
+                    inside("genero", generos),
+                    propietarioSpec,
+                    disponibilidadSpec
+                )
             )
-            cb.exists(subquery)
         }
-
-    fun disponibleEntreFechas(fechaDesde: LocalDate, fechaHasta: LocalDate): Specification<Libro> =
-        Specification.not(overlapReserva(fechaDesde, fechaHasta))
-
-    fun filtrosHome(
-        search: String?,
-        isbn13: Long?,
-        paginasMin: Int?,
-        paginasMax: Int?,
-        generos: List<Genero>?,
-        usuarioPrestadorId: Long?,
-        userId: Long,
-        fechaDesde: LocalDate?,
-        fechaHasta: LocalDate?,
-    ): Specification<Libro> {
-        val specPropietario = usuarioPrestadorId
-            ?.let { dePropietario(it) }
-            ?: excluirPropietario(userId)
-
-        val specDisponibilidad = if (fechaDesde != null && fechaHasta != null) {
-            disponibleEntreFechas(fechaDesde, fechaHasta)
-        } else {
-            null
-        }
-
-        val specs = listOfNotNull(
-            activo(),
-            tituloContiene(search),
-            isbnIgual(isbn13),
-            paginasMinimas(paginasMin),
-            paginasMaximas(paginasMax),
-            generoEn(generos),
-            specPropietario,
-            specDisponibilidad,
-        )
-
-        return specs.drop(1).fold(specs.first()) { acc, spec -> acc.and(spec) }
     }
 
     /** Detecta los libros que están reservados en la fecha actual. */
