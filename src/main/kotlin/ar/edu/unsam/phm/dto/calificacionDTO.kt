@@ -14,7 +14,6 @@ data class CalificacionDTO(
 
 data class CrearCalificacionDTO(
     val reservaId: Long,
-    val usuarioId: Long,
     val comentario: String,
     val puntuacion: Double,
 ) {

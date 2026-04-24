@@ -31,11 +31,12 @@ class CalificacionService(
 
     @Transactional
     fun calificarLibro(
+        usuarioId: Long,
         calificacionDTO: CrearCalificacionDTO
     ) {
         // Usuario
-        val usuario = usuarioRepository.findByIdOrNull(calificacionDTO.usuarioId)
-            ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(calificacionDTO.usuarioId))
+        val usuario = usuarioRepository.findByIdOrNull(usuarioId)
+            ?: throw NotFoundException(ErrorStrings.usuarioNoEncontradoParaCalificacion(usuarioId))
 
         if (!usuario.esLector()) throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_CALIFICAR)
 
@@ -43,7 +44,7 @@ class CalificacionService(
         val reserva = reservaRepository.findByIdOrNull(calificacionDTO.reservaId)
             ?: throw NotFoundException(ErrorStrings.reservaNoExistePorId(calificacionDTO.reservaId))
 
-        if (calificacionDTO.usuarioId != reserva.usuarioLector.id)
+        if (usuarioId != reserva.usuarioLector.id)
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_CALIFICAR_LIBRO)
 
         if (reserva.estado() != EstadoReserva.DEVUELTO)

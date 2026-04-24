@@ -9,7 +9,7 @@ import ar.edu.unsam.phm.mapper.CalificacionMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,9 +24,11 @@ class CalificacionController(val calificacionService: CalificacionService) {
 
     @PostMapping
     fun calificarLibro(
+        authentication: Authentication,
         @RequestBody calificacion: CrearCalificacionDTO
     ): ResponseEntity<ActionResponse> {
-        calificacionService.calificarLibro(calificacion)
+        val usuarioId = authentication.name.toLong()
+        calificacionService.calificarLibro(usuarioId, calificacion)
         val mensajeExito = "Calificación registrada exitosamente."
         return ResponseEntity
             .status(HttpStatus.CREATED)
