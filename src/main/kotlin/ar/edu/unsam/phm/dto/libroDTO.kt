@@ -61,7 +61,6 @@ data class LibroDetalleDTO(
     val rating: Double,
     val cantidadCalificaciones: Long,
     val calificacionesRecientes: List<CalificacionDTO>,
-    val idPropietario: Long,
     val activo: Boolean,
 )
 

@@ -19,7 +19,7 @@ class LibroMapper(
     private val libroRepository: LibroRepository,
     private val usuarioService: UsuarioService
 ) {
-    fun toLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
+    fun toLibro(libroEdicionDTO: LibroEdicionDTO, usuarioId: Long): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
             tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") TipoLibro.CON_DEDICATORIA else if (libroEdicionDTO.tipoLibro == "coleccionable") TipoLibro.COLECCIONABLE else TipoLibro.COMUN,
@@ -33,7 +33,7 @@ class LibroMapper(
             editorial = libroEdicionDTO.editorial,
             fechaPublicacion = libroEdicionDTO.fechaPublicacion,
             estadoLibro = libroEdicionDTO.estado,
-            idPropietario = libroEdicionDTO.idPropietario
+            idPropietario = usuarioId
         )
 
         libro.id = libroEdicionDTO.id
@@ -97,7 +97,6 @@ class LibroMapper(
             rating = rating,
             cantidadCalificaciones = cantidadCalificaciones,
             calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
-            idPropietario = libro.idPropietario,
             activo = libro.activo
         )
         return libroDetalle
