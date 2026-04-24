@@ -27,10 +27,6 @@ class UsuarioService(
 
     @Transactional(readOnly = false, rollbackFor = [Exception::class])
     fun usuarioUpdate(usuario: Usuario): Usuario {
-        if (camposObligatoriosVacios(usuario)) {
-            throw BusinessException(ErrorStrings.CAMPOS_OBLIGATORIOS_INCOMPLETOS)
-        }
-
         when {
             // Para eliminar usuario, no acá
             // Si el usuario tiene libros prestados, puede ser eliminado, pero la baja es lógica...
@@ -55,11 +51,6 @@ class UsuarioService(
         usuarioRepository.save(usuario)
         return usuario
     }
-
-    private fun camposObligatoriosVacios(usuario: Usuario): Boolean =
-        usuario.nombre == "" ||
-                usuario.apellido == "" ||
-                usuario.ciudad == ""
 
 
     fun obtenerCantidadDeLibrosPrestados(usuarioId: Long): Int {

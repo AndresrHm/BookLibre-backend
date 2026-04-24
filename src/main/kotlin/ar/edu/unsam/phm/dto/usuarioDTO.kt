@@ -1,6 +1,9 @@
 package ar.edu.unsam.phm.dto
 
 import ar.edu.unsam.phm.domain.Rol
+import ar.edu.unsam.phm.errors.ErrorStrings
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 sealed class SealedGetUsuarioDTO(val tipo: String) {
     data class Header(
@@ -32,12 +35,19 @@ data class UsuarioKarmaDTO(
 )
 
 data class UsuarioEdicionDTO(
+    @field:NotNull(message = ErrorStrings.USUARIO_ID_REQUERIDO)
     val id: Long?,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_NOMBRE)
     val nombre: String,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_APELLIDO)
     val apellido: String,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_DESCRIPCION)
     val descripcion: String,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_CIUDAD)
     val ciudad: String,
+    @field:NotNull(message = ErrorStrings.USUARIO_DEBE_TENER_TIPO_USUARIO)
     val tipoUsuario: MutableSet<Rol>,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_URL_IMAGEN)
     val urlImagen: String
 )
 

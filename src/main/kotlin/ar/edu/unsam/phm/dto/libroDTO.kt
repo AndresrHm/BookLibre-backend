@@ -4,6 +4,13 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.errors.ErrorStrings
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.Size
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
@@ -28,19 +35,36 @@ sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
 }
 
 data class LibroEdicionDTO(
+    @field:NotNull(message = ErrorStrings.LIBRO_ID_REQUERIDO)
     val id: Long,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_IMAGEN)
     val imagenUrl: String,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_TITULO)
     val titulo: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_TIPO)
     val tipoLibro: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_GENERO)
     val genero: Genero,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_AUTOR)
     val autor: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_IDIOMA)
     val idioma: Idioma,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_ESTADO)
     val estado: EstadoLibro,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_EDITORIAL)
     val editorial: String,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_FECHA_PUBLICACION)
     val fechaPublicacion: LocalDate,
+    @field:Positive(message = ErrorStrings.LIBRO_CANTIDAD_PAGINAS_POSITIVA)
+    @field:Max(value = 1499, message = ErrorStrings.LIBRO_NO_PUEDE_SUPERAR_1499_PAGINAS)
     val cantidadPaginas: Int,
+    @field:Min(value = 1000000000000, message = ErrorStrings.ISBN13_DEBE_TENER_13_DIGITOS)
+    @field:Max(value = 9999999999999, message = ErrorStrings.ISBN13_DEBE_TENER_13_DIGITOS)
     val isbn13: Long,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_DESCRIPCION)
+    @field:Size(max = 500, message = ErrorStrings.DESCRIPCION_NO_PUEDE_SUPERAR_500)
     val descripcion: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_ID_PROPIETARIO)
     val idPropietario: Long
 )
 

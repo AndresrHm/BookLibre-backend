@@ -19,6 +19,7 @@ import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -45,7 +46,7 @@ class LibroController(
 ) {
 
     @PostMapping
-    fun crearLibro(@RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
+    fun crearLibro(@Valid @RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
         val libroConvertido = libroMapper.toLibro(libro)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
         libroMapper.toLibroEdicionDTO(nuevoLibro)
@@ -81,7 +82,7 @@ class LibroController(
 
     @PutMapping
     fun editarLibro(
-        @RequestBody libro: LibroEdicionDTO,
+        @Valid @RequestBody libro: LibroEdicionDTO,
         @RequestParam idUsuario: Long,
     ): ResponseEntity<ActionResponse> {
         val libroObjeto = libroMapper.toLibro(libro)

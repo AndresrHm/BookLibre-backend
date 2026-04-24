@@ -38,7 +38,6 @@ class LibroMapper(
 
         libro.id = libroEdicionDTO.id
 
-        libro.init()
 
         return libro
     }
