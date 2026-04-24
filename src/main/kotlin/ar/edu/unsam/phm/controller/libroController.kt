@@ -76,12 +76,13 @@ class LibroController(
             }
 
             GetLibroDTO.DETALLE -> {
+                val usuarioId = authentication.name.toLong()
                 val promedio = libro.calificacionPromedio()
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
                 val ultimas = calificacionService.ultimasCalificaciones(idLibro)
 
                 val dtoDetalle = libroMapper.toDetalleLibroDTO(
-                    libro, promedio, cantidad, ultimas
+                    libro, promedio, cantidad, ultimas, usuarioId
                 )
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
             }

@@ -62,6 +62,7 @@ data class LibroDetalleDTO(
     val cantidadCalificaciones: Long,
     val calificacionesRecientes: List<CalificacionDTO>,
     val activo: Boolean,
+    val usuarioEsPropietario: Boolean
 )
 
 data class LibroFiltradoDTO(

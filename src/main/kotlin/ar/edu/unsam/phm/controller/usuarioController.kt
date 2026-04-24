@@ -51,7 +51,7 @@ class UsuarioController(
         )
 
         val response = handlers[tipoDTOEnum]?.invoke()
-            ?: throw IllegalArgumentException("Tipo DTO invalido: $tipoDTOEnum")
+            ?: throw IllegalArgumentException("Tipo DTO inválido: $tipoDTOEnum")
 
         return ResponseEntity.ok(response)
     }

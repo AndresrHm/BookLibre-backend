@@ -78,7 +78,8 @@ class LibroMapper(
         libro: Libro,
         rating: Double,
         cantidadCalificaciones: Long,
-        libroCalificacionesRecientes: List<Calificacion>
+        libroCalificacionesRecientes: List<Calificacion>,
+        usuarioId: Long
     ): LibroDetalleDTO {
         val libroDetalle = LibroDetalleDTO(
             id = libro.id,
@@ -97,7 +98,8 @@ class LibroMapper(
             rating = rating,
             cantidadCalificaciones = cantidadCalificaciones,
             calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
-            activo = libro.activo
+            activo = libro.activo,
+            usuarioEsPropietario = usuarioEsPropietario(libro, usuarioId)
         )
         return libroDetalle
     }
@@ -148,4 +150,6 @@ class LibroMapper(
         )
         return filtros
     }
+
+    private fun usuarioEsPropietario(libro: Libro, usuarioId: Long) = libro.idPropietario == usuarioId
 }
