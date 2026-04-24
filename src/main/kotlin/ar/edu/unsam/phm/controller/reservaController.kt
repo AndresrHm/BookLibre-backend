@@ -3,6 +3,7 @@ package ar.edu.unsam.phm.controller
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.ReservaDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
@@ -31,11 +32,12 @@ class ReservaController(
 
     @PostMapping
     fun reservarLibro(
-        // TODO: Validar con token
+        authentication: Authentication,
         @RequestBody reserva: CreacionReservaDTO,
     ): ResponseEntity<ActionResponse> {
+        val usuarioId = authentication.name.toLong()
         // Busco los objetos de dominio para poder armar el objeto de dominio
-        val usuarioLector = usuarioService.getUsuarioById(reserva.usuarioLectorId)
+        val usuarioLector = usuarioService.getUsuarioById(usuarioId)
         val usuarioPrestador = usuarioService.getUsuarioById(reserva.usuarioPrestadorId)
 
         reservaService.crearReserva(
