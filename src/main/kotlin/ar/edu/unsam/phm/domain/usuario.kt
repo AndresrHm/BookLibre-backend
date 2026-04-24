@@ -68,9 +68,12 @@ class Usuario(
         }
     }
 
-    private fun getDefaultEncoder(): PasswordEncoder {
-        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()!!
+    fun encriptarPassword() {
+        password = getDefaultEncoder().encode(password)
     }
+
+    private fun getDefaultEncoder(): PasswordEncoder =
+        Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()!!
 }
 
 enum class TipoUsuario(val roleName: String) {

@@ -13,12 +13,16 @@ class AuthService(
     fun findUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
         val login = usuarioLogin.trim()
 
-        return usuarioRepository.findByEmailAndPassword(login, passwordLogin)
-            ?: usuarioRepository.findFirstByNombreAndPassword(login, passwordLogin)
+        val usuario = usuarioRepository.findByEmail(login)
+            ?: usuarioRepository.findFirstByNombre(login)
             ?: throw IllegalArgumentException(ErrorStrings.USUARIO_O_CONTRASENIA_INCORRECTOS)
+
+        usuario.validarCredenciales(passwordLogin)
+        return usuario
     }
 
     fun saveUsuario(usuario: Usuario) {
+        usuario.encriptarPassword()
         usuarioRepository.save(usuario)
     }
 }

@@ -203,6 +203,7 @@ class BootstrapData(
 
             )
 
+        usuarios.forEach { it.encriptarPassword() }
         usuarioRepository.saveAll(usuarios)
 
         return usuarios
