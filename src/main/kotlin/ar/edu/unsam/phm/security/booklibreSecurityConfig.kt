@@ -54,19 +54,22 @@ class BooklibreSecurityConfig {
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
 
                 // Permisos de libros
-                it.requestMatchers(HttpMethod.GET, "/libros").hasAuthority(TipoUsuario.LECTOR.roleName) // Ejemplo, solo lectores pueden ver el home.
-                it.requestMatchers(HttpMethod.GET, "/libros/prestadoresDisponibles").hasAuthority(TipoUsuario.LECTOR.roleName)
+                it.requestMatchers(HttpMethod.GET, "/libros")
+                    .hasAuthority(TipoUsuario.LECTOR.roleName) // Ejemplo, solo lectores pueden ver el home.
+                it.requestMatchers(HttpMethod.GET, "/libros/prestadoresDisponibles")
+                    .hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.GET, "/libros/*/*").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.PUT, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
                 it.requestMatchers(HttpMethod.POST, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
                 it.requestMatchers(HttpMethod.DELETE, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
 
                 // Permisos de calificaciones
-                it.requestMatchers(HttpMethod.GET, "/calificaciones/*").hasAuthority(TipoUsuario.LECTOR.roleName)
+                it.requestMatchers(HttpMethod.GET, "/calificaciones/*").permitAll()
                 it.requestMatchers(HttpMethod.POST, "/calificaciones").hasAuthority(TipoUsuario.LECTOR.roleName)
 
                 // Permisos de reservas
-                it.requestMatchers(HttpMethod.GET, "/reservas").permitAll() // Hechas por lector / Participa un publicador
+                it.requestMatchers(HttpMethod.GET, "/reservas")
+                    .permitAll() // Hechas por lector / Participa un publicador
                 it.requestMatchers(HttpMethod.POST, "/reservas").hasAuthority(TipoUsuario.LECTOR.roleName)
 
                 // Permisos de configuración de usuarioRepository
