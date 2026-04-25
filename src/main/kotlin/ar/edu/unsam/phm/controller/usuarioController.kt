@@ -24,9 +24,11 @@ class UsuarioController(
 
     @PutMapping
     fun updateUsuario(
+        authentication: Authentication,
         @RequestBody usuario: UsuarioEdicionDTO
     ): ResponseEntity<Void> {
-        val usuarioExistente = usuarioService.getUsuarioById(usuario.id!!)
+        val usuarioId = authentication.name.toLong()
+        val usuarioExistente = usuarioService.getUsuarioById(usuarioId)
         val usuarioNuevo = usuarioMapper.fromEdicionDTO(usuario, usuarioExistente)
         usuarioService.usuarioUpdate(usuarioNuevo)
         return ResponseEntity.ok().build()

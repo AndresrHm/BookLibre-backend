@@ -32,7 +32,6 @@ data class UsuarioKarmaDTO(
 )
 
 data class UsuarioEdicionDTO(
-    val id: Long?,
     val nombre: String,
     val apellido: String,
     val descripcion: String,
