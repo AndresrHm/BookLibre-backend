@@ -53,7 +53,7 @@ data class LibroEdicionDTO(
     val estado: EstadoLibro,
     @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_EDITORIAL)
     val editorial: String,
-    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_FECHA_PUBLICACION)
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_FECHA_PUBLICACION)
     val fechaPublicacion: LocalDate,
     @field:Positive(message = ErrorStrings.LIBRO_CANTIDAD_PAGINAS_POSITIVA)
     @field:Max(value = 1499, message = ErrorStrings.LIBRO_NO_PUEDE_SUPERAR_1499_PAGINAS)
