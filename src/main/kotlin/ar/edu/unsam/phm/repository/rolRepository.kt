@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface RolRepository : CrudRepository<Rol, Long> {
+	fun findByName(name: String): Rol?
 }

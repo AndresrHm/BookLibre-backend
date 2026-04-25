@@ -5,6 +5,7 @@ import ar.edu.unsam.phm.dto.TipoDTOUsuario
 import ar.edu.unsam.phm.dto.UsuarioEdicionDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.service.UsuarioService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -25,7 +26,7 @@ class UsuarioController(
     @PutMapping
     fun updateUsuario(
         authentication: Authentication,
-        @RequestBody usuario: UsuarioEdicionDTO
+        @Valid @RequestBody usuario: UsuarioEdicionDTO
     ): ResponseEntity<Void> {
         val usuarioId = authentication.name.toLong()
         val usuarioExistente = usuarioService.getUsuarioById(usuarioId)

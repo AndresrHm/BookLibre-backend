@@ -69,7 +69,6 @@ class UsuarioMapper(
         descripcion = "",
         ciudad = register.ciudad,
         roles = register.tipoUsuario,
-        urlImagen = "",
         email = register.email,
         celular = register.celular,
         password = register.password

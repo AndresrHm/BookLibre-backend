@@ -17,6 +17,8 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.time.LocalDate
 
+const val URL_IMAGEN_POR_DEFECTO_USUARIO = "https://res.cloudinary.com/dzj8q3apg/image/upload/v1700000000/placeholder_2_ryh7nq.png"
+
 @Entity
 class Usuario(
     var nombre: String,
@@ -32,7 +34,7 @@ class Usuario(
         inverseJoinColumns = [JoinColumn(name = "rol_id", referencedColumnName = "id")]
     )
     var roles: MutableSet<Rol> = mutableSetOf(),
-    var urlImagen: String,
+    var urlImagen: String = URL_IMAGEN_POR_DEFECTO_USUARIO,
     var password: String
 ) : BaseEntity() {
     @Id @GeneratedValue
@@ -68,9 +70,12 @@ class Usuario(
         }
     }
 
-    private fun getDefaultEncoder(): PasswordEncoder {
-        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()!!
+    fun encriptarPassword() {
+        password = getDefaultEncoder().encode(password)
     }
+
+    private fun getDefaultEncoder(): PasswordEncoder =
+        Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()!!
 }
 
 enum class TipoUsuario(val roleName: String) {

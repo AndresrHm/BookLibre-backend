@@ -7,6 +7,7 @@ import ar.edu.unsam.phm.mapper.UsuarioMapper
 import ar.edu.unsam.phm.security.TokenUtils
 import ar.edu.unsam.phm.service.AuthService
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
@@ -51,7 +52,7 @@ class AuthController(
 
     @PostMapping("/register")
     fun register(
-        @RequestBody registerRequest: RegisterRequestDTO
+        @Valid @RequestBody registerRequest: RegisterRequestDTO
     ): ResponseEntity<ActionResponse> {
         authService.saveUsuario(usuarioMapper.fromRegisterRequestDTO(registerRequest))
 
