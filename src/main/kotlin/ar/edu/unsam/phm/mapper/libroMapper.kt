@@ -97,6 +97,7 @@ class LibroMapper(
             estado = libro.estadoLibro,
             rating = rating,
             cantidadCalificaciones = cantidadCalificaciones,
+            idPropietario = libro.idPropietario,
             calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
             activo = libro.activo,
             usuarioEsPropietario = usuarioEsPropietario(libro, usuarioId)

@@ -3,7 +3,6 @@ package ar.edu.unsam.phm.controller
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.ReservaDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
@@ -13,7 +12,6 @@ import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
-import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController
 class ReservaController(
     val reservaService: ReservaService,
     val usuarioService: UsuarioService,
-    val calificacionService: CalificacionService,
     val reservaMapper: ReservaMapper,
 ) {
 
