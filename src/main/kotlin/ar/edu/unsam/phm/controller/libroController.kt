@@ -2,14 +2,11 @@ package ar.edu.unsam.phm.controller
 
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.dto.DireccionOrden
-import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
-import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.OrdenLibroPerfil
 import ar.edu.unsam.phm.dto.OrdenamientosLibrosDTO
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
@@ -34,6 +31,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.RequestMapping
+import java.nio.file.AccessDeniedException
 
 @RestController
 @RequestMapping("libros")
@@ -46,8 +44,13 @@ class LibroController(
 ) {
 
     @PostMapping
-    fun crearLibro(@Valid @RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
-        val libroConvertido = libroMapper.toLibro(libro)
+    fun crearLibro(
+        authentication: Authentication,
+        @Valid @RequestBody libro: LibroEdicionDTO
+    ): ResponseEntity<ActionResponse> {
+        val usuarioId = authentication.name.toLong()
+
+        val libroConvertido = libroMapper.toLibro(libro, usuarioId)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
         libroMapper.toLibroEdicionDTO(nuevoLibro)
 
@@ -58,22 +61,30 @@ class LibroController(
     }
 
     @GetMapping("{idLibro}/{tipoDTO}")
-    fun obtenerLibro(@PathVariable idLibro: Long, @PathVariable tipoDTO: GetLibroDTO): SealedGetLibroDTO {
+    fun obtenerLibro(
+        authentication: Authentication,
+        @PathVariable idLibro: Long,
+        @PathVariable tipoDTO: GetLibroDTO
+    ): SealedGetLibroDTO {
         val libro = libroService.obtenerLibro(idLibro)
-
         when (tipoDTO) {
             GetLibroDTO.EDICION -> {
+                val esPublicador = authentication.authorities.any { it.authority == TipoUsuario.PUBLICADOR.roleName }
+                if (!esPublicador) {
+                    throw AccessDeniedException("No tienes permisos para editar libros")
+                }
                 val dto = libroMapper.toLibroEdicionDTO(libro)
                 return SealedGetLibroDTO.Edicion(dto)
             }
 
             GetLibroDTO.DETALLE -> {
+                val usuarioId = authentication.name.toLong()
                 val promedio = libro.calificacionPromedio()
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
                 val ultimas = calificacionService.ultimasCalificaciones(idLibro)
 
                 val dtoDetalle = libroMapper.toDetalleLibroDTO(
-                    libro, promedio, cantidad, ultimas
+                    libro, promedio, cantidad, ultimas, usuarioId
                 )
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
             }
@@ -82,11 +93,13 @@ class LibroController(
 
     @PutMapping
     fun editarLibro(
+        authentication: Authentication,
         @Valid @RequestBody libro: LibroEdicionDTO,
-        @RequestParam idUsuario: Long,
     ): ResponseEntity<ActionResponse> {
-        val libroObjeto = libroMapper.toLibro(libro)
-        val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
+        val usuarioId = authentication.name.toLong()
+
+        val libroObjeto = libroMapper.toLibro(libro, usuarioId)
+        val libroEditado = libroService.editarLibro(libroObjeto, usuarioId)
         libroMapper.toLibroEdicionDTO(libroEditado)
 
         val mensajeExito = "Se editó el libro ${libroEditado.titulo} exitosamente"
@@ -170,15 +183,19 @@ class LibroController(
 
     @GetMapping("prestadoresDisponibles")
     fun getPrestadoresDisponibles(
-        @RequestParam userId: Long,
+        authentication: Authentication,
         @RequestParam(required = false, defaultValue = "") search: String,
-    ): List<String> = libroService.obtenerPrestadoresDisponibles(search, userId)
+    ): List<String> {
+        val userId = authentication.name.toLong()
+        return libroService.obtenerPrestadoresDisponibles(search, userId)
+    }
 
     @DeleteMapping("{idLibro}")
     fun borrarLibro(
-        @PathVariable idLibro: Long,
-        @RequestParam idUsuario: Long
+        authentication: Authentication,
+        @PathVariable idLibro: Long
     ): ResponseEntity<ActionResponse> {
+        val idUsuario = authentication.name.toLong()
         libroService.borrarLibro(idLibro, idUsuario)
 
         val mensajeExito = "El libro fue eliminado exitosamente."

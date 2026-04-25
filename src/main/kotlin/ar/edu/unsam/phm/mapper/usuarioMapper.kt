@@ -22,7 +22,7 @@ class UsuarioMapper(
             celular = usuarioExistente.celular,
             password = usuarioExistente.password
         ).apply {
-            id = usuarioEdicionDTO.id
+            id = usuarioExistente.id
             biblioKarma = usuarioExistente.biblioKarma
         }
     }
@@ -50,7 +50,6 @@ class UsuarioMapper(
     )
 
     fun toEdicionDTO(usuario: Usuario): UsuarioEdicionDTO = UsuarioEdicionDTO(
-        id = usuario.id,
         nombre = usuario.nombre,
         apellido = usuario.apellido,
         descripcion = usuario.descripcion,
