@@ -4,6 +4,8 @@ import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.requireBusiness
 import java.time.LocalDate
 
+const val MAX_CARACTERES_COMENTARIO = 500
+
 data class CalificacionDTO(
     val nombreUsuario: String,
     val imagenUsuario: String = "",
@@ -14,12 +16,11 @@ data class CalificacionDTO(
 
 data class CrearCalificacionDTO(
     val reservaId: Long,
-    val usuarioId: Long,
     val comentario: String,
     val puntuacion: Double,
 ) {
     init {
-        requireBusiness(comentario.length <= 500, ErrorStrings.COMENTARIO_MAX_500)
+        requireBusiness(comentario.length <= MAX_CARACTERES_COMENTARIO, ErrorStrings.COMENTARIO_MAX_500)
         requireBusiness(puntuacion in 0.5..5.0, ErrorStrings.PUNTUACION_ENTRE_05_Y_50)
     }
 }

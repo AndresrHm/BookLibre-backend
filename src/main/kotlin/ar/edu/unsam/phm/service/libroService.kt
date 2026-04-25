@@ -182,7 +182,6 @@ class LibroService(
             .sortedBy { it.lowercase() }
     }
 
-    //@Transactional
     fun borrarLibro(idLibro: Long, idUsuario: Long) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)

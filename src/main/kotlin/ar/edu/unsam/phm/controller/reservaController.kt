@@ -12,7 +12,6 @@ import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
-import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,17 +24,17 @@ import org.springframework.web.bind.annotation.RestController
 class ReservaController(
     val reservaService: ReservaService,
     val usuarioService: UsuarioService,
-    val calificacionService: CalificacionService,
     val reservaMapper: ReservaMapper,
 ) {
 
     @PostMapping
     fun reservarLibro(
-        // TODO: Validar con token
+        authentication: Authentication,
         @RequestBody reserva: CreacionReservaDTO,
     ): ResponseEntity<ActionResponse> {
+        val usuarioId = authentication.name.toLong()
         // Busco los objetos de dominio para poder armar el objeto de dominio
-        val usuarioLector = usuarioService.getUsuarioById(reserva.usuarioLectorId)
+        val usuarioLector = usuarioService.getUsuarioById(usuarioId)
         val usuarioPrestador = usuarioService.getUsuarioById(reserva.usuarioPrestadorId)
 
         reservaService.crearReserva(

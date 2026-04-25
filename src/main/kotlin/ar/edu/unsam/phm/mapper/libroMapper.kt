@@ -19,7 +19,7 @@ class LibroMapper(
     private val libroRepository: LibroRepository,
     private val usuarioService: UsuarioService
 ) {
-    fun toLibro(libroEdicionDTO: LibroEdicionDTO): Libro {
+    fun toLibro(libroEdicionDTO: LibroEdicionDTO, usuarioId: Long): Libro {
         val libro = Libro(
             titulo = libroEdicionDTO.titulo,
             tipoLibro = if (libroEdicionDTO.tipoLibro == "conDedicatoria") TipoLibro.CON_DEDICATORIA else if (libroEdicionDTO.tipoLibro == "coleccionable") TipoLibro.COLECCIONABLE else TipoLibro.COMUN,
@@ -33,7 +33,7 @@ class LibroMapper(
             editorial = libroEdicionDTO.editorial,
             fechaPublicacion = libroEdicionDTO.fechaPublicacion,
             estadoLibro = libroEdicionDTO.estado,
-            idPropietario = libroEdicionDTO.idPropietario
+            idPropietario = usuarioId
         )
 
         libro.id = libroEdicionDTO.id
@@ -78,7 +78,8 @@ class LibroMapper(
         libro: Libro,
         rating: Double,
         cantidadCalificaciones: Long,
-        libroCalificacionesRecientes: List<Calificacion>
+        libroCalificacionesRecientes: List<Calificacion>,
+        usuarioId: Long
     ): LibroDetalleDTO {
         val libroDetalle = LibroDetalleDTO(
             id = libro.id,
@@ -96,9 +97,10 @@ class LibroMapper(
             estado = libro.estadoLibro,
             rating = rating,
             cantidadCalificaciones = cantidadCalificaciones,
-            calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
             idPropietario = libro.idPropietario,
-            activo = libro.activo
+            calificacionesRecientes = CalificacionMapper.toDTO(libroCalificacionesRecientes),
+            activo = libro.activo,
+            usuarioEsPropietario = usuarioEsPropietario(libro, usuarioId)
         )
         return libroDetalle
     }
@@ -149,4 +151,6 @@ class LibroMapper(
         )
         return filtros
     }
+
+    private fun usuarioEsPropietario(libro: Libro, usuarioId: Long) = libro.idPropietario == usuarioId
 }

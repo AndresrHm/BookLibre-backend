@@ -25,13 +25,15 @@ class UsuarioService(
     fun getUsuarioByNombre(nombre: String) =
         usuarioRepository.findByNombre(nombre) ?: throw NotFoundException("No se encontró usuario con nombre $nombre")
 
-    @Transactional(readOnly = false, rollbackFor = [Exception::class])
+    @Transactional
     fun usuarioUpdate(usuario: Usuario): Usuario {
         if (camposObligatoriosVacios(usuario)) {
             throw BusinessException(ErrorStrings.CAMPOS_OBLIGATORIOS_INCOMPLETOS)
         }
-
         when {
+            usuario.esLectorPublicador() -> {
+                // Si es lector/publicador, no debe eliminarse nada
+            }
             // Para eliminar usuario, no acá
             // Si el usuario tiene libros prestados, puede ser eliminado, pero la baja es lógica...
             usuario.esLector() -> {
@@ -49,8 +51,6 @@ class UsuarioService(
                 ) {
                     throw BusinessException(ErrorStrings.USUARIO_TIENE_DEVOLUCIONES_PENDIENTES)
                 }
-
-            usuario.esLectorPublicador() -> {}
         }
         usuarioRepository.save(usuario)
         return usuario

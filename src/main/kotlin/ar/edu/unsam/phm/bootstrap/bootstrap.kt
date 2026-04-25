@@ -56,7 +56,7 @@ class BootstrapData(
     private fun crearUsuarios(): List<Usuario> {
 
         val usuarios: List<Usuario> = listOf(
-
+            // Lectores publicadores
             Usuario(
                 nombre = "Juan",
                 apellido = "Perez",
@@ -117,6 +117,7 @@ class BootstrapData(
                 password = "nombre123"
             ).apply { biblioKarma = 9999; id = 5 },
 
+            // Lectores
             Usuario(
                 nombre = "Pedro",
                 apellido = "Sosa",
@@ -124,7 +125,7 @@ class BootstrapData(
                 email = "pedro@mail.com",
                 celular = "666666",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolLector),
                 urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa",
                 password = "pedro123"
             ).apply { biblioKarma = 2100; id = 6 },
@@ -136,7 +137,7 @@ class BootstrapData(
                 email = "marina@mail.com",
                 celular = "777777",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolLector),
                 urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz",
                 password = "marina123"
             ).apply { biblioKarma = 1800; id = 7 },
@@ -148,7 +149,7 @@ class BootstrapData(
                 email = "diego@mail.com",
                 celular = "888888",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolLector),
                 urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez",
                 password = "diego123"
             ).apply { biblioKarma = 2600; id = 8 },
@@ -160,11 +161,12 @@ class BootstrapData(
                 email = "sofia@mail.com",
                 celular = "999999",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolLector),
                 urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta",
                 password = "sofia123"
             ).apply { biblioKarma = 1750; id = 9 },
 
+            // Publicadores
             Usuario(
                 nombre = "Nicolas",
                 apellido = "Vega",
@@ -172,7 +174,7 @@ class BootstrapData(
                 email = "nicolas@mail.com",
                 celular = "101010",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega",
                 password = "nicolas123"
             ).apply { biblioKarma = 1950; id = 10 },
@@ -184,7 +186,7 @@ class BootstrapData(
                 email = "valentina@mail.com",
                 celular = "111110",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez",
                 password = "valentina123"
             ).apply { biblioKarma = 2300; id = 11 },
@@ -196,7 +198,7 @@ class BootstrapData(
                 email = "tomas@mail.com",
                 celular = "121212",
                 ciudad = "Buenos Aires",
-                roles = mutableSetOf(rolLector, rolPublicador),
+                roles = mutableSetOf(rolPublicador),
                 urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra",
                 password = "tomas123"
             ).apply { biblioKarma = 2050; id = 12 },

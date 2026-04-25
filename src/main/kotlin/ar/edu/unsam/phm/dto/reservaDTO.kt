@@ -23,13 +23,11 @@ data class ReservaDTO(
 data class CreacionReservaDTO(
     val libroId: Long,
     val usuarioPrestadorId: Long,
-    val usuarioLectorId: Long,
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,
 ) {
     init {
         requireBusiness(fechaDevolucion.isAfter(fechaRecogida), ErrorStrings.FECHA_DEVOLUCION_POSTERIOR_RECOGIDA)
-        requireBusiness(usuarioLectorId != usuarioPrestadorId, ErrorStrings.USUARIO_PRESTADOR_Y_LECTOR_DISTINTOS)
     }
 }
 
