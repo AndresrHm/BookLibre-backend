@@ -5,25 +5,25 @@
 -- Se pueden usar vistas, triggers, functions o constraints.
 
 CREATE TABLE historial_puntajes (
-    id INT PRIMARY KEY,
-    libro_id INT,
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    valor_anterior DECIMAL,
-    valor_nuevo DECIMAL,
-)
+                                    id SERIAL PRIMARY KEY,
+                                    libro_id INT,
+                                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                    valor_anterior DECIMAL,
+                                    valor_nuevo DECIMAL
+);
 
-CREATE OR REPLACE FUNCTION cambio_puntaje()
+CREATE cambio_puntaje()
 RETURNS TRIGGER AS $$
 BEGIN
     IF (OLD.calificacion IS DISTINCT FROM NEW.calificacion) THEN
        INSERT INTO historial_puntajes(libro_id, valor_anterior, valor_nuevo)
-        VALUES (OLD.id, OLD.puntaje, NEW.puntaje);
-    END IF;
-    RETURN NEW;
-END:
-$$ LANGUAGE plpsql;
+        VALUES (OLD.id, OLD.calificacion, NEW.calificacion);
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER historial_puntajes_trigger
-AFTER UPDATE ON Libros
-FOR EACH ROW
-EXECUTE FUNCTION cambio_puntaje();
+    AFTER UPDATE ON libro
+    FOR EACH ROW
+    EXECUTE FUNCTION cambio_puntaje();
