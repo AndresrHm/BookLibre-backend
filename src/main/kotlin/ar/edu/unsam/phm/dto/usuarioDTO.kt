@@ -35,8 +35,6 @@ data class UsuarioKarmaDTO(
 )
 
 data class UsuarioEdicionDTO(
-    @field:NotNull(message = ErrorStrings.USUARIO_ID_REQUERIDO)
-    val id: Long?,
     @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_NOMBRE)
     val nombre: String,
     @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_APELLIDO)
