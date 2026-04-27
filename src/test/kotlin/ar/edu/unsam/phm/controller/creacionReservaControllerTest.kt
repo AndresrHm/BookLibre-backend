@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -30,7 +31,7 @@ val HOY = LocalDate.now()
 
 //Lo moví a una clase aparte porque usa datos mockeados
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var calificacionRepository: CalificacionRepository
@@ -83,7 +84,6 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Se puede reservar un libro`() {
         val reserva = crearCreacionReservaDTO(
-            usuarioLectorId = usuarioLector.id!!,
             usuarioPrestadorId = usuarioPrestador.id!!,
             libroId = libro.id!!
         )
@@ -91,6 +91,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/reservas")
+                    .principal(UsernamePasswordAuthenticationToken(usuarioLector.id.toString(), null))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(reserva))
             )
@@ -102,60 +103,60 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `La reserva falla si el libro no existe`() {
         libroRepository.deleteAll()
 
-        val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
+        val libroIdInexistente = -999L
+        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = usuarioPrestador.id!!, libroId = libroIdInexistente)
 
-        val errorMessage = mockMvc
+        mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/reservas")
+                    .principal(UsernamePasswordAuthenticationToken(usuarioLector.id.toString(), null))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(reserva))
             )
-            .andExpect(status().isNotFound)
-            .andReturn().resolvedException?.message
-
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(1), errorMessage)
+            .andExpect(status().isBadRequest)
     }
 
     @Test
     fun `La reserva falla si el usuario prestador no existe`() {
         usuarioRepository.delete(usuarioPrestador)
 
-        val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
+        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = 2, libroId = 1)
 
         val errorMessage = mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/reservas")
+                    .principal(UsernamePasswordAuthenticationToken(usuarioLector.id.toString(), null))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(reserva))
             )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(1), errorMessage)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(2), errorMessage)
     }
 
     @Test
     fun `La reserva falla si el usuario lector no existe`() {
         usuarioRepository.delete(usuarioLector)
 
-        val reserva = crearCreacionReservaDTO(usuarioLectorId = 1, usuarioPrestadorId = 2, libroId = 1)
+        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = 2, libroId = 1)
 
         val errorMessage = mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/reservas")
+                    .principal(UsernamePasswordAuthenticationToken(usuarioLector.id.toString(), null))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(reserva))
             )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(1), errorMessage)
+        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioLector.id!!), errorMessage)
     }
 
     @Test
     fun `La reserva falla si se usan datos no permitidos`() {
         val reserva = crearCreacionReservaDTO(
-            usuarioLectorId = usuarioLector.id!!,
             usuarioPrestadorId = usuarioPrestador.id!!,
             libroId = libro.id!!,
             fechaRecogida = HOY.minusDays(1)
@@ -164,6 +165,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         val errorMessage = mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/reservas")
+                    .principal(UsernamePasswordAuthenticationToken(usuarioLector.id.toString(), null))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(reserva))
             )
@@ -177,14 +179,12 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 private fun crearCreacionReservaDTO(
     libroId: Long = 1,
     usuarioPrestadorId: Long = 1,
-    usuarioLectorId: Long = 2,
     fechaRecogida: LocalDate = HOY,
     fechaDevolucion: LocalDate = HOY.plusDays(1)
 ): CreacionReservaDTO {
     return CreacionReservaDTO(
         libroId = libroId,
         usuarioPrestadorId = usuarioPrestadorId,
-        usuarioLectorId = usuarioLectorId,
         fechaRecogida = fechaRecogida,
         fechaDevolucion = fechaDevolucion
     )

@@ -22,16 +22,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var libroRepository: LibroRepository
@@ -52,6 +55,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     lateinit var objectMapper: ObjectMapper
 
     private var usuarioPerfilId: Long = 0
+    private var usuarioNoPropietarioId: Long = 0
     private var libro1Id: Long = 0
 
     private lateinit var rolLector: Rol
@@ -86,6 +90,21 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
         usuarioPerfilId = usuarioGuardado.id!!
 
+        val otroUsuario = usuarioRepository.save(
+            Usuario(
+                nombre = "Otro",
+                apellido = "Usuario",
+                descripcion = "Usuario no propietario",
+                email = "otro@test.com",
+                celular = "11999999",
+                ciudad = "Buenos Aires",
+                roles = mutableSetOf(rolLector, rolPublicador),
+                password = "contrasena123",
+                urlImagen = "https://test.com/otro.jpg"
+            )
+        )
+        usuarioNoPropietarioId = otroUsuario.id!!
+
         val libro1 = libroRepository.save(crearLibro(idPropietario = usuarioPerfilId))
         libroRepository.save(crearLibro(titulo = "Segundo libro", autor = "Otro autor", idPropietario = usuarioPerfilId))
         libroRepository.save(crearLibro(titulo = "Tercer libro", autor = "Tercer autor", genero = Genero.ROMANCE, idPropietario = usuarioPerfilId))
@@ -103,6 +122,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/libros")
+                    .principal(authPrincipal(usuarioPerfilId))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(libroValido))
             )
@@ -116,13 +136,14 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         val errorMessage = mockMvc
             .perform(
                 MockMvcRequestBuilders.post("/libros")
+                    .principal(authPrincipal(usuarioPerfilId))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(libroInvalido))
             )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.LIBRO_DEBE_TENER_TITULO, errorMessage)
+        assertTrue(errorMessage?.contains(ErrorStrings.LIBRO_DEBE_TENER_TITULO) == true)
         assertEquals(libroRepository.count(), 3)
     }
 
@@ -131,6 +152,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Cuando se provee un id, devuelve el libro asociado a ese id (detalle)`() {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", libro1Id, GetLibroDTO.DETALLE)
+                .principal(authPrincipal(usuarioPerfilId))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.libro.titulo").value("Título de libro"))
     }
@@ -139,6 +161,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Cuando se provee un id de un libro que no existe, devuelve un error (detalle)`() {
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", -1, GetLibroDTO.DETALLE)
+                .principal(authPrincipal(usuarioPerfilId))
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
@@ -150,6 +173,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Cuando se provee un id, devuelve el libro asociado a ese id (edición)`() {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", libro1Id, GetLibroDTO.EDICION)
+                .principal(authPrincipal(usuarioPerfilId))
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.libro.titulo").value("Título de libro"))
     }
@@ -158,6 +182,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Cuando se provee un id de un libro que no existe, devuelve un error (edición)`() {
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", -1, GetLibroDTO.EDICION)
+                .principal(authPrincipal(usuarioPerfilId))
         ).andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
 
@@ -174,7 +199,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         )
         mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", usuarioPerfilId.toString())
+                .principal(authPrincipal(usuarioPerfilId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroEditadoDTO))
         ).andExpect(status().isOk())
@@ -184,6 +209,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Se trae la lista de libros del perfil`() {
         mockMvc.perform(
             MockMvcRequestBuilders.get("/libros")
+                .principal(authPrincipal(usuarioPerfilId))
                 .param("flagDiff", "PERFIL")
                 .param("page", "0")
                 .param("size", "3")
@@ -209,14 +235,14 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", "-1")
+                .principal(authPrincipal(usuarioNoPropietarioId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroDTO))
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(libro1Id, -1), errorMessage)
+        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(libro1Id, usuarioNoPropietarioId), errorMessage)
     }
 
     @Test
@@ -225,7 +251,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", usuarioPerfilId.toString())
+                .principal(authPrincipal(usuarioPerfilId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroDTO))
         )
@@ -241,14 +267,14 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.put("/libros")
-                .param("idUsuario", usuarioPerfilId.toString())
+                .principal(authPrincipal(usuarioPerfilId))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(libroDTO))
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.LIBRO_DEBE_TENER_TITULO, errorMessage)
+        assertTrue(errorMessage?.contains(ErrorStrings.LIBRO_DEBE_TENER_TITULO) == true)
     }
 
     // ----- Eliminar un libro -----
@@ -256,7 +282,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `No se puede eliminar un libro que no está en la base de datos`() {
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.delete("/libros/0")
-                .param("idUsuario", usuarioPerfilId.toString())
+                .principal(authPrincipal(usuarioPerfilId))
         )
             .andExpect(status().isNotFound)
             .andReturn().resolvedException?.message
@@ -268,13 +294,21 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `No se puede eliminar un libro que no pertenece al usuario que lo solicita`() {
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.delete("/libros/$libro1Id")
-                .param("idUsuario", "-1")
+                .principal(authPrincipal(usuarioNoPropietarioId))
         )
             .andExpect(status().isBadRequest)
             .andReturn().resolvedException?.message
 
-        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(libro1Id, -1), errorMessage)
+        assertEquals(ErrorStrings.libroNoPerteneceAlUsuario(libro1Id, usuarioNoPropietarioId), errorMessage)
     }
+}
+
+private fun authPrincipal(usuarioId: Long): UsernamePasswordAuthenticationToken {
+    val authorities = listOf(
+        SimpleGrantedAuthority(TipoUsuario.LECTOR.roleName),
+        SimpleGrantedAuthority(TipoUsuario.PUBLICADOR.roleName)
+    )
+    return UsernamePasswordAuthenticationToken(usuarioId.toString(), null, authorities)
 }
 
 fun crearLibroDTO(

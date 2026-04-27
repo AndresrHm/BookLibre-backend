@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -30,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import kotlin.test.assertEquals
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Autowired
@@ -290,12 +292,21 @@ class LibroHomeControllerTest(@Autowired val mockMvc: MockMvc) {
         ordenHomePage: String = "NOMBRE_ASC",
     ): MockHttpServletRequestBuilder {
         return MockMvcRequestBuilders.get("/libros")
+            .principal(authPrincipal(userId.toLong()))
             .param("flagDiff", "HOME")
             .param("page", page)
             .param("size", size)
-            .param("userId", userId)
             .param("ordenHomePage", ordenHomePage)
     }
+
+    private fun authPrincipal(usuarioId: Long): UsernamePasswordAuthenticationToken {
+        val authorities = listOf(
+            SimpleGrantedAuthority(TipoUsuario.LECTOR.roleName),
+            SimpleGrantedAuthority(TipoUsuario.PUBLICADOR.roleName)
+        )
+        return UsernamePasswordAuthenticationToken(usuarioId.toString(), null, authorities)
+    }
+
 private fun crearUsuario(
     nombre: String,
     email: String,
