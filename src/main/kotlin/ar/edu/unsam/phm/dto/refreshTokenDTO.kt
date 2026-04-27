@@ -1,21 +1,16 @@
-    package ar.edu.unsam.phm.dto
+package ar.edu.unsam.phm.dto
 
+data class TokenResponseDTO(
+    val accessToken: String,
+    val refreshToken: String,
+    val expiresIn: Long // en milisegundos
+)
 
-    data class RefreshTokenRequestDTO(
-        val refreshToken: String
-    )
-
-    data class TokenResponseDTO(
-        val accessToken: String,
-        val refreshToken: String,
-        val expiresIn: Long // en milisegundos
-    )
-
-    data class LoginResponseDTO(
-        val accessToken: String,
-        val refreshToken: String,
-        val expiresIn: Long,
-        val userId: Long?,
-        val email: String,
-        val nombre: String
-    )
+data class LoginResponseDTO(
+    val accessToken: String,
+    val refreshToken: String,
+    val expiresIn: Long,
+    val userId: Long?,
+    val email: String,
+    val nombre: String
+)
