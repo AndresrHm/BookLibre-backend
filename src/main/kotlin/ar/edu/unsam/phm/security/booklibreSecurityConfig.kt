@@ -40,7 +40,7 @@ class BooklibreSecurityConfig {
         return httpSecurity
             .cors(Customizer.withDefaults())
             .csrf {
-                it.ignoringRequestMatchers("/auth/login", "/auth/register", "/refresh")
+                it.ignoringRequestMatchers("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
                 it.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 it.csrfTokenRequestHandler(SpaCsrfTokenRequestHandler())
             }
@@ -50,6 +50,8 @@ class BooklibreSecurityConfig {
                 // porque CORS requiere que también puedas mandar el OPTIONS para hacer el pre-flight
                 it.requestMatchers("/auth/login").permitAll()
                 it.requestMatchers("/auth/register").permitAll()
+                it.requestMatchers("/auth/refresh").permitAll()
+                it.requestMatchers("/auth/logout").permitAll()
                 it.requestMatchers("/error").permitAll()
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
 

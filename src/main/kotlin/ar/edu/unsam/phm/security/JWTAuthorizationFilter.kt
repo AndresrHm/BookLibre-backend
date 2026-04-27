@@ -27,6 +27,12 @@ class JWTAuthorizationFilter : OncePerRequestFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+        val publicAuthEndpoints = setOf("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
+        if (request.servletPath in publicAuthEndpoints) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         try {
             val token = request.cookies?.find { it.name == "access_token" }?.value
 

@@ -3,11 +3,9 @@ package ar.edu.unsam.phm.controller
 import ActionResponse
 import ar.edu.unsam.phm.dto.LoginRequestDTO
 import ar.edu.unsam.phm.dto.LoginResponseDTO
-import ar.edu.unsam.phm.dto.RefreshTokenRequestDTO
 import ar.edu.unsam.phm.dto.RegisterRequestDTO
 import ar.edu.unsam.phm.dto.TokenResponseDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
-import ar.edu.unsam.phm.security.TokenUtils
 import ar.edu.unsam.phm.service.AuthService
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
@@ -17,6 +15,7 @@ import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -24,9 +23,15 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/auth")
 class AuthController(
     private val authService: AuthService,
-    private val tokenUtils: TokenUtils,
     private val usuarioMapper: UsuarioMapper
 ) {
+
+    companion object {
+        private const val ACCESS_TOKEN_COOKIE = "access_token"
+        private const val REFRESH_TOKEN_COOKIE = "refreshToken"
+        private const val ACCESS_TOKEN_MAX_AGE_SECONDS = 300L
+        private const val REFRESH_TOKEN_MAX_AGE_SECONDS = 60L * 60 * 24 * 7
+    }
 
     @PostMapping("/login")
     fun login(
@@ -43,15 +48,24 @@ class AuthController(
         val tokens = authService.generateTokens(usuario)
 
         // Guardar access token en cookie
-        val cookie = ResponseCookie.from("access_token", tokens.accessToken)
+        val accessCookie = ResponseCookie.from(ACCESS_TOKEN_COOKIE, tokens.accessToken)
             .httpOnly(false) // lo dejo en false para que lo podamos ver
             .secure(false) // todavía no tenemos https
             .path("/")
-            .maxAge(300) // 5 min (coincide con access token)
+            .maxAge(ACCESS_TOKEN_MAX_AGE_SECONDS)
             .sameSite("Lax")
             .build()
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
+        val refreshCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, tokens.refreshToken)
+            .httpOnly(true)
+            .secure(false) // todavía no tenemos https
+            .path("/")
+            .maxAge(REFRESH_TOKEN_MAX_AGE_SECONDS)
+            .sameSite("Lax")
+            .build()
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
 
         // Retornar respuesta con tokens y datos del usuario
         val loginResponse = LoginResponseDTO(
@@ -79,30 +93,63 @@ class AuthController(
 
     @PostMapping("/logout")
     fun logout(
-        @RequestBody body: RefreshTokenRequestDTO,
+        @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) refreshToken: String?,
         response: HttpServletResponse
     ): ResponseEntity<ActionResponse> {
         // Revocar el refresh token
         try {
-            authService.revokeRefreshToken(body.refreshToken)
+            refreshToken?.let { authService.revokeRefreshToken(it) }
         } catch (e: Exception) {
             // Si falla la revocación, continuamos igual
         }
 
-        // Limpiar cookie de access token
-        val cookie = ResponseCookie.from("access_token", "")
+        // Limpiar cookies de sesión
+        val accessCookie = ResponseCookie.from(ACCESS_TOKEN_COOKIE, "")
             .httpOnly(true)
             .path("/")
             .maxAge(0)
             .build()
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
+        val refreshCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, "")
+            .httpOnly(true)
+            .path("/")
+            .maxAge(0)
+            .build()
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
         return ResponseEntity.ok(ActionResponse("Logout realizado con éxito"))
     }
 
     @PostMapping("/refresh")
-    fun refresh(@RequestBody body: RefreshTokenRequestDTO): ResponseEntity<TokenResponseDTO> {
-        val tokens = authService.refreshAccessToken(body.refreshToken)
+    fun refresh(
+        @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) refreshToken: String?,
+        response: HttpServletResponse
+    ): ResponseEntity<TokenResponseDTO> {
+        val tokenDesdeCookie = refreshToken
+            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+
+        val tokens = authService.refreshAccessToken(tokenDesdeCookie)
+
+        val accessCookie = ResponseCookie.from(ACCESS_TOKEN_COOKIE, tokens.accessToken)
+            .httpOnly(false)
+            .secure(false)
+            .path("/")
+            .maxAge(ACCESS_TOKEN_MAX_AGE_SECONDS)
+            .sameSite("Lax")
+            .build()
+
+        val refreshCookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, tokens.refreshToken)
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(REFRESH_TOKEN_MAX_AGE_SECONDS)
+            .sameSite("Lax")
+            .build()
+
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString())
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+
         return ResponseEntity.ok(tokens)
     }
 }
