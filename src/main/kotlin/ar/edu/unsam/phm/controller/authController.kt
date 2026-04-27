@@ -29,7 +29,7 @@ class AuthController(
     companion object {
         private const val ACCESS_TOKEN_COOKIE = "access_token"
         private const val REFRESH_TOKEN_COOKIE = "refreshToken"
-        private const val ACCESS_TOKEN_MAX_AGE_SECONDS = 300L
+        private const val ACCESS_TOKEN_MAX_AGE_SECONDS = 10L // 10 segundos para testing
         private const val REFRESH_TOKEN_MAX_AGE_SECONDS = 60L * 60 * 24 * 7
     }
 
