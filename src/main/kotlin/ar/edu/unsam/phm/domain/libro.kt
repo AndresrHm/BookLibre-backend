@@ -9,9 +9,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 
-const val MAX_CARACTERES_DESCRIPCION = 500
-const val MAX_PAGINAS_LIBRO = 1500
-
 @Entity
 class Libro(
     var titulo: String,

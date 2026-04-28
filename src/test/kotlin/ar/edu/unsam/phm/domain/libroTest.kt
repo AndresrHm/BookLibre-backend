@@ -1,9 +1,11 @@
 package ar.edu.unsam.phm.domain
 
+import ar.edu.unsam.phm.controller.crearReserva
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import jakarta.validation.Validation
+import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
 
 val HOY = LocalDate.now()
@@ -60,6 +62,69 @@ class LibroSpec : DescribeSpec({
         it("Un libro no puede no tener editorial") {
             val violations = validator.validate(crearLibroEdicionDTO(editorial = ""))
             violations.any { it.propertyPath.toString() == "editorial" } shouldBe true
+        }
+    }
+
+    describe("Lógica de dominio de Libro") {
+        val usuarioLector = crearUsuario(roles = mutableSetOf<Rol>(Rol().apply {
+            id = 1
+            name = TipoUsuario.LECTOR.roleName
+        }
+        ))
+        val usuarioPrestador = crearUsuario(roles = mutableSetOf<Rol>(Rol().apply {
+            id = 2
+            name = TipoUsuario.PUBLICADOR.roleName
+        }
+        ))
+
+        it("inicializa con valores por defecto correctos") {
+            val libro = crearLibro()
+            libro.activo shouldBe true
+            libro.calificacion shouldBe 0.0
+            libro.id shouldBe null // JPA lo setea luego
+        }
+
+        it("actualiza la calificación correctamente") {
+            val libro = crearLibro()
+            libro.actualizarCalificacion(4.5)
+            libro.calificacionPromedio() shouldBe 4.5
+        }
+
+        it("getFechaAsString devuelve vacío si fechaAgregado es null") {
+            val libro = crearLibro()
+            libro.fechaAgregado = null
+            libro.getFechaAsString() shouldBe ""
+        }
+
+        it("devuelve el tipo de libro como texto (identificador de UI)") {
+            val libro = crearLibro(tipoLibro = TipoLibro.CON_DEDICATORIA)
+            libro.tipoComoTexto() shouldBe "conDedicatoria"
+
+            val libroComun = crearLibro(tipoLibro = TipoLibro.COMUN)
+            libroComun.tipoComoTexto() shouldBe "comun"
+        }
+
+        it("formatea la fecha de agregado correctamente") {
+            val libro = crearLibro()
+            libro.getFechaAsString().isNotEmpty() shouldBe true
+        }
+
+        it("calcula el karma de la home page basándose en los días entre fechas") {
+            val libro = crearLibro(tipoLibro = TipoLibro.COMUN) // Ajusta según tu lógica de TipoLibro
+            val fechaInicio = LocalDate.of(2026, 4, 1)
+            val fechaFin = LocalDate.of(2026, 4, 11) // 10 días de diferencia
+
+            // Fórmula: (10 * 5) + tipoLibro.calcularKarma(...)
+            val karma = libro.calcularKarmaHomePage(usuarioLector, 1, fechaInicio, fechaFin)
+
+            // Si el karma del tipo común es 0, debería dar 70
+            karma shouldBe 70
+        }
+
+        it("un libro nuevo debe tener calificación 0 y estar activo") {
+            val libro = crearLibro()
+            libro.calificacion shouldBe 0.0
+            libro.activo shouldBe true
         }
     }
 })
