@@ -3,11 +3,9 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.EstadoReserva
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.domain.TipoUsuario
-import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
-import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.dto.OrdenCalificacion
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.CalificacionRepository

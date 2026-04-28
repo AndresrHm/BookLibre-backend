@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.dto
 
+import ar.edu.unsam.phm.domain.EstadoReserva
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.requireBusiness
 import java.time.LocalDate
@@ -29,10 +30,4 @@ data class CreacionReservaDTO(
     init {
         requireBusiness(fechaDevolucion.isAfter(fechaRecogida), ErrorStrings.FECHA_DEVOLUCION_POSTERIOR_RECOGIDA)
     }
-}
-
-enum class EstadoReserva {
-    ACTIVO,
-    PROXIMO_A_VENCER,
-    DEVUELTO,
 }

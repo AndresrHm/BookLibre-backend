@@ -25,7 +25,7 @@ class UsuarioSpec : DescribeSpec({
         }
     }
 
-    describe("Test de Usuario: Roles (Branch Coverage)") {
+    describe("Test de Usuario: Roles") {
         it("esLector: true si tiene rol, false si no") {
             // Caso true
             val usuarioLector = crearUsuario(roles = mutableSetOf(rolLector))

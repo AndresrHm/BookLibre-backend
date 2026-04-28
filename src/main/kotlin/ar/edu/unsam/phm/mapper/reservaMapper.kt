@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.mapper
 
+import ar.edu.unsam.phm.domain.EstadoReserva
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.dto.ReservaDTO
 import org.springframework.stereotype.Component
 
