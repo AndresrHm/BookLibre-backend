@@ -67,6 +67,8 @@ object ErrorStrings {
 	// Auth
 	const val CREDENCIALES_INVALIDAS = "Las credenciales ingresadas son inválidas."
 	const val TOKEN_EXPIRADO = "El token ha expirado."
+	const val REFRESH_TOKEN_INVALIDO_O_EXPIRADO = "El refresh token es inválido o ha expirado."
+	const val USUARIO_NO_ENCONTRADO = "Usuario no encontrado."
 
 	fun usuarioNoEncontradoPorId(id: Long) = "No se encontró usuario con id $id"
 	fun libroNoEncontradoPorId(id: Long?) = "No existe un libro con el id $id"

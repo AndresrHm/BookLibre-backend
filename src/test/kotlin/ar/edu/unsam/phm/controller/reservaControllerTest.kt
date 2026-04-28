@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -32,7 +33,7 @@ import java.time.LocalDate
 import kotlin.test.assertEquals
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var reservaRepository: ReservaRepository
@@ -122,37 +123,10 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     val fechaRecogida = LocalDate.of(2026, 3, 20)
     val fechaDevolucion = LocalDate.of(2026, 3, 21)
 
-    val reserva1 = crearReserva(
-        libro1usuario1,
-        usuarioPrestador = usuario1,
-        usuarioLector = usuario2,
-        fechaRecogida,
-        fechaDevolucion,
-    )
-
-    val reserva2 = crearReserva(
-        libro2usuario1,
-        usuarioPrestador = usuario1,
-        usuarioLector = usuario2,
-        fechaRecogida,
-        fechaDevolucion,
-    )
-
-    val reserva3 = crearReserva(
-        libro1usuario2,
-        usuarioPrestador = usuario2,
-        usuarioLector = usuario1,
-        fechaRecogida,
-        fechaDevolucion,
-    )
-
-    val reserva4 = crearReserva(
-        libro2usuario2,
-        usuarioPrestador = usuario2,
-        usuarioLector = usuario1,
-        fechaRecogida,
-        fechaDevolucion,
-    )
+    private lateinit var reserva1: Reserva
+    private lateinit var reserva2: Reserva
+    private lateinit var reserva3: Reserva
+    private lateinit var reserva4: Reserva
 
     @BeforeEach
     fun init() {
@@ -177,6 +151,36 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         libroRepository.save(libro1usuario2)
         libroRepository.save(libro2usuario2)
 
+        reserva1 = crearReserva(
+            libro1usuario1,
+            usuarioPrestador = usuario1,
+            usuarioLector = usuario2,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reserva2 = crearReserva(
+            libro2usuario1,
+            usuarioPrestador = usuario1,
+            usuarioLector = usuario2,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reserva3 = crearReserva(
+            libro1usuario2,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reserva4 = crearReserva(
+            libro2usuario2,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+
+
         reservaRepository.save(reserva1)
         reservaRepository.save(reserva2)
         reservaRepository.save(reserva3)
@@ -189,6 +193,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
                 .param("usuarioId", usuario1.id.toString())
                 .param("type", "TO_ME")
                 .param("page", "0")
@@ -228,6 +233,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken("-1", null))
                 .param("usuarioId", "-1")
                 .param("type", "TO_ME")
                 .param("page", "0")
@@ -242,6 +248,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
                 .param("usuarioId", usuario1.id.toString())
                 .param("type", "TO_ME")
                 .param("page", "0")
@@ -264,6 +271,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
                 .param("usuarioId", usuario1.id.toString())
                 .param("type", "BY_ME")
                 .param("page", "0")
@@ -302,6 +310,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken("-1", null))
                 .param("usuarioId", "-1")
                 .param("type", "BY_ME")
                 .param("page", "0")
@@ -318,6 +327,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
                 .param("usuarioId", usuario1.id.toString())
                 .param("type", "BY_ME")
                 .param("page", "0")

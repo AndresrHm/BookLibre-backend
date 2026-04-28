@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -31,7 +32,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var reservaRepository: ReservaRepository
@@ -77,35 +78,14 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     private val fechaRecogida = hoy.minusDays(10)
     private val fechaDevolucion = hoy.minusDays(1)
 
-    val reserva1 = crearReserva(
-        libro1usuario1,
-        usuarioPrestador = usuario1,
-        usuarioLector = usuario2,
-        fechaRecogida,
-        fechaDevolucion,
-    )
+    private lateinit var reserva1: ar.edu.unsam.phm.domain.Reserva
+    private lateinit var reservaNoTerminada: ar.edu.unsam.phm.domain.Reserva
 
-    var idReserva1 = reserva1.id
-
-    // Reserva que todavia no termino para validar que no se puede calificar
-    val reservaNoTerminada = crearReserva(
-        libro1usuario1,
-        usuarioPrestador = usuario1,
-        usuarioLector = usuario2,
-        hoy,
-        hoy.plusDays(1),
-    )
-
-    var idReservaNoTerminada = reserva1.id
+    private var idReserva1: Long? = null
+    private var idReservaNoTerminada: Long? = null
 
     private val fechaCalificacion1 = hoy.minusDays(2)
-    val calificacion1 = crearCalificacion(
-        reserva1.usuarioLector,
-        reserva1.libro,
-        4.5,
-        "Muy bueno!",
-        fechaCalificacion1
-    )
+    private lateinit var calificacion1: Calificacion
 
     @BeforeEach
     fun init() {
@@ -136,12 +116,34 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         libroRepository.save(libro1usuario1)
 
+        reserva1 = crearReserva(
+            libro1usuario1,
+            usuarioPrestador = usuario1,
+            usuarioLector = usuario2,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reservaNoTerminada = crearReserva(
+            libro1usuario1,
+            usuarioPrestador = usuario1,
+            usuarioLector = usuario2,
+            hoy,
+            hoy.plusDays(1),
+        )
+
         reservaRepository.save(reserva1)
         reservaRepository.save(reservaNoTerminada)
         idReserva1 = reserva1.id // Los seteo porque no se reinician los ids al hacer deleteAll()
         idReservaNoTerminada = reservaNoTerminada.id
 
-        calificacionRepository.save((calificacion1))
+        calificacion1 = crearCalificacion(
+            reserva1.usuarioLector,
+            reserva1.libro,
+            4.5,
+            "Muy bueno!",
+            fechaCalificacion1
+        )
+        calificacionRepository.save(calificacion1)
     }
 
     // ----- Obtener calificaciones de un libro -----
@@ -186,6 +188,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.post("/calificaciones")
+                .principal(UsernamePasswordAuthenticationToken(idUsuario2.toString(), null))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         ).andExpect(status().isCreated)
@@ -204,6 +207,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.post("/calificaciones")
+                .principal(UsernamePasswordAuthenticationToken(idUsuario1.toString(), null))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )
@@ -226,6 +230,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.post("/calificaciones")
+                .principal(UsernamePasswordAuthenticationToken(idUsuario2.toString(), null))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody)
         )

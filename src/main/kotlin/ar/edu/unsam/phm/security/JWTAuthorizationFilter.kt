@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.net.http.HttpResponse
+import io.jsonwebtoken.JwtException
 
 @Component
 class JWTAuthorizationFilter : OncePerRequestFilter(
@@ -27,6 +28,12 @@ class JWTAuthorizationFilter : OncePerRequestFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
+        val publicAuthEndpoints = setOf("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
+        if (request.servletPath in publicAuthEndpoints) {
+            filterChain.doFilter(request, response)
+            return
+        }
+
         try {
             val token = request.cookies?.find { it.name == "access_token" }?.value
 
@@ -45,6 +52,21 @@ class JWTAuthorizationFilter : OncePerRequestFilter(
             response.writer.write("{\"error\":\"Token expired\",\"message\":\"${e.message}\"}")
 
             // Importante: NO llamar a filterChain.doFilter() después de manejar el error
+            return
+        } catch (e: JwtException) {
+            // Captura cualquier excepción de JWT (token inválido, expirado, etc.)
+            logger.warn("JWT Exception: ${e.message}")
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            response.setHeader("WWW-Authenticate", "Bearer error=\"invalid_token\", error_description=\"Invalid or expired token\"")
+            response.contentType = "application/json"
+            response.writer.write("{\"error\":\"Invalid token\",\"message\":\"${e.message}\"}")
+            return
+        } catch (e: Exception) {
+            // Captura cualquier otra excepción inesperada
+            logger.error("Unexpected error in JWT filter: ${e.message}", e)
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            response.contentType = "application/json"
+            response.writer.write("{\"error\":\"Authentication error\",\"message\":\"An error occurred during authentication\"}")
             return
         }
     }

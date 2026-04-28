@@ -10,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
@@ -40,7 +43,7 @@ class BooklibreSecurityConfig {
         return httpSecurity
             .cors(Customizer.withDefaults())
             .csrf {
-                it.ignoringRequestMatchers("/auth/login", "/auth/register", "/refresh")
+                it.ignoringRequestMatchers("/auth/login", "/auth/register", "/auth/refresh", "/auth/logout")
                 it.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 it.csrfTokenRequestHandler(SpaCsrfTokenRequestHandler())
             }
@@ -50,6 +53,8 @@ class BooklibreSecurityConfig {
                 // porque CORS requiere que también puedas mandar el OPTIONS para hacer el pre-flight
                 it.requestMatchers("/auth/login").permitAll()
                 it.requestMatchers("/auth/register").permitAll()
+                it.requestMatchers("/auth/refresh").permitAll()
+                it.requestMatchers("/auth/logout").permitAll()
                 it.requestMatchers("/error").permitAll()
                 it.requestMatchers(HttpMethod.OPTIONS).permitAll()
 
@@ -86,7 +91,15 @@ class BooklibreSecurityConfig {
             // agregado para JWT
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter::class.java)
             // fin agregado
-            .exceptionHandling(Customizer.withDefaults())
+            .exceptionHandling { exceptionHandling ->
+                exceptionHandling.authenticationEntryPoint(
+                    AuthenticationEntryPoint { _, response, authException ->
+                        response.status = HttpStatus.UNAUTHORIZED.value()
+                        response.contentType = "application/json"
+                        response.writer.write("{\"error\":\"Unauthorized\",\"message\":\"${authException.message}\"}")
+                    }
+                )
+            }
             .build()
     }
 
