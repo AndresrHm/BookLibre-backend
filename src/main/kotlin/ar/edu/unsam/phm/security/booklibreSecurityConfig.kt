@@ -73,8 +73,7 @@ class BooklibreSecurityConfig {
                 it.requestMatchers(HttpMethod.POST, "/calificaciones").hasAuthority(TipoUsuario.LECTOR.roleName)
 
                 // Permisos de reservas
-                it.requestMatchers(HttpMethod.GET, "/reservas")
-                    .permitAll() // Hechas por lector / Participa un publicador
+                it.requestMatchers(HttpMethod.GET, "/reservas").authenticated()
                 it.requestMatchers(HttpMethod.POST, "/reservas").hasAuthority(TipoUsuario.LECTOR.roleName)
 
                 // Permisos de configuración de usuarioRepository
@@ -91,12 +90,21 @@ class BooklibreSecurityConfig {
             // agregado para JWT
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter::class.java)
             // fin agregado
-            .exceptionHandling { exceptionHandling ->
-                exceptionHandling.authenticationEntryPoint(
+            .exceptionHandling {
+                it.authenticationEntryPoint(
                     AuthenticationEntryPoint { _, response, authException ->
                         response.status = HttpStatus.UNAUTHORIZED.value()
+
+                        // con este header en el front
+                        response.setHeader(
+                            "WWW-Authenticate",
+                            "Bearer error=\"invalid_token\", error_description=\"${authException.message}\""
+                        )
+
                         response.contentType = "application/json"
-                        response.writer.write("{\"error\":\"Unauthorized\",\"message\":\"${authException.message}\"}")
+                        response.writer.write(
+                            """{"error":"invalid_token","message":"${authException.message}"}"""
+                        )
                     }
                 )
             }
