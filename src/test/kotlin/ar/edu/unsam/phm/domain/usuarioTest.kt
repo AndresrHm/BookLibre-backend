@@ -39,8 +39,7 @@ fun crearUsuario(
     email: String = "emailusuario@gmail.com",
     celular: String = "1111111111",
     ciudad: String = "CiudadUsuario",
-    tipoUsuario: TipoUsuario = TipoUsuario.LECTOR,
-    roles: MutableSet<Rol>,
+    roles: MutableSet<Rol> = mutableSetOf<Rol>(),
     password: String = "passwordUsuario",
     urlImagen: String = "imagenUsuario"
 ): Usuario {
@@ -55,4 +54,14 @@ fun crearUsuario(
         password = password,
         urlImagen = urlImagen
     )
+}
+
+fun crearRol(
+    idCreacion: Long = 1,
+    nameCreacion: String = TipoUsuario.LECTOR.roleName
+): Rol {
+    return Rol().apply{
+        id = idCreacion
+        name = nameCreacion
+    }
 }
