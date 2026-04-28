@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.exception
 
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.NotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -16,10 +17,16 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("message" to (ex.message ?: "Error de negocio")))
     }
 
+    @ExceptionHandler(NotFoundException::class)
+    fun handleNotFoundException(ex: NotFoundException): ResponseEntity<Map<String, String>> {
+        val error = mapOf("message" to (ex.message ?: "Recurso no encontrado"))
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error)
+    }
+
     // Maneja otros errores (Validaciones, 400s, 500s)
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<Map<String, String>> {
-        // Acá obliga a devolver un objeto con la clave 'message', para mostrarlo correctamente con los toast
+        // Obliga a devolver un objeto con la clave 'message', para mostrarlo correctamente con los toast
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(mapOf("message" to (ex.message ?: "Ocurrió un error inesperado")))
