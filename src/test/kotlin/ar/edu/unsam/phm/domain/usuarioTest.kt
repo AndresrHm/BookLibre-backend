@@ -7,26 +7,76 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 
 class UsuarioSpec : DescribeSpec({
-    val rol = Rol().apply{
-        this.name = "LECTOR"
-    }
     isolationMode = IsolationMode.InstancePerTest
-    describe("Test de Usuario") {
-        val usuario = crearUsuario(roles = mutableSetOf(rol))
+
+    // Inicializamos variables acá (se crean de nuevo por cada 'it')
+    val rolLector = crearRol(nameCreacion = "LECTOR")
+    val rolPublicador = crearRol(nameCreacion = "PUBLICADOR")
+    val usuario = crearUsuario()
+
+    describe("Test de Usuario: Karma") {
         it("un usuario puede sumar karma") {
-            usuario.biblioKarma.shouldBe(0)
-
             usuario.sumarKarma(100)
-
-            usuario.biblioKarma.shouldBe(100)
+            usuario.biblioKarma shouldBe 100
         }
 
         it("un usuario no puede sumar karma menor a 1") {
-            usuario.biblioKarma.shouldBe(0)
+            shouldThrow<BusinessException> { usuario.sumarKarma(0) }
+        }
+    }
 
+    describe("Test de Usuario: Roles (Branch Coverage)") {
+        it("esLector: true si tiene rol, false si no") {
+            // Caso true
+            val usuarioLector = crearUsuario(roles = mutableSetOf(rolLector))
+            usuarioLector.esLector() shouldBe true
+
+            // Caso false (el usuario base no tiene roles)
+            usuario.esLector() shouldBe false
+        }
+
+        it("esPublicador: true si tiene rol, false si no") {
+            // Caso true
+            val usuarioPub = crearUsuario(roles = mutableSetOf(rolPublicador))
+            usuarioPub.esPublicador() shouldBe true
+
+            // Caso false
+            usuario.esPublicador() shouldBe false
+        }
+
+        it("esLectorPublicador: lógica combinada") {
+            val ambos = crearUsuario(roles = mutableSetOf(rolLector, rolPublicador))
+            val soloLector = crearUsuario(roles = mutableSetOf(rolLector))
+
+            ambos.esLectorPublicador() shouldBe true
+            soloLector.esLectorPublicador() shouldBe false
+        }
+    }
+
+    describe("Test de Usuario: Seguridad y Persistencia") {
+        it("encriptar y validar credenciales") {
+            val usuarioConPass = crearUsuario(password = "pass123")
+            usuarioConPass.encriptarPassword()
+
+            // Camino feliz (match)
+            usuarioConPass.validarCredenciales("pass123")
+
+            // Camino fallido (throws)
             shouldThrow<BusinessException> {
-                usuario.sumarKarma(0)
+                usuarioConPass.validarCredenciales("wrong")
             }
+        }
+    }
+
+    describe("Test de Usuario: Otros métodos") {
+        it("agregar libro a lista de préstamos") {
+            val libro = crearLibro()
+            usuario.agregarLibroParaPrestar(libro)
+            usuario.listaDeLibrosParaPrestar.size shouldBe 1
+        }
+
+        it("formatear fecha") {
+            usuario.getFechaCreacionAsString().isNotEmpty() shouldBe true
         }
     }
 })
@@ -60,7 +110,7 @@ fun crearRol(
     idCreacion: Long = 1,
     nameCreacion: String = TipoUsuario.LECTOR.roleName
 ): Rol {
-    return Rol().apply{
+    return Rol().apply {
         id = idCreacion
         name = nameCreacion
     }
