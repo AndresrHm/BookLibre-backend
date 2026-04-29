@@ -69,7 +69,6 @@ class LibroService(
         return libroOriginal
     }
 
-
     fun getLibrosPorFiltros(
         filtrosDeHome: FiltrosDeLibros,
         page: Int = 0,
