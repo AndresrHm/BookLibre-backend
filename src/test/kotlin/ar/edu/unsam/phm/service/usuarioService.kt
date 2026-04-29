@@ -50,8 +50,6 @@ class UsuarioServiceTest {
         entityManager.clear()
     }
 
-    // --- TESTS DE COBERTURA PARA usuarioUpdate ---
-
     @Test
     fun `Si un Lector no tiene reservas se desactivan sus libros (Baja Logica)`() {
         val libro = libroRepository.save(crearLibro(idPropietario = lector.id!!))
@@ -99,8 +97,6 @@ class UsuarioServiceTest {
         assertEquals(publicador.id, res.id)
     }
 
-    // --- TESTS DE BÚSQUEDA Y EXCEPCIONES ---
-
     @Test
     fun `getUsuarioById funciona y tambien lanza NotFound`() {
         assertNotNull(usuarioService.getUsuarioById(lector.id!!))
@@ -109,9 +105,6 @@ class UsuarioServiceTest {
 
     @Test
     fun `getUsuarioByNombre maneja la lista y lanza NotFound si esta vacia`() {
-        // Como findByNombre devuelve MutableList, el service NO lanza la excepcion
-        // a menos que vos hayas corregido el service.
-        // Si el service sigue igual, este test te va a dar el coverage de la linea pero fallara el assert.
         val encontrado = usuarioService.getUsuarioByNombre("Enzo")
         assertFalse(encontrado.isEmpty())
     }
@@ -126,8 +119,6 @@ class UsuarioServiceTest {
         assertEquals("Enzo", usuarioService.getNombreDeUsuario(lector.id!!))
         assertNull(usuarioService.getNombreDeUsuario(999L))
     }
-
-    // --- TESTS DE ESTADÍSTICAS ---
 
     @Test
     fun `obtenerCantidadDeLibrosPrestados y Leidos funcionan correctamente`() {
