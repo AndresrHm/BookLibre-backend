@@ -9,20 +9,16 @@ import ar.edu.unsam.phm.domain.LibroReservaCount
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.predicate.reservaPorTipoSpecifications
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import ar.edu.unsam.phm.utils.sanitizarSearch
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import org.springframework.data.jpa.domain.Specification
-import jakarta.persistence.criteria.Predicate
 import org.springframework.data.domain.Page
 
 @Service
@@ -132,8 +128,8 @@ class ReservaService(
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
         fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
 
-    private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
-        usuarioLector.id == libro.idPropietario
+    private fun libroPerteneceAUsuario(usuario: Usuario, libro: Libro): Boolean =
+        usuario.id == libro.idPropietario
 
     private fun haySolapamiento(
         fechaRecogida: LocalDate,
