@@ -5,14 +5,14 @@
 -- Se pueden usar vistas, triggers, functions o constraints.
 
 CREATE TABLE historial_puntajes (
-                                    id SERIAL PRIMARY KEY,
-                                    libro_id INT,
-                                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    valor_anterior DECIMAL,
-                                    valor_nuevo DECIMAL
+    id SERIAL PRIMARY KEY,
+    libro_id INT,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    valor_anterior DECIMAL,
+    valor_nuevo DECIMAL
 );
 
-CREATE cambio_puntaje()
+CREATE FUNCTION cambio_puntaje()
 RETURNS TRIGGER AS $$
 BEGIN
     IF (OLD.calificacion IS DISTINCT FROM NEW.calificacion) THEN
