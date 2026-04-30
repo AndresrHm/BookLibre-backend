@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.service
 
 
-import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.TokenResponseDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.minutes
 class AuthService(
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
-    private val refreshTokenService: RefreshTokenService,
+    private val refreshTokenPort: RefreshTokenPort,
     private val tokenUtils: TokenUtils,
 ) {
     fun findUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
@@ -43,18 +43,13 @@ class AuthService(
         usuarioRepository.save(usuario)
     }
 
-    /**
-     * Genera nuevos tokens (access + refresh) para un usuario autenticado
-     * @param usuario El usuario autenticado
-     * @return TokenResponseDTO con ambos tokens
-     */
     fun generateTokens(usuario: Usuario): TokenResponseDTO {
         // Generar access token
         val accessToken = tokenUtils.createToken(usuario.id.toString(), usuario.roles)
         val accessTokenExpirationMs = tokenUtils.accessTokenMinutes.minutes.inWholeMilliseconds
 
         // Generar refresh token (se guarda en BD)
-        val refreshToken = refreshTokenService.generateAndSaveRefreshToken(usuario.email)
+        val refreshToken = refreshTokenPort.generateAndSaveRefreshToken(usuario.email)
 
         return TokenResponseDTO(
             accessToken = accessToken,
@@ -63,14 +58,9 @@ class AuthService(
         )
     }
 
-    /**
-     * Válida y refresca un refresh token, generando nuevos tokens
-     * @param refreshToken El refresh token proporcionado por el cliente
-     * @return TokenResponseDTO con nuevos access + refresh tokens
-     */
     fun refreshAccessToken(refreshToken: String): TokenResponseDTO {
         // Validar el refresh token
-        val validToken = refreshTokenService.validateRefreshToken(refreshToken)
+        val validToken = refreshTokenPort.validateRefreshToken(refreshToken)
             ?: throw BusinessException(ErrorStrings.REFRESH_TOKEN_INVALIDO_O_EXPIRADO)
 
         // Obtener el usuario
@@ -82,12 +72,8 @@ class AuthService(
         return generateTokens(usuario)
     }
 
-    /**
-     * Revoca un refresh token específico (útil para logout)
-     * @param refreshToken El refresh token en texto plano
-     */
     fun revokeRefreshToken(refreshToken: String) {
-        refreshTokenService.revokeToken(refreshToken)
+        refreshTokenPort.revokeToken(refreshToken)
     }
 }
 

@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.domain
 
 import BaseEntity
-import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.errors.ErrorStrings
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType

@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.dto
 
 import ar.edu.unsam.phm.domain.EstadoReserva
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.requireBusiness
+import ar.edu.unsam.phm.errors.requireBusiness
 import java.time.LocalDate
 
 data class ReservaDTO(

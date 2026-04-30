@@ -44,7 +44,6 @@ class Reserva(
         }
     }
 }
-
 enum class EstadoReserva {
     ACTIVO,
     PROXIMO_A_VENCER,
