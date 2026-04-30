@@ -43,11 +43,6 @@ class AuthService(
         usuarioRepository.save(usuario)
     }
 
-    /**
-     * Genera nuevos tokens (access + refresh) para un usuario autenticado
-     * @param usuario El usuario autenticado
-     * @return TokenResponseDTO con ambos tokens
-     */
     fun generateTokens(usuario: Usuario): TokenResponseDTO {
         // Generar access token
         val accessToken = tokenUtils.createToken(usuario.id.toString(), usuario.roles)
@@ -63,11 +58,6 @@ class AuthService(
         )
     }
 
-    /**
-     * Válida y refresca un refresh token, generando nuevos tokens
-     * @param refreshToken El refresh token proporcionado por el cliente
-     * @return TokenResponseDTO con nuevos access + refresh tokens
-     */
     fun refreshAccessToken(refreshToken: String): TokenResponseDTO {
         // Validar el refresh token
         val validToken = refreshTokenService.validateRefreshToken(refreshToken)
@@ -82,10 +72,6 @@ class AuthService(
         return generateTokens(usuario)
     }
 
-    /**
-     * Revoca un refresh token específico (útil para logout)
-     * @param refreshToken El refresh token en texto plano
-     */
     fun revokeRefreshToken(refreshToken: String) {
         refreshTokenService.revokeToken(refreshToken)
     }
