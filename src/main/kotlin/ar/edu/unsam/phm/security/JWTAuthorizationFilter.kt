@@ -12,15 +12,10 @@ import org.springframework.web.filter.OncePerRequestFilter
 import io.jsonwebtoken.JwtException
 
 @Component
-class JWTAuthorizationFilter : OncePerRequestFilter(
-) {
-
-    // ver si podemos mejorar lo del autowired
-    @Autowired
-    lateinit var tokenUtils: TokenUtils
-
-    @Autowired
-    lateinit var usuarioService: UsuarioService
+class JWTAuthorizationFilter (
+    private val tokenUtils: TokenUtils,
+    private val usuarioService: UsuarioService,
+) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
         request: HttpServletRequest,

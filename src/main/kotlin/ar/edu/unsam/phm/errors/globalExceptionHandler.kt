@@ -12,12 +12,12 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     // Maneja excepciones de negocio (BusinessException)
     @ExceptionHandler(BusinessException::class)
     fun handleBusinessException(ex: BusinessException): ResponseEntity<Map<String, String>> {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("message" to (ex.message ?: "Error de negocio")))
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("message" to ex.message!!))
     }
 
     @ExceptionHandler(NotFoundException::class)
     fun handleNotFoundException(ex: NotFoundException): ResponseEntity<Map<String, String>> {
-        val error = mapOf("message" to (ex.message ?: "Recurso no encontrado"))
+        val error = mapOf("message" to ex.message!!)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error)
     }
 
