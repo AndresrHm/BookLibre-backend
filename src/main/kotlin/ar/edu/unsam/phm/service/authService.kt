@@ -7,6 +7,7 @@ import ar.edu.unsam.phm.dto.TokenResponseDTO
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import ar.edu.unsam.phm.service.RefreshTokenPort
 import ar.edu.unsam.phm.security.TokenUtils
 import org.springframework.stereotype.Service
 import kotlin.time.Duration.Companion.minutes
@@ -15,7 +16,7 @@ import kotlin.time.Duration.Companion.minutes
 class AuthService(
     private val usuarioRepository: UsuarioRepository,
     private val rolRepository: RolRepository,
-    private val refreshTokenService: RefreshTokenService,
+    private val refreshTokenPort: RefreshTokenPort,
     private val tokenUtils: TokenUtils,
 ) {
     fun findUsuario(usuarioLogin: String, passwordLogin: String): Usuario {
@@ -49,7 +50,7 @@ class AuthService(
         val accessTokenExpirationMs = tokenUtils.accessTokenMinutes.minutes.inWholeMilliseconds
 
         // Generar refresh token (se guarda en BD)
-        val refreshToken = refreshTokenService.generateAndSaveRefreshToken(usuario.email)
+        val refreshToken = refreshTokenPort.generateAndSaveRefreshToken(usuario.email)
 
         return TokenResponseDTO(
             accessToken = accessToken,
@@ -60,7 +61,7 @@ class AuthService(
 
     fun refreshAccessToken(refreshToken: String): TokenResponseDTO {
         // Validar el refresh token
-        val validToken = refreshTokenService.validateRefreshToken(refreshToken)
+        val validToken = refreshTokenPort.validateRefreshToken(refreshToken)
             ?: throw BusinessException(ErrorStrings.REFRESH_TOKEN_INVALIDO_O_EXPIRADO)
 
         // Obtener el usuario
@@ -73,7 +74,7 @@ class AuthService(
     }
 
     fun revokeRefreshToken(refreshToken: String) {
-        refreshTokenService.revokeToken(refreshToken)
+        refreshTokenPort.revokeToken(refreshToken)
     }
 }
 

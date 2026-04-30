@@ -5,7 +5,7 @@ import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
-import ar.edu.unsam.phm.repository.RepoRefreshToken
+import ar.edu.unsam.phm.repository.RefreshTokenRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -35,7 +35,7 @@ class AuthControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var rolRepository: RolRepository
 
     @Autowired
-    private lateinit var refreshTokenRepository: RepoRefreshToken
+    private lateinit var refreshTokenRepository: RefreshTokenRepository
 
     @Autowired
     private lateinit var reservaRepository: ReservaRepository
