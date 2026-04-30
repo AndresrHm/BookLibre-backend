@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class LibroMapper(
-    private val libroRepository: LibroRepository,
     private val usuarioService: UsuarioService
 ) {
     fun toLibro(libroEdicionDTO: LibroEdicionDTO, usuarioId: Long): Libro {
