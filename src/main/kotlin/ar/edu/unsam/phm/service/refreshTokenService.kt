@@ -5,6 +5,7 @@ import ar.edu.unsam.phm.domain.RefreshToken
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.RefreshTokenRepository
 import ar.edu.unsam.phm.security.TokenUtils
+import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -13,6 +14,7 @@ class RefreshTokenService(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val tokenUtils: TokenUtils
 ) : RefreshTokenPort {
+    @Transactional
     override fun generateAndSaveRefreshToken(username: String): String {
         val rawToken = tokenUtils.generateRefreshToken()
 
@@ -20,12 +22,11 @@ class RefreshTokenService(
 
         revokeByUsername(username)
 
-        val refreshToken = RefreshToken().apply {
-            this.tokenHash = tokenHash
-            this.username = username
-            this.expirationDate = LocalDateTime.now().plusDays(tokenUtils.getRefreshTokenExpirationDays().toLong())
-            this.revoked = false
-        }
+        val refreshToken = RefreshToken(
+             tokenHash = tokenHash,
+             username = username,
+             expirationDate = LocalDateTime.now().plusDays(tokenUtils.getRefreshTokenExpirationDays().toLong()))
+
 
         refreshTokenRepository.save(refreshToken)
 
@@ -45,7 +46,6 @@ class RefreshTokenService(
         return refreshToken
     }
 
-    // TODO: Revisar, existen 2 revoke token
     override fun revokeByUsername(username: String) {
         val tokens = refreshTokenRepository.findAllByUsername(username)
         tokens.forEach { it.revoked = true }
