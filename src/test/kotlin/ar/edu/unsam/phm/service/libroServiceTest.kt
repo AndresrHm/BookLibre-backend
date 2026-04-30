@@ -156,7 +156,7 @@ class LibroServiceSpec : DescribeSpec({
             val exception = shouldThrow<BusinessException> {
                 service.borrarLibro(idLibro, idUsuario)
             }
-            exception.message shouldBe "El Libro se encuentra prestado"
+            exception.message shouldBe "El libro se encuentra prestado"
         }
     }
 
