@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.domain
 
 import BaseEntity
-import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.utils.diasEntre
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -44,4 +43,9 @@ class Reserva(
             else -> EstadoReserva.ACTIVO
         }
     }
+}
+enum class EstadoReserva {
+    ACTIVO,
+    PROXIMO_A_VENCER,
+    DEVUELTO,
 }

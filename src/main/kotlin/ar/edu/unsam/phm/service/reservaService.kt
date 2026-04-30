@@ -128,8 +128,8 @@ class ReservaService(
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
         fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
 
-    private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
-        usuarioLector.id == libro.idPropietario
+    private fun libroPerteneceAUsuario(usuario: Usuario, libro: Libro): Boolean =
+        usuario.id == libro.idPropietario
 
     private fun haySolapamiento(
         fechaRecogida: LocalDate,

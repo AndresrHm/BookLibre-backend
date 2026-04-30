@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -105,5 +106,51 @@ class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
                 .principal(UsernamePasswordAuthenticationToken("-1", null))
         )
             .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `Se obtiene el DTO de edicion del usuario autenticado`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/usuario/UPDATE")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.usuario.nombre").value("Juan"))
+            .andExpect(jsonPath("$.usuario.apellido").value("Perez"))
+    }
+
+    @Test
+    fun `Se obtiene el karma del usuario autenticado`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/usuario/KARMA")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.usuario.biblioKarma").value(50))
+    }
+
+    @Test
+    fun `Se actualiza el usuario autenticado correctamente`() {
+        val body = """
+            {
+                "nombre": "Juan Actualizado",
+                "apellido": "Perez",
+                "descripcion": "Nueva descripcion",
+                "ciudad": "Buenos Aires",
+                "tipoUsuario": [
+                    {"id": ${rolLector.id}, "name": "${rolLector.name}"},
+                    {"id": ${rolPublicador.id}, "name": "${rolPublicador.name}"}
+                ],
+                "urlImagen": "http://imagen.com/foto.jpg"
+            }
+        """.trimIndent()
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.put("/usuario")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isOk)
     }
 }

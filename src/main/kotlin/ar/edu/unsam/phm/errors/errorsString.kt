@@ -8,7 +8,6 @@ object ErrorStrings {
 	const val USUARIO_O_CONTRASENIA_INCORRECTOS = "Usuario o contraseña incorrectos"
 	const val USUARIO_NO_PUEDE_CALIFICAR_LIBRO = "El usuario logueado no puede calificar este libro"
 	const val USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO = "Un usuario no puede reservar un libro que le pertenece"
-	const val USUARIO_PRESTADOR_Y_LECTOR_DISTINTOS = "El usuario prestador y el lector deben ser distintos"
 	const val USUARIO_ID_REQUERIDO = "El id del usuario es obligatorio"
 	const val USUARIO_DEBE_TENER_NOMBRE = "El usuario debe tener nombre"
 	const val USUARIO_DEBE_TENER_APELLIDO = "El usuario debe tener apellido"
@@ -52,8 +51,7 @@ object ErrorStrings {
 	const val PUNTUACION_ENTRE_05_Y_50 = "puntuacion debe estar entre 0.5 y 5.0"
 
 	// Otros
-	const val LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR = "El Libro se encuentra prestado"
-	const val ISBN13_DEBE_SER_POSITIVO = "El código ISBN-13 debe ser positivo"
+	const val LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR = "El libro se encuentra prestado"
 	const val ISBN13_DEBE_TENER_13_DIGITOS = "El código ISBN-13 debe contener 13 dígitos"
 	const val DESCRIPCION_NO_PUEDE_SUPERAR_500 = "La descripción no puede superar los 500 caracteres"
 	const val LIBRO_NO_PUEDE_SUPERAR_1499_PAGINAS = "El libro no puede superar las 1499 páginas."
@@ -62,7 +60,6 @@ object ErrorStrings {
 	const val SIZE_DEBE_SER_MAYOR_A_CERO = "size debe ser mayor a 0"
 	const val SOLO_SE_PUEDE_SUMAR_KARMA_POSITIVO = "Solo se puede sumar karma positivo"
 	const val FLAG_DIFF_INVALIDO = "No se reconoce el origen de la busqueda"
-	const val CAMPOS_OBLIGATORIOS_INCOMPLETOS = "Uno o más campos obligatorios están incompletos."
 
 	// Auth
 	const val CREDENCIALES_INVALIDAS = "Las credenciales ingresadas son inválidas."
@@ -77,7 +74,5 @@ object ErrorStrings {
 	fun reservaNoExistePorId(id: Long) = "No existe la reserva con id $id"
 	fun usuarioNoEncontradoParaCalificacion(id: Long) = "No se ha encontrado el usuario con id $id"
 	fun libroNoPerteneceAlUsuario(libroId: Long?, idUsuario: Long) = "El libro con id $libroId no pertenece al usuario $idUsuario"
-	fun descripcionNoPuedeSuperar(maxCaracteres: Int) = "La descripción no puede superar los $maxCaracteres caracteres"
-	fun libroNoPuedeSuperarPaginas(maxPaginas: Int) = "El libro no puede superar las $maxPaginas páginas."
 }
 

@@ -33,11 +33,9 @@ import java.util.function.Supplier
 
 @Configuration
 @EnableWebSecurity
-class BooklibreSecurityConfig {
-
-    @Autowired
-    lateinit var jwtAuthorizationFilter: JWTAuthorizationFilter
-
+class BooklibreSecurityConfig(
+    var jwtAuthorizationFilter: JWTAuthorizationFilter
+) {
     @Bean
     fun securityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
