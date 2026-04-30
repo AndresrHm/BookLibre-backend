@@ -1,28 +1,24 @@
 package ar.edu.unsam.phm.service
 
 import FechasReserva
-import ar.edu.unsam.phm.BusinessException
-import ar.edu.unsam.phm.NotFoundException
+import ar.edu.unsam.phm.errors.BusinessException
+import ar.edu.unsam.phm.errors.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.LibroReservaCount
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.predicate.reservaPorTipoSpecifications
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import ar.edu.unsam.phm.utils.sanitizarSearch
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import org.springframework.data.jpa.domain.Specification
-import jakarta.persistence.criteria.Predicate
 import org.springframework.data.domain.Page
 
 @Service
