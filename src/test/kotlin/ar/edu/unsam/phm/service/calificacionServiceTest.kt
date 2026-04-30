@@ -1,12 +1,15 @@
 package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.NotFoundException
 import ar.edu.unsam.phm.domain.*
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
+import ar.edu.unsam.phm.dto.OrdenCalificacion
 import ar.edu.unsam.phm.repository.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
@@ -97,5 +100,87 @@ class CalificacionServiceTest {
 
         val libroActualizado = libroRepository.findById(libro.id!!).get()
         assertEquals(5.0, libroActualizado.calificacion)
+    }
+
+    @Test
+    fun `calificarLibro lanza NotFoundException si el usuario no existe`() {
+        assertThrows<NotFoundException> {
+            calificacionService.calificarLibro(-1L, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        }
+    }
+
+    @Test
+    fun `calificarLibro lanza BusinessException si el usuario no es lector`() {
+        val noLector = usuarioRepository.save(Usuario(
+            nombre = "NoLector", apellido = "NL", email = "nl@t.com",
+            roles = mutableSetOf(), password = "123",
+            descripcion = "D", celular = "1", ciudad = "C", urlImagen = "u"
+        ))
+        assertThrows<BusinessException> {
+            calificacionService.calificarLibro(noLector.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        }
+    }
+
+    @Test
+    fun `calificarLibro lanza NotFoundException si la reserva no existe`() {
+        assertThrows<NotFoundException> {
+            calificacionService.calificarLibro(lector.id!!, CrearCalificacionDTO(-1L, "Comentario", 4.0))
+        }
+    }
+
+    @Test
+    fun `calificarLibro lanza BusinessException si el usuario no es el lector de la reserva`() {
+        assertThrows<BusinessException> {
+            calificacionService.calificarLibro(prestador.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        }
+    }
+
+    @Test
+    fun `obtenerCalificaciones devuelve resultados con orden DATE_ASC`() {
+        calificacionService.calificarLibro(lector.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        val resultado = calificacionService.obtenerCalificaciones(libro.id!!, OrdenCalificacion.DATE_ASC, 0, 10)
+        assertEquals(1, resultado.totalElements)
+    }
+
+    @Test
+    fun `obtenerCalificaciones devuelve resultados con orden DATE_DESC`() {
+        calificacionService.calificarLibro(lector.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        val resultado = calificacionService.obtenerCalificaciones(libro.id!!, OrdenCalificacion.DATE_DESC, 0, 10)
+        assertEquals(1, resultado.totalElements)
+    }
+
+    @Test
+    fun `obtenerCalificaciones devuelve resultados con orden RATING_ASC`() {
+        calificacionService.calificarLibro(lector.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        val resultado = calificacionService.obtenerCalificaciones(libro.id!!, OrdenCalificacion.RATING_ASC, 0, 10)
+        assertEquals(1, resultado.totalElements)
+    }
+
+    @Test
+    fun `obtenerCalificaciones devuelve resultados con orden RATING_DESC`() {
+        calificacionService.calificarLibro(lector.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Comentario", 4.0))
+        val resultado = calificacionService.obtenerCalificaciones(libro.id!!, OrdenCalificacion.RATING_DESC, 0, 10)
+        assertEquals(1, resultado.totalElements)
+    }
+
+    @Test
+    fun `obtenerCalificaciones lanza NotFoundException si el libro no existe`() {
+        assertThrows<NotFoundException> {
+            calificacionService.obtenerCalificaciones(-1L, OrdenCalificacion.DATE_ASC, 0, 10)
+        }
+    }
+
+    @Test
+    fun `ultimasCalificaciones devuelve las ultimas calificaciones del libro`() {
+        calificacionService.calificarLibro(lector.id!!, CrearCalificacionDTO(reservaFinalizada.id!!, "Muy bueno", 5.0))
+        val resultado = calificacionService.ultimasCalificaciones(libro.id!!)
+        assertEquals(1, resultado.size)
+    }
+
+    @Test
+    fun `ultimasCalificaciones lanza NotFoundException si el libro no existe`() {
+        assertThrows<NotFoundException> {
+            calificacionService.ultimasCalificaciones(-1L)
+        }
     }
 }
