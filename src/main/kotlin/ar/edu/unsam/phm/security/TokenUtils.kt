@@ -1,8 +1,7 @@
 package ar.edu.unsam.phm.security
 
-import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.domain.Rol
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts

@@ -1,6 +1,6 @@
 package ar.edu.unsam.phm.security
 
-import ar.edu.unsam.phm.BusinessException
+import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.service.UsuarioService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
-import java.net.http.HttpResponse
 import io.jsonwebtoken.JwtException
 
 @Component

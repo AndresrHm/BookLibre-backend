@@ -1,10 +1,9 @@
 package ar.edu.unsam.phm.service
 
-import ar.edu.unsam.phm.BusinessException
-import ar.edu.unsam.phm.NotFoundException
+import ar.edu.unsam.phm.errors.BusinessException
+import ar.edu.unsam.phm.errors.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
@@ -23,7 +22,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
 @Service

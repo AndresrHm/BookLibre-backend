@@ -1,7 +1,7 @@
 package ar.edu.unsam.phm.dto
 
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.requireBusiness
+import ar.edu.unsam.phm.errors.requireBusiness
 import java.time.LocalDate
 
 const val MAX_CARACTERES_COMENTARIO = 500
