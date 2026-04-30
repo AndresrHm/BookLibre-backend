@@ -3,17 +3,17 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.BusinessException
 import ar.edu.unsam.phm.domain.RefreshToken
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.repository.RepoRefreshToken
+import ar.edu.unsam.phm.repository.RefreshTokenRepository
 import ar.edu.unsam.phm.security.TokenUtils
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
 @Service
 class RefreshTokenService(
-    private val refreshTokenRepository: RepoRefreshToken,
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val tokenUtils: TokenUtils
-) {
-    fun generateAndSaveRefreshToken(username: String): String {
+) : RefreshTokenPort {
+    override fun generateAndSaveRefreshToken(username: String): String {
         val rawToken = tokenUtils.generateRefreshToken()
 
         val tokenHash = tokenUtils.hashToken(rawToken)
@@ -32,7 +32,7 @@ class RefreshTokenService(
         return rawToken
     }
 
-    fun validateRefreshToken(token: String): RefreshToken? {
+    override fun validateRefreshToken(token: String): RefreshToken? {
         val tokenHash = tokenUtils.hashToken(token)
 
         val refreshToken = refreshTokenRepository.findByTokenHash(tokenHash)
@@ -46,13 +46,13 @@ class RefreshTokenService(
     }
 
     // TODO: Revisar, existen 2 revoke token
-    fun revokeByUsername(username: String) {
+    override fun revokeByUsername(username: String) {
         val tokens = refreshTokenRepository.findAllByUsername(username)
         tokens.forEach { it.revoked = true }
         refreshTokenRepository.saveAll(tokens)
     }
 
-    fun revokeToken(token: String) {
+    override fun revokeToken(token: String) {
         val tokenHash = tokenUtils.hashToken(token)
         val refreshToken = refreshTokenRepository.findByTokenHash(tokenHash)
             .orElse(null)
