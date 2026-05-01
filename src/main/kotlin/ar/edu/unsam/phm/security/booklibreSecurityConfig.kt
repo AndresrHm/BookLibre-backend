@@ -61,7 +61,8 @@ class BooklibreSecurityConfig(
                     .hasAuthority(TipoUsuario.LECTOR.roleName) // Ejemplo, solo lectores pueden ver el home.
                 it.requestMatchers(HttpMethod.GET, "/libros/prestadoresDisponibles")
                     .hasAuthority(TipoUsuario.LECTOR.roleName)
-                it.requestMatchers(HttpMethod.GET, "/libros/*/*").permitAll() // Por la forma en que está hecho, del mismo endpoint se saca libro para editar o para ver. Se deja ver el endpoint y se valida a nivel controller.
+                it.requestMatchers(HttpMethod.GET, "/libros/*/*").hasAuthority(TipoUsuario.PUBLICADOR.roleName) // Por la forma en que está hecho, del mismo endpoint se saca libro para editar o para ver. Se deja ver el endpoint y se valida a nivel controller.
+                it.requestMatchers(HttpMethod.GET, "/libros/*/*").hasAuthority(TipoUsuario.LECTOR.roleName)
                 it.requestMatchers(HttpMethod.PUT, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
                 it.requestMatchers(HttpMethod.POST, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)
                 it.requestMatchers(HttpMethod.DELETE, "/libros").hasAuthority(TipoUsuario.PUBLICADOR.roleName)

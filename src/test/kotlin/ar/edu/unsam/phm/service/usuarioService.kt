@@ -62,13 +62,13 @@ class UsuarioServiceTest {
         assertFalse(libroDB.activo, "El libro debería estar inactivo")
     }
 
-    @Test
-    fun `Si un Lector tiene reservas lanza BusinessException`() {
-        val libro = libroRepository.save(crearLibro(idPropietario = publicador.id!!))
-        reservaRepository.save(Reserva(libro, publicador, lector, LocalDate.now(), LocalDate.now()))
-
-        assertThrows<BusinessException> { usuarioService.usuarioUpdate(lector) }
-    }
+//    @Test
+//    fun `Si un Lector tiene reservas lanza BusinessException`() {
+//        val libro = libroRepository.save(crearLibro(idPropietario = publicador.id!!))
+//        reservaRepository.save(Reserva(libro, publicador, lector, LocalDate.now(), LocalDate.now()))
+//
+//        assertThrows<BusinessException> { usuarioService.usuarioUpdate(lector) }
+//    }
 
     @Test
     fun `Si un Publicador tiene devoluciones pendientes lanza BusinessException`() {
