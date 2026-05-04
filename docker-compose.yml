@@ -42,7 +42,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: admin
       MONGO_INITDB_DATABASE: booklibre
-
+    # mongodb://admin:admin@localhost:27020/booklibre?authSource=admin
 volumes:
   db:
   pgadmin-data:
