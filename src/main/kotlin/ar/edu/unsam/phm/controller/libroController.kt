@@ -13,6 +13,7 @@ import ar.edu.unsam.phm.dto.SealedGetLibroDTO
 import ar.edu.unsam.phm.dto.SealedGetLibroFiltradoDTO
 import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.service.CalificacionService
+import ar.edu.unsam.phm.service.LibroClickLogService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
@@ -40,6 +41,7 @@ class LibroController(
     val usuarioService: UsuarioService,
     val calificacionService: CalificacionService,
     val libroMapper: LibroMapper,
+    val libroClickLogService: LibroClickLogService,
 ) {
 
     @PostMapping
@@ -85,6 +87,9 @@ class LibroController(
                 val dtoDetalle = libroMapper.toDetalleLibroDTO(
                     libro, promedio, cantidad, ultimas, usuarioId
                 )
+
+                // Log de clicks
+                libroClickLogService.logClick(libro.id!!, libro.titulo, authentication.name.toLong())
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
             }
         }

@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service
 class LibroClickLogService(
     private val repository: LibroClickLogRepository
 ) {
-    fun logClick(libroId: Long, libroTitulo: String, usuarioNombre: String) {
+    fun logClick(libroId: Long, libroTitulo: String, usuarioId: Long) {
         val log = LibroClickLog(
             libroId = libroId,
             libroTitulo = libroTitulo,
-            usuarioNombre = usuarioNombre,
+            usuarioId = usuarioId,
         )
         repository.save(log)
     }

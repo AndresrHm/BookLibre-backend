@@ -14,6 +14,10 @@ spring:
       hibernate:
         format_sql: true
 
+  data:
+    mongodb:
+      uri: mongodb://admin:admin@localhost:27020/booklibre?authSource=admin
+
 # Para activar el Trace
 logging:
   level:

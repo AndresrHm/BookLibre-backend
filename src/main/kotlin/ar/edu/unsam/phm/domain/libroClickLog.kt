@@ -11,6 +11,6 @@ data class LibroClickLog(
 
     val libroId: Long,
     val libroTitulo: String,
-    val usuarioNombre: String,
+    val usuarioId: Long,
     val clickTimestamp: Instant = Instant.now(),
 )
