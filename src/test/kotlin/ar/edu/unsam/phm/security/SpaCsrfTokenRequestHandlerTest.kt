@@ -1,5 +1,6 @@
 package ar.edu.unsam.phm.security
 
+import ar.edu.unsam.phm.security.config.SpaCsrfTokenRequestHandler
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.mock.web.MockHttpServletRequest

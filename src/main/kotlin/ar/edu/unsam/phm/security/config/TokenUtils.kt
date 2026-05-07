@@ -1,4 +1,4 @@
-package ar.edu.unsam.phm.security
+package ar.edu.unsam.phm.security.config
 
 import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.domain.Rol
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 import java.security.SecureRandom
 import java.security.MessageDigest
 import java.util.*
+import kotlin.collections.get
 import kotlin.time.Duration.Companion.minutes
 
 @Component

@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.service
 
 import ar.edu.unsam.phm.domain.RefreshToken
 import ar.edu.unsam.phm.repository.RefreshTokenRepository
-import ar.edu.unsam.phm.security.TokenUtils
+import ar.edu.unsam.phm.security.config.TokenUtils
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

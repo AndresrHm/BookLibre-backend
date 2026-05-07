@@ -7,7 +7,7 @@ import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import ar.edu.unsam.phm.security.TokenUtils
+import ar.edu.unsam.phm.security.config.TokenUtils
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
