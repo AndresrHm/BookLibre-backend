@@ -6,12 +6,12 @@ import ar.edu.unsam.phm.dto.LoginResponseDTO
 import ar.edu.unsam.phm.dto.RegisterRequestDTO
 import ar.edu.unsam.phm.dto.TokenResponseDTO
 import ar.edu.unsam.phm.mapper.UsuarioMapper
+import ar.edu.unsam.phm.security.cookies.CookieUtils.buildCookie
+import ar.edu.unsam.phm.security.cookies.addCookies
 import ar.edu.unsam.phm.service.AuthService
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -107,19 +107,4 @@ class AuthController(
         return ResponseEntity.ok(tokens)
     }
 
-    private fun buildCookie(name: String, value: String, maxAge: Duration): ResponseCookie =
-        ResponseCookie.from(name, value)
-            .httpOnly(true)
-            .secure(false)
-            .path("/")
-            .maxAge(maxAge)
-            .sameSite("Strict")
-            .build()
-
-    // Para agregar las cookies al header sin ensuciar tanto
-    private fun HttpServletResponse.addCookies(vararg cookies: ResponseCookie) {
-        cookies.forEach {
-            this.addHeader(HttpHeaders.SET_COOKIE, it.toString())
-        }
-    }
 }
