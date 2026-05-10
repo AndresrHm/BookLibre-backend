@@ -17,7 +17,6 @@ import io.mockk.verify
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.jpa.domain.Specification
 import java.time.LocalDate
 import java.util.*
 
@@ -86,8 +85,8 @@ class LibroServiceSpec : DescribeSpec({
     describe("LibroService: getLibrosPorFiltros (Perfil)") {
         it("devuelve los libros del perfil correctamente") {
             val listaLibros = listOf(libro)
-            // Mock de los specs que usa filtrarYOrdenarLibrosPerfil
-            every { libroRepository.findAll(any<Specification<Libro>>()) } returns listaLibros
+            every { libroRepository.findByActivoTrueAndIdPropietario(idUsuario) } returns listaLibros
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             val response = service.getLibrosPorFiltros(
                 filtrosDeHome = FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
@@ -119,7 +118,7 @@ class LibroServiceSpec : DescribeSpec({
                 service.getLibrosPorFiltros(
                     filtrosDeHome = FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                     userId = idUsuario,
-                    flagDiff = mockk(), // Un origen que no sea HOME ni PERFIL
+                    flagDiff = mockk(),
                     disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
                     ordenLibroPerfil = OrdenLibroPerfil.TITULO,
                     direccionOrdenPerfil = DireccionOrden.ASCENDENTE,
@@ -151,7 +150,7 @@ class LibroServiceSpec : DescribeSpec({
 
         it("lanza excepción si el libro está prestado hoy") {
             every { libroRepository.findById(idLibro) } returns Optional.of(libro)
-            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(libro)
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(idLibro)
 
             val exception = shouldThrow<BusinessException> {
                 service.borrarLibro(idLibro, idUsuario)
@@ -164,6 +163,7 @@ class LibroServiceSpec : DescribeSpec({
 
         it("devuelve una respuesta paginada usando filtros específicos") {
             every { usuarioRepository.findById(idUsuario) } returns Optional.of(lector)
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             val filtros = FiltrosDeLibros(
                 generos = listOf(Genero.CIENCIA_FICCION),
@@ -178,7 +178,7 @@ class LibroServiceSpec : DescribeSpec({
             )
 
             val page: Page<Libro> = PageImpl(listOf(libro), PageRequest.of(0, 6), 1)
-            every { libroRepository.findAll(any<Specification<Libro>>(), any<PageRequest>()) } returns page
+            every { libroRepository.buscarConFiltros(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns page
 
             val response = service.getLibrosPorFiltros(
                 filtrosDeHome = filtros,
@@ -198,7 +198,7 @@ class LibroServiceSpec : DescribeSpec({
             every { usuarioRepository.findById(idUsuario) } returns Optional.of(lector)
 
             val filtrosInvalidos = FiltrosDeLibros(
-                generos = null, paginasMin = 500, paginasMax = 100, // Rango roto
+                generos = null, paginasMin = 500, paginasMax = 100,
                 fechaDesde = null, fechaHasta = null, isbn13 = null,
                 usuarioPrestador = null, search = null, usuarioLector = null
             )
@@ -214,8 +214,9 @@ class LibroServiceSpec : DescribeSpec({
 
         it("sortHomePage: cubre ordenamiento por Autor y por Usuario (unsorted)") {
             every { usuarioRepository.findById(idUsuario) } returns Optional.of(lector)
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
             val page: Page<Libro> = PageImpl(listOf(libro))
-            every { libroRepository.findAll(any<Specification<Libro>>(), any<PageRequest>()) } returns page
+            every { libroRepository.buscarConFiltros(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns page
 
             service.librosFiltradosHomePage(FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                 userId = idUsuario, ordenHomePage = OrdenHomePage.AUTOR_ASC)
@@ -223,11 +224,12 @@ class LibroServiceSpec : DescribeSpec({
             service.librosFiltradosHomePage(FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                 userId = idUsuario, ordenHomePage = OrdenHomePage.USER_DESC)
 
-            verify(atLeast = 2) { libroRepository.findAll(any<Specification<Libro>>(), any<PageRequest>()) }
+            verify(atLeast = 2) { libroRepository.buscarConFiltros(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
         }
 
         it("filtrarYOrdenarLibrosPerfil: cubre filtros de DISPONIBLES y PRESTADOS") {
-            every { libroRepository.findAll(any<Specification<Libro>>()) } returns listOf(libro)
+            every { libroRepository.findByActivoTrueAndIdPropietario(idUsuario) } returns listOf(libro)
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             service.getLibrosPorFiltros(FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                 userId = idUsuario, flagDiff = OrigenLibro.PERFIL, disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.DISPONIBLES,
@@ -237,11 +239,12 @@ class LibroServiceSpec : DescribeSpec({
                 userId = idUsuario, flagDiff = OrigenLibro.PERFIL, disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.PRESTADOS,
                 ordenLibroPerfil = OrdenLibroPerfil.TITULO, direccionOrdenPerfil = DireccionOrden.ASCENDENTE, ordenHomePage = OrdenHomePage.NOMBRE_ASC)
 
-            verify(atLeast = 2) { libroRepository.findAll(any<Specification<Libro>>()) }
+            verify(atLeast = 2) { libroRepository.findByActivoTrueAndIdPropietario(idUsuario) }
         }
 
         it("filtrarYOrdenarLibrosPerfil: cubre ordenamiento por FECHA_AGREGADO y DISPONIBLE_PRESTADO") {
-            every { libroRepository.findAll(any<Specification<Libro>>()) } returns listOf(libro)
+            every { libroRepository.findByActivoTrueAndIdPropietario(idUsuario) } returns listOf(libro)
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             service.getLibrosPorFiltros(FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                 userId = idUsuario, flagDiff = OrigenLibro.PERFIL, disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
@@ -251,7 +254,7 @@ class LibroServiceSpec : DescribeSpec({
                 userId = idUsuario, flagDiff = OrigenLibro.PERFIL, disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
                 ordenLibroPerfil = OrdenLibroPerfil.DISPONIBLE_PRESTADO, direccionOrdenPerfil = DireccionOrden.ASCENDENTE, ordenHomePage = OrdenHomePage.NOMBRE_ASC)
 
-            verify(atLeast = 2) { libroRepository.findAll(any<Specification<Libro>>()) }
+            verify(atLeast = 2) { libroRepository.findByActivoTrueAndIdPropietario(idUsuario) }
         }
     }
 
@@ -273,7 +276,8 @@ class LibroServiceSpec : DescribeSpec({
         }
 
         it("paginar: cubre el caso de lista vacía para totalPages = 0") {
-            every { libroRepository.findAll(any<Specification<Libro>>()) } returns emptyList()
+            every { libroRepository.findByActivoTrueAndIdPropietario(idUsuario) } returns emptyList()
+            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             val response = service.getLibrosPorFiltros(FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                 userId = idUsuario, flagDiff = OrigenLibro.PERFIL, disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,

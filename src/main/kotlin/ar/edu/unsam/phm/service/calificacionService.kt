@@ -49,14 +49,13 @@ class CalificacionService(
             throw BusinessException(ErrorStrings.PODRA_CALIFICAR_AL_FINALIZAR_RESERVA)
 
         // Libro
-        val libro = reserva.libro
+        val libroId = reserva.libroId
+        val libro = libroRepository.findByIdOrNull(libroId)
+            ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
 
         // Save
         val existente = calificacionRepository
-            .findByLibroIdAndUsuarioId(
-                libro.id!!,
-                usuario.id!!,
-            )
+            .findByLibroIdAndUsuarioId(libroId, usuario.id!!)
 
         if (existente != null) {
             existente.puntuacion = calificacionDTO.puntuacion
@@ -67,7 +66,7 @@ class CalificacionService(
         } else {
             val nueva = Calificacion(
                 usuario = reserva.usuarioLector,
-                libro = libro,
+                libro = libroId,
                 puntuacion = calificacionDTO.puntuacion,
                 comentario = calificacionDTO.comentario,
                 fecha = LocalDate.now()
@@ -75,8 +74,11 @@ class CalificacionService(
             calificacionRepository.save(nueva)
         }
 
-        val nuevoPromedio = calificacionRepository.obtenerPromedioCalificaciones(libro.id!!)
+        val nuevoPromedio = calificacionRepository.obtenerPromedioCalificaciones(libroId)
         libro.actualizarCalificacion(nuevoPromedio!!)
+
+        val ultimasCalificaciones = ultimasCalificaciones(libroId)
+        libro.actualizarUltimasCalificaciones(ultimasCalificaciones)
         libroRepository.save(libro)
     }
 

@@ -138,7 +138,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
         calificacion1 = crearCalificacion(
             reserva1.usuarioLector,
-            reserva1.libro,
+            libro1usuario1,
             4.5,
             "Muy bueno!",
             fechaCalificacion1
@@ -249,7 +249,7 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
     ): Calificacion {
         return Calificacion(
             usuario,
-            libro,
+            libro.id!!,
             puntuacion,
             comentario,
             fecha,

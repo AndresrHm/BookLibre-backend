@@ -352,7 +352,7 @@ fun crearReserva(
     fechaDevolucion: LocalDate = LocalDate.now().plusDays(1),
 ): Reserva {
     return Reserva(
-        libro,
+        libro.id!!,
         usuarioPrestador,
         usuarioLector,
         fechaRecogida,

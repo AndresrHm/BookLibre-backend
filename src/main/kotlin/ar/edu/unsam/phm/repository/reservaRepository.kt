@@ -2,7 +2,6 @@ package ar.edu.unsam.phm.repository
 
 import FechasReserva
 import ar.edu.unsam.phm.controller.ReservaType
-import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.LibroReservaCount
 import ar.edu.unsam.phm.domain.Reserva
 import org.springframework.data.domain.Page
@@ -22,22 +21,22 @@ interface ReservaRepository : CrudRepository<Reserva, Long>, JpaSpecificationExe
 
     @Query(
         """
-        SELECT DISTINCT r.libro 
-        FROM Reserva r 
-        WHERE r.fechaRecogida <= :fechaFin 
+        SELECT DISTINCT r.libroId
+        FROM Reserva r
+        WHERE r.fechaRecogida <= :fechaFin
           AND r.fechaDevolucion >= :fechaInicio
     """
     )
-    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Libro>
+    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Long>
 
     fun countByUsuarioLectorId(usuarioId: Long): Int
     fun countByUsuarioPrestadorId(usuarioId: Long): Int
 
     @Query("""
-    SELECT r.libro.id as libroId, COUNT(r) as total
+    SELECT r.libroId as libroId, COUNT(r) as total
     FROM Reserva r
-    WHERE r.libro.id IN :libroIds
-    GROUP BY r.libro.id
+    WHERE r.libroId IN :libroIds
+    GROUP BY r.libroId
 """)
     fun countReservasByLibroIds(libroIds: List<Long>): List<LibroReservaCount>
 }

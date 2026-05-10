@@ -47,7 +47,7 @@ class TipoLibroSpec : DescribeSpec({
     describe("TipoLibro: delegación darKarma") {
         it("debe delegar el cálculo correctamente desde una reserva") {
             // Prueba la llamada que entra por darKarma (usa la lógica de COMUN)
-            TipoLibro.COMUN.darKarma(reserva, 1) shouldBe 200
+            TipoLibro.COMUN.darKarma(libro, usuarioBajaKarma, 1) shouldBe 200
         }
     }
 })

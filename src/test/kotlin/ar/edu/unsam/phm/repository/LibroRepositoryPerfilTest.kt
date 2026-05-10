@@ -18,7 +18,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import org.springframework.data.jpa.domain.Specification
 import java.time.LocalDate
 
 class LibroRepositoryPerfilTest : DescribeSpec({
@@ -34,7 +33,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 10)
             val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 10)
 
-            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(disponible) andThen listOf(prestado)
+            every { repositorioLibro.findByActivoTrueAndIdPropietario(10L) } returns listOf(disponible, prestado)
+            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(prestado.id!!)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -62,7 +62,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val libroAutorA = crearLibro(id = 2, titulo = "Mismo", autor = "Alfa", idPropietario = 5)
             val libroTituloB = crearLibro(id = 3, titulo = "Zoo", autor = "Beta", idPropietario = 5)
 
-            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(libroAutorZ, libroTituloB, libroAutorA) andThen emptyList()
+            every { repositorioLibro.findByActivoTrueAndIdPropietario(5L) } returns listOf(libroAutorZ, libroTituloB, libroAutorA)
+            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -88,7 +89,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 8)
             val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 8)
 
-            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(disponible, prestado) andThen listOf(prestado)
+            every { repositorioLibro.findByActivoTrueAndIdPropietario(8L) } returns listOf(disponible, prestado)
+            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(prestado.id!!)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -115,7 +117,8 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val libroMedio = crearLibro(id = 2, titulo = "Medio", autor = "Autor B", idPropietario = 3, fechaAgregado = LocalDate.of(2021, 1, 1))
             val libroNuevo = crearLibro(id = 3, titulo = "Nuevo", autor = "Autor C", idPropietario = 3, fechaAgregado = LocalDate.of(2022, 1, 1))
 
-            every { repositorioLibro.findAll(any<Specification<Libro>>()) } returns listOf(libroNuevo, libroViejo, libroMedio) andThen emptyList()
+            every { repositorioLibro.findByActivoTrueAndIdPropietario(3L) } returns listOf(libroNuevo, libroViejo, libroMedio)
+            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),

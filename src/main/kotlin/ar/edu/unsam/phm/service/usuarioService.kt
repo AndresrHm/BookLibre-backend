@@ -35,7 +35,7 @@ class UsuarioService(
             // Si el usuario tiene libros prestados, puede ser eliminado, pero la baja es lógica...
             usuario.esLector() -> {
 
-                libroRepository.eliminarPorIDPropietario(usuario.id!!)
+                libroRepository.deleteByIdPropietario(usuario.id!!)
             }
 
             usuario.esPublicador() ->

@@ -21,8 +21,8 @@ enum class TipoLibro {
         }
     };
 
-    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int {
-        return calcularKarma(reserva.libro, cantidadReservas, reserva.usuarioLector)
+    fun darKarma(libro: Libro, usuarioLector: Usuario, cantidadReservas: Int): Int {
+        return calcularKarma(libro, cantidadReservas, usuarioLector)
     }
     abstract fun calcularKarma(libro: Libro, cantidadReservas: Int, user: Usuario): Int
 

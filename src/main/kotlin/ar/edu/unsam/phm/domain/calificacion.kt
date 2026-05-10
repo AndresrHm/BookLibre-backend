@@ -18,9 +18,7 @@ data class Calificacion(
     @JoinColumn(name = "usuario_id", nullable = false)
     val usuario: Usuario,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "libro_id", nullable = false)
-    val libro: Libro,
+    val libro: Long,
 
     var puntuacion: Double,
     var comentario: String,

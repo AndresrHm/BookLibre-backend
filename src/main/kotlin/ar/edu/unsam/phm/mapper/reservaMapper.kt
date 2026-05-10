@@ -1,6 +1,7 @@
 package ar.edu.unsam.phm.mapper
 
 import ar.edu.unsam.phm.domain.EstadoReserva
+import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.ReservaDTO
 import org.springframework.stereotype.Component
@@ -11,7 +12,8 @@ class ReservaMapper {
         obj: Reserva,
         userID: Long,
         cantidadReservas: Long,
-        calificacionLibro: Double
+        calificacionLibro: Double,
+        libro: Libro,
     ): ReservaDTO {
         val puedeCalificar =
             obj.usuarioLector.id == userID &&
@@ -26,17 +28,17 @@ class ReservaMapper {
 
         return ReservaDTO(
             reservaId = obj.id,
-            libroId = obj.libro.id,
-            titulo = obj.libro.titulo,
-            autor = obj.libro.autor,
-            imagenUrl = obj.libro.portada,
+            libroId = libro.id,
+            titulo = libro.titulo,
+            autor = libro.autor,
+            imagenUrl = libro.portada,
             calificacionLibro = calificacionLibro,
             usuario = usuario,
             fechaInicio = obj.fechaRecogida,
             fechaFin = obj.fechaDevolucion,
             estado = obj.estado(),
             puedeCalificar = puedeCalificar,
-            biblioKarma = obj.libro.darKarma(obj, cantidadReservas.toInt()), // long to int no es para nada recomendado TODO: refactor
+            biblioKarma = libro.darKarma(obj, cantidadReservas.toInt()),
         )
     }
 }

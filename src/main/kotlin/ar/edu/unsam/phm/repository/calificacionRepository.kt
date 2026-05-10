@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.repository
 
 import ar.edu.unsam.phm.domain.Calificacion
-import ar.edu.unsam.phm.domain.Libro
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query
@@ -28,13 +27,13 @@ interface CalificacionRepository : CrudRepository<Calificacion, Long> {
         """
         SELECT AVG(c.puntuacion)
         FROM Calificacion c
-        WHERE c.libro.id = :libroId
+        WHERE c.libro = :libroId
     """
     )
     fun obtenerPromedioCalificaciones(@Param("libroId") libroId: Long): Double?
 
     fun countByLibroId(libroId: Long): Long
 
-    @Query("SELECT AVG(c.puntuacion) FROM Calificacion c WHERE c.libro.id = :libroId")
+    @Query("SELECT AVG(c.puntuacion) FROM Calificacion c WHERE c.libro = :libroId")
     fun promedioPorLibro(@Param("libroId") libroId: Long): Double?
 }

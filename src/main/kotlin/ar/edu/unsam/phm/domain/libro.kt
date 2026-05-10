@@ -3,13 +3,13 @@ package ar.edu.unsam.phm.domain
 import BaseEntity
 import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
-import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import org.springframework.data.mongodb.core.mapping.Document
 
-@Entity
+@Document(collection = "libros")
 class Libro(
     var titulo: String,
     @Enumerated(EnumType.STRING)
@@ -27,7 +27,7 @@ class Libro(
     var fechaPublicacion: LocalDate,
     @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
-    val idPropietario: Long
+    val idPropietario: Long,
 ) : BaseEntity() {
     @Id
     @GeneratedValue
@@ -35,8 +35,9 @@ class Libro(
     var fechaAgregado: LocalDate? = LocalDate.now()
     var activo = true
     var calificacion: Double = 0.0
+    var ultimasCalificaciones: List<Calificacion> = listOf()
 
-    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(reserva, cantidadReservas)
+    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(this, reserva.usuarioLector, cantidadReservas)
 
     fun calcularKarmaHomePage(
         usuarioLector: Usuario,
@@ -48,6 +49,10 @@ class Libro(
 
     fun actualizarCalificacion(nuevaCalificacion: Double) {
         calificacion = nuevaCalificacion
+    }
+
+    fun actualizarUltimasCalificaciones(calificaciones: List<Calificacion>) {
+        ultimasCalificaciones = calificaciones
     }
 
     fun calificacionPromedio() = calificacion

@@ -121,7 +121,7 @@ class LibroService(
         val sort = sortHomePage(ordenHomePage)
         val pageable = PageRequest.of(page, size, sort)
 
-        val spec = filtrosHome(
+        /*val spec = filtrosHome(
             search = searchSanitizado,
             isbn13 = filtrosNormalizados.isbn13,
             paginasMin = filtrosNormalizados.paginasMin,
@@ -133,7 +133,26 @@ class LibroService(
             fechaHasta = filtrosNormalizados.fechaHasta,
         )
 
-        val resultado: Page<Libro> = repositorioLibro.findAll(spec, pageable)
+        val resultado: Page<Libro> = repositorioLibro.findAll(spec, pageable)*/
+
+        val idsReservados: Set<Long> = if (filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null) {
+            repositorioReservas.getLibrosReservadosEntreFechas(
+                filtrosNormalizados.fechaDesde!!,
+                filtrosNormalizados.fechaHasta!!
+            ).toSet()
+        } else emptySet()
+
+        val resultado: Page<Libro> = repositorioLibro.buscarConFiltros(
+            search = searchSanitizado,
+            isbn13 = filtrosNormalizados.isbn13,
+            paginasMin = filtrosNormalizados.paginasMin,
+            paginasMax = filtrosNormalizados.paginasMax,
+            generos = filtrosNormalizados.generos,
+            soloIdPropietario = filtrosNormalizados.usuarioPrestador?.id,
+            excluirIdPropietario = if (filtrosNormalizados.usuarioPrestador == null) userId else null,
+            excluirIds = idsReservados,
+            pageable = pageable,
+        )
 
         return PageResponse(
             content = resultado.content,
@@ -195,10 +214,14 @@ class LibroService(
 
     private fun estaReservadoHoy(libroId: Long): Boolean {
         val hoy = LocalDate.now()
-        val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
+
+        /*val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
             .mapNotNull { it.id }
             .toSet()
         return libroId in idsReservados
+    }*/
+
+        return libroId in repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy).toSet()
     }
 
     private fun sortHomePage(ordenHomePage: OrdenHomePage): Sort = when (ordenHomePage) {
@@ -216,7 +239,7 @@ class LibroService(
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
     ): List<Libro> {
-        val baseSpec = Specification.where(activo()).and(dePropietario(propietarioId))
+        /*val baseSpec = Specification.where(activo()).and(dePropietario(propietarioId))
 
         val specFinal = when (disponibilidad) {
             FiltroDisponibilidadPerfil.TODOS -> baseSpec
@@ -227,16 +250,27 @@ class LibroService(
         val librosFiltrados = repositorioLibro.findAll(specFinal)
 
         val librosPrestadosIds = repositorioLibro.findAll(Specification.where(activo()).and(reservadoHoy()))
-            .mapNotNull { it.id }.toSet()
+            .mapNotNull { it.id }.toSet()*/
+
+
+        val librosActivos = repositorioLibro.findByActivoTrueAndIdPropietario(propietarioId)
+        val idsReservadosHoy = repositorioReservas
+            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
+            .toSet()
+
+        val librosFiltrados = when (disponibilidad) {
+            FiltroDisponibilidadPerfil.TODOS -> librosActivos
+            FiltroDisponibilidadPerfil.DISPONIBLES -> librosActivos.filter { it.id !in idsReservadosHoy }
+            FiltroDisponibilidadPerfil.PRESTADOS -> librosActivos.filter { it.id in idsReservadosHoy }
+        }
 
         val comparadorBase = when (orden) {
             OrdenLibroPerfil.TITULO -> compareBy<Libro>({ it.titulo.lowercase() }, { it.autor.lowercase() })
             OrdenLibroPerfil.DISPONIBLE_PRESTADO -> compareBy<Libro>(
-                { it.id in librosPrestadosIds },
+                { it.id in idsReservadosHoy },
                 { it.titulo.lowercase() },
                 { it.autor.lowercase() }
             )
-
             OrdenLibroPerfil.FECHA_AGREGADO -> compareBy { it.fechaAgregado }
         }
 

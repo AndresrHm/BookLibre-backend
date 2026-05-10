@@ -86,8 +86,8 @@ class ReservaService(
             throw BusinessException(ErrorStrings.EXISTE_RESERVA_EN_RANGO)
         }
 
-        val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
-        usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
+        val reserva = Reserva(libro.id!!, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
+        usuarioLector.sumarKarma(reserva.darKarma(libro, cantidadReservas))
 
         usuarioRepository.save(usuarioLector)
         reservaRepository.save(reserva)
