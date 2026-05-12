@@ -7,11 +7,6 @@ import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.activo
-import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.dePropietario
-import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.filtrosHome
-import ar.edu.unsam.phm.predicate.LibroSpecifications.disponibleHoy
-import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -121,19 +116,6 @@ class LibroService(
         val sort = sortHomePage(ordenHomePage)
         val pageable = PageRequest.of(page, size, sort)
 
-        /*val spec = filtrosHome(
-            search = searchSanitizado,
-            isbn13 = filtrosNormalizados.isbn13,
-            paginasMin = filtrosNormalizados.paginasMin,
-            paginasMax = filtrosNormalizados.paginasMax,
-            generos = filtrosNormalizados.generos,
-            usuarioPrestadorId = filtrosNormalizados.usuarioPrestador?.id,
-            userId = userId,
-            fechaDesde = filtrosNormalizados.fechaDesde,
-            fechaHasta = filtrosNormalizados.fechaHasta,
-        )
-
-        val resultado: Page<Libro> = repositorioLibro.findAll(spec, pageable)*/
 
         val idsReservados: Set<String> = if (filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null) {
             repositorioReservas.getLibrosReservadosEntreFechas(
@@ -232,19 +214,6 @@ class LibroService(
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
     ): List<Libro> {
-        /*val baseSpec = Specification.where(activo()).and(dePropietario(propietarioId))
-
-        val specFinal = when (disponibilidad) {
-            FiltroDisponibilidadPerfil.TODOS -> baseSpec
-            FiltroDisponibilidadPerfil.DISPONIBLES -> baseSpec.and(disponibleHoy())
-            FiltroDisponibilidadPerfil.PRESTADOS -> baseSpec.and(reservadoHoy())
-        }
-
-        val librosFiltrados = repositorioLibro.findAll(specFinal)
-
-        val librosPrestadosIds = repositorioLibro.findAll(Specification.where(activo()).and(reservadoHoy()))
-            .mapNotNull { it.id }.toSet()*/
-
 
         val librosActivos = repositorioLibro.findByActivoTrueAndIdPropietario(propietarioId)
         val idsReservadosHoy = repositorioReservas

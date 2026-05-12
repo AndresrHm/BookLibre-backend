@@ -1,4 +1,4 @@
-package ar.edu.unsam.phm.repository
+package ar.edu.unsam.phm.utils
 
 import ar.edu.unsam.phm.domain.Genero
 import org.springframework.data.mongodb.core.query.Criteria
@@ -13,6 +13,10 @@ data class LibroFiltrosMongo(
     val excluirIdPropietario: Long?,
     val excluirIds: Set<String>,
 )
+// Inspirados en el predicate usado para la entrega anterior, en este caso
+// no se puede usar tal funcionalidad, por lo que se uso un builder de Criteria
+// Criteria es un objeto que transforma peticiones de kotlin a querys que mongo pueda
+// entender, algo parecido al specification que teniamos anteriormente.
 
 object CriterioFiltrosLibrosBuilder {
     fun build(filtros: LibroFiltrosMongo): Criteria {

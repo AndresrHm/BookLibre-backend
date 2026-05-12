@@ -9,7 +9,8 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
-import ar.edu.unsam.phm.repository.CriterioFiltrosLibrosBuilder
+import ar.edu.unsam.phm.utils.CriterioFiltrosLibrosBuilder
+import ar.edu.unsam.phm.utils.LibroFiltrosMongo
 
 
 interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCustom {

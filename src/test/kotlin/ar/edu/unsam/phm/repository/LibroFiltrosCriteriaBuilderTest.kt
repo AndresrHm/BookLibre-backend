@@ -1,6 +1,8 @@
 package ar.edu.unsam.phm.repository
 
 import ar.edu.unsam.phm.domain.Genero
+import ar.edu.unsam.phm.utils.CriterioFiltrosLibrosBuilder
+import ar.edu.unsam.phm.utils.LibroFiltrosMongo
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
