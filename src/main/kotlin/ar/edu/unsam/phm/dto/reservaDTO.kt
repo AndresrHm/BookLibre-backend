@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 data class ReservaDTO(
     val reservaId: Long?,
-    val libroId: Long?,
+    val libroId: String,
     val titulo: String,
     val autor: String,
     val imagenUrl: String,
@@ -22,7 +22,7 @@ data class ReservaDTO(
 }
 
 data class CreacionReservaDTO(
-    val libroId: Long,
+    val libroId: String,
     val usuarioPrestadorId: Long,
     val fechaRecogida: LocalDate,
     val fechaDevolucion: LocalDate,

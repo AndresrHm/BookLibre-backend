@@ -54,7 +54,7 @@ class ReservaService(
 
     @Transactional
     fun crearReserva(
-        libroId: Long,
+        libroId: String,
         usuarioLector: Usuario,
         usuarioPrestador: Usuario,
         fechaRecogida: LocalDate,
@@ -78,8 +78,8 @@ class ReservaService(
 
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
-        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!)
-        val cantidadReservas = reservaRepository.countByLibroId(libro.id!!)
+        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
+        val cantidadReservas = reservaRepository.countByLibroId(libro.id)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
@@ -95,7 +95,7 @@ class ReservaService(
         return reserva
     }
 
-    fun obtenerFechasDeReservasDeLibro(libroId: Long): List<Pair<LocalDate, LocalDate>> {
+    fun obtenerFechasDeReservasDeLibro(libroId: String): List<Pair<LocalDate, LocalDate>> {
         if (!libroRepository.existsById(libroId)) {
             throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
         }
@@ -106,7 +106,7 @@ class ReservaService(
         }
     }
 
-    fun cantidadReservas(libroID: Long): Int {
+    fun cantidadReservas(libroID: String): Int {
         return reservaRepository.countByLibroId(libroID)
     }
 
@@ -121,7 +121,7 @@ class ReservaService(
         return reservaRepository.findAll(especificacion, pageRequest)
     }
 
-    fun countReservasByLibroIds(libroIds: List<Long>): List<LibroReservaCount> {
+    fun countReservasByLibroIds(libroIds: List<String>): List<LibroReservaCount> {
         return reservaRepository.countReservasByLibroIds(libroIds)
     }
 

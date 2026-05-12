@@ -36,7 +36,7 @@ sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
 
 data class LibroEdicionDTO(
     @field:NotNull(message = ErrorStrings.LIBRO_ID_REQUERIDO)
-    val id: Long,
+    val id: String,
     @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_IMAGEN)
     val imagenUrl: String,
     @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_TITULO)
@@ -69,7 +69,7 @@ data class LibroEdicionDTO(
 )
 
 data class LibroDetalleDTO(
-    val id: Long?,
+    val id: String,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String,
@@ -91,7 +91,7 @@ data class LibroDetalleDTO(
 )
 
 data class LibroFiltradoDTO(
-    val id: Long?,
+    val id: String,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String?,
@@ -146,7 +146,7 @@ data class OrdenamientosLibrosDTO(
 
 
 data class LibroUsuarioPerfilDTO(
-    val id: Long?,
+    val id: String,
     val titulo: String,
     val autor: String,
     val portada: String,

@@ -9,7 +9,7 @@ data class LibroClickLog(
     @Id
     val id: String? = null,
 
-    val libroId: Long,
+    val libroId: String,
     val libroTitulo: String,
     val usuarioId: Long,
     val clickTimestamp: Instant = Instant.now(),

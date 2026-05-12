@@ -135,10 +135,10 @@ class LibroService(
 
         val resultado: Page<Libro> = repositorioLibro.findAll(spec, pageable)*/
 
-        val idsReservados: Set<Long> = if (filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null) {
+        val idsReservados: Set<String> = if (filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null) {
             repositorioReservas.getLibrosReservadosEntreFechas(
-                filtrosNormalizados.fechaDesde!!,
-                filtrosNormalizados.fechaHasta!!
+                filtrosNormalizados.fechaDesde,
+                filtrosNormalizados.fechaHasta
             ).toSet()
         } else emptySet()
 
@@ -179,7 +179,7 @@ class LibroService(
         return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
 
-    fun disponibilidadLibro(idLibro: Long): String {
+    fun disponibilidadLibro(idLibro: String): String {
         val libro = getLibroByIdOrThrow(idLibro)
         return if (estaReservadoHoy(libro.id!!)) "PRESTADO" else "DISPONIBLE"
     }
@@ -198,7 +198,7 @@ class LibroService(
             .sortedBy { it.lowercase() }
     }
 
-    fun borrarLibro(idLibro: Long, idUsuario: Long) {
+    fun borrarLibro(idLibro: String, idUsuario: Long) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
 
@@ -210,9 +210,9 @@ class LibroService(
         repositorioLibro.save(libro)
     }
 
-    fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
+    fun obtenerLibro(idLibro: String): Libro = getLibroByIdOrThrow(idLibro)
 
-    private fun estaReservadoHoy(libroId: Long): Boolean {
+    private fun estaReservadoHoy(libroId: String): Boolean {
         val hoy = LocalDate.now()
 
         /*val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
@@ -297,7 +297,7 @@ class LibroService(
         )
     }
 
-    private fun getLibroByIdOrThrow(idLibro: Long): Libro =
+    private fun getLibroByIdOrThrow(idLibro: String): Libro =
         repositorioLibro.findByIdOrNull(idLibro)
             ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro))
 

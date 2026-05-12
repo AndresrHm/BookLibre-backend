@@ -83,7 +83,7 @@ class CalificacionService(
     }
 
     fun obtenerCalificaciones(
-        libroID: Long,
+        libroID: String,
         orden: OrdenCalificacion,
         page: Int,
         size: Int,
@@ -112,7 +112,7 @@ class CalificacionService(
     }
 
     fun ultimasCalificaciones(
-        libroID: Long,
+        libroID: String,
     ): List<Calificacion> {
         val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
@@ -123,7 +123,7 @@ class CalificacionService(
     }
 
     fun cantidadCalificaciones(
-        libroID: Long,
+        libroID: String,
     ): Long {
         return calificacionRepository.countByLibro(libroID)
     }

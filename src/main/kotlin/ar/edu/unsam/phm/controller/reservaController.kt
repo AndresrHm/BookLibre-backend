@@ -65,7 +65,7 @@ class ReservaController(
 
         val libroIds = result.content.map { it.libroId }.distinct()
 
-        val counts = reservaService.countReservasByLibroIds(libroIds)
+        val counts: Map<String, Long> = reservaService.countReservasByLibroIds(libroIds)
             .associate { it.getLibroId() to it.getTotal() }
 
         val librosMap = libroRepository.findAllById(libroIds).associateBy { it.id!! }

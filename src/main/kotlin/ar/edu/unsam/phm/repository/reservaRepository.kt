@@ -15,9 +15,9 @@ import java.time.LocalDate
 
 @Repository
 interface ReservaRepository : CrudRepository<Reserva, Long>, JpaSpecificationExecutor<Reserva> {
-    fun findFechasByLibroId(libroId: Long): List<FechasReserva>
+    fun findFechasByLibroId(libroId: String): List<FechasReserva>
 
-    fun countByLibroId(libroId: Long): Int
+    fun countByLibroId(libroId: String): Int
 
     @Query(
         """
@@ -27,7 +27,7 @@ interface ReservaRepository : CrudRepository<Reserva, Long>, JpaSpecificationExe
           AND r.fechaDevolucion >= :fechaInicio
     """
     )
-    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<Long>
+    fun getLibrosReservadosEntreFechas(fechaInicio: LocalDate, fechaFin: LocalDate): List<String>
 
     fun countByUsuarioLectorId(usuarioId: Long): Int
     fun countByUsuarioPrestadorId(usuarioId: Long): Int
@@ -38,5 +38,5 @@ interface ReservaRepository : CrudRepository<Reserva, Long>, JpaSpecificationExe
     WHERE r.libroId IN :libroIds
     GROUP BY r.libroId
 """)
-    fun countReservasByLibroIds(libroIds: List<Long>): List<LibroReservaCount>
+    fun countReservasByLibroIds(libroIds: List<String>): List<LibroReservaCount>
 }

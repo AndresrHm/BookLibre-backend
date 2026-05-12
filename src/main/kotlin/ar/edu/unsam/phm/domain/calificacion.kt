@@ -12,13 +12,13 @@ import jakarta.persistence.UniqueConstraint
 import java.time.LocalDate
 
 @Entity
-@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["usuario_id", "libro_id"])])
+@Table(name = "calificaciones", uniqueConstraints = [UniqueConstraint(columnNames = ["usuario_id", "libro"])])
 data class Calificacion(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
     val usuario: Usuario,
 
-    val libro: Long,
+    val libro: String,
 
     var puntuacion: Double,
     var comentario: String,

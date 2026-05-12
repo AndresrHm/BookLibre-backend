@@ -68,11 +68,11 @@ object ErrorStrings {
 	const val USUARIO_NO_ENCONTRADO = "Usuario no encontrado."
 
 	fun usuarioNoEncontradoPorId(id: Long) = "No se encontró usuario con id $id"
-	fun libroNoEncontradoPorId(id: Long?) = "No existe un libro con el id $id"
+	fun libroNoEncontradoPorId(id: String) = "No existe un libro con el id $id"
 	fun usuarioNoExistePorId(id: Long) = "No existe un usuario con el id $id."
-	fun libroNoExistePorId(id: Long) = "No existe libro con el id $id"
+	fun libroNoExistePorId(id: String) = "No existe libro con el id $id"
 	fun reservaNoExistePorId(id: Long) = "No existe la reserva con id $id"
 	fun usuarioNoEncontradoParaCalificacion(id: Long) = "No se ha encontrado el usuario con id $id"
-	fun libroNoPerteneceAlUsuario(libroId: Long?, idUsuario: Long) = "El libro con id $libroId no pertenece al usuario $idUsuario"
+	fun libroNoPerteneceAlUsuario(libroId: String, idUsuario: Long) = "El libro con id $libroId no pertenece al usuario $idUsuario"
 }
 

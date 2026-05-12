@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 
-interface LibroRepository : MongoRepository<Libro, Long>, LibroRepositoryCustom {
+interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCustom {
     fun deleteByIdPropietario(idPropietario: Long)
     fun findByActivoTrue(): List<Libro>
     fun findByActivoTrueAndIdPropietario(idPropietario: Long): List<Libro>
@@ -26,7 +26,7 @@ interface LibroRepositoryCustom {
         generos: List<Genero>?,
         soloIdPropietario: Long?,
         excluirIdPropietario: Long?,
-        excluirIds: Set<Long>,
+        excluirIds: Set<String>,
         pageable: Pageable,
     ): Page<Libro>
 }
@@ -41,7 +41,7 @@ class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepos
         generos: List<Genero>?,
         soloIdPropietario: Long?,
         excluirIdPropietario: Long?,
-        excluirIds: Set<Long>,
+        excluirIds: Set<String>,
         pageable: Pageable,
     ): Page<Libro> {
         val parts = mutableListOf(Criteria.where("activo").`is`(true))

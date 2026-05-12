@@ -64,7 +64,7 @@ class LibroController(
     @GetMapping("{idLibro}/{tipoDTO}")
     fun obtenerLibro(
         authentication: Authentication,
-        @PathVariable idLibro: Long,
+        @PathVariable idLibro: String,
         @PathVariable tipoDTO: GetLibroDTO
     ): SealedGetLibroDTO {
         val libro = libroService.obtenerLibro(idLibro)
@@ -197,7 +197,7 @@ class LibroController(
     @DeleteMapping("{idLibro}")
     fun borrarLibro(
         authentication: Authentication,
-        @PathVariable idLibro: Long
+        @PathVariable idLibro: String
     ): ResponseEntity<ActionResponse> {
         val idUsuario = authentication.name.toLong()
         libroService.borrarLibro(idLibro, idUsuario)

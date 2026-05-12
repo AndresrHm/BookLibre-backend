@@ -31,7 +31,7 @@ class Libro(
 ) : BaseEntity() {
     @Id
     @GeneratedValue
-    var id: Long? = null
+    lateinit var id: String
     var fechaAgregado: LocalDate? = LocalDate.now()
     var activo = true
     var calificacion: Double = 0.0
@@ -79,6 +79,6 @@ enum class EstadoLibro {
 }
 
 interface LibroReservaCount {
-    fun getLibroId(): Long
+    fun getLibroId(): String
     fun getTotal(): Long
 }
