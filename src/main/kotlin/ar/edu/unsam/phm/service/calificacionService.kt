@@ -55,7 +55,7 @@ class CalificacionService(
 
         // Save
         val existente = calificacionRepository
-            .findByLibroIdAndUsuarioId(libroId, usuario.id!!)
+            .findByLibroAndUsuarioId(libroId, usuario.id!!)
 
         if (existente != null) {
             existente.puntuacion = calificacionDTO.puntuacion
@@ -100,7 +100,7 @@ class CalificacionService(
 
         val pageable = PageRequest.of(page, size, sort)
 
-        val result = calificacionRepository.findByLibroId(libro.id!!, pageable)
+        val result = calificacionRepository.findByLibro(libro.id!!, pageable)
 
         return PageResponse(
             content = result.content,
@@ -117,7 +117,7 @@ class CalificacionService(
         val libro = libroRepository.findByIdOrNull(libroID)
             ?: throw NotFoundException(ErrorStrings.libroNoExistePorId(libroID))
 
-        val calificaciones = calificacionRepository.findTop2ByLibroIdOrderByFechaDesc(libro.id!!)
+        val calificaciones = calificacionRepository.findTop2ByLibroOrderByFechaDesc(libro.id!!)
 
         return calificaciones
     }
@@ -125,6 +125,6 @@ class CalificacionService(
     fun cantidadCalificaciones(
         libroID: Long,
     ): Long {
-        return calificacionRepository.countByLibroId(libroID)
+        return calificacionRepository.countByLibro(libroID)
     }
 }

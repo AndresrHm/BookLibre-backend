@@ -11,17 +11,17 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 
-    fun findByLibroIdAndUsuarioId(
+    fun findByLibroAndUsuarioId(
         libroId: Long,
         usuarioId: Long
     ): Calificacion?
 
-    fun findByLibroId(
+    fun findByLibro(
         libroId: Long,
         pageable: Pageable
     ): Page<Calificacion>
 
-    fun findTop2ByLibroIdOrderByFechaDesc(libroId: Long): List<Calificacion>
+    fun findTop2ByLibroOrderByFechaDesc(libroId: Long): List<Calificacion>
 
     @Query(
         """
@@ -30,9 +30,9 @@ interface CalificacionRepository : CrudRepository<Calificacion, Long> {
         WHERE c.libro = :libroId
     """
     )
-    fun obtenerPromedioCalificaciones(@Param("libroId") libroId: Long): Double?
+    fun obtenerPromedioCalificaciones(@Param("libro") libroId: Long): Double?
 
-    fun countByLibroId(libroId: Long): Long
+    fun countByLibro(libroId: Long): Long
 
     @Query("SELECT AVG(c.puntuacion) FROM Calificacion c WHERE c.libro = :libroId")
     fun promedioPorLibro(@Param("libroId") libroId: Long): Double?

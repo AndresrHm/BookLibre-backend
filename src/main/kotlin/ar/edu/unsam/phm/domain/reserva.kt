@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit
 
 @Entity
 class Reserva(
-    @Column(name = "libro_id")
     val libroId: Long,
 
     @ManyToOne(fetch = FetchType.LAZY)
