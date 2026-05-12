@@ -1,6 +1,9 @@
 package ar.edu.unsam.phm.dto
 
-import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Rol
+import ar.edu.unsam.phm.errors.ErrorStrings
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 
 sealed class SealedGetUsuarioDTO(val tipo: String) {
     data class Header(
@@ -16,38 +19,43 @@ sealed class SealedGetUsuarioDTO(val tipo: String) {
         val usuario: UsarioPerfilDTO
     ): SealedGetUsuarioDTO("PERFIL")
     data class TipoPerfil(
-        val usuario: TipoUsuario
+        val usuario: Set<Rol>
     ): SealedGetUsuarioDTO("TIPOUSUARIO")
 }
 
 data class UsuarioHeaderDTO(
-    val id: Int,
+    val id: Long?,
     val urlImagen: String,
     val biblioKarma: Int
 )
 
 data class UsuarioKarmaDTO(
-    val id: Int,
+    val id: Long?,
     val biblioKarma: Int
 )
 
 data class UsuarioEdicionDTO(
-    val id: Int,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_NOMBRE)
     val nombre: String,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_APELLIDO)
     val apellido: String,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_DESCRIPCION)
     val descripcion: String,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_CIUDAD)
     val ciudad: String,
-    val tipoUsuario: TipoUsuario,
+    @field:NotNull(message = ErrorStrings.USUARIO_DEBE_TENER_TIPO_USUARIO)
+    val tipoUsuario: MutableSet<Rol>,
+    @field:NotBlank(message = ErrorStrings.USUARIO_DEBE_TENER_URL_IMAGEN)
     val urlImagen: String
 )
 
 data class UsarioPerfilDTO(
-    val id: Int,
+    val id: Long?,
     val nombre: String,
     val apellido: String,
     val descripcion: String,
     val ciudad: String,
-    val tipoUsuario: TipoUsuario,
+    val tipoUsuario: MutableSet<Rol>,
     val urlImagen: String,
     val biblioKarma: Int,
     val celular: String,

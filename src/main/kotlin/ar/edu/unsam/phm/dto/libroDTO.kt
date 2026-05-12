@@ -4,6 +4,13 @@ import ar.edu.unsam.phm.domain.EstadoLibro
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Usuario
+import ar.edu.unsam.phm.errors.ErrorStrings
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.Size
 import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 
@@ -11,39 +18,58 @@ sealed class SealedGetLibroDTO(val tipo: String) {
     data class Edicion(
         val libro: LibroEdicionDTO
     ) : SealedGetLibroDTO("EDICION")
+
     data class Detalle(
         val libro: LibroDetalleDTO
-    ): SealedGetLibroDTO("DETALLE")
+    ) : SealedGetLibroDTO("DETALLE")
 }
 
 sealed class SealedGetLibroFiltradoDTO(val tipo: String) {
     data class Home(
         val libro: LibroFiltradoDTO
     ) : SealedGetLibroFiltradoDTO("HOME")
+
     data class Perfil(
         val libro: LibroUsuarioPerfilDTO
     ) : SealedGetLibroFiltradoDTO("PERFIL")
 }
 
 data class LibroEdicionDTO(
-    val id: Int,
+    @field:NotNull(message = ErrorStrings.LIBRO_ID_REQUERIDO)
+    val id: Long,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_IMAGEN)
     val imagenUrl: String,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_TITULO)
     val titulo: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_TIPO)
     val tipoLibro: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_GENERO)
     val genero: Genero,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_AUTOR)
     val autor: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_IDIOMA)
     val idioma: Idioma,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_ESTADO)
     val estado: EstadoLibro,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_EDITORIAL)
     val editorial: String,
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_FECHA_PUBLICACION)
     val fechaPublicacion: LocalDate,
+    @field:Positive(message = ErrorStrings.LIBRO_CANTIDAD_PAGINAS_POSITIVA)
+    @field:Max(value = 1499, message = ErrorStrings.LIBRO_NO_PUEDE_SUPERAR_1499_PAGINAS)
     val cantidadPaginas: Int,
+    @field:Min(value = 1000000000000, message = ErrorStrings.ISBN13_DEBE_TENER_13_DIGITOS)
+    @field:Max(value = 9999999999999, message = ErrorStrings.ISBN13_DEBE_TENER_13_DIGITOS)
     val isbn13: Long,
+    @field:NotBlank(message = ErrorStrings.LIBRO_DEBE_TENER_DESCRIPCION)
+    @field:Size(max = 500, message = ErrorStrings.DESCRIPCION_NO_PUEDE_SUPERAR_500)
     val descripcion: String,
-    val idPropietario: Int
+    @field:NotNull(message = ErrorStrings.LIBRO_DEBE_TENER_ID_PROPIETARIO)
+    val idPropietario: Long
 )
 
 data class LibroDetalleDTO(
-    val id: Int,
+    val id: Long?,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String,
@@ -57,14 +83,15 @@ data class LibroDetalleDTO(
     val isbn13: Long,
     val descripcion: String,
     val rating: Double,
-    val cantidadCalificaciones: Int,
+    val cantidadCalificaciones: Long,
     val calificacionesRecientes: List<CalificacionDTO>,
-    val idPropietario: Int,
+    val idPropietario: Long,
     val activo: Boolean,
+    val usuarioEsPropietario: Boolean
 )
 
 data class LibroFiltradoDTO(
-    val id: Int,
+    val id: Long?,
     val imagenUrl: String,
     val titulo: String,
     val tipoLibro: String?,
@@ -78,8 +105,8 @@ data class LibroFiltradoDTO(
     val isbn13: Long?,
     val descripcion: String?,
     val rating: Double?,
-    val biblioKarma : Int?,
-    val userCreador : String,
+    val biblioKarma: Int?,
+    val userCreador: String,
     val disponibilidad: String
 )
 
@@ -100,36 +127,26 @@ data class FiltrosLibrosQueryDTO(
     val generos: List<Genero>? = null,
     val paginasMin: Int? = null,
     val paginasMax: Int? = null,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaDesde: LocalDate? = null,
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    @field:DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     val fechaHasta: LocalDate? = null,
     val isbn13: Long? = null,
-    val usuarioPrestadorId: Int? = null,
+    val usuarioPrestadorId: Long? = null,
     val search: String? = null,
-    val usuarioLectorId: Int? = null,
+    val usuarioLectorId: Long? = null,
+)
+
+data class OrdenamientosLibrosDTO(
+    val ordenHomePage: OrdenHomePage? = OrdenHomePage.NOMBRE_ASC,
+    val ordenPerfilPage: OrdenLibroPerfil? = OrdenLibroPerfil.FECHA_AGREGADO,
+    val direccionPerfilPage: DireccionOrden? = DireccionOrden.DESCENDENTE,
+    val disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil? = FiltroDisponibilidadPerfil.TODOS,
 )
 
 
-fun FiltrosLibrosQueryDTO.DtoToLibroFiltro(
-    usuarioPrestador: Usuario?,
-    usuarioLector: Usuario?,
-): FiltrosDeLibros {
-    return FiltrosDeLibros(
-        generos = generos,
-        paginasMin = paginasMin,
-        paginasMax = paginasMax,
-        fechaDesde = fechaDesde,
-        fechaHasta = fechaHasta,
-        isbn13 = isbn13,
-        usuarioPrestador = usuarioPrestador,
-        search = search,
-        usuarioLector = usuarioLector,
-    )
-}
-
 data class LibroUsuarioPerfilDTO(
-    val id: Int,
+    val id: Long?,
     val titulo: String,
     val autor: String,
     val portada: String,
@@ -156,12 +173,7 @@ enum class FiltroDisponibilidadPerfil {
 }
 
 enum class OrdenHomePage {
-    NOMBRE_ASC
-    , NOMBRE_DESC
-    , AUTOR_ASC
-    , AUTOR_DESC
-    , USER_ASC
-    , USER_DESC
+    NOMBRE_ASC, NOMBRE_DESC, AUTOR_ASC, AUTOR_DESC, USER_ASC, USER_DESC
 }
 
 enum class GetLibroDTO {

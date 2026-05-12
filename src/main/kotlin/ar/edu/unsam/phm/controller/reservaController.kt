@@ -2,23 +2,18 @@ package ar.edu.unsam.phm.controller
 
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
+import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
-import ar.edu.unsam.phm.dto.LibroDetalleDTO
-import ar.edu.unsam.phm.dto.RegisterRequestDTO
 import ar.edu.unsam.phm.dto.ReservaDTO
-import ar.edu.unsam.phm.mapper.LibroMapper
 import ar.edu.unsam.phm.mapper.ReservaMapper
 import ar.edu.unsam.phm.service.CalificacionService
-import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -26,34 +21,29 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("reservas")
-@CrossOrigin("*")
 class ReservaController(
     val reservaService: ReservaService,
     val usuarioService: UsuarioService,
-    val calificacionService: CalificacionService,
-    val libroService: LibroService,
     val reservaMapper: ReservaMapper,
 ) {
 
     @PostMapping
     fun reservarLibro(
+        authentication: Authentication,
         @RequestBody reserva: CreacionReservaDTO,
     ): ResponseEntity<ActionResponse> {
+        val usuarioId = authentication.name.toLong()
         // Busco los objetos de dominio para poder armar el objeto de dominio
-        val libro = libroService.obtenerLibro(reserva.libroId)
-        val cantidadReservas = reservaService.cantidadReservas(libro.id)
-        val usuarioLector = usuarioService.getUsuarioById(reserva.usuarioLectorId)
+        val usuarioLector = usuarioService.getUsuarioById(usuarioId)
         val usuarioPrestador = usuarioService.getUsuarioById(reserva.usuarioPrestadorId)
 
-        val reservaObjeto = reservaService.crearReserva(
-            libro,
-            cantidadReservas,
+        reservaService.crearReserva(
+            reserva.libroId,
             usuarioLector,
             usuarioPrestador,
             reserva.fechaRecogida,
             reserva.fechaDevolucion
         )
-        reservaMapper.toCreacionReservaDTO(reservaObjeto)
 
         val mensajeExito = "Reserva creada exitosamente"
         return ResponseEntity
@@ -63,21 +53,33 @@ class ReservaController(
 
     @GetMapping()
     fun reservas(
-        @RequestParam usuarioId: Int,
+        authentication: Authentication,
         @RequestParam type: ReservaType,
         @RequestParam page: Int = 0,
         @RequestParam size: Int = 4,
         @RequestParam search: String?,
     ): PageResponse<ReservaDTO> {
+        val usuarioId = authentication.name.toLong()
+
         val result = reservaService.getReservas(usuarioId, type, page, size, search)
 
+        val libroIds = result.content
+            .mapNotNull { it.libro.id }
+            .distinct()
+
+        val counts = reservaService.countReservasByLibroIds(libroIds)
+            .associate { it.getLibroId() to it.getTotal() }
+
         return PageResponse(
-            content = result.content.map { it ->
-                reservaMapper.toReservaDetalleDTO(
-                    it,
+            content = result.content.map { reserva: Reserva ->
+                val libroId = reserva.libro.id
+                    ?: throw IllegalStateException("Reserva sin libro persistido")
+
+                reservaMapper.toDetalleDTO(
+                    reserva,
                     usuarioId,
-                    reservaService.cantidadReservas(it.libro.id),
-                    calificacionService.promedioCalificaciones(it.libro.id),
+                    counts[libroId] ?: 0L,
+                    reserva.libro.calificacionPromedio(),
                 )
             },
             page = result.page,

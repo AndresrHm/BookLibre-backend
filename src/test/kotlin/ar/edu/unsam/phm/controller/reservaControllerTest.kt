@@ -1,18 +1,22 @@
 package ar.edu.unsam.phm.controller
 
 import ar.edu.unsam.phm.domain.EstadoLibro
+import ar.edu.unsam.phm.domain.EstadoReserva
 import ar.edu.unsam.phm.domain.Genero
 import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
+import ar.edu.unsam.phm.domain.Rol
+import ar.edu.unsam.phm.domain.TipoLibro
+import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.crearLibro
 import ar.edu.unsam.phm.domain.crearUsuario
-import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.BeforeEach
@@ -20,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -28,7 +33,7 @@ import java.time.LocalDate
 import kotlin.test.assertEquals
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var reservaRepository: ReservaRepository
@@ -39,9 +44,15 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     @Autowired
     private lateinit var libroRepository: LibroRepository
 
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
+    @Autowired
+    private lateinit var rolRepository: RolRepository
+
     val libro1usuario1 = crearLibro(
         "1984",
-        comun,
+        TipoLibro.COMUN,
         "Distopía política",
         "https://covers.openlibrary.org/b/id/12693610-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -57,7 +68,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro2usuario1 = crearLibro(
         "Cien años de soledad",
-        comun,
+        TipoLibro.COMUN,
         "Realismo mágico",
         "https://covers.openlibrary.org/b/id/14831384-L.jpg",
         Genero.LITERATURA_CLASICA,
@@ -73,7 +84,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro1usuario2 = crearLibro(
         "Dune",
-        comun,
+        TipoLibro.COMUN,
         "Sci-fi clásica",
         "https://covers.openlibrary.org/b/id/15092781-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -89,7 +100,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
     val libro2usuario2 = crearLibro(
         "Foundation",
-        comun,
+        TipoLibro.COMUN,
         "Saga Fundación",
         "https://covers.openlibrary.org/b/id/14612980-L.jpg",
         Genero.CIENCIA_FICCION,
@@ -103,67 +114,77 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
         2
     )
 
-    val usuario1 = crearUsuario(
-        id = 1
-    )
+    lateinit var usuario1: Usuario
+    lateinit var usuario2: Usuario
 
-    val usuario2 = crearUsuario(
-        id = 2
-    )
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
 
     val fechaRecogida = LocalDate.of(2026, 3, 20)
     val fechaDevolucion = LocalDate.of(2026, 3, 21)
 
-    val reserva1 = crearReserva(
-        libro1usuario1,
-        usuarioPrestador = usuario1,
-        usuarioLector = usuario2,
-        fechaRecogida,
-        fechaDevolucion,
-    )
-
-    val reserva2 = crearReserva(
-        libro2usuario1,
-        usuarioPrestador = usuario1,
-        usuarioLector = usuario2,
-        fechaRecogida,
-        fechaDevolucion,
-    )
-
-    val reserva3 = crearReserva(
-        libro1usuario2,
-        usuarioPrestador = usuario2,
-        usuarioLector = usuario1,
-        fechaRecogida,
-        fechaDevolucion,
-    )
-
-    val reserva4 = crearReserva(
-        libro2usuario2,
-        usuarioPrestador = usuario2,
-        usuarioLector = usuario1,
-        fechaRecogida,
-        fechaDevolucion,
-    )
+    private lateinit var reserva1: Reserva
+    private lateinit var reserva2: Reserva
+    private lateinit var reserva3: Reserva
+    private lateinit var reserva4: Reserva
 
     @BeforeEach
     fun init() {
-        reservaRepository.clearInit()
-        usuarioRepository.clearInit()
-        libroRepository.clearInit()
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
+        libroRepository.deleteAll()
+        usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
 
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
 
-        libroRepository.create(libro1usuario1)
-        libroRepository.create(libro2usuario1)
-        libroRepository.create(libro1usuario2)
-        libroRepository.create(libro2usuario2)
+        usuario1 = crearUsuario(id = 1, roles = mutableSetOf(rolLector, rolPublicador))
+        usuario2 = crearUsuario(id = 2, roles = mutableSetOf(rolLector, rolPublicador))
 
-        reservaRepository.create(reserva1)
-        reservaRepository.create(reserva2)
-        reservaRepository.create(reserva3)
-        reservaRepository.create(reserva4)
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
+
+        libroRepository.save(libro1usuario1)
+        libroRepository.save(libro2usuario1)
+        libroRepository.save(libro1usuario2)
+        libroRepository.save(libro2usuario2)
+
+        reserva1 = crearReserva(
+            libro1usuario1,
+            usuarioPrestador = usuario1,
+            usuarioLector = usuario2,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reserva2 = crearReserva(
+            libro2usuario1,
+            usuarioPrestador = usuario1,
+            usuarioLector = usuario2,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reserva3 = crearReserva(
+            libro1usuario2,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+        reserva4 = crearReserva(
+            libro2usuario2,
+            usuarioPrestador = usuario2,
+            usuarioLector = usuario1,
+            fechaRecogida,
+            fechaDevolucion,
+        )
+
+
+        reservaRepository.save(reserva1)
+        reservaRepository.save(reserva2)
+        reservaRepository.save(reserva3)
+        reservaRepository.save(reserva4)
     }
 
     // ----- Reservas Realizadas -----
@@ -171,12 +192,13 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Un usuario puede obtener sus reservas realizadas correctamente (donde el usuario es lector)`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", usuario1.id.toString())
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-            )
+            MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+                .param("usuarioId", usuario1.id.toString())
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+        )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.content[*].titulo").value(containsInAnyOrder("Dune", "Foundation")))
 
@@ -210,12 +232,13 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Si el usuario es inexistente, se rechaza la request`() {
 
         val errorMessage = mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", "-1")
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-            ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
+            MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken("-1", null))
+                .param("usuarioId", "-1")
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+        ).andExpect(status().isBadRequest).andReturn().resolvedException?.message
 
         assertEquals(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE, errorMessage)
     }
@@ -224,13 +247,14 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `El filtrado funciona correctamente`() {
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reservas")
-                    .param("usuarioId", usuario1.id.toString())
-                    .param("type", "TO_ME")
-                    .param("page", "0")
-                    .param("size", "6")
-                    .param("search", "dun")
-            ).andExpect(status().isOk)
+            MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+                .param("usuarioId", usuario1.id.toString())
+                .param("type", "TO_ME")
+                .param("page", "0")
+                .param("size", "6")
+                .param("search", "dun")
+        ).andExpect(status().isOk)
 
             .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(6))
             .andExpect(jsonPath("$.totalElements").value(1))
@@ -247,6 +271,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
                 .param("usuarioId", usuario1.id.toString())
                 .param("type", "BY_ME")
                 .param("page", "0")
@@ -285,6 +310,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val errorMessage = mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken("-1", null))
                 .param("usuarioId", "-1")
                 .param("type", "BY_ME")
                 .param("page", "0")
@@ -301,6 +327,7 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 
         mockMvc.perform(
             MockMvcRequestBuilders.get("/reservas")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
                 .param("usuarioId", usuario1.id.toString())
                 .param("type", "BY_ME")
                 .param("page", "0")
@@ -321,8 +348,8 @@ fun crearReserva(
     libro: Libro,
     usuarioPrestador: Usuario,
     usuarioLector: Usuario,
-    fechaRecogida: LocalDate,
-    fechaDevolucion: LocalDate,
+    fechaRecogida: LocalDate = LocalDate.now(),
+    fechaDevolucion: LocalDate = LocalDate.now().plusDays(1),
 ): Reserva {
     return Reserva(
         libro,

@@ -1,133 +1,170 @@
 package ar.edu.unsam.phm.domain
 
-import ar.edu.unsam.phm.BusinessException
-import io.kotest.assertions.throwables.shouldNotThrow
-import io.kotest.assertions.throwables.shouldThrow
+import ar.edu.unsam.phm.controller.crearReserva
+import ar.edu.unsam.phm.dto.LibroEdicionDTO
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import jakarta.validation.Validation
+import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
 
 val HOY = LocalDate.now()
 
 class LibroSpec : DescribeSpec({
-    describe(name = "Tests de Libros") {
-        describe(name = "Creación de libros") {
-            val libroValido = crearLibro()
+    val validator = Validation.buildDefaultValidatorFactory().validator
 
-            it("Un libro puede ser creado con normalidad") {
-                libroValido.titulo shouldBe "Título de libro"
-
-                shouldNotThrow<BusinessException> {
-                    libroValido.init()
-                }
-            }
-
-            it("Un libro no puede no tener título") {
-                val libroSinTitulo = crearLibro(titulo = "")
-
-                shouldThrow<BusinessException> {
-                    libroSinTitulo.init()
-                }
-            }
-
-            it("Un libro no puede no tener descripción") {
-                val libroSinDescripcion = crearLibro(descripcion = "")
-
-                shouldThrow<BusinessException> {
-                    libroSinDescripcion.init()
-                }
-            }
-
-            it("Un libro no puede tener una descripción excesivamente larga") {
-                val libroSinDescripcion =
-                    crearLibro(descripcion = "A".repeat(501))
-
-                shouldThrow<BusinessException> {
-                    libroSinDescripcion.init()
-                }
-            }
-
-            it("Un libro no puede no tener autor") {
-                val libroSinAutor = crearLibro(autor = "")
-
-                shouldThrow<BusinessException> {
-                    libroSinAutor.init()
-                }
-            }
-
-            it("Un libro no puede tener menos de 1 página") {
-                val libroSinPaginas = crearLibro(cantidadPaginas = -1)
-
-                shouldThrow<BusinessException> {
-                    libroSinPaginas.init()
-                }
-            }
-
-            it("Un libro no puede no tener páginas") {
-                val libroSinPaginas = crearLibro(cantidadPaginas = 0)
-
-                shouldThrow<BusinessException> {
-                    libroSinPaginas.init()
-                }
-            }
-
-            it("El código ISBN13 de un libro debe contener 13 dígitos") {
-                val libroISBN13Sin13 = crearLibro(isbn13 = 1)
-
-                shouldThrow<BusinessException> {
-                    libroISBN13Sin13.init()
-                }
-            }
-
-            it("El código ISBN13 de un libro debe ser positivo") {
-                val libroISBN13Negativo = crearLibro(isbn13 = -101010101010)
-
-                shouldThrow<BusinessException> {
-                    libroISBN13Negativo.init()
-                }
-            }
-
-            it("Un libro no puede no tener editorial") {
-                val libroSinEditorial = crearLibro(editorial = "")
-
-                shouldThrow<BusinessException> {
-                    libroSinEditorial.init()
-                }
-            }
+    describe(name = "Validaciones declarativas para edición de libros") {
+        it("Un DTO de edición válido no produce errores") {
+            val violations = validator.validate(crearLibroEdicionDTO())
+            violations.isEmpty() shouldBe true
         }
 
-        // TODO: quedó obsoleto
-//        describe(name = "Validación de calificación y reserva") {
-//            val libro = crearLibro()
-//
-//            it("Si se actualiza el rating, aumenta la cantida de reseñas") {
-//                libro.rating().shouldBe(0.0)
-//                libro.cantidadResenias.shouldBe(0)
-//
-//                libro.actualizarRating(1.0)
-//
-//                libro.rating().shouldBe(1.0)
-//                libro.cantidadResenias.shouldBe(1)
-//            }
-//
-//            it("La calificación de un libro debe ubicarse en cierto rango") {
-//                val libroSinResenias = crearLibro()
-//                libroSinResenias.rating().shouldBe(0.0)
-//                libroSinResenias.cantidadResenias.shouldBe(0)
-//
-//                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(-1.0) }
-//                shouldThrow<BusinessException> { libroSinResenias.actualizarRating(5.1) }
-//
-//                libroSinResenias.rating().shouldBe(0.0)
-//                libroSinResenias.cantidadResenias.shouldBe(0)
-//            }
-//        }
+        it("Un libro no puede no tener título") {
+            val violations = validator.validate(crearLibroEdicionDTO(titulo = ""))
+            violations.any { it.propertyPath.toString() == "titulo" } shouldBe true
+        }
+
+        it("Un libro no puede no tener descripción") {
+            val violations = validator.validate(crearLibroEdicionDTO(descripcion = ""))
+            violations.any { it.propertyPath.toString() == "descripcion" } shouldBe true
+        }
+
+        it("Un libro no puede tener una descripción excesivamente larga") {
+            val violations = validator.validate(crearLibroEdicionDTO(descripcion = "A".repeat(501)))
+            violations.any { it.propertyPath.toString() == "descripcion" } shouldBe true
+        }
+
+        it("Un libro no puede no tener autor") {
+            val violations = validator.validate(crearLibroEdicionDTO(autor = ""))
+            violations.any { it.propertyPath.toString() == "autor" } shouldBe true
+        }
+
+        it("Un libro no puede tener menos de 1 página") {
+            val violations = validator.validate(crearLibroEdicionDTO(cantidadPaginas = -1))
+            violations.any { it.propertyPath.toString() == "cantidadPaginas" } shouldBe true
+        }
+
+        it("Un libro no puede no tener páginas") {
+            val violations = validator.validate(crearLibroEdicionDTO(cantidadPaginas = 0))
+            violations.any { it.propertyPath.toString() == "cantidadPaginas" } shouldBe true
+        }
+
+        it("El código ISBN13 de un libro debe contener 13 dígitos") {
+            val violations = validator.validate(crearLibroEdicionDTO(isbn13 = 1))
+            violations.any { it.propertyPath.toString() == "isbn13" } shouldBe true
+        }
+
+        it("El código ISBN13 de un libro debe ser positivo") {
+            val violations = validator.validate(crearLibroEdicionDTO(isbn13 = -101010101010))
+            violations.any { it.propertyPath.toString() == "isbn13" } shouldBe true
+        }
+
+        it("Un libro no puede no tener editorial") {
+            val violations = validator.validate(crearLibroEdicionDTO(editorial = ""))
+            violations.any { it.propertyPath.toString() == "editorial" } shouldBe true
+        }
+    }
+
+    describe("Lógica de dominio de Libro") {
+        val usuarioLector = crearUsuario(roles = mutableSetOf<Rol>(Rol().apply {
+            id = 1
+            name = TipoUsuario.LECTOR.roleName
+        }
+        ))
+        val usuarioPrestador = crearUsuario(roles = mutableSetOf<Rol>(Rol().apply {
+            id = 2
+            name = TipoUsuario.PUBLICADOR.roleName
+        }
+        ))
+
+        it("inicializa con valores por defecto correctos") {
+            val libro = crearLibro()
+            libro.activo shouldBe true
+            libro.calificacion shouldBe 0.0
+            libro.id shouldBe null // JPA lo setea luego
+        }
+
+        it("actualiza la calificación correctamente") {
+            val libro = crearLibro()
+            libro.actualizarCalificacion(4.5)
+            libro.calificacionPromedio() shouldBe 4.5
+        }
+
+        it("getFechaAsString devuelve vacío si fechaAgregado es null") {
+            val libro = crearLibro()
+            libro.fechaAgregado = null
+            libro.getFechaAsString() shouldBe ""
+        }
+
+        it("devuelve el tipo de libro como texto (identificador de UI)") {
+            val libro = crearLibro(tipoLibro = TipoLibro.CON_DEDICATORIA)
+            libro.tipoComoTexto() shouldBe "conDedicatoria"
+
+            val libroComun = crearLibro(tipoLibro = TipoLibro.COMUN)
+            libroComun.tipoComoTexto() shouldBe "comun"
+        }
+
+        it("formatea la fecha de agregado correctamente") {
+            val libro = crearLibro()
+            libro.getFechaAsString().isNotEmpty() shouldBe true
+        }
+
+        it("calcula el karma de la home page basándose en los días entre fechas") {
+            val libro = crearLibro(tipoLibro = TipoLibro.COMUN) // Ajusta según tu lógica de TipoLibro
+            val fechaInicio = LocalDate.of(2026, 4, 1)
+            val fechaFin = LocalDate.of(2026, 4, 11) // 10 días de diferencia
+
+            // Fórmula: (10 * 5) + tipoLibro.calcularKarma(...)
+            val karma = libro.calcularKarmaHomePage(usuarioLector, 1, fechaInicio, fechaFin)
+
+            // Si el karma del tipo común es 0, debería dar 70
+            karma shouldBe 70
+        }
+
+        it("un libro nuevo debe tener calificación 0 y estar activo") {
+            val libro = crearLibro()
+            libro.calificacion shouldBe 0.0
+            libro.activo shouldBe true
+        }
     }
 })
 
+fun crearLibroEdicionDTO(
+    id: Long = 1,
+    titulo: String = "Título de libro",
+    tipoLibro: String = "comun",
+    descripcion: String = "Descripción de libro",
+    imagenUrl: String = "Portada de libro",
+    genero: Genero = Genero.CIENCIA_FICCION,
+    autor: String = "Autor de libro",
+    cantidadPaginas: Int = 10,
+    isbn13: Long = 1111111111111,
+    idioma: Idioma = Idioma.ESPANOL,
+    editorial: String = "Editorial de libro",
+    fechaPublicacion: LocalDate = LocalDate.now(),
+    estado: EstadoLibro = EstadoLibro.BUENO,
+    idPropietario: Long = 1
+): LibroEdicionDTO =
+    LibroEdicionDTO(
+        id = id,
+        imagenUrl = imagenUrl,
+        titulo = titulo,
+        tipoLibro = tipoLibro,
+        genero = genero,
+        autor = autor,
+        idioma = idioma,
+        estado = estado,
+        editorial = editorial,
+        fechaPublicacion = fechaPublicacion,
+        cantidadPaginas = cantidadPaginas,
+        isbn13 = isbn13,
+        descripcion = descripcion,
+        idPropietario = idPropietario
+    )
+
 fun crearLibro(
     titulo: String = "Título de libro",
-    tipoLibro: TipoLibro = comun,
+    tipoLibro: TipoLibro = TipoLibro.COMUN,
     descripcion: String = "Descripción de libro",
     portada: String = "Portada de libro",
     genero: Genero = Genero.CIENCIA_FICCION,
@@ -138,9 +175,9 @@ fun crearLibro(
     editorial: String = "Editorial de libro",
     fechaPublicacion: LocalDate = LocalDate.now(),
     estadoLibro: EstadoLibro = EstadoLibro.BUENO,
-    idPropietario: Int = 0
-): Libro {
-    return Libro(
+    idPropietario: Long = 0
+): Libro =
+    Libro(
         titulo,
         tipoLibro,
         descripcion,
@@ -155,4 +192,3 @@ fun crearLibro(
         estadoLibro,
         idPropietario
     )
-}

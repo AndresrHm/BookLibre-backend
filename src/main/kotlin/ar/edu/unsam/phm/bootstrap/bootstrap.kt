@@ -6,37 +6,47 @@ import ar.edu.unsam.phm.domain.Idioma
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.domain.Usuario
-import ar.edu.unsam.phm.domain.comun
 import ar.edu.unsam.phm.domain.Calificacion
+import ar.edu.unsam.phm.domain.EstadoReserva
+import ar.edu.unsam.phm.domain.Rol
+import ar.edu.unsam.phm.domain.TipoLibro
 import ar.edu.unsam.phm.domain.TipoUsuario
-import ar.edu.unsam.phm.domain.coleccionable
-import ar.edu.unsam.phm.domain.conDedicatoria
-import ar.edu.unsam.phm.dto.EstadoReserva
 import ar.edu.unsam.phm.repository.CalificacionRepository
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import java.time.LocalDate
+import kotlin.random.Random
 
 @Configuration
+@EnableJpaAuditing
 class BootstrapData(
     val reservaRepository: ReservaRepository,
     val usuarioRepository: UsuarioRepository,
     val libroRepository: LibroRepository,
-    val calificacionRepository: CalificacionRepository
+    val calificacionRepository: CalificacionRepository,
+    val rolRepository: RolRepository
 ) {
+    lateinit var rolLector: Rol
+    lateinit var rolPublicador: Rol
 
     @Bean
     fun initData() = CommandLineRunner {
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
 
         val usuarios = crearUsuarios()
         val libros = crearLibros()
         val reservas = crearReservas(usuarios, libros)
 
         crearCalificaciones(reservas)
+        actualizarCalificacionesLibros()
     }
 
     // ---------------- Usuarios ----------------
@@ -44,170 +54,175 @@ class BootstrapData(
 
     private fun crearUsuarios(): List<Usuario> {
 
-        val usuarios = listOf(
-
+        val usuarios: List<Usuario> = listOf(
+            // Lectores publicadores
             Usuario(
-                id = 1,
                 nombre = "Juan",
                 apellido = "Perez",
                 descripcion = "Lector de ciencia ficción",
                 email = "juan@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez"
-            ).apply { biblioKarma = 2000;passwordSesion = "juan123" },
+                roles = mutableSetOf(rolLector, rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Juan+Perez",
+                password = "juan123"
+            ).apply { biblioKarma = 2000; id = 1 },
 
             Usuario(
-                id = 2,
                 nombre = "Ana",
                 apellido = "Gomez",
                 descripcion = "Fan de novelas",
                 email = "ana@mail.com",
                 celular = "222222",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez"
-            ).apply { biblioKarma = 4000; passwordSesion = "ana123" },
+                roles = mutableSetOf(rolLector, rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Ana+Gomez",
+                password = "ana123"
+            ).apply { biblioKarma = 4000; id = 2 },
 
             Usuario(
-                id = 3,
                 nombre = "Carlos",
                 apellido = "Lopez",
                 descripcion = "Devora libros",
                 email = "carlos@mail.com",
                 celular = "333333",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez"
-            ).apply { biblioKarma = 1500; passwordSesion = "carlos123" },
+                roles = mutableSetOf(rolLector, rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Carlos+Lopez",
+                password = "carlos123"
+            ).apply { biblioKarma = 1500; id = 3 },
 
             Usuario(
-                id = 4,
                 nombre = "Lucia",
                 apellido = "Martinez",
                 descripcion = "Fan del realismo mágico",
                 email = "lucia@mail.com",
                 celular = "444444",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez"
-            ).apply { biblioKarma = 3200; passwordSesion = "lucia123" },
+                roles = mutableSetOf(rolLector, rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Lucia+Martinez",
+                password = "lucia123"
+            ).apply { biblioKarma = 3200; id = 4 },
 
             Usuario(
-                id = 5,
                 nombre = "nombre123",
                 apellido = "apellido123",
                 descripcion = "descripcion123",
                 email = "email123@mail.com",
                 celular = "111111",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3"
-            ).apply { biblioKarma = 9999; passwordSesion = "nombre123" },
+                roles = mutableSetOf(rolLector, rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=N+1+2+3",
+                password = "nombre123"
+            ).apply { biblioKarma = 9999; id = 5 },
 
+            // Lectores
             Usuario(
-                id = 6,
                 nombre = "Pedro",
                 apellido = "Sosa",
                 descripcion = "Lector frecuente",
                 email = "pedro@mail.com",
                 celular = "666666",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa"
-            ).apply { biblioKarma = 2100; passwordSesion = "pedro123" },
+                roles = mutableSetOf(rolLector),
+                urlImagen = "https://ui-avatars.com/api/?name=Pedro+Sosa",
+                password = "pedro123"
+            ).apply { biblioKarma = 2100; id = 6 },
 
             Usuario(
-                id = 7,
                 nombre = "Marina",
                 apellido = "Ruiz",
                 descripcion = "Le gusta la fantasia",
                 email = "marina@mail.com",
                 celular = "777777",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz"
-            ).apply { biblioKarma = 1800; passwordSesion = "marina123" },
+                roles = mutableSetOf(rolLector),
+                urlImagen = "https://ui-avatars.com/api/?name=Marina+Ruiz",
+                password = "marina123"
+            ).apply { biblioKarma = 1800; id = 7 },
 
             Usuario(
-                id = 8,
                 nombre = "Diego",
                 apellido = "Fernandez",
                 descripcion = "Fan de novelas historicas",
                 email = "diego@mail.com",
                 celular = "888888",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez"
-            ).apply { biblioKarma = 2600; passwordSesion = "diego123" },
+                roles = mutableSetOf(rolLector),
+                urlImagen = "https://ui-avatars.com/api/?name=Diego+Fernandez",
+                password = "diego123"
+            ).apply { biblioKarma = 2600; id = 8 },
 
             Usuario(
-                id = 9,
                 nombre = "Sofia",
                 apellido = "Acosta",
                 descripcion = "Lee de todo",
                 email = "sofia@mail.com",
                 celular = "999999",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta"
-            ).apply { biblioKarma = 1750; passwordSesion = "sofia123" },
+                roles = mutableSetOf(rolLector),
+                urlImagen = "https://ui-avatars.com/api/?name=Sofia+Acosta",
+                password = "sofia123"
+            ).apply { biblioKarma = 1750; id = 9 },
 
+            // Publicadores
             Usuario(
-                id = 10,
                 nombre = "Nicolas",
                 apellido = "Vega",
                 descripcion = "Interesado en ciencia ficcion",
                 email = "nicolas@mail.com",
                 celular = "101010",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega"
-            ).apply { biblioKarma = 1950; passwordSesion = "nicolas123" },
+                roles = mutableSetOf(rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Nicolas+Vega",
+                password = "nicolas123"
+            ).apply { biblioKarma = 1950; id = 10 },
 
             Usuario(
-                id = 11,
                 nombre = "Valentina",
                 apellido = "Mendez",
                 descripcion = "Colecciona clasicos",
                 email = "valentina@mail.com",
                 celular = "111110",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez"
-            ).apply { biblioKarma = 2300; passwordSesion = "valentina123" },
+                roles = mutableSetOf(rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Valentina+Mendez",
+                password = "valentina123"
+            ).apply { biblioKarma = 2300; id = 11 },
 
             Usuario(
-                id = 12,
                 nombre = "Tomas",
                 apellido = "Ibarra",
                 descripcion = "Lector nocturno",
                 email = "tomas@mail.com",
                 celular = "121212",
                 ciudad = "Buenos Aires",
-                tipoUsuario = TipoUsuario.LECTORPUBLICADOR,
-                urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra"
-            ).apply { biblioKarma = 2050; passwordSesion = "tomas123" },
+                roles = mutableSetOf(rolPublicador),
+                urlImagen = "https://ui-avatars.com/api/?name=Tomas+Ibarra",
+                password = "tomas123"
+            ).apply { biblioKarma = 2050; id = 12 },
 
             )
 
-        usuarios.forEach(usuarioRepository::create)
+        usuarios.forEach { it.encriptarPassword() }
+        usuarioRepository.saveAll(usuarios)
 
         return usuarios
     }
 
     // ---------------- Libros ----------------
-    // Tenemos 50 libros, 10 para cada usuario, 17 comunes, 17 conDedicatoria y 16 coleccionables.
+    // Tenemos 50 libros, 10 para cada usuario, 17 comunes, 17 TipoLibro.CON_DEDICATORIA y 16 TipoLibro.COLECCIONABLEs.
 
     private fun crearLibros(): List<Libro> {
 
-        val libros = listOf(
+        val hoy = LocalDate.now()
+        val random = Random(42)
+        val libros: List<Libro> = listOf(
 
             // ----- Libros de usuario id 1
             Libro(
                 "Dune",
-                comun,
+                TipoLibro.COMUN,
                 "Sci-fi clásica",
                 "https://covers.openlibrary.org/b/id/15092781-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -223,7 +238,7 @@ class BootstrapData(
 
             Libro(
                 "Foundation",
-                comun,
+                TipoLibro.COMUN,
                 "Saga Fundación",
                 "https://covers.openlibrary.org/b/id/14612980-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -239,7 +254,7 @@ class BootstrapData(
 
             Libro(
                 "Neuromancer",
-                comun,
+                TipoLibro.COMUN,
                 "Cyberpunk clásico",
                 "https://covers.openlibrary.org/b/id/8904053-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -255,7 +270,7 @@ class BootstrapData(
 
             Libro(
                 "Hyperion",
-                comun,
+                TipoLibro.COMUN,
                 "Ópera espacial",
                 "https://covers.openlibrary.org/b/id/6926279-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -271,7 +286,7 @@ class BootstrapData(
 
             Libro(
                 "Snow Crash",
-                comun,
+                TipoLibro.COMUN,
                 "Cyberpunk",
                 "https://covers.openlibrary.org/b/id/7004665-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -287,7 +302,7 @@ class BootstrapData(
 
             Libro(
                 "The Left Hand of Darkness",
-                comun,
+                TipoLibro.COMUN,
                 "Sci-fi social",
                 "https://covers.openlibrary.org/b/id/14920821-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -303,7 +318,7 @@ class BootstrapData(
 
             Libro(
                 "The Hobbit",
-                comun,
+                TipoLibro.COMUN,
                 "Fantasía",
                 "https://covers.openlibrary.org/b/id/14627222-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -319,7 +334,7 @@ class BootstrapData(
 
             Libro(
                 "The Lord of the Rings",
-                comun,
+                TipoLibro.COMUN,
                 "Fantasía épica",
                 "https://covers.openlibrary.org/b/id/15131000-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -335,7 +350,7 @@ class BootstrapData(
 
             Libro(
                 "Brave New World",
-                comun,
+                TipoLibro.COMUN,
                 "Distopía",
                 "https://covers.openlibrary.org/b/id/14846947-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -351,7 +366,7 @@ class BootstrapData(
 
             Libro(
                 "Fahrenheit 451",
-                comun,
+                TipoLibro.COMUN,
                 "Distopía",
                 "https://www.slate.com/content/dam/slideshows/arts/brow_beat/2012/06/06/ray-bradburys-fahrenheit-451-book-covers-through-time/jcr%3Acontent/slideshow/7/images%252Fslides%252F1976_1.jpg",
                 Genero.CIENCIA_FICCION,
@@ -368,7 +383,7 @@ class BootstrapData(
             // ----- Libros de usuario id 2
             Libro(
                 "The Martian",
-                comun,
+                TipoLibro.COMUN,
                 "Sci-fi moderna",
                 "https://covers.openlibrary.org/b/id/14641755-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -384,7 +399,7 @@ class BootstrapData(
 
             Libro(
                 "1984",
-                comun,
+                TipoLibro.COMUN,
                 "Distopía política",
                 "https://covers.openlibrary.org/b/id/12693610-L.jpg",
                 Genero.CIENCIA_FICCION,
@@ -400,7 +415,7 @@ class BootstrapData(
 
             Libro(
                 "Animal Farm",
-                comun,
+                TipoLibro.COMUN,
                 "Sátira política",
                 "https://covers.openlibrary.org/b/id/15139354-L.jpg",
                 Genero.DRAMA,
@@ -416,7 +431,7 @@ class BootstrapData(
 
             Libro(
                 "El Aleph",
-                comun,
+                TipoLibro.COMUN,
                 "Cuentos",
                 "https://covers.openlibrary.org/b/id/14826417-L.jpg",
                 Genero.DRAMA,
@@ -432,7 +447,7 @@ class BootstrapData(
 
             Libro(
                 "Rayuela",
-                comun,
+                TipoLibro.COMUN,
                 "Literatura latinoamericana",
                 "https://covers.openlibrary.org/b/id/15103307-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -448,7 +463,7 @@ class BootstrapData(
 
             Libro(
                 "Don Quijote de la Mancha",
-                comun,
+                TipoLibro.COMUN,
                 "Clásico español",
                 "https://covers.openlibrary.org/b/id/13990987-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -464,7 +479,7 @@ class BootstrapData(
 
             Libro(
                 "Cien años de soledad",
-                comun,
+                TipoLibro.COMUN,
                 "Realismo mágico",
                 "https://covers.openlibrary.org/b/id/14831384-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -480,7 +495,7 @@ class BootstrapData(
 
             Libro(
                 "The Catcher in the Rye",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Novela clásica",
                 "https://covers.openlibrary.org/b/id/15172466-L.jpg",
                 Genero.DRAMA,
@@ -496,7 +511,7 @@ class BootstrapData(
 
             Libro(
                 "To Kill a Mockingbird",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Drama judicial",
                 "https://covers.openlibrary.org/b/id/14817209-L.jpg",
                 Genero.DRAMA,
@@ -512,7 +527,7 @@ class BootstrapData(
 
             Libro(
                 "The Great Gatsby",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Clásico americano",
                 "https://covers.openlibrary.org/b/id/15144214-L.jpg",
                 Genero.DRAMA,
@@ -529,7 +544,7 @@ class BootstrapData(
             // ----- Libros de usuario id 3
             Libro(
                 "Atomic Habits",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Hábitos",
                 "https://covers.openlibrary.org/b/id/15108516-L.jpg",
                 Genero.AUTOAYUDA,
@@ -545,7 +560,7 @@ class BootstrapData(
 
             Libro(
                 "Sapiens",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Historia de la humanidad",
                 "https://covers.openlibrary.org/b/id/8284312-L.jpg",
                 Genero.LITERATURA_CLASICA,
@@ -561,9 +576,9 @@ class BootstrapData(
 
             Libro(
                 "The Name of the Wind",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Fantasía épica moderna",
-                "https://covers.openlibrary.org/b/id/8231856-L.jpg",
+                "https://grimoakpress.com/cdn/shop/files/cover-notw-fc.jpg?v=1706902909&width=823",
                 Genero.CIENCIA_FICCION,
                 "Patrick Rothfuss",
                 662,
@@ -577,9 +592,9 @@ class BootstrapData(
 
             Libro(
                 "Mistborn: The Final Empire",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Fantasía con sistema de magia",
-                "https://covers.openlibrary.org/b/id/8231991-L.jpg",
+                "https://covers.openlibrary.org/b/id/15158368-M.jpg",
                 Genero.CIENCIA_FICCION,
                 "Brandon Sanderson",
                 541,
@@ -593,9 +608,9 @@ class BootstrapData(
 
             Libro(
                 "The Road",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Post-apocalíptico",
-                "https://covers.openlibrary.org/b/id/7222246-L.jpg",
+                "https://covers.openlibrary.org/b/id/14818120-M.jpg",
                 Genero.DRAMA,
                 "Cormac McCarthy",
                 287,
@@ -609,9 +624,9 @@ class BootstrapData(
 
             Libro(
                 "Dracula",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Terror clásico",
-                "https://covers.openlibrary.org/b/id/8235116-L.jpg",
+                "https://covers.openlibrary.org/b/id/12622155-M.jpg",
                 Genero.DRAMA,
                 "Bram Stoker",
                 418,
@@ -625,9 +640,9 @@ class BootstrapData(
 
             Libro(
                 "Frankenstein",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Gótico y ciencia ficción",
-                "https://covers.openlibrary.org/b/id/8226191-L.jpg",
+                "https://covers.openlibrary.org/b/id/15113302-M.jpg",
                 Genero.CIENCIA_FICCION,
                 "Mary Shelley",
                 280,
@@ -641,9 +656,9 @@ class BootstrapData(
 
             Libro(
                 "Clean Code",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Buenas prácticas de programación",
-                "https://covers.openlibrary.org/b/id/9641984-L.jpg",
+                "https://covers.openlibrary.org/b/id/15126503-M.jpg",
                 Genero.AUTOAYUDA,
                 "Robert C. Martin",
                 464,
@@ -657,9 +672,9 @@ class BootstrapData(
 
             Libro(
                 "The Pragmatic Programmer",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Desarrollo de software",
-                "https://covers.openlibrary.org/b/id/8097446-L.jpg",
+                "https://covers.openlibrary.org/b/id/15136784-M.jpg",
                 Genero.AUTOAYUDA,
                 "Andrew Hunt",
                 352,
@@ -673,9 +688,9 @@ class BootstrapData(
 
             Libro(
                 "Thinking, Fast and Slow",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Psicología y toma de decisiones",
-                "https://covers.openlibrary.org/b/id/8228691-L.jpg",
+                "https://covers.openlibrary.org/b/id/15129456-M.jpg",
                 Genero.AUTOAYUDA,
                 "Daniel Kahneman",
                 499,
@@ -690,9 +705,9 @@ class BootstrapData(
             // ----- Libros de usuario id 4
             Libro(
                 "The Silent Patient",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Thriller psicológico",
-                "https://covers.openlibrary.org/b/id/9259251-L.jpg",
+                "https://covers.openlibrary.org/b/id/15105887-M.jpg",
                 Genero.DRAMA,
                 "Alex Michaelides",
                 336,
@@ -706,9 +721,9 @@ class BootstrapData(
 
             Libro(
                 "Educated",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Memorias",
-                "https://covers.openlibrary.org/b/id/9251996-L.jpg",
+                "https://covers.openlibrary.org/b/id/15216613-M.jpg",
                 Genero.DRAMA,
                 "Tara Westover",
                 334,
@@ -722,9 +737,9 @@ class BootstrapData(
 
             Libro(
                 "The Alchemist",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Fábula espiritual",
-                "https://covers.openlibrary.org/b/id/8128691-L.jpg",
+                "https://covers.openlibrary.org/b/id/15121528-M.jpg",
                 Genero.DRAMA,
                 "Paulo Coelho",
                 208,
@@ -738,9 +753,9 @@ class BootstrapData(
 
             Libro(
                 "Inferno",
-                conDedicatoria,
+                TipoLibro.CON_DEDICATORIA,
                 "Thriller",
-                "https://covers.openlibrary.org/b/id/8231995-L.jpg",
+                "https://covers.openlibrary.org/b/id/10660297-M.jpg",
                 Genero.DRAMA,
                 "Dan Brown",
                 480,
@@ -754,9 +769,9 @@ class BootstrapData(
 
             Libro(
                 "Digital Fortress",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Tecnothriller",
-                "https://covers.openlibrary.org/b/id/8231996-L.jpg",
+                "https://danbrown.com/wp-content/uploads/2024/10/Dan-Brown_Digital-Fortress_book-cover-2025.jpg",
                 Genero.DRAMA,
                 "Dan Brown",
                 384,
@@ -770,9 +785,9 @@ class BootstrapData(
 
             Libro(
                 "Angels & Demons",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Misterio",
-                "https://covers.openlibrary.org/b/id/8231997-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqCjOemsH_lGbfwqRKnDzUGqDueaH7lSce2Q&s",
                 Genero.DRAMA,
                 "Dan Brown",
                 616,
@@ -786,9 +801,9 @@ class BootstrapData(
 
             Libro(
                 "The Da Vinci Code",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Conspiración",
-                "https://covers.openlibrary.org/b/id/8231998-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQFin2Zhek2Np48tHxJVm-iXLV62m95hwzXsw&s",
                 Genero.DRAMA,
                 "Dan Brown",
                 489,
@@ -802,9 +817,9 @@ class BootstrapData(
 
             Libro(
                 "The Girl with the Dragon Tattoo",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Thriller",
-                "https://covers.openlibrary.org/b/id/8231999-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYELT7AuGotjdy16V27RPo0RXmk7mHn0ExVA&s",
                 Genero.DRAMA,
                 "Stieg Larsson",
                 465,
@@ -818,9 +833,9 @@ class BootstrapData(
 
             Libro(
                 "Gone Girl",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Suspenso",
-                "https://covers.openlibrary.org/b/id/8232000-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQxWtSxdC6vDCA7fR2LCFPSWauWRzKIz_Creg&s",
                 Genero.DRAMA,
                 "Gillian Flynn",
                 422,
@@ -834,9 +849,9 @@ class BootstrapData(
 
             Libro(
                 "The Shining",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Terror",
-                "https://covers.openlibrary.org/b/id/8232001-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqlyohl7zhBPkbXNkuj1ruX6PGxUifAvaXrw&s",
                 Genero.DRAMA,
                 "Stephen King",
                 447,
@@ -851,9 +866,9 @@ class BootstrapData(
             // ----- Libros de usuario id 5
             Libro(
                 "It",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Terror",
-                "https://covers.openlibrary.org/b/id/8232002-L.jpg",
+                "https://s2982.pcdn.co/wp-content/uploads/2017/03/it-stephen-king-minimalist-kindle-198x300.jpg.optimal.jpg",
                 Genero.DRAMA,
                 "Stephen King",
                 1138,
@@ -867,9 +882,9 @@ class BootstrapData(
 
             Libro(
                 "Carrie",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Terror",
-                "https://covers.openlibrary.org/b/id/8232003-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTrQ73mJQNfwVDQ3vIP-JSUSZFQVoCYurgYAg&s",
                 Genero.DRAMA,
                 "Stephen King",
                 199,
@@ -883,9 +898,9 @@ class BootstrapData(
 
             Libro(
                 "The Outsider",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Suspenso",
-                "https://covers.openlibrary.org/b/id/8232004-L.jpg",
+                "https://http2.mlstatic.com/D_NQ_NP_612525-MLA70630455631_072023-O.webp",
                 Genero.DRAMA,
                 "Stephen King",
                 576,
@@ -899,9 +914,9 @@ class BootstrapData(
 
             Libro(
                 "The Institute",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Thriller",
-                "https://covers.openlibrary.org/b/id/8232005-L.jpg",
+                "https://www.amazon.co.uk/Institute-Stephen-King/dp/1529355397",
                 Genero.DRAMA,
                 "Stephen King",
                 576,
@@ -915,9 +930,9 @@ class BootstrapData(
 
             Libro(
                 "A Game of Thrones",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
-                "https://covers.openlibrary.org/b/id/8232006-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnuvRPByL01_3eKROeSmksZYZflZBVTWu1Zw&s",
                 Genero.DRAMA,
                 "George R. R. Martin",
                 694,
@@ -931,9 +946,9 @@ class BootstrapData(
 
             Libro(
                 "A Clash of Kings",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
-                "https://covers.openlibrary.org/b/id/8232007-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR48zujd7nOIvlGxwMNYoD22yQ_rvI44YTh5w&s",
                 Genero.DRAMA,
                 "George R. R. Martin",
                 768,
@@ -947,9 +962,9 @@ class BootstrapData(
 
             Libro(
                 "A Storm of Swords",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
-                "https://covers.openlibrary.org/b/id/8232008-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBdrOINBhqcIrC2KzQThzs3kLHiejQaJa3KA&s",
                 Genero.DRAMA,
                 "George R. R. Martin",
                 973,
@@ -963,9 +978,9 @@ class BootstrapData(
 
             Libro(
                 "A Feast for Crows",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
-                "https://covers.openlibrary.org/b/id/8232009-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSUqTJfcJ0UuS_l-2LGn5R7xS26egg4qkAeA&s",
                 Genero.DRAMA,
                 "George R. R. Martin",
                 753,
@@ -979,9 +994,9 @@ class BootstrapData(
 
             Libro(
                 "A Dance with Dragons",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Fantasía",
-                "https://covers.openlibrary.org/b/id/8232010-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJrbMS15csT1Z7UazSa_wkad0Ae6LFY_IQkg&s",
                 Genero.DRAMA,
                 "George R. R. Martin",
                 1016,
@@ -995,9 +1010,9 @@ class BootstrapData(
 
             Libro(
                 "Brief Answers to the Big Questions",
-                coleccionable,
+                TipoLibro.COLECCIONABLE,
                 "Ciencia",
-                "https://covers.openlibrary.org/b/id/8232011-L.jpg",
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQF_mmSciNSvke4-svnhAkvofrb2BK78GnKg&s",
                 Genero.LITERATURA_CLASICA,
                 "Stephen Hawking",
                 256,
@@ -1008,9 +1023,14 @@ class BootstrapData(
                 EstadoLibro.EXCELENTE,
                 5
             ),
-        )
+        ).map { libro ->
+            libro.apply {
+                // Fecha aleatoria dentro de los ultimos 365 dias (sin futuras).
+                fechaAgregado = hoy.minusDays(random.nextLong(0, 366))
+            }
+        }
 
-        libros.forEach(libroRepository::create)
+        (libroRepository.saveAll(libros))
 
         return libros
     }
@@ -1021,15 +1041,15 @@ class BootstrapData(
         usuarios: List<Usuario>, libros: List<Libro>
     ): List<Reserva> {
 
-        val u1 = usuarios.first { it.id == 1 }
-        val u2 = usuarios.first { it.id == 2 }
-        val u3 = usuarios.first { it.id == 3 }
-        val u4 = usuarios.first { it.id == 4 }
-        val u5 = usuarios.first { it.id == 5 }
+        val u1 = usuarios.first { it.id == 1L }
+        val u2 = usuarios.first { it.id == 2L }
+        val u3 = usuarios.first { it.id == 3L }
+        val u4 = usuarios.first { it.id == 4L }
+        val u5 = usuarios.first { it.id == 5L }
 
         val hoy = LocalDate.now()
 
-        val reservas = listOf(
+        val reservas: List<Reserva> = listOf(
 
             // -------- u1 presta a u2 --------
             Reserva(libros[0], u1, u2, hoy.minusDays(12), hoy.minusDays(2)), // devuelto
@@ -1118,7 +1138,7 @@ class BootstrapData(
             Reserva(libros[0], u1, u2, hoy.minusDays(1), hoy.plusDays(5)),
         )
 
-        reservas.forEach(reservaRepository::create)
+        (reservaRepository.saveAll(reservas))
 
         // Vincula cada libro al usuario propietario persistido en memoria.
         usuarios.forEach { usuario ->
@@ -1150,21 +1170,38 @@ class BootstrapData(
             .map { reserva ->
                 val libro = reserva.libro
                 val usuario = reserva.usuarioLector
-                val seed = libro.id + usuario.id
+                val seed = (libro.id ?: 0L) + (usuario.id ?: 0L)
+                val posicion = (seed % puntuaciones.size).toInt()
                 Calificacion(
-                    reserva = reserva,
-                    puntuacion = puntuaciones[seed % puntuaciones.size],
-                    comentario = comentarios[seed % comentarios.size],
+                    usuario = reserva.usuarioLector,
+                    libro = reserva.libro,
+                    puntuacion = puntuaciones[posicion],
+                    comentario = comentarios[posicion],
                     fecha = reserva.fechaDevolucion
                 )
             }
         val calificacionesUnicas = calificaciones
             .sortedBy { it.fecha }
-            .associateBy { it.reserva.libro.id to it.reserva.usuarioLector.id }
+            .associateBy { it.libro.id to it.usuario.id }
             .values
             .toList()
-        calificacionesUnicas.forEach {
-            calificacionRepository.agregarCalificacion(it)
+        calificacionRepository.saveAll(calificacionesUnicas)
+    }
+
+    private fun actualizarCalificacionesLibros() {
+
+        val libros = libroRepository.findAll()
+
+        libros.forEach { libro ->
+
+            val promedio = calificacionRepository
+                .obtenerPromedioCalificaciones(libro.id!!)
+
+            val promedioFinal = promedio ?: 0.0
+
+            libro.actualizarCalificacion(promedioFinal)
         }
+
+        libroRepository.saveAll(libros)
     }
 }

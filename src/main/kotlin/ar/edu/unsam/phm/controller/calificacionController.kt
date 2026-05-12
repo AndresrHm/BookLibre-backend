@@ -1,7 +1,6 @@
 package ar.edu.unsam.phm.controller
 
 import ActionResponse
-import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.CalificacionDTO
 import ar.edu.unsam.phm.dto.CrearCalificacionDTO
@@ -10,7 +9,7 @@ import ar.edu.unsam.phm.mapper.CalificacionMapper
 import ar.edu.unsam.phm.service.CalificacionService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,14 +20,15 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("calificaciones")
-@CrossOrigin("*")
 class CalificacionController(val calificacionService: CalificacionService) {
 
     @PostMapping
     fun calificarLibro(
+        authentication: Authentication,
         @RequestBody calificacion: CrearCalificacionDTO
     ): ResponseEntity<ActionResponse> {
-        calificacionService.calificarLibro(calificacion)
+        val usuarioId = authentication.name.toLong()
+        calificacionService.calificarLibro(usuarioId, calificacion)
         val mensajeExito = "Calificación registrada exitosamente."
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -37,8 +37,8 @@ class CalificacionController(val calificacionService: CalificacionService) {
 
     @GetMapping("{libroId}")
     fun calificacionesLibro(
-        @PathVariable libroId: Int,
-        @RequestParam page: Int,
+        @PathVariable libroId: Long,
+        @RequestParam page: Int = 0,
         @RequestParam size: Int = 2,
         @RequestParam orden: OrdenCalificacion = OrdenCalificacion.DATE_DESC,
     ): PageResponse<CalificacionDTO> {

@@ -1,4 +1,4 @@
-package ar.edu.unsam.phm
+package ar.edu.unsam.phm.errors
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -10,7 +10,6 @@ class BusinessException(msg: String) : RuntimeException(msg)
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class NotFoundException(msg: String) : RuntimeException(msg)
 
-// Podemos usar esta función en los init para evitar tanto if(..) {..}
 fun requireBusiness(condition: Boolean, message: String) {
     if (!condition) throw BusinessException(message)
 }

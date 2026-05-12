@@ -2,13 +2,12 @@ package ar.edu.unsam.phm.controller
 
 import ActionResponse
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.dto.DireccionOrden
+import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.dto.LibroEdicionDTO
-import ar.edu.unsam.phm.dto.OrdenLibroPerfil
-import ar.edu.unsam.phm.dto.OrdenHomePage
-import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import ar.edu.unsam.phm.dto.FiltrosLibrosQueryDTO
 import ar.edu.unsam.phm.dto.GetLibroDTO
+import ar.edu.unsam.phm.dto.OrdenamientosLibrosDTO
 import ar.edu.unsam.phm.dto.OrigenLibro
 import ar.edu.unsam.phm.dto.SealedGetLibroDTO
 import ar.edu.unsam.phm.dto.SealedGetLibroFiltradoDTO
@@ -17,7 +16,7 @@ import ar.edu.unsam.phm.service.CalificacionService
 import ar.edu.unsam.phm.service.LibroService
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
-import org.springframework.web.bind.annotation.CrossOrigin
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
@@ -29,11 +28,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.RequestMapping
+import java.nio.file.AccessDeniedException
 
 @RestController
 @RequestMapping("libros")
-@CrossOrigin("*")
 class LibroController(
     val libroService: LibroService,
     val reservaService: ReservaService,
@@ -43,10 +43,15 @@ class LibroController(
 ) {
 
     @PostMapping
-    fun crearLibro(@RequestBody libro: LibroEdicionDTO): ResponseEntity<ActionResponse> {
-        val libroConvertido = libroMapper.libroEdicionDTOToLibro(libro)
+    fun crearLibro(
+        authentication: Authentication,
+        @Valid @RequestBody libro: LibroEdicionDTO
+    ): ResponseEntity<ActionResponse> {
+        val usuarioId = authentication.name.toLong()
+
+        val libroConvertido = libroMapper.toLibro(libro, usuarioId)
         val nuevoLibro = libroService.crearLibro(libroConvertido)
-        libroMapper.libroToLibroEdicionDTO(nuevoLibro)
+        libroMapper.toLibroEdicionDTO(nuevoLibro)
 
         val mensajeExito = "Se creó el libro ${nuevoLibro.titulo} exitosamente"
         return ResponseEntity
@@ -55,22 +60,30 @@ class LibroController(
     }
 
     @GetMapping("{idLibro}/{tipoDTO}")
-    fun obtenerLibro(@PathVariable idLibro: Int, @PathVariable tipoDTO: GetLibroDTO): SealedGetLibroDTO {
+    fun obtenerLibro(
+        authentication: Authentication,
+        @PathVariable idLibro: Long,
+        @PathVariable tipoDTO: GetLibroDTO
+    ): SealedGetLibroDTO {
         val libro = libroService.obtenerLibro(idLibro)
-
         when (tipoDTO) {
             GetLibroDTO.EDICION -> {
-                val dto = libroMapper.libroToLibroEdicionDTO(libro)
+                val esPublicador = authentication.authorities.any { it.authority == TipoUsuario.PUBLICADOR.roleName }
+                if (!esPublicador) {
+                    throw AccessDeniedException("No tienes permisos para editar libros")
+                }
+                val dto = libroMapper.toLibroEdicionDTO(libro)
                 return SealedGetLibroDTO.Edicion(dto)
             }
 
             GetLibroDTO.DETALLE -> {
-                val promedio = calificacionService.promedioCalificaciones(idLibro)
+                val usuarioId = authentication.name.toLong()
+                val promedio = libro.calificacionPromedio()
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
                 val ultimas = calificacionService.ultimasCalificaciones(idLibro)
 
-                val dtoDetalle = libroMapper.libroToLibroDetalleDTO(
-                    libro, promedio, cantidad, ultimas
+                val dtoDetalle = libroMapper.toDetalleLibroDTO(
+                    libro, promedio, cantidad, ultimas, usuarioId
                 )
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
             }
@@ -79,12 +92,14 @@ class LibroController(
 
     @PutMapping
     fun editarLibro(
-        @RequestBody libro: LibroEdicionDTO,
-        @RequestParam idUsuario: Int,
+        authentication: Authentication,
+        @Valid @RequestBody libro: LibroEdicionDTO,
     ): ResponseEntity<ActionResponse> {
-        val libroObjeto = libroMapper.libroEdicionDTOToLibro(libro)
-        val libroEditado = libroService.editarLibro(libroObjeto, idUsuario)
-        libroMapper.libroToLibroEdicionDTO(libroEditado)
+        val usuarioId = authentication.name.toLong()
+
+        val libroObjeto = libroMapper.toLibro(libro, usuarioId)
+        val libroEditado = libroService.editarLibro(libroObjeto, usuarioId)
+        libroMapper.toLibroEdicionDTO(libroEditado)
 
         val mensajeExito = "Se editó el libro ${libroEditado.titulo} exitosamente"
         return ResponseEntity
@@ -92,28 +107,25 @@ class LibroController(
             .body(ActionResponse(mensajeExito))
     }
 
-    @GetMapping("")
+    @GetMapping
     fun getLibrosFilter(
-
-        @RequestParam flagDiff : OrigenLibro,
+        authentication: Authentication,
+        @RequestParam flagDiff: OrigenLibro,
         @ModelAttribute filtrosQuery: FiltrosLibrosQueryDTO,
+        @ModelAttribute ordenamientosLibros: OrdenamientosLibrosDTO,
         @RequestParam page: Int = 0,
-        @RequestParam size: Int,
-        @RequestParam userId: Int,
-        @RequestParam ordenHomePage : OrdenHomePage ? = OrdenHomePage.NOMBRE_ASC,
-        @RequestParam ordenPerfilPage: OrdenLibroPerfil ? = OrdenLibroPerfil.FECHA_AGREGADO,
-        @RequestParam direccionPerfilPage: DireccionOrden ? = DireccionOrden.DESCENDENTE,
-        @RequestParam disponibilidadLibrosPerfil: FiltroDisponibilidadPerfil ? = FiltroDisponibilidadPerfil.TODOS,
+        @RequestParam size: Int = 6,
         @RequestParam(required = false) usuarioPrestador: String?,
-
     ): PageResponse<SealedGetLibroFiltradoDTO> {
-        val usuarioPrestadorFiltrado = filtrosQuery.usuarioPrestadorId
+        val userId = authentication.name.toLong()
+
+        val usuarioPrestadorFiltrado: Usuario? = filtrosQuery.usuarioPrestadorId
             ?.let { usuarioService.getUsuarioById(it) }
             ?: usuarioPrestador
                 ?.takeIf { it.isNotBlank() }
-                ?.let { usuarioService.getUsuarioByNombre(it) }
+                ?.let { usuarioService.getUsuarioByNombre(it).firstOrNull() }
 
-        val filtrosDeHome = libroMapper.filtroDTOtoLibroFiltro(
+        val filtrosDeHome = libroMapper.toLibroFiltro(
             filtrosQuery,
             usuarioPrestador = usuarioPrestadorFiltrado,
             usuarioLector = filtrosQuery.usuarioLectorId?.let { usuarioService.getUsuarioById(it) },
@@ -123,39 +135,44 @@ class LibroController(
             filtrosDeHome,
             page,
             size,
-            ordenHomePage!!,
+            ordenamientosLibros.ordenHomePage!!,
             userId,
             flagDiff,
-            disponibilidadLibrosPerfil!!,
-            ordenPerfilPage!!,
-            direccionPerfilPage!!)
+            ordenamientosLibros.disponibilidadLibrosPerfil!!,
+            ordenamientosLibros.ordenPerfilPage!!,
+            ordenamientosLibros.direccionPerfilPage!!
+        )
 
         return PageResponse(
-            content = pageResult.content.map {
+            content = pageResult.content.mapNotNull { libro ->
+                // Validar que el libro tiene ID antes de procesar
+                val libroId = libro.id ?: return@mapNotNull null
+
                 when (flagDiff) {
                     OrigenLibro.HOME -> SealedGetLibroFiltradoDTO.Home(
-                        libroMapper.libroToLibroFiltradoDTO(
-                            it,
-                            calificacionService.promedioCalificaciones(it.id),
+                        libroMapper.toLibroFiltradoDTO(
+                            libro,
+                            libro.calificacionPromedio(),
                             libroService.bringKarma(
-                                it,
-                                reservaService.cantidadReservas(it.id),
+                                libro,
+                                reservaService.cantidadReservas(libroId),
                                 userId,
                                 filtrosDeHome.fechaDesde,
                                 filtrosDeHome.fechaHasta,
                             ),
-                            libroService.disponibilidadLibro(it.id)
+                            libroService.disponibilidadLibro(libroId)
                         )
                     )
+
                     OrigenLibro.PERFIL -> SealedGetLibroFiltradoDTO.Perfil(
-                        libroMapper.libroToLibroPerfilUsuarioDTO(
-                            it,
-                            libroService.disponibilidadLibro(it.id)
+                        libroMapper.toLibroPerfilUsuarioDTO(
+                            libro,
+                            libroService.disponibilidadLibro(libro.id!!)
                         )
                     )
                 }
 
-            } ,
+            },
             page = pageResult.page,
             size = pageResult.size,
             totalElements = pageResult.totalElements,
@@ -165,15 +182,19 @@ class LibroController(
 
     @GetMapping("prestadoresDisponibles")
     fun getPrestadoresDisponibles(
-        @RequestParam userId: Int,
+        authentication: Authentication,
         @RequestParam(required = false, defaultValue = "") search: String,
-    ): List<String> = libroService.obtenerPrestadoresDisponibles(search, userId)
+    ): List<String> {
+        val userId = authentication.name.toLong()
+        return libroService.obtenerPrestadoresDisponibles(search, userId)
+    }
 
     @DeleteMapping("{idLibro}")
     fun borrarLibro(
-        @PathVariable idLibro: Int,
-        @RequestParam idUsuario: Int
+        authentication: Authentication,
+        @PathVariable idLibro: Long
     ): ResponseEntity<ActionResponse> {
+        val idUsuario = authentication.name.toLong()
         libroService.borrarLibro(idLibro, idUsuario)
 
         val mensajeExito = "El libro fue eliminado exitosamente."

@@ -2,62 +2,39 @@ package ar.edu.unsam.phm.repository
 
 import ar.edu.unsam.phm.domain.Calificacion
 import ar.edu.unsam.phm.domain.Libro
-import ar.edu.unsam.phm.domain.PageResult
-import ar.edu.unsam.phm.domain.paginate
-import ar.edu.unsam.phm.dto.OrdenCalificacion
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-class CalificacionRepository : Repositorio<Calificacion>() {
-    fun obtenerCalificaciones(
-        libro: Libro, orden: OrdenCalificacion, page: Int, size: Int
-    ): PageResult<Calificacion> {
+interface CalificacionRepository : CrudRepository<Calificacion, Long> {
 
-        val calificacionesOrdenadas = when (orden) {
-            OrdenCalificacion.DATE_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }
-                .sortedBy { it.fecha }
+    fun findByLibroIdAndUsuarioId(
+        libroId: Long,
+        usuarioId: Long
+    ): Calificacion?
 
-            OrdenCalificacion.DATE_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }
-                .sortedByDescending { it.fecha }
+    fun findByLibroId(
+        libroId: Long,
+        pageable: Pageable
+    ): Page<Calificacion>
 
-            OrdenCalificacion.RATING_ASC -> getElementos().filter { it.reserva.libro.id == libro.id }
-                .sortedBy { it.puntuacion }
+    fun findTop2ByLibroIdOrderByFechaDesc(libroId: Long): List<Calificacion>
 
-            OrdenCalificacion.RATING_DESC -> getElementos().filter { it.reserva.libro.id == libro.id }
-                .sortedByDescending { it.puntuacion }
-        }
+    @Query(
+        """
+        SELECT AVG(c.puntuacion)
+        FROM Calificacion c
+        WHERE c.libro.id = :libroId
+    """
+    )
+    fun obtenerPromedioCalificaciones(@Param("libroId") libroId: Long): Double?
 
-        return paginate(page, size, calificacionesOrdenadas)
-    }
+    fun countByLibroId(libroId: Long): Long
 
-    fun obtenerUltimasCalificaciones(libro: Libro): List<Calificacion> {
-        val calificaciones = getElementos().filter { it.reserva.libro.id == libro.id }.sortedBy { it.fecha }.take(2)
-
-        return calificaciones
-    }
-
-    fun agregarCalificacion(calificacion: Calificacion) {
-        val existente = getElementos().find {
-            (it.reserva.libro.id == calificacion.reserva.libro.id) && (it.reserva.usuarioLector.id == calificacion.reserva.usuarioLector.id)
-        }
-
-        if (existente == null) {
-            create(calificacion)
-        } else {
-            calificacion.id = existente.id
-            update(calificacion)
-        }
-    }
-
-    fun obtenerPromedioCalificaciones(libroID: Int): Double {
-        return getElementos()
-            .filter { it.reserva.libro.id == libroID }
-            .map { it.puntuacion }
-            .average()
-            .takeIf { !it.isNaN() } ?: 0.0
-    }
-
-    fun obtenerCantidadCalificaciones(libroID: Int): Int {
-        return getElementos().filter { it.reserva.libro.id == libroID }.size
-    }
+    @Query("SELECT AVG(c.puntuacion) FROM Calificacion c WHERE c.libro.id = :libroId")
+    fun promedioPorLibro(@Param("libroId") libroId: Long): Double?
 }

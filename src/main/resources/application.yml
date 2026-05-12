@@ -1,7 +1,26 @@
-server:
-  port: 9000
-  error:
-    whitelabel:
-      enabled: false
-    include-message: always
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booklibre
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
 
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+
+# Para activar el Trace
+logging:
+  level:
+    root: INFO
+
+security:
+  # Esta secret-key deberíamos configurarla como variable de entorno
+  secret-key: 0fa79b9640de2f9e8a47c47643f5bd84ac6164c6bd669990c7ed75562202360a3a35e990c36c0c374bb5c6d24660e42fa33808e026a6e3cf556b9226960dc885
+  access-token-minutes: 1
+  refresh-token-days: 1

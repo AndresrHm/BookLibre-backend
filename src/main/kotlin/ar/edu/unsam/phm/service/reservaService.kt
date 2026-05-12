@@ -1,20 +1,25 @@
 package ar.edu.unsam.phm.service
 
-import ar.edu.unsam.phm.BusinessException
-import ar.edu.unsam.phm.NotFoundException
+import FechasReserva
+import ar.edu.unsam.phm.errors.BusinessException
+import ar.edu.unsam.phm.errors.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
 import ar.edu.unsam.phm.domain.Libro
+import ar.edu.unsam.phm.domain.LibroReservaCount
 import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.Reserva
-import ar.edu.unsam.phm.domain.TipoUsuario
 import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.predicate.reservaPorTipoSpecifications
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
+import ar.edu.unsam.phm.utils.sanitizarSearch
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
-import kotlin.Pair
+import org.springframework.data.domain.Page
 
 @Service
 class ReservaService(
@@ -23,34 +28,42 @@ class ReservaService(
     val libroRepository: LibroRepository,
 ) {
     fun getReservas(
-        userID: Int,
+        userID: Long,
         type: ReservaType,
         page: Int,
         size: Int,
-        string: String?,
+        nombreFiltro: String?,
     ): PageResponse<Reserva> {
-        if (usuarioRepository.getById(userID) == null) throw BusinessException(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE)
+        val nombreSanitizado = sanitizarSearch(nombreFiltro)
+        if (!usuarioRepository.existsById(userID)) {
+            throw BusinessException(ErrorStrings.USUARIO_LOGUEADO_NO_EXISTE)
+        }
 
-        val pageResponse = reservaRepository.findReservasByType(userID, type, page, size, string)
+        val pedidoPaginas = PageRequest.of(page, size)
+
+        val pageResponse = buscarReservasPorTipo(userID, type.name, nombreSanitizado, pedidoPaginas)
 
         return PageResponse(
             content = pageResponse.content,
-            page = page,
-            size = size,
-            totalElements = pageResponse.content.size,
-            totalPages = (pageResponse.totalElements + size - 1) / size,
+            page = pageResponse.number,
+            size = pageResponse.size,
+            totalElements = pageResponse.totalElements.toInt(),
+            totalPages = pageResponse.totalPages,
         )
     }
 
+    @Transactional
     fun crearReserva(
-        libro: Libro,
-        cantidadReservas: Int,
+        libroId: Long,
         usuarioLector: Usuario,
         usuarioPrestador: Usuario,
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate
     ): Reserva {
-        if (esTipoPublicador(usuarioLector)) {
+        val libro = libroRepository.findById(libroId)
+            .orElseThrow { BusinessException(ErrorStrings.libroNoEncontradoPorId(libroId)) }
+
+        if (!usuarioLector.esLector()) {
             throw BusinessException(ErrorStrings.SOLO_LECTOR_PUEDE_RESERVAR)
         }
 
@@ -65,9 +78,8 @@ class ReservaService(
 
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
-
-
-        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
+        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id!!)
+        val cantidadReservas = reservaRepository.countByLibroId(libro.id!!)
 
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
@@ -77,41 +89,47 @@ class ReservaService(
         val reserva = Reserva(libro, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
         usuarioLector.sumarKarma(reserva.darKarma(cantidadReservas))
 
-        reservaRepository.create(reserva)
-        usuarioRepository.update(usuarioLector) // Esto desaparece cuando saquemos el contador de libros leídos (y menos mal)
+        usuarioRepository.save(usuarioLector)
+        reservaRepository.save(reserva)
 
         return reserva
     }
 
-    fun obtenerFechasDeReservasDeLibro(libroId: Int): List<Pair<LocalDate, LocalDate>> {
-        if (libroRepository.getById(libroId) != null) {
-            val reservas = reservaRepository.findByLibroId(libroId)
-            return reservas.map {
-                it.fechaRecogida to it.fechaDevolucion
-            }
-        } else {
+    fun obtenerFechasDeReservasDeLibro(libroId: Long): List<Pair<LocalDate, LocalDate>> {
+        if (!libroRepository.existsById(libroId)) {
             throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
+        }
+
+        val reservas: List<FechasReserva> = reservaRepository.findFechasByLibroId(libroId)
+        return reservas.map {
+            it.fechaRecogida to it.fechaDevolucion
         }
     }
 
-    fun cantidadReservas(libroID: Int): Int {
-        return reservaRepository.cantidadReservas(libroID)
+    fun cantidadReservas(libroID: Long): Int {
+        return reservaRepository.countByLibroId(libroID)
     }
 
-    fun idLibrosPrestadosHoy(): Set<Int> {
-        return reservaRepository
-            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
-            .map { it.id }
-            .toSet()
+    private fun buscarReservasPorTipo(
+        userId: Long,
+        tipoReserva: String,
+        search: String?,
+        pageRequest: PageRequest,
+    ): Page<Reserva> {
+        val especificacion = reservaPorTipoSpecifications(tipoReserva, userId, search)
+
+        return reservaRepository.findAll(especificacion, pageRequest)
+    }
+
+    fun countReservasByLibroIds(libroIds: List<Long>): List<LibroReservaCount> {
+        return reservaRepository.countReservasByLibroIds(libroIds)
     }
 
     private fun fechasAnterioresAHoy(fechaRecogida: LocalDate, fechaDevolucion: LocalDate): Boolean =
         fechaRecogida < LocalDate.now() || fechaDevolucion <= LocalDate.now()
 
-    private fun esTipoPublicador(usuarioLector: Usuario): Boolean = usuarioLector.tipoUsuario == TipoUsuario.PUBLICADOR
-
-    private fun libroPerteneceAUsuario(usuarioLector: Usuario, libro: Libro): Boolean =
-        usuarioLector.id == libro.idPropietario
+    private fun libroPerteneceAUsuario(usuario: Usuario, libro: Libro): Boolean =
+        usuario.id == libro.idPropietario
 
     private fun haySolapamiento(
         fechaRecogida: LocalDate,

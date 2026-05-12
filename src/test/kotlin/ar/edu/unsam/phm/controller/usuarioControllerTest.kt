@@ -1,124 +1,156 @@
 package ar.edu.unsam.phm.controller
 
+import ar.edu.unsam.phm.domain.Rol
 import ar.edu.unsam.phm.domain.TipoUsuario
+import ar.edu.unsam.phm.domain.Usuario
 import ar.edu.unsam.phm.domain.crearUsuario
-import ar.edu.unsam.phm.errors.ErrorStrings
+import ar.edu.unsam.phm.repository.CalificacionRepository
+import ar.edu.unsam.phm.repository.LibroRepository
+import ar.edu.unsam.phm.repository.ReservaRepository
+import ar.edu.unsam.phm.repository.RolRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import kotlin.test.assertEquals
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class UsuarioControllerTest(@Autowired val mockMvc: MockMvc) {
+    @Autowired
+    private lateinit var libroRepository: LibroRepository
+
+    @Autowired
+    private lateinit var reservaRepository: ReservaRepository
+
+    @Autowired
+    private lateinit var calificacionRepository: CalificacionRepository
+
     @Autowired
     private lateinit var usuarioRepository: UsuarioRepository
 
     @Autowired
-    lateinit var objectMapper: ObjectMapper
+    private lateinit var rolRepository: RolRepository
 
-    val usuario1 = crearUsuario(id = 1, nombre = "Juan", apellido = "Pérez", tipoUsuario = TipoUsuario.LECTOR)
-    val usuario2 = crearUsuario(id = 2, nombre = "María", apellido = "González", tipoUsuario = TipoUsuario.PUBLICADOR)
-    val usuario3 = crearUsuario(id = 3, nombre = "Carlos", apellido = "López", tipoUsuario = TipoUsuario.LECTORPUBLICADOR)
+    private lateinit var rolLector: Rol
+    private lateinit var rolPublicador: Rol
+
+    private lateinit var usuario1: Usuario
+    private lateinit var usuario2: Usuario
 
     @BeforeEach
     fun init() {
-        usuarioRepository.clearInit()
+        calificacionRepository.deleteAll()
+        reservaRepository.deleteAll()
+        libroRepository.deleteAll()
+        usuarioRepository.deleteAll()
+        rolRepository.deleteAll()
+
+        rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
+        rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
+        rolRepository.saveAll(listOf(rolLector, rolPublicador))
+
+        usuario1 = crearUsuario(nombre = "Juan", apellido = "Perez", roles = mutableSetOf(rolLector, rolPublicador))
+        usuario2 = crearUsuario(nombre = "Maria", apellido = "Gonzalez", roles = mutableSetOf(rolLector, rolPublicador))
+
         usuario1.biblioKarma = 50
         usuario2.biblioKarma = 150
-        usuario3.biblioKarma = 300
-        usuarioRepository.create(usuario1)
-        usuarioRepository.create(usuario2)
-        usuarioRepository.create(usuario3)
+
+        usuarioRepository.save(usuario1)
+        usuarioRepository.save(usuario2)
     }
 
-    // ----- Obtener información del header -----
     @Test
-    fun `Se obtiene la información del header del usuario`() {
+    fun `Se obtiene la informacion del header del usuario autenticado`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/header", 1)
-        ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.id").value("1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.urlImagen").value("imagenUsuario"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.biblioKarma").value("50"))
+            MockMvcRequestBuilders.get("/usuario/HEADER")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.usuario.id").value(usuario1.id.toString()))
+            .andExpect(jsonPath("$.usuario.biblioKarma").value(50))
     }
 
     @Test
-    fun `No se encuentra información del header si el usuario no existe`() {
-        val usuarioIdInexistente = -1
-        val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/header", usuarioIdInexistente)
-        ).andExpect(status().isNotFound)
-            .andReturn().resolvedException?.message
-
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioIdInexistente), errorMessage)
-    }
-
-    // ----- Obtener perfil del usuario -----
-    @Test
-    fun `Se obtiene el perfil completo del usuario`() {
+    fun `Se obtiene el perfil del usuario autenticado`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/perfil", 2)
-        ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.id").value("2"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.nombre").value("María"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.apellido").value("González"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.tipoUsuario").value("PUBLICADOR"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario.biblioKarma").value("150"))
+            MockMvcRequestBuilders.get("/usuario/PERFIL")
+                .principal(UsernamePasswordAuthenticationToken(usuario2.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.usuario.id").value(usuario2.id.toString()))
+            .andExpect(jsonPath("$.usuario.nombre").value("Maria"))
     }
 
     @Test
-    fun `No se encuentra el perfil si el usuario no existe`() {
-        val usuarioIdInexistente = -1
-        val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/perfil", usuarioIdInexistente)
-        ).andExpect(status().isNotFound)
-            .andReturn().resolvedException?.message
-
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioIdInexistente), errorMessage)
-    }
-
-    // ----- Obtener tipo de usuario -----
-    @Test
-    fun `Se obtiene el tipo de usuario (LECTOR)`() {
+    fun `Se obtiene el tipo de usuario del usuario autenticado`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", 1)
-        ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario").value("LECTOR"))
+            MockMvcRequestBuilders.get("/usuario/TIPOUSUARIO")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.tipo").value("TIPOUSUARIO"))
     }
 
     @Test
-    fun `Se obtiene el tipo de usuario (PUBLICADOR)`() {
+    fun `Si el usuario autenticado no existe devuelve 404`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", 2)
-        ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario").value("PUBLICADOR"))
+            MockMvcRequestBuilders.get("/usuario/HEADER")
+                .principal(UsernamePasswordAuthenticationToken("-1", null))
+        )
+            .andExpect(status().isNotFound)
     }
 
     @Test
-    fun `Se obtiene el tipo de usuario (LECTORPUBLICADOR)`() {
+    fun `Se obtiene el DTO de edicion del usuario autenticado`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", 3)
-        ).andExpect(status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.usuario").value("LECTORPUBLICADOR"))
+            MockMvcRequestBuilders.get("/usuario/UPDATE")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.usuario.nombre").value("Juan"))
+            .andExpect(jsonPath("$.usuario.apellido").value("Perez"))
     }
 
     @Test
-    fun `No se encuentra el tipo de usuario si el usuario no existe`() {
-        val usuarioIdInexistente = -1
-        val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/usuario/{usuarioId}/tipoUsuario", usuarioIdInexistente)
-        ).andExpect(status().isNotFound)
-            .andReturn().resolvedException?.message
+    fun `Se obtiene el karma del usuario autenticado`() {
+        mockMvc.perform(
+            MockMvcRequestBuilders.get("/usuario/KARMA")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.usuario.biblioKarma").value(50))
+    }
 
-        assertEquals(ErrorStrings.usuarioNoEncontradoPorId(usuarioIdInexistente), errorMessage)
+    @Test
+    fun `Se actualiza el usuario autenticado correctamente`() {
+        val body = """
+            {
+                "nombre": "Juan Actualizado",
+                "apellido": "Perez",
+                "descripcion": "Nueva descripcion",
+                "ciudad": "Buenos Aires",
+                "tipoUsuario": [
+                    {"id": ${rolLector.id}, "name": "${rolLector.name}"},
+                    {"id": ${rolPublicador.id}, "name": "${rolPublicador.name}"}
+                ],
+                "urlImagen": "http://imagen.com/foto.jpg"
+            }
+        """.trimIndent()
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.put("/usuario")
+                .principal(UsernamePasswordAuthenticationToken(usuario1.id.toString(), null))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+        )
+            .andExpect(status().isOk)
     }
 }
