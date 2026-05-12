@@ -40,7 +40,7 @@ class Usuario(
     @Id @GeneratedValue
     var id: Long? = null
     var biblioKarma: Int = 0
-    val fechaDeCreacion: LocalDate = LocalDate.now()
+    var fechaDeCreacion: LocalDate = LocalDate.now() //Var por error en hidratación
 
     fun sumarKarma(karma: Int) {
         if (karma <= 0)

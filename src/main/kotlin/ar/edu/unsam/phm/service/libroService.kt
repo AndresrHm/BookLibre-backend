@@ -202,7 +202,7 @@ class LibroService(
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
 
-        if (estaReservadoHoy(libro.id!!)) {
+        if (estaReservadoHoy(libro.id)) {
             throw BusinessException(ErrorStrings.LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR)
         }
 
@@ -214,21 +214,14 @@ class LibroService(
 
     private fun estaReservadoHoy(libroId: String): Boolean {
         val hoy = LocalDate.now()
-
-        /*val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
-            .mapNotNull { it.id }
-            .toSet()
-        return libroId in idsReservados
-    }*/
-
         return libroId in repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy).toSet()
     }
 
     private fun sortHomePage(ordenHomePage: OrdenHomePage): Sort = when (ordenHomePage) {
-        OrdenHomePage.NOMBRE_ASC -> Sort.by(Sort.Order.asc("titulo").ignoreCase())
-        OrdenHomePage.NOMBRE_DESC -> Sort.by(Sort.Order.desc("titulo").ignoreCase())
-        OrdenHomePage.AUTOR_ASC -> Sort.by(Sort.Order.asc("autor").ignoreCase())
-        OrdenHomePage.AUTOR_DESC -> Sort.by(Sort.Order.desc("autor").ignoreCase())
+        OrdenHomePage.NOMBRE_ASC -> Sort.by("titulo").ascending()
+        OrdenHomePage.NOMBRE_DESC -> Sort.by("titulo").descending()
+        OrdenHomePage.AUTOR_ASC -> Sort.by("autor").ascending()
+        OrdenHomePage.AUTOR_DESC -> Sort.by("autor").descending()
         OrdenHomePage.USER_ASC -> Sort.unsorted()
         OrdenHomePage.USER_DESC -> Sort.unsorted()
     }
