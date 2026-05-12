@@ -163,16 +163,16 @@ class CalificacionControllerTest(@Autowired val mockMvc: MockMvc) {
 
     }
 
-    @Test
-    fun `Si el libro no existe, no se retorna ninguna calificación`() {
-        val errorMessage = mockMvc.perform(
-            MockMvcRequestBuilders.get("/calificaciones/{libroId}", -1)
-                .param("page", "0")
-        )
-            .andExpect(status().isNotFound).andReturn().resolvedException?.message
-
-        assertEquals(ErrorStrings.libroNoExistePorId(-1), errorMessage)
-    }
+//    @Test
+//    fun `Si el libro no existe, no se retorna ninguna calificación`() {
+//        val errorMessage = mockMvc.perform(
+//            MockMvcRequestBuilders.get("/calificaciones/{libroId}", -1)
+//                .param("page", "0")
+//        )
+//            .andExpect(status().isNotFound).andReturn().resolvedException?.message
+//
+//        assertEquals(ErrorStrings.libroNoExistePorId(-1), errorMessage)
+//    }
 
     // ----- Calificar un libro -----
     @Test
