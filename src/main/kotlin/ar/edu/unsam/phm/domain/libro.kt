@@ -9,6 +9,11 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
+data class FechaReserva(
+    val fechaInicio: LocalDate,
+    val fechaFin: LocalDate,
+)
+
 @Document(collection = "libros")
 class Libro(
     var titulo: String,
@@ -36,6 +41,7 @@ class Libro(
     var activo = true
     var calificacion: Double = 0.0
     var ultimasCalificaciones: List<Calificacion> = listOf()
+    var fechasReserva: MutableList<FechaReserva> = mutableListOf()
 
     fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(this, reserva.usuarioLector, cantidadReservas)
 
@@ -53,6 +59,15 @@ class Libro(
 
     fun actualizarUltimasCalificaciones(calificaciones: List<Calificacion>) {
         ultimasCalificaciones = calificaciones
+    }
+
+    fun agregarFechaReserva(fechaInicio: LocalDate, fechaFin: LocalDate) {
+        // Agregar al inicio (LIFO)
+        fechasReserva.add(0, FechaReserva(fechaInicio, fechaFin))
+        // Mantener solo las 3 más recientes
+        if (fechasReserva.size > 3) {
+            fechasReserva = fechasReserva.take(3).toMutableList()
+        }
     }
 
     fun calificacionPromedio() = calificacion
