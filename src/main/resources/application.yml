@@ -19,7 +19,7 @@ spring:
 
   data:
     mongodb:
-      uri: mongodb://admin:admin@localhost:27020/booklibre?authSource=admin
+      uri: mongodb://admin:admin@localhost:27117/booklibre?authSource=admin
 
 # Para activar el Trace
 logging:
