@@ -6,10 +6,12 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
+import ar.edu.unsam.phm.utils.CriterioFiltrosLibrosBuilder
+import ar.edu.unsam.phm.utils.LibroFiltrosMongo
+
 
 interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCustom {
     fun deleteByIdPropietario(idPropietario: Long)
@@ -44,22 +46,18 @@ class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepos
         excluirIds: Set<String>,
         pageable: Pageable,
     ): Page<Libro> {
-        val parts = mutableListOf(Criteria.where("activo").`is`(true))
-
-        search?.trim()?.takeIf { it.isNotBlank() }?.let {
-            parts.add(Criteria.where("titulo").regex(it, "i"))
-        }
-        isbn13?.let { parts.add(Criteria.where("isbn13").`is`(it)) }
-        paginasMin?.let { parts.add(Criteria.where("cantidadPaginas").gte(it)) }
-        paginasMax?.let { parts.add(Criteria.where("cantidadPaginas").lte(it)) }
-        generos?.takeIf { it.isNotEmpty() }?.let {
-            parts.add(Criteria.where("genero").`in`(it.map { g -> g.name }))
-        }
-        soloIdPropietario?.let { parts.add(Criteria.where("idPropietario").`is`(it)) }
-        excluirIdPropietario?.let { parts.add(Criteria.where("idPropietario").ne(it)) }
-        excluirIds.takeIf { it.isNotEmpty() }?.let { parts.add(Criteria.where("_id").nin(it)) }
-
-        val criteria = Criteria().andOperator(*parts.toTypedArray())
+        val criteria = CriterioFiltrosLibrosBuilder.build(
+            LibroFiltrosMongo(
+                search = search,
+                isbn13 = isbn13,
+                paginasMin = paginasMin,
+                paginasMax = paginasMax,
+                generos = generos,
+                soloIdPropietario = soloIdPropietario,
+                excluirIdPropietario = excluirIdPropietario,
+                excluirIds = excluirIds,
+            )
+        )
         val query = Query(criteria).with(pageable)
         val countQuery = Query(criteria)
 
