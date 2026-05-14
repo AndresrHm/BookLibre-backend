@@ -8,7 +8,7 @@ docker exec mongo-config-01 mongosh --quiet --file /scripts/init.config.server.j
 
 echo ""
 echo "Esperando config servers..."
-sleep 20
+sleep 15
 
 echo "========================================="
 echo "Inicializando Replica Set Shard 1"
@@ -25,7 +25,7 @@ docker exec shard-02-node-a mongosh --quiet --file /scripts/init.shard02.js
 
 echo ""
 echo "Esperando shards..."
-sleep 20
+sleep 15
 
 echo "========================================="
 echo "Agregando shards al router"
@@ -35,7 +35,7 @@ docker exec router-01 mongosh --quiet --file /scripts/init.router.js
 
 echo ""
 echo "Esperando propagación..."
-sleep 20
+sleep 15
 
 echo "========================================="
 echo "Habilitando sharding para la DB"

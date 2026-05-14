@@ -1,5 +1,9 @@
-Pasos a seguir para ejecutar los scripts
+// ----- Forma automágica ----- //
+0. docker compose up -d
+1. ./init-cluster.sh (hay que darle permisos de ejecución)
 
+// ----- Forma manual ----- //
+Pasos a seguir para ejecutar los scripts
 
 El orden es entrar al contenedor y luego ejecutar el script
 
