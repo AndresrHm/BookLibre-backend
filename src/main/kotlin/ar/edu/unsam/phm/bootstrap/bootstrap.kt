@@ -1141,11 +1141,14 @@ class BootstrapData(
         )
 
         (reservaRepository.saveAll(reservas))
-//
-//        // Vincula cada libro al usuario propietario persistido en memoria.
-//        usuarios.forEach { usuario ->
-//            libros.filter { it.idPropietario == usuario.id }.forEach(usuario::agregarLibroParaPrestar)
-//        }
+
+        // Agregar fechas de reservas a los libros
+        reservas.forEach { reserva ->
+            libros.find { it.id == reserva.libroId }?.agregarFechaReserva(reserva.fechaRecogida, reserva.fechaDevolucion)
+        }
+
+        // Guardar libros actualizados con fechas de reservas
+        libroRepository.saveAll(libros)
 
         return reservas
     }
