@@ -6,7 +6,7 @@ import ar.edu.unsam.phm.domain.Reserva
 import ar.edu.unsam.phm.dto.CreacionReservaDTO
 import ar.edu.unsam.phm.dto.ReservaDTO
 import ar.edu.unsam.phm.mapper.ReservaMapper
-import ar.edu.unsam.phm.service.CalificacionService
+import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.service.ReservaService
 import ar.edu.unsam.phm.service.UsuarioService
 import org.springframework.http.HttpStatus
@@ -25,6 +25,7 @@ class ReservaController(
     val reservaService: ReservaService,
     val usuarioService: UsuarioService,
     val reservaMapper: ReservaMapper,
+    val libroRepository: LibroRepository,
 ) {
 
     @PostMapping
@@ -33,7 +34,6 @@ class ReservaController(
         @RequestBody reserva: CreacionReservaDTO,
     ): ResponseEntity<ActionResponse> {
         val usuarioId = authentication.name.toLong()
-        // Busco los objetos de dominio para poder armar el objeto de dominio
         val usuarioLector = usuarioService.getUsuarioById(usuarioId)
         val usuarioPrestador = usuarioService.getUsuarioById(reserva.usuarioPrestadorId)
 
@@ -63,23 +63,25 @@ class ReservaController(
 
         val result = reservaService.getReservas(usuarioId, type, page, size, search)
 
-        val libroIds = result.content
-            .mapNotNull { it.libro.id }
-            .distinct()
+        val libroIds = result.content.map { it.libroId }.distinct()
 
-        val counts = reservaService.countReservasByLibroIds(libroIds)
+        val counts: Map<String, Long> = reservaService.countReservasByLibroIds(libroIds)
             .associate { it.getLibroId() to it.getTotal() }
+
+        val librosMap = libroRepository.findAllById(libroIds).associateBy { it.id!! }
 
         return PageResponse(
             content = result.content.map { reserva: Reserva ->
-                val libroId = reserva.libro.id
-                    ?: throw IllegalStateException("Reserva sin libro persistido")
+                val libroId = reserva.libroId
+                val libro = librosMap[libroId]
+                    ?: throw IllegalStateException("Libro $libroId no encontrado para reserva")
 
                 reservaMapper.toDetalleDTO(
                     reserva,
                     usuarioId,
                     counts[libroId] ?: 0L,
-                    reserva.libro.calificacionPromedio(),
+                    libro.calificacionPromedio(),
+                    libro,
                 )
             },
             page = result.page,

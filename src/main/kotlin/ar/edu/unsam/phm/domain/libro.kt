@@ -3,13 +3,18 @@ package ar.edu.unsam.phm.domain
 import BaseEntity
 import java.time.LocalDate
 import ar.edu.unsam.phm.utils.diasEntre
-import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import org.springframework.data.mongodb.core.mapping.Document
 
-@Entity
+data class FechaReserva(
+    val fechaInicio: LocalDate,
+    val fechaFin: LocalDate,
+)
+
+@Document(collection = "libros")
 class Libro(
     var titulo: String,
     @Enumerated(EnumType.STRING)
@@ -27,16 +32,18 @@ class Libro(
     var fechaPublicacion: LocalDate,
     @Enumerated(EnumType.STRING)
     var estadoLibro: EstadoLibro,
-    val idPropietario: Long
+    val idPropietario: Long,
 ) : BaseEntity() {
     @Id
     @GeneratedValue
-    var id: Long? = null
+    lateinit var id: String
     var fechaAgregado: LocalDate? = LocalDate.now()
     var activo = true
     var calificacion: Double = 0.0
+    var ultimasCalificaciones: List<Calificacion> = listOf()
+    var fechasReserva: MutableList<FechaReserva> = mutableListOf()
 
-    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(reserva, cantidadReservas)
+    fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(this, reserva.usuarioLector, cantidadReservas)
 
     fun calcularKarmaHomePage(
         usuarioLector: Usuario,
@@ -48,6 +55,18 @@ class Libro(
 
     fun actualizarCalificacion(nuevaCalificacion: Double) {
         calificacion = nuevaCalificacion
+    }
+
+    fun actualizarUltimasCalificaciones(calificaciones: List<Calificacion>) {
+        ultimasCalificaciones = calificaciones
+    }
+
+    fun agregarFechaReserva(fechaInicio: LocalDate, fechaFin: LocalDate) {
+
+        fechasReserva.add(0, FechaReserva(fechaInicio, fechaFin))
+        if (fechasReserva.size > 3) {
+            fechasReserva = fechasReserva.take(3).toMutableList()
+        }
     }
 
     fun calificacionPromedio() = calificacion
@@ -74,6 +93,6 @@ enum class EstadoLibro {
 }
 
 interface LibroReservaCount {
-    fun getLibroId(): Long
+    fun getLibroId(): String
     fun getTotal(): Long
 }

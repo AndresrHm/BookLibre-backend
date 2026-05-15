@@ -5,6 +5,9 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
 
+  main:
+    allow-bean-definition-overriding: true
+
   jpa:
     open-in-view: false
     show-sql: true
@@ -13,6 +16,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27117,localhost:27118/booklibre
 
 # Para activar el Trace
 logging:

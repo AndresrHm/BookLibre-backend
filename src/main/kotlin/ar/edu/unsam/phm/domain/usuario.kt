@@ -39,15 +39,8 @@ class Usuario(
 ) : BaseEntity() {
     @Id @GeneratedValue
     var id: Long? = null
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "libros_para_prestar")
-    val listaDeLibrosParaPrestar = mutableListOf<Libro>()
     var biblioKarma: Int = 0
-    val fechaDeCreacion: LocalDate = LocalDate.now()
-
-    fun agregarLibroParaPrestar(libro: Libro) {
-        listaDeLibrosParaPrestar.add(libro)
-    }
+    var fechaDeCreacion: LocalDate = LocalDate.now() //Var por error en hidratación
 
     fun sumarKarma(karma: Int) {
         if (karma <= 0)

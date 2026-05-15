@@ -7,11 +7,6 @@ import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
-import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.activo
-import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.dePropietario
-import ar.edu.unsam.phm.predicate.LibroSpecifications.LibroSpecifications.filtrosHome
-import ar.edu.unsam.phm.predicate.LibroSpecifications.disponibleHoy
-import ar.edu.unsam.phm.predicate.LibroSpecifications.reservadoHoy
 import ar.edu.unsam.phm.repository.LibroRepository
 import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
@@ -121,19 +116,25 @@ class LibroService(
         val sort = sortHomePage(ordenHomePage)
         val pageable = PageRequest.of(page, size, sort)
 
-        val spec = filtrosHome(
+
+        val idsReservados: Set<String> = if (filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null) {
+            repositorioReservas.getLibrosReservadosEntreFechas(
+                filtrosNormalizados.fechaDesde,
+                filtrosNormalizados.fechaHasta
+            ).toSet()
+        } else emptySet()
+
+        val resultado: Page<Libro> = repositorioLibro.buscarConFiltros(
             search = searchSanitizado,
             isbn13 = filtrosNormalizados.isbn13,
             paginasMin = filtrosNormalizados.paginasMin,
             paginasMax = filtrosNormalizados.paginasMax,
             generos = filtrosNormalizados.generos,
-            usuarioPrestadorId = filtrosNormalizados.usuarioPrestador?.id,
-            userId = userId,
-            fechaDesde = filtrosNormalizados.fechaDesde,
-            fechaHasta = filtrosNormalizados.fechaHasta,
+            soloIdPropietario = filtrosNormalizados.usuarioPrestador?.id,
+            excluirIdPropietario = if (filtrosNormalizados.usuarioPrestador == null) userId else null,
+            excluirIds = idsReservados,
+            pageable = pageable,
         )
-
-        val resultado: Page<Libro> = repositorioLibro.findAll(spec, pageable)
 
         return PageResponse(
             content = resultado.content,
@@ -160,7 +161,7 @@ class LibroService(
         return libro.calcularKarmaHomePage(usuarioLector, cantidadReservas, fechaDesde, fechaHasta)
     }
 
-    fun disponibilidadLibro(idLibro: Long): String {
+    fun disponibilidadLibro(idLibro: String): String {
         val libro = getLibroByIdOrThrow(idLibro)
         return if (estaReservadoHoy(libro.id!!)) "PRESTADO" else "DISPONIBLE"
     }
@@ -179,11 +180,11 @@ class LibroService(
             .sortedBy { it.lowercase() }
     }
 
-    fun borrarLibro(idLibro: Long, idUsuario: Long) {
+    fun borrarLibro(idLibro: String, idUsuario: Long) {
         val libro = getLibroByIdOrThrow(idLibro)
         validarPropietario(libro, idUsuario)
 
-        if (estaReservadoHoy(libro.id!!)) {
+        if (estaReservadoHoy(libro.id)) {
             throw BusinessException(ErrorStrings.LIBRO_PRESTADO_NO_SE_PUEDE_BORRAR)
         }
 
@@ -191,21 +192,18 @@ class LibroService(
         repositorioLibro.save(libro)
     }
 
-    fun obtenerLibro(idLibro: Long): Libro = getLibroByIdOrThrow(idLibro)
+    fun obtenerLibro(idLibro: String): Libro = getLibroByIdOrThrow(idLibro)
 
-    private fun estaReservadoHoy(libroId: Long): Boolean {
+    private fun estaReservadoHoy(libroId: String): Boolean {
         val hoy = LocalDate.now()
-        val idsReservados = repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy)
-            .mapNotNull { it.id }
-            .toSet()
-        return libroId in idsReservados
+        return libroId in repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy).toSet()
     }
 
     private fun sortHomePage(ordenHomePage: OrdenHomePage): Sort = when (ordenHomePage) {
-        OrdenHomePage.NOMBRE_ASC -> Sort.by(Sort.Order.asc("titulo").ignoreCase())
-        OrdenHomePage.NOMBRE_DESC -> Sort.by(Sort.Order.desc("titulo").ignoreCase())
-        OrdenHomePage.AUTOR_ASC -> Sort.by(Sort.Order.asc("autor").ignoreCase())
-        OrdenHomePage.AUTOR_DESC -> Sort.by(Sort.Order.desc("autor").ignoreCase())
+        OrdenHomePage.NOMBRE_ASC -> Sort.by("titulo").ascending()
+        OrdenHomePage.NOMBRE_DESC -> Sort.by("titulo").descending()
+        OrdenHomePage.AUTOR_ASC -> Sort.by("autor").ascending()
+        OrdenHomePage.AUTOR_DESC -> Sort.by("autor").descending()
         OrdenHomePage.USER_ASC -> Sort.unsorted()
         OrdenHomePage.USER_DESC -> Sort.unsorted()
     }
@@ -216,27 +214,25 @@ class LibroService(
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
     ): List<Libro> {
-        val baseSpec = Specification.where(activo()).and(dePropietario(propietarioId))
 
-        val specFinal = when (disponibilidad) {
-            FiltroDisponibilidadPerfil.TODOS -> baseSpec
-            FiltroDisponibilidadPerfil.DISPONIBLES -> baseSpec.and(disponibleHoy())
-            FiltroDisponibilidadPerfil.PRESTADOS -> baseSpec.and(reservadoHoy())
+        val librosActivos = repositorioLibro.findByActivoTrueAndIdPropietario(propietarioId)
+        val idsReservadosHoy = repositorioReservas
+            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
+            .toSet()
+
+        val librosFiltrados = when (disponibilidad) {
+            FiltroDisponibilidadPerfil.TODOS -> librosActivos
+            FiltroDisponibilidadPerfil.DISPONIBLES -> librosActivos.filter { it.id !in idsReservadosHoy }
+            FiltroDisponibilidadPerfil.PRESTADOS -> librosActivos.filter { it.id in idsReservadosHoy }
         }
-
-        val librosFiltrados = repositorioLibro.findAll(specFinal)
-
-        val librosPrestadosIds = repositorioLibro.findAll(Specification.where(activo()).and(reservadoHoy()))
-            .mapNotNull { it.id }.toSet()
 
         val comparadorBase = when (orden) {
             OrdenLibroPerfil.TITULO -> compareBy<Libro>({ it.titulo.lowercase() }, { it.autor.lowercase() })
             OrdenLibroPerfil.DISPONIBLE_PRESTADO -> compareBy<Libro>(
-                { it.id in librosPrestadosIds },
+                { it.id in idsReservadosHoy },
                 { it.titulo.lowercase() },
                 { it.autor.lowercase() }
             )
-
             OrdenLibroPerfil.FECHA_AGREGADO -> compareBy { it.fechaAgregado }
         }
 
@@ -263,7 +259,7 @@ class LibroService(
         )
     }
 
-    private fun getLibroByIdOrThrow(idLibro: Long): Libro =
+    private fun getLibroByIdOrThrow(idLibro: String): Libro =
         repositorioLibro.findByIdOrNull(idLibro)
             ?: throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(idLibro))
 

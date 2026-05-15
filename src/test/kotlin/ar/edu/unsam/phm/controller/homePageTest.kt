@@ -211,7 +211,7 @@ class HomePageTest {
         libroRepository.save(libro4)
         libroRepository.save(libro5)
         val reserva1 = Reserva(
-            libro = libro1,
+            libroId = libro1.id!!,
             usuarioPrestador = usuario2,
             usuarioLector = usuario1,
             fechaRecogida = LocalDate.of(2026, 4, 1),
@@ -219,7 +219,7 @@ class HomePageTest {
         )
 
         val reserva2 = Reserva(
-            libro = libro3,
+            libroId = libro3.id!!,
             usuarioPrestador = usuario2,
             usuarioLector = usuario1,
             fechaRecogida = LocalDate.of(2026, 4, 10),
@@ -263,7 +263,7 @@ class HomePageTest {
         libroRepository.save(libro5)
 
         val reserva1 = Reserva(
-            libro = libro1,
+            libroId = libro1.id!!,
             usuarioPrestador = usuario2,
             usuarioLector = usuario1,
             fechaRecogida = LocalDate.of(2026, 4, 1),
@@ -271,7 +271,7 @@ class HomePageTest {
         )
 
         val reserva2 = Reserva(
-            libro = libro3,
+            libroId = libro3.id!!,
             usuarioPrestador = usuario2,
             usuarioLector = usuario1,
             fechaRecogida = LocalDate.of(2026, 4, 10),

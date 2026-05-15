@@ -70,7 +70,7 @@ class CalificacionServiceTest {
         val dto2 = CrearCalificacionDTO(reservaFinalizada.id!!, "Segunda", 2.0)
         calificacionService.calificarLibro(lector.id!!, dto2)
 
-        val calif = calificacionRepository.findByLibroIdAndUsuarioId(libro.id!!, lector.id!!)
+        val calif = calificacionRepository.findByLibroAndUsuarioId(libro.id!!, lector.id!!)
 
         assertNotNull(calif)
         assertEquals("Segunda", calif?.comentario)

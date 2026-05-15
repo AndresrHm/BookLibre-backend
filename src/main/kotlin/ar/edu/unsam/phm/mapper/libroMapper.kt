@@ -54,7 +54,7 @@ class LibroMapper(
 
     fun toLibroEdicionDTO(libro: Libro): LibroEdicionDTO {
         val libroEdicionDTO = LibroEdicionDTO(
-            id = libro.id!!,
+            id = libro.id,
             titulo = libro.titulo,
             tipoLibro = libro.tipoComoTexto(),
             descripcion = libro.descripcion,

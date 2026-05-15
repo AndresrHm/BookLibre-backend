@@ -24,7 +24,7 @@ class ReservaSpec : DescribeSpec({
             // 9 * 5 = 45
             // Si TipoLibro.COMUN (con usuario default) devuelve 200
             // Total = 245
-            reserva.darKarma(1) shouldBe 245
+            reserva.darKarma(libro, 1) shouldBe 245
         }
     }
 

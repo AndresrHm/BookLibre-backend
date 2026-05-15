@@ -65,7 +65,7 @@ class UsuarioServiceTest {
 //    @Test
 //    fun `Si un Lector tiene reservas lanza BusinessException`() {
 //        val libro = libroRepository.save(crearLibro(idPropietario = publicador.id!!))
-//        reservaRepository.save(Reserva(libro, publicador, lector, LocalDate.now(), LocalDate.now()))
+//        reservaRepository.save(Reserva(libro.id!!, publicador, lector, LocalDate.now(), LocalDate.now()))
 //
 //        assertThrows<BusinessException> { usuarioService.usuarioUpdate(lector) }
 //    }
@@ -73,7 +73,7 @@ class UsuarioServiceTest {
     @Test
     fun `Si un Publicador tiene devoluciones pendientes lanza BusinessException`() {
         val libro = libroRepository.save(crearLibro(idPropietario = publicador.id!!))
-        reservaRepository.save(Reserva(libro, publicador, lector, LocalDate.now(), LocalDate.now()))
+        reservaRepository.save(Reserva(libro.id!!, publicador, lector, LocalDate.now(), LocalDate.now()))
 
         assertThrows<BusinessException> { usuarioService.usuarioUpdate(publicador) }
     }
@@ -122,7 +122,7 @@ class UsuarioServiceTest {
     @Test
     fun `obtenerCantidadDeLibrosPrestados y Leidos funcionan correctamente`() {
         val libro = libroRepository.save(crearLibro(idPropietario = publicador.id!!))
-        reservaRepository.save(Reserva(libro, publicador, lector, LocalDate.now(), LocalDate.now()))
+        reservaRepository.save(Reserva(libro.id!!, publicador, lector, LocalDate.now(), LocalDate.now()))
 
         assertEquals(1, usuarioService.obtenerCantidadDeLibrosLeidos(lector.id!!))
         assertEquals(1, usuarioService.obtenerCantidadDeLibrosPrestados(publicador.id!!))

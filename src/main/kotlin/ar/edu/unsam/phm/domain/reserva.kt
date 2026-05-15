@@ -2,6 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import BaseEntity
 import ar.edu.unsam.phm.utils.diasEntre
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -13,9 +14,7 @@ import java.time.temporal.ChronoUnit
 
 @Entity
 class Reserva(
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "libro_id")
-    val libro: Libro,
+    val libroId: String,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prestador_id")
@@ -32,7 +31,7 @@ class Reserva(
     @GeneratedValue
     var id: Long? = null
 
-    fun darKarma(cantidadReservas: Int): Int {
+    fun darKarma(libro: Libro, cantidadReservas: Int): Int {
         return diasEntre(fechaRecogida, fechaDevolucion) * 5 + libro.darKarma(this, cantidadReservas)
     }
 
@@ -44,6 +43,7 @@ class Reserva(
         }
     }
 }
+
 enum class EstadoReserva {
     ACTIVO,
     PROXIMO_A_VENCER,
