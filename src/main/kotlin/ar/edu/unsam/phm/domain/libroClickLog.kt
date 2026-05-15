@@ -2,7 +2,7 @@ package ar.edu.unsam.phm.domain
 
 import jakarta.persistence.Id
 import org.springframework.data.mongodb.core.mapping.Document
-import java.time.Instant
+import java.time.ZonedDateTime
 
 @Document(collection = "libro_click_logs")
 data class LibroClickLog(
@@ -12,5 +12,5 @@ data class LibroClickLog(
     val libroId: String,
     val libroTitulo: String,
     val usuarioId: Long,
-    val clickTimestamp: Instant = Instant.now(),
+    val clickTimestamp: String = ZonedDateTime.now().toString()
 )
