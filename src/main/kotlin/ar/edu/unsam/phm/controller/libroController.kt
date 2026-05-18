@@ -78,7 +78,7 @@ class LibroController(
                 return SealedGetLibroDTO.Edicion(dto)
             }
 
-            GetLibroDTO.DETALLE -> {
+            GetLibroDTO.DETALLE, GetLibroDTO.RESERVA -> {
                 val usuarioId = authentication.name.toLong()
                 val promedio = libro.calificacionPromedio()
                 val cantidad = calificacionService.cantidadCalificaciones(idLibro)
@@ -89,7 +89,10 @@ class LibroController(
                 )
 
                 // Log de clicks
-                libroClickLogService.logClick(libro.id!!, libro.titulo, authentication.name.toLong())
+                if (tipoDTO == GetLibroDTO.DETALLE) {
+                    libroClickLogService.logClick(libro.id, libro.titulo, authentication.name.toLong())
+                }
+
                 return SealedGetLibroDTO.Detalle(dtoDetalle)
             }
         }

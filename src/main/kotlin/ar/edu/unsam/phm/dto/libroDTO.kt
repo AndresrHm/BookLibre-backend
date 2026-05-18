@@ -178,7 +178,8 @@ enum class OrdenHomePage {
 
 enum class GetLibroDTO {
     DETALLE,
-    EDICION
+    EDICION,
+    RESERVA
 }
 
 enum class OrigenLibro {
