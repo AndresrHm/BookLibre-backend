@@ -90,7 +90,12 @@ class LibroController(
 
                 // Log de clicks
                 if (tipoDTO == GetLibroDTO.DETALLE) {
-                    libroClickLogService.logClick(libro.id, libro.titulo, authentication.name.toLong())
+                    libroClickLogService.logClick(
+                        libro.id,
+                        libro.titulo,
+                        authentication.name.toLong(),
+                        libro.idPropietario,
+                    )
                 }
 
                 return SealedGetLibroDTO.Detalle(dtoDetalle)

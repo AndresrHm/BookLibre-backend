@@ -17,6 +17,7 @@ interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCusto
     fun deleteByIdPropietario(idPropietario: Long)
     fun findByActivoTrue(): List<Libro>
     fun findByActivoTrueAndIdPropietario(idPropietario: Long): List<Libro>
+    fun findByIdPropietario(idPropietario: Long): List<Libro>
 }
 
 interface LibroRepositoryCustom {
