@@ -4,7 +4,6 @@ import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.errors.NotFoundException
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.PageResponse
-import ar.edu.unsam.phm.domain.paginate
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
@@ -14,7 +13,6 @@ import ar.edu.unsam.phm.utils.sanitizarSearch
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -43,7 +41,7 @@ class LibroService(
         if (!prestador.esPublicador())
             throw BusinessException(ErrorStrings.SOLO_PUBLICADOR_PUEDE_CREAR_LIBROS)
 
-        val libroOriginal = getLibroByIdOrThrow(libroEditado.id!!)
+        val libroOriginal = getLibroByIdOrThrow(libroEditado.id)
         validarPropietario(libroOriginal, idUsuarioActual)
 
         libroOriginal.titulo = libroEditado.titulo
@@ -84,15 +82,14 @@ class LibroService(
                 userId = userId,
             )
 
-            OrigenLibro.PERFIL -> {
-                val librosOrdenados = filtrarYOrdenarLibrosPerfil(
-                    propietarioId = userId,
-                    disponibilidad = disponibilidadLibrosPerfil,
-                    orden = ordenLibroPerfil,
-                    direccion = direccionOrdenPerfil,
-                )
-                paginar(librosOrdenados, page, size)
-            }
+            OrigenLibro.PERFIL -> librosFiltradosPerfilDesdeDb(
+                propietarioId = userId,
+                page = page,
+                size = size,
+                disponibilidad = disponibilidadLibrosPerfil,
+                orden = ordenLibroPerfil,
+                direccion = direccionOrdenPerfil,
+            )
         }
     }
 
@@ -163,7 +160,7 @@ class LibroService(
 
     fun disponibilidadLibro(idLibro: String): String {
         val libro = getLibroByIdOrThrow(idLibro)
-        return if (estaReservadoHoy(libro.id!!)) "PRESTADO" else "DISPONIBLE"
+        return if (estaReservadoHoy(libro.id)) "PRESTADO" else "DISPONIBLE"
     }
 
     fun obtenerPrestadoresDisponibles(search: String?, userId: Long): List<String> {
@@ -173,7 +170,7 @@ class LibroService(
         val termino = search?.trim().orEmpty()
 
         return repositorioLibro.findByActivoTrue()
-            .filter { it.idPropietario != userId && !estaReservadoHoy(it.id!!) }
+            .filter { it.idPropietario != userId && !estaReservadoHoy(it.id) }
             .mapNotNull { repositorioUsuario.findByIdOrNull(it.idPropietario)?.nombre }
             .distinct()
             .filter { (termino.isBlank() || it.contains(termino, ignoreCase = true)) }
@@ -208,55 +205,166 @@ class LibroService(
         OrdenHomePage.USER_DESC -> Sort.unsorted()
     }
 
-    private fun filtrarYOrdenarLibrosPerfil(
+    private fun sortPerfil(orden: OrdenLibroPerfil, direccion: DireccionOrden): Sort {
+        val direction = if (direccion == DireccionOrden.ASCENDENTE) Sort.Direction.ASC else Sort.Direction.DESC
+
+        return when (orden) {
+            OrdenLibroPerfil.TITULO -> Sort.by(direction, "titulo")
+                .and(Sort.by(direction, "autor"))
+                .and(Sort.by(Sort.Direction.ASC, "id"))
+
+            OrdenLibroPerfil.DISPONIBLE_PRESTADO -> Sort.by(direction, "titulo")
+                .and(Sort.by(direction, "autor"))
+                .and(Sort.by(Sort.Direction.ASC, "id"))
+
+            OrdenLibroPerfil.FECHA_AGREGADO -> Sort.by(direction, "fechaAgregado")
+                .and(Sort.by(Sort.Direction.ASC, "id"))
+        }
+    }
+
+    // Paginación del perfil directamente en Mongo: se filtra y ordena por criteria,
+    // evitando traer todos los libros a memoria antes de armar la página.
+    private fun librosFiltradosPerfilDesdeDb(
         propietarioId: Long,
+        page: Int,
+        size: Int,
         disponibilidad: FiltroDisponibilidadPerfil,
         orden: OrdenLibroPerfil,
         direccion: DireccionOrden,
-    ): List<Libro> {
-
-        val librosActivos = repositorioLibro.findByActivoTrueAndIdPropietario(propietarioId)
-        val idsReservadosHoy = repositorioReservas
-            .getLibrosReservadosEntreFechas(LocalDate.now(), LocalDate.now())
-            .toSet()
-
-        val librosFiltrados = when (disponibilidad) {
-            FiltroDisponibilidadPerfil.TODOS -> librosActivos
-            FiltroDisponibilidadPerfil.DISPONIBLES -> librosActivos.filter { it.id !in idsReservadosHoy }
-            FiltroDisponibilidadPerfil.PRESTADOS -> librosActivos.filter { it.id in idsReservadosHoy }
-        }
-
-        val comparadorBase = when (orden) {
-            OrdenLibroPerfil.TITULO -> compareBy<Libro>({ it.titulo.lowercase() }, { it.autor.lowercase() })
-            OrdenLibroPerfil.DISPONIBLE_PRESTADO -> compareBy<Libro>(
-                { it.id in idsReservadosHoy },
-                { it.titulo.lowercase() },
-                { it.autor.lowercase() }
-            )
-            OrdenLibroPerfil.FECHA_AGREGADO -> compareBy { it.fechaAgregado }
-        }
-
-        val comparadorFinal = when (direccion) {
-            DireccionOrden.ASCENDENTE -> comparadorBase.thenBy { it.id }
-            DireccionOrden.DESCENDENTE -> comparadorBase.reversed().thenBy { it.id }
-        }
-
-        return librosFiltrados.sortedWith(comparadorFinal)
-    }
-
-    private fun paginar(libros: List<Libro>, page: Int, size: Int): PageResponse<Libro> {
+    ): PageResponse<Libro> {
         validarPaginacion(page, size)
 
-        val pageResult = paginate(page, size, libros)
-        val totalPages = if (pageResult.totalElements == 0) 0 else (pageResult.totalElements + size - 1) / size
+        val sort = sortPerfil(orden, direccion)
+        val offset = page.toLong() * size
 
-        return PageResponse(
-            content = pageResult.content,
-            page = page,
-            size = size,
-            totalElements = pageResult.totalElements,
-            totalPages = totalPages,
-        )
+        val pageResult = when {
+            orden == OrdenLibroPerfil.DISPONIBLE_PRESTADO && disponibilidad == FiltroDisponibilidadPerfil.TODOS -> {
+                val primeraDisponibilidad = if (direccion == DireccionOrden.ASCENDENTE) {
+                    FiltroDisponibilidadPerfil.DISPONIBLES
+                } else {
+                    FiltroDisponibilidadPerfil.PRESTADOS
+                }
+                val segundaDisponibilidad = if (primeraDisponibilidad == FiltroDisponibilidadPerfil.DISPONIBLES) {
+                    FiltroDisponibilidadPerfil.PRESTADOS
+                } else {
+                    FiltroDisponibilidadPerfil.DISPONIBLES
+                }
+
+                val totalPrimera = repositorioLibro.contarConFiltros(
+                    search = null,
+                    isbn13 = null,
+                    paginasMin = null,
+                    paginasMax = null,
+                    generos = null,
+                    soloIdPropietario = propietarioId,
+                    excluirIdPropietario = null,
+                    excluirIds = emptySet(),
+                    disponibilidad = primeraDisponibilidad,
+                )
+                val totalSegunda = repositorioLibro.contarConFiltros(
+                    search = null,
+                    isbn13 = null,
+                    paginasMin = null,
+                    paginasMax = null,
+                    generos = null,
+                    soloIdPropietario = propietarioId,
+                    excluirIdPropietario = null,
+                    excluirIds = emptySet(),
+                    disponibilidad = segundaDisponibilidad,
+                )
+
+                val content = mutableListOf<Libro>()
+                var remaining = size
+
+                if (offset < totalPrimera) {
+                    val primerBloque = repositorioLibro.buscarConFiltrosSinPaginacion(
+                        search = null,
+                        isbn13 = null,
+                        paginasMin = null,
+                        paginasMax = null,
+                        generos = null,
+                        soloIdPropietario = propietarioId,
+                        excluirIdPropietario = null,
+                        excluirIds = emptySet(),
+                        sort = sort,
+                        skip = offset,
+                        limit = remaining,
+                        disponibilidad = primeraDisponibilidad,
+                    )
+                    content.addAll(primerBloque)
+                    remaining -= primerBloque.size
+
+                    if (remaining > 0) {
+                        val segundoBloque = repositorioLibro.buscarConFiltrosSinPaginacion(
+                            search = null,
+                            isbn13 = null,
+                            paginasMin = null,
+                            paginasMax = null,
+                            generos = null,
+                            soloIdPropietario = propietarioId,
+                            excluirIdPropietario = null,
+                            excluirIds = emptySet(),
+                            sort = sort,
+                            skip = 0,
+                            limit = remaining,
+                            disponibilidad = segundaDisponibilidad,
+                        )
+                        content.addAll(segundoBloque)
+                    }
+                } else {
+                    val segundoSkip = offset - totalPrimera
+                    val segundoBloque = repositorioLibro.buscarConFiltrosSinPaginacion(
+                        search = null,
+                        isbn13 = null,
+                        paginasMin = null,
+                        paginasMax = null,
+                        generos = null,
+                        soloIdPropietario = propietarioId,
+                        excluirIdPropietario = null,
+                        excluirIds = emptySet(),
+                        sort = sort,
+                        skip = segundoSkip,
+                        limit = remaining,
+                        disponibilidad = segundaDisponibilidad,
+                    )
+                    content.addAll(segundoBloque)
+                }
+
+                val totalElements = totalPrimera + totalSegunda
+                PageResponse(
+                    content = content,
+                    page = page,
+                    size = size,
+                    totalElements = totalElements.toInt(),
+                    totalPages = if (totalElements == 0L) 0 else ((totalElements + size - 1) / size).toInt(),
+                )
+            }
+
+            else -> {
+                val resultado = repositorioLibro.buscarConFiltros(
+                    search = null,
+                    isbn13 = null,
+                    paginasMin = null,
+                    paginasMax = null,
+                    generos = null,
+                    soloIdPropietario = propietarioId,
+                    excluirIdPropietario = null,
+                    excluirIds = emptySet(),
+                    pageable = PageRequest.of(page, size, sort),
+                    disponibilidad = disponibilidad,
+                )
+
+                PageResponse(
+                    content = resultado.content,
+                    page = page,
+                    size = size,
+                    totalElements = resultado.totalElements.toInt(),
+                    totalPages = resultado.totalPages,
+                )
+            }
+        }
+
+        return pageResult
     }
 
     private fun getLibroByIdOrThrow(idLibro: String): Libro =

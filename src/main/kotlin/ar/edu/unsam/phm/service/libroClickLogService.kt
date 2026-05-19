@@ -25,6 +25,17 @@ class LibroClickLogService(
     }
 
     fun obtenerLogsResumenClickLibroPorUsuario(usuarioId: Long): List<LibroClickLog> {
+        // Si el id del libro fuera estable y nunca cambiara, este método podría simplificarse a algo como:
+        //
+        // fun obtenerLogsResumenClickLibroPorUsuario(usuarioId: Long): List<LibroClickLog> {
+        //     val librosPropios = libroRepository.findByIdPropietario(usuarioId)
+        //     val idsLibrosPropios = librosPropios.map { it.id }.toSet()
+        //     if (idsLibrosPropios.isEmpty()) return emptyList()
+        //
+        //     return repository.findByLibroIdIn(idsLibrosPropios)
+        //         .distinctBy { log -> log.id ?: "${log.libroId}-${log.libroTitulo}-${log.usuarioId}-${log.clickTimestamp}" }
+        // }
+
         val librosPropios = libroRepository.findByIdPropietario(usuarioId)
         val idsLibrosPropios = librosPropios.map { it.id }.toSet()
         val titulosLibrosPropios = librosPropios.map { it.titulo }.toSet()

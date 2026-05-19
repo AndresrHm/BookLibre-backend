@@ -130,7 +130,7 @@ class LibroSpec : DescribeSpec({
 })
 
 fun crearLibroEdicionDTO(
-    id: Long = 1,
+    id: String = "1",
     titulo: String = "Título de libro",
     tipoLibro: String = "comun",
     descripcion: String = "Descripción de libro",

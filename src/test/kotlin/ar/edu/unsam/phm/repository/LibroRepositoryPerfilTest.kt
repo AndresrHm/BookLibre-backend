@@ -19,6 +19,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import java.time.LocalDate
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 
 class LibroRepositoryPerfilTest : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
@@ -30,11 +32,14 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
             val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 10)
-            val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 10)
+            val disponible = crearLibro(id = "1", titulo = "Disponible", autor = "Autor A", idPropietario = 10)
 
-            every { repositorioLibro.findByActivoTrueAndIdPropietario(10L) } returns listOf(disponible, prestado)
-            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(prestado.id!!)
+            every {
+                repositorioLibro.buscarConFiltros(
+                    any(), any(), any(), any(), any(),
+                    10L, null, emptySet(), any(), FiltroDisponibilidadPerfil.DISPONIBLES
+                )
+            } returns PageImpl(listOf(disponible), PageRequest.of(0, 10), 1)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -58,12 +63,16 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
             val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val libroAutorZ = crearLibro(id = 1, titulo = "Mismo", autor = "Zulu", idPropietario = 5)
-            val libroAutorA = crearLibro(id = 2, titulo = "Mismo", autor = "Alfa", idPropietario = 5)
-            val libroTituloB = crearLibro(id = 3, titulo = "Zoo", autor = "Beta", idPropietario = 5)
+            val libroAutorZ = crearLibro(id = "1", titulo = "Mismo", autor = "Zulu", idPropietario = 5)
+            val libroAutorA = crearLibro(id = "2", titulo = "Mismo", autor = "Alfa", idPropietario = 5)
+            val libroTituloB = crearLibro(id = "3", titulo = "Zoo", autor = "Beta", idPropietario = 5)
 
-            every { repositorioLibro.findByActivoTrueAndIdPropietario(5L) } returns listOf(libroAutorZ, libroTituloB, libroAutorA)
-            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
+            every {
+                repositorioLibro.buscarConFiltros(
+                    any(), any(), any(), any(), any(),
+                    5L, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS
+                )
+            } returns PageImpl(listOf(libroAutorA, libroAutorZ, libroTituloB), PageRequest.of(0, 10), 3)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -86,11 +95,25 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
             val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val disponible = crearLibro(id = 1, titulo = "Disponible", autor = "Autor A", idPropietario = 8)
-            val prestado = crearLibro(id = 2, titulo = "Prestado", autor = "Autor B", idPropietario = 8)
+            val disponible = crearLibro(id = "1", titulo = "Disponible", autor = "Autor A", idPropietario = 8)
+            val prestado = crearLibro(id = "2", titulo = "Prestado", autor = "Autor B", idPropietario = 8)
 
-            every { repositorioLibro.findByActivoTrueAndIdPropietario(8L) } returns listOf(disponible, prestado)
-            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(prestado.id!!)
+            every { repositorioLibro.contarConFiltros(any(), any(), any(), any(), any(), 8L, null, emptySet(), FiltroDisponibilidadPerfil.PRESTADOS) } returns 1L
+            every { repositorioLibro.contarConFiltros(any(), any(), any(), any(), any(), 8L, null, emptySet(), FiltroDisponibilidadPerfil.DISPONIBLES) } returns 1L
+            every {
+                repositorioLibro.buscarConFiltrosSinPaginacion(
+                    any(), any(), any(), any(), any(),
+                    8L, null, emptySet(), any(), any<Long>(), any(),
+                    FiltroDisponibilidadPerfil.PRESTADOS
+                )
+            } returns listOf(prestado)
+            every {
+                repositorioLibro.buscarConFiltrosSinPaginacion(
+                    any(), any(), any(), any(), any(),
+                    8L, null, emptySet(), any(), any<Long>(), any(),
+                    FiltroDisponibilidadPerfil.DISPONIBLES
+                )
+            } returns listOf(disponible)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -113,12 +136,16 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
             val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
 
-            val libroViejo = crearLibro(id = 1, titulo = "Viejo", autor = "Autor A", idPropietario = 3, fechaAgregado = LocalDate.of(2020, 1, 1))
-            val libroMedio = crearLibro(id = 2, titulo = "Medio", autor = "Autor B", idPropietario = 3, fechaAgregado = LocalDate.of(2021, 1, 1))
-            val libroNuevo = crearLibro(id = 3, titulo = "Nuevo", autor = "Autor C", idPropietario = 3, fechaAgregado = LocalDate.of(2022, 1, 1))
+            val libroViejo = crearLibro(id = "1", titulo = "Viejo", autor = "Autor A", idPropietario = 3, fechaAgregado = LocalDate.of(2020, 1, 1))
+            val libroMedio = crearLibro(id = "2", titulo = "Medio", autor = "Autor B", idPropietario = 3, fechaAgregado = LocalDate.of(2021, 1, 1))
+            val libroNuevo = crearLibro(id = "3", titulo = "Nuevo", autor = "Autor C", idPropietario = 3, fechaAgregado = LocalDate.of(2022, 1, 1))
 
-            every { repositorioLibro.findByActivoTrueAndIdPropietario(3L) } returns listOf(libroNuevo, libroViejo, libroMedio)
-            every { repositorioReservas.getLibrosReservadosEntreFechas(any(), any()) } returns emptyList()
+            every {
+                repositorioLibro.buscarConFiltros(
+                    any(), any(), any(), any(), any(),
+                    3L, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS
+                )
+            } returns PageImpl(listOf(libroViejo, libroMedio, libroNuevo), PageRequest.of(0, 10), 3)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
@@ -150,7 +177,7 @@ private fun filtrosVacios() = FiltrosDeLibros(
 )
 
 private fun crearLibro(
-    id: Long,
+    id: String,
     titulo: String,
     autor: String,
     idPropietario: Long,

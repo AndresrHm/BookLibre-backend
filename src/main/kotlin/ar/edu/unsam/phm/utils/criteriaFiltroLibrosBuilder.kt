@@ -1,7 +1,9 @@
 package ar.edu.unsam.phm.utils
 
 import ar.edu.unsam.phm.domain.Genero
+import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import org.springframework.data.mongodb.core.query.Criteria
+import java.time.LocalDate
 
 data class LibroFiltrosMongo(
     val search: String?,
@@ -12,6 +14,7 @@ data class LibroFiltrosMongo(
     val soloIdPropietario: Long?,
     val excluirIdPropietario: Long?,
     val excluirIds: Set<String>,
+    val disponibilidad: FiltroDisponibilidadPerfil? = null,
 )
 // Inspirados en el predicate usado para la entrega anterior, en este caso
 // no se puede usar tal funcionalidad, por lo que se uso un builder de Criteria
@@ -21,6 +24,22 @@ data class LibroFiltrosMongo(
 object CriterioFiltrosLibrosBuilder {
     fun build(filtros: LibroFiltrosMongo): Criteria {
         val parts = mutableListOf(Criteria.where("activo").`is`(true))
+
+        // Si se indicó un filtro de disponibilidad, filtramos según las fechas de reserva
+        filtros.disponibilidad?.let { dispo ->
+            val hoy = LocalDate.now()
+            val reservadoHoyCriteria = Criteria.where("fechasReserva").elemMatch(
+                Criteria.where("fechaInicio").lte(hoy).and("fechaFin").gte(hoy)
+            )
+
+            when (dispo) {
+                FiltroDisponibilidadPerfil.DISPONIBLES -> parts.add(Criteria.where("fechasReserva").not().elemMatch(
+                    Criteria.where("fechaInicio").lte(hoy).and("fechaFin").gte(hoy)
+                ))
+                FiltroDisponibilidadPerfil.PRESTADOS -> parts.add(reservadoHoyCriteria)
+                else -> { /* TODOS -> no agregamos criterio */ }
+            }
+        }
 
         filtros.search?.trim()?.takeIf { it.isNotBlank() }?.let {
             parts.add(Criteria.where("titulo").regex(it, "i"))

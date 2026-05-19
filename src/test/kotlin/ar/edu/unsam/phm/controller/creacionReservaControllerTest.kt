@@ -85,7 +85,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Se puede reservar un libro`() {
         val reserva = crearCreacionReservaDTO(
             usuarioPrestadorId = usuarioPrestador.id!!,
-            libroId = libro.id!!
+            libroId = libro.id
         )
 
         mockMvc
@@ -103,7 +103,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `La reserva falla si el libro no existe`() {
         libroRepository.deleteAll()
 
-        val libroIdInexistente = -999L
+        val libroIdInexistente = "-999"
         val reserva = crearCreacionReservaDTO(usuarioPrestadorId = usuarioPrestador.id!!, libroId = libroIdInexistente)
 
         mockMvc
@@ -120,7 +120,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `La reserva falla si el usuario prestador no existe`() {
         usuarioRepository.delete(usuarioPrestador)
 
-        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = 2, libroId = 1)
+        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = 2, libroId = "1")
 
         val errorMessage = mockMvc
             .perform(
@@ -139,7 +139,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `La reserva falla si el usuario lector no existe`() {
         usuarioRepository.delete(usuarioLector)
 
-        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = 2, libroId = 1)
+        val reserva = crearCreacionReservaDTO(usuarioPrestadorId = 2, libroId = "1")
 
         val errorMessage = mockMvc
             .perform(
@@ -158,7 +158,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `La reserva falla si se usan datos no permitidos`() {
         val reserva = crearCreacionReservaDTO(
             usuarioPrestadorId = usuarioPrestador.id!!,
-            libroId = libro.id!!,
+            libroId = libro.id,
             fechaRecogida = HOY.minusDays(1)
         )
 
@@ -177,7 +177,7 @@ class CreacionReservaControllerTest(@Autowired val mockMvc: MockMvc) {
 }
 
 private fun crearCreacionReservaDTO(
-    libroId: Long = 1,
+    libroId: String = "1",
     usuarioPrestadorId: Long = 1,
     fechaRecogida: LocalDate = HOY,
     fechaDevolucion: LocalDate = HOY.plusDays(1)
