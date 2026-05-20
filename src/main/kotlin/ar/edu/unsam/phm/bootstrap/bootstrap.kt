@@ -37,7 +37,6 @@ class BootstrapData(
 
     @Bean
     fun initData() = CommandLineRunner {
-        libroRepository.deleteAll() // A chequear
 
         rolLector = Rol().apply { name = TipoUsuario.LECTOR.roleName }
         rolPublicador = Rol().apply { name = TipoUsuario.PUBLICADOR.roleName }
@@ -1032,9 +1031,23 @@ class BootstrapData(
             }
         }
 
-        (libroRepository.saveAll(libros))
+        // Upsert: actualizar si existe (mismo ISBN + propietario), crear si no
+        val librosGuardados = libros.map { libroNuevo ->
+            val libroExistente = libroRepository.findByIsbn13AndIdPropietario(
+                libroNuevo.isbn13,
+                libroNuevo.idPropietario
+            )
+            if (libroExistente != null) {
+                // Actualizar libro existente manteniendo su ID
+                libroNuevo.id = libroExistente.id
+                libroRepository.save(libroNuevo)
+            } else {
+                // Crear nuevo libro
+                libroRepository.save(libroNuevo)
+            }
+        }
 
-        return libros
+        return librosGuardados
     }
 
     // ---------------- Reservas ----------------
