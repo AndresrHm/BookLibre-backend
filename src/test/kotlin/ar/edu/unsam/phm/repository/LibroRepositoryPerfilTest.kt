@@ -98,22 +98,12 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val disponible = crearLibro(id = "1", titulo = "Disponible", autor = "Autor A", idPropietario = 8)
             val prestado = crearLibro(id = "2", titulo = "Prestado", autor = "Autor B", idPropietario = 8)
 
-            every { repositorioLibro.contarConFiltros(any(), any(), any(), any(), any(), 8L, null, emptySet(), FiltroDisponibilidadPerfil.PRESTADOS) } returns 1L
-            every { repositorioLibro.contarConFiltros(any(), any(), any(), any(), any(), 8L, null, emptySet(), FiltroDisponibilidadPerfil.DISPONIBLES) } returns 1L
             every {
-                repositorioLibro.buscarConFiltrosSinPaginacion(
+                repositorioLibro.buscarConFiltros(
                     any(), any(), any(), any(), any(),
-                    8L, null, emptySet(), any(), any<Long>(), any(),
-                    FiltroDisponibilidadPerfil.PRESTADOS
+                    8L, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS
                 )
-            } returns listOf(prestado)
-            every {
-                repositorioLibro.buscarConFiltrosSinPaginacion(
-                    any(), any(), any(), any(), any(),
-                    8L, null, emptySet(), any(), any<Long>(), any(),
-                    FiltroDisponibilidadPerfil.DISPONIBLES
-                )
-            } returns listOf(disponible)
+            } returns PageImpl(listOf(prestado, disponible), PageRequest.of(0, 10), 2)
 
             val resultado = servicio.getLibrosPorFiltros(
                 filtrosDeHome = filtrosVacios(),
