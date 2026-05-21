@@ -43,6 +43,11 @@ class Libro(
     var ultimasCalificaciones: List<Calificacion> = listOf()
     var fechasReserva: MutableList<FechaReserva> = mutableListOf()
 
+    fun limpiarFechasReserva() {
+        val hoy = LocalDate.now()
+        fechasReserva.removeAll { it.fechaFin.isBefore(hoy) }
+    }
+
     fun darKarma(reserva: Reserva, cantidadReservas: Int): Int = tipoLibro.darKarma(this, reserva.usuarioLector, cantidadReservas)
 
     fun calcularKarmaHomePage(

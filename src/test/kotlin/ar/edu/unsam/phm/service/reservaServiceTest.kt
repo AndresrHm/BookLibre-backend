@@ -101,6 +101,37 @@ class ReservaServiceSpec : DescribeSpec({
             resultado.libroId shouldBe idLibro
             verify(exactly = 1) { reservaRepository.save(any()) }
         }
+
+        it("al crear una reserva limpia las fechas pasadas antes de agregar la nueva") {
+            // preparar libro con una fecha pasada y una futura
+            val pasada = FechaReserva(LocalDate.now().minusDays(5), LocalDate.now().minusDays(1))
+            val futura = FechaReserva(LocalDate.now().plusDays(2), LocalDate.now().plusDays(3))
+            libro.fechasReserva = mutableListOf(pasada, futura)
+
+            every { libroRepository.findById(idLibro) } returns Optional.of(libro)
+            every { libroRepository.existsById(idLibro) } returns true
+            every { reservaRepository.findFechasByLibroId(idLibro) } returns emptyList()
+            every { reservaRepository.countByLibroId(idLibro) } returns 0
+
+            every { usuarioRepository.save(any<Usuario>()) } returns lector
+            every { reservaRepository.save(any<Reserva>()) } returns mockk()
+            every { libroRepository.save(any<Libro>()) } returns libro
+
+            val fechaInicio = LocalDate.now()
+            val fechaFin = LocalDate.now().plusDays(2)
+
+            service.crearReserva(idLibro, lector, prestador, fechaInicio, fechaFin)
+
+            // la reserva pasada debe haberse eliminado
+            libro.fechasReserva.any { it.fechaFin.isBefore(LocalDate.now()) } shouldBe false
+
+            // la nueva reserva debe agregarse al inicio
+            libro.fechasReserva.first().fechaInicio shouldBe fechaInicio
+            libro.fechasReserva.first().fechaFin shouldBe fechaFin
+
+            // la futura original debe permanecer
+            libro.fechasReserva.any { it == futura } shouldBe true
+        }
     }
 
     describe("ReservaService: Otros métodos") {
