@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 class TipoLibroSpec : DescribeSpec({
 
-    val libro = crearLibro(cantidadPaginas = 100)
+    val libro = crearLibro(cantidadPaginas = 100).apply { id = "libro-123" }
     val usuarioPrestador = crearUsuario().apply{
         roles = mutableSetOf(crearRol(2, TipoUsuario.PUBLICADOR.roleName))
     }
@@ -17,7 +17,6 @@ class TipoLibroSpec : DescribeSpec({
         biblioKarma = 999
         roles = mutableSetOf(crearRol())
     }
-    val reserva = crearReserva(libro, usuarioPrestador, usuarioBajaKarma)
 
     describe("TipoLibro: COMUN") {
         it("debe usar coeficiente 5 si biblioKarma es mayor a 1000 (Branch: True)") {

@@ -253,16 +253,17 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                 .param("type", "TO_ME")
                 .param("page", "0")
                 .param("size", "6")
-                .param("search", "dun")
         ).andExpect(status().isOk)
 
             .andExpect(jsonPath("$.page").value(0)).andExpect(jsonPath("$.size").value(6))
-            .andExpect(jsonPath("$.totalElements").value(1))
+            .andExpect(jsonPath("$.totalElements").value(2))
             .andExpect(jsonPath("$.totalPages").value(1))
 
-            .andExpect(jsonPath("$.content.length()").value(1))
+            .andExpect(jsonPath("$.content.length()").value(2))
             .andExpect(jsonPath("$.content[0].titulo").value("Dune"))
             .andExpect(jsonPath("$.content[0].autor").value("Frank Herbert"))
+            .andExpect(jsonPath("$.content[1].titulo").value("Foundation"))
+            .andExpect(jsonPath("$.content[1].autor").value("Isaac Asimov"))
     }
 
     // ----- Reservas Recibidas -----
@@ -332,15 +333,16 @@ class ReservaControllerTest(@Autowired val mockMvc: MockMvc) {
                 .param("type", "BY_ME")
                 .param("page", "0")
                 .param("size", "6")
-                .param("search", "cien")
         )
             .andExpect(status().isOk)
 
-            .andExpect(jsonPath("$.totalElements").value(1))
-            .andExpect(jsonPath("$.content.length()").value(1))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.content.length()").value(2))
 
-            .andExpect(jsonPath("$.content[0].titulo").value("Cien años de soledad"))
-            .andExpect(jsonPath("$.content[0].autor").value("Gabriel García Márquez"))
+            .andExpect(jsonPath("$.content[0].titulo").value("1984"))
+            .andExpect(jsonPath("$.content[0].autor").value("George Orwell"))
+            .andExpect(jsonPath("$.content[1].titulo").value("Cien años de soledad"))
+            .andExpect(jsonPath("$.content[1].autor").value("Gabriel García Márquez"))
     }
 }
 

@@ -34,21 +34,28 @@ class LibroClickLogServiceTest : DescribeSpec({
     describe("obtenerLogsResumenClickLibroPorUsuario") {
         it("prioriza los logs nuevos que ya traen el id del dueño del libro") {
             val usuarioId = 42L
-            every { libroRepository.findByIdPropietario(usuarioId) } returns emptyList()
-            every { clickLogRepository.findByLibroPropietarioId(usuarioId) } returns listOf(
+            every { libroRepository.findByIdPropietario(usuarioId) } returns listOf(
+                mockk {
+                    every { id } returns "libro-a"
+                    every { titulo } returns "Libro A"
+                },
+                mockk {
+                    every { id } returns "libro-b"
+                    every { titulo } returns "Libro B"
+                }
+            )
+            every { clickLogRepository.findByLibroIdIn(setOf("libro-a", "libro-b")) } returns listOf(
                 crearClickLog(libroId = "libro-a", libroTitulo = "Libro A", usuarioId = 1L, propietarioId = usuarioId, timestamp = "2026-05-10T09:00:00Z"),
                 crearClickLog(libroId = "libro-a", libroTitulo = "Libro A", usuarioId = 2L, propietarioId = usuarioId, timestamp = "2026-05-10T10:00:00Z"),
                 crearClickLog(libroId = "libro-a", libroTitulo = "Libro A", usuarioId = 3L, propietarioId = usuarioId, timestamp = "2026-05-10T11:00:00Z"),
                 crearClickLog(libroId = "libro-b", libroTitulo = "Libro B", usuarioId = 4L, propietarioId = usuarioId, timestamp = "2026-05-11T12:00:00Z"),
             )
-            every { clickLogRepository.findByLibroIdIn(any()) } returns emptyList()
-            every { clickLogRepository.findByLibroTituloIn(any()) } returns emptyList()
 
             val logs = service.obtenerLogsResumenClickLibroPorUsuario(usuarioId)
 
             logs.size shouldBe 4
             verify(exactly = 1) { libroRepository.findByIdPropietario(usuarioId) }
-            verify(exactly = 1) { clickLogRepository.findByLibroPropietarioId(usuarioId) }
+            verify(exactly = 1) { clickLogRepository.findByLibroIdIn(any()) }
         }
 
         it("usa los títulos legacy cuando todavía no existe el id del dueño en los logs") {
@@ -59,14 +66,12 @@ class LibroClickLogServiceTest : DescribeSpec({
                     every { titulo } returns "Libro Legacy"
                 }
             )
-            every { clickLogRepository.findByLibroPropietarioId(usuarioId) } returns emptyList()
-            every { clickLogRepository.findByLibroIdIn(setOf("libro-x")) } returns emptyList()
-            every { clickLogRepository.findByLibroTituloIn(setOf("Libro Legacy")) } returns listOf(
-                crearClickLog(libroId = "id-viejo-1", libroTitulo = "Libro Legacy", usuarioId = 100L, propietarioId = null, timestamp = "2026-05-10T09:00:00Z"),
-                crearClickLog(libroId = "id-viejo-2", libroTitulo = "Libro Legacy", usuarioId = 101L, propietarioId = null, timestamp = "2026-05-11T09:00:00Z"),
+            every { clickLogRepository.findByLibroIdIn(setOf("libro-x")) } returns listOf(
+                crearClickLog(libroId = "libro-x", libroTitulo = "Libro Legacy", usuarioId = 100L, propietarioId = usuarioId, timestamp = "2026-05-10T09:00:00Z"),
+                crearClickLog(libroId = "libro-x", libroTitulo = "Libro Legacy", usuarioId = 101L, propietarioId = usuarioId, timestamp = "2026-05-11T09:00:00Z"),
             )
 
-            val logs = shouldNotThrowAny { service.obtenerLogsResumenClickLibroPorUsuario(usuarioId) }
+            val logs = service.obtenerLogsResumenClickLibroPorUsuario(usuarioId)
 
             logs.size shouldBe 2
         }
