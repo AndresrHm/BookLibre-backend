@@ -64,9 +64,6 @@ class Libro(
     fun agregarFechaReserva(fechaInicio: LocalDate, fechaFin: LocalDate) {
 
         fechasReserva.add(0, FechaReserva(fechaInicio, fechaFin))
-        if (fechasReserva.size > 3) {
-            fechasReserva = fechasReserva.take(3).toMutableList()
-        }
     }
 
     fun calificacionPromedio() = calificacion

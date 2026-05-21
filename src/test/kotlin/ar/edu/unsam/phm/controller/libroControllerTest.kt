@@ -55,7 +55,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
 
     private var usuarioPerfilId: Long = 0
     private var usuarioNoPropietarioId: Long = 0
-    private var libro1Id: Long = 0
+    private var libro1Id: String = ""
 
     @BeforeEach
     fun init() {
@@ -98,7 +98,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
         )
         usuarioNoPropietarioId = otroUsuario.id!!
 
-        libro1Id = libroRepository.save(crearLibro(idPropietario = usuarioPerfilId)).id!!
+        libro1Id = libroRepository.save(crearLibro(idPropietario = usuarioPerfilId)).id
         libroRepository.save(crearLibro(titulo = "Segundo libro", idPropietario = usuarioPerfilId))
         libroRepository.save(crearLibro(titulo = "Tercer libro", genero = Genero.ROMANCE, idPropietario = usuarioPerfilId))
     }
@@ -139,7 +139,7 @@ class LibroControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Obtener detalle de libro inexistente devuelve 404`() {
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", -1, GetLibroDTO.DETALLE)
+                MockMvcRequestBuilders.get("/libros/{libroId}/{tipoLibroDTO}", "-1", GetLibroDTO.DETALLE)
                 .principal(authPrincipal(usuarioPerfilId))
         ).andExpect(status().isNotFound)
     }
@@ -269,7 +269,7 @@ private fun authPrincipal(usuarioId: Long): UsernamePasswordAuthenticationToken 
 }
 
 fun crearLibroDTO(
-    id: Long = 1,
+    id: String = "1",
     titulo: String = "Título de libro",
     idPropietario: Long = 0
 ) = LibroEdicionDTO(

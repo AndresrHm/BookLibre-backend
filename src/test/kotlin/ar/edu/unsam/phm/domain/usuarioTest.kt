@@ -69,11 +69,6 @@ class UsuarioSpec : DescribeSpec({
     }
 
     describe("Test de Usuario: Otros métodos") {
-        it("agregar libro a lista de préstamos") {
-            val libro = crearLibro()
-            usuario.agregarLibroParaPrestar(libro)
-            usuario.listaDeLibrosParaPrestar.size shouldBe 1
-        }
 
         it("formatear fecha") {
             usuario.getFechaCreacionAsString().isNotEmpty() shouldBe true

@@ -12,5 +12,6 @@ data class LibroClickLog(
     val libroId: String,
     val libroTitulo: String,
     val usuarioId: Long,
+    val libroPropietarioId: Long? = null,
     val clickTimestamp: String = ZonedDateTime.now().toString()
 )

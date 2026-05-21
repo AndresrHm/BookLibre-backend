@@ -54,7 +54,7 @@ class CalificacionServiceTest {
         libro = libroRepository.save(crearLibro(idPropietario = prestador.id!!))
 
         reservaFinalizada = reservaRepository.save(Reserva(
-            libro = libro,
+            libroId = libro.id!!,
             usuarioPrestador = prestador,
             usuarioLector = lector,
             fechaRecogida = LocalDate.now().minusDays(10),
@@ -81,7 +81,7 @@ class CalificacionServiceTest {
     @Test
     fun `No se puede calificar si la reserva no esta en estado DEVUELTO`() {
         val reservaActiva = reservaRepository.save(Reserva(
-            libro = libro,
+            libroId = libro.id!!,
             usuarioPrestador = prestador,
             usuarioLector = lector,
             fechaRecogida = LocalDate.now(),
@@ -166,7 +166,7 @@ class CalificacionServiceTest {
     @Test
     fun `obtenerCalificaciones lanza NotFoundException si el libro no existe`() {
         assertThrows<NotFoundException> {
-            calificacionService.obtenerCalificaciones(-1L, OrdenCalificacion.DATE_ASC, 0, 10)
+            calificacionService.obtenerCalificaciones("-1", OrdenCalificacion.DATE_ASC, 0, 10)
         }
     }
 
@@ -180,7 +180,7 @@ class CalificacionServiceTest {
     @Test
     fun `ultimasCalificaciones lanza NotFoundException si el libro no existe`() {
         assertThrows<NotFoundException> {
-            calificacionService.ultimasCalificaciones(-1L)
+            calificacionService.ultimasCalificaciones("-1")
         }
     }
 }

@@ -26,7 +26,7 @@ class ReservaServiceSpec : DescribeSpec({
 
     val service = ReservaService(reservaRepository, usuarioRepository, libroRepository)
 
-    val idLibro = 1L
+    val idLibro = "1"
     val idPrestador = 2L
     val idLector = 3L
 
@@ -48,7 +48,7 @@ class ReservaServiceSpec : DescribeSpec({
         it("lanza excepción si el libro no existe") {
             every { libroRepository.findById(any()) } returns Optional.empty()
             shouldThrow<BusinessException> {
-                service.crearReserva(99L, lector, prestador, LocalDate.now(), LocalDate.now().plusDays(1))
+                service.crearReserva("99", lector, prestador, LocalDate.now(), LocalDate.now().plusDays(1))
             }
         }
 
@@ -98,7 +98,7 @@ class ReservaServiceSpec : DescribeSpec({
 
             val resultado = service.crearReserva(idLibro, lector, prestador, LocalDate.now(), LocalDate.now().plusDays(1))
 
-            resultado.libro.id shouldBe idLibro
+            resultado.libroId shouldBe idLibro
             verify(exactly = 1) { reservaRepository.save(any()) }
         }
     }
@@ -107,7 +107,7 @@ class ReservaServiceSpec : DescribeSpec({
         it("obtenerFechasDeReservasDeLibro lanza NotFound si el libro no existe") {
             every { libroRepository.existsById(any()) } returns false
             shouldThrow<NotFoundException> {
-                service.obtenerFechasDeReservasDeLibro(99L)
+                service.obtenerFechasDeReservasDeLibro("99")
             }
         }
     }
