@@ -20,7 +20,8 @@ interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCusto
     fun findByActivoTrue(): List<Libro>
     fun findByActivoTrueAndIdPropietario(idPropietario: Long): List<Libro>
     fun findByIdPropietario(idPropietario: Long): List<Libro>
-    fun findByIsbn13AndIdPropietario(isbn13: Long, idPropietario: Long): Libro?
+    // Devuelve el primer libro que coincida (evita IncorrectResultSizeDataAccessException si hay duplicados en la colección)
+    fun findFirstByIsbn13AndIdPropietario(isbn13: Long, idPropietario: Long): Libro?
 }
 
 interface LibroRepositoryCustom {

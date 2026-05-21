@@ -1033,7 +1033,8 @@ class BootstrapData(
 
         // Upsert: actualizar si existe (mismo ISBN + propietario), crear si no
         val librosGuardados = libros.map { libroNuevo ->
-            val libroExistente = libroRepository.findByIsbn13AndIdPropietario(
+            // buscar el primer libro con el mismo ISBN + propietario (puede haber duplicados en la colección)
+            val libroExistente = libroRepository.findFirstByIsbn13AndIdPropietario(
                 libroNuevo.isbn13,
                 libroNuevo.idPropietario
             )
