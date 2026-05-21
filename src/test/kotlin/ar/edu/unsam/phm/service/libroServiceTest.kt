@@ -266,22 +266,6 @@ class LibroServiceSpec : DescribeSpec({
 
         it("librosFiltradosPerfilDesdeDb: cubre ordenamiento por FECHA_AGREGADO y DISPONIBLE_PRESTADO") {
             every { libroRepository.buscarConFiltros(any(), any(), any(), any(), any(), idUsuario, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS) } returns PageImpl(listOf(libro))
-            every { libroRepository.contarConFiltros(any(), any(), any(), any(), any(), idUsuario, null, emptySet(), FiltroDisponibilidadPerfil.DISPONIBLES) } returns 1L
-            every { libroRepository.contarConFiltros(any(), any(), any(), any(), any(), idUsuario, null, emptySet(), FiltroDisponibilidadPerfil.PRESTADOS) } returns 0L
-            every {
-                libroRepository.buscarConFiltrosSinPaginacion(
-                    any(), any(), any(), any(), any(),
-                    idUsuario, null, emptySet(), any(), any<Long>(), any(),
-                    FiltroDisponibilidadPerfil.DISPONIBLES
-                )
-            } returns listOf(libro)
-            every {
-                libroRepository.buscarConFiltrosSinPaginacion(
-                    any(), any(), any(), any(), any(),
-                    idUsuario, null, emptySet(), any(), any<Long>(), any(),
-                    FiltroDisponibilidadPerfil.PRESTADOS
-                )
-            } returns emptyList()
 
             service.getLibrosPorFiltros(FiltrosDeLibros(null, null, null, null, null, null, null, null, null),
                 userId = idUsuario, flagDiff = OrigenLibro.PERFIL, disponibilidadLibrosPerfil = FiltroDisponibilidadPerfil.TODOS,
