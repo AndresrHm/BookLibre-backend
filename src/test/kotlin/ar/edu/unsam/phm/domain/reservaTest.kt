@@ -9,7 +9,7 @@ import java.time.LocalDate
 class ReservaSpec : DescribeSpec({
     isolationMode = IsolationMode.InstancePerTest
 
-    val libro = crearLibro(cantidadPaginas = 100)
+    val libro = crearLibro(cantidadPaginas = 100).apply { id = "libro-123" }
     val prestador = crearUsuario(nombre = "Prestador")
     val lector = crearUsuario(nombre = "Lector")
 

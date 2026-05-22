@@ -94,7 +94,8 @@ class ReservaServiceSpec : DescribeSpec({
             every { reservaRepository.countByLibroId(idLibro) } returns 5
 
             every { usuarioRepository.save(any<Usuario>()) } returns lector
-            every { reservaRepository.save(any<Reserva>()) } returns mockk()
+            every { libroRepository.save(any<Libro>()) } returns libro
+            every { reservaRepository.save(any<Reserva>()) } returnsArgument 0
 
             val resultado = service.crearReserva(idLibro, lector, prestador, LocalDate.now(), LocalDate.now().plusDays(1))
 

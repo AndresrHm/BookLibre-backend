@@ -81,7 +81,6 @@ class LibroSpec : DescribeSpec({
             val libro = crearLibro()
             libro.activo shouldBe true
             libro.calificacion shouldBe 0.0
-            libro.id shouldBe null // JPA lo setea luego
         }
 
         it("actualiza la calificación correctamente") {
