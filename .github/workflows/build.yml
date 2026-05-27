@@ -52,6 +52,8 @@ jobs:
 
       - name: Execute tests with coverage
         run: ./gradlew runOnGitHub
+        env:
+          SPRING_DATA_MONGODB_URI: mongodb://localhost:27017/booklibre
 
       - name: Generate JaCoCo Badge
         id: jacoco
