@@ -38,7 +38,7 @@ echo "Esperando propagación..."
 sleep 15
 
 echo "========================================="
-echo "Habilitando sharding para la DB"
+echo "Habilitando sharding para la DB (libros y logs)"
 echo "========================================="
 
 docker exec router-01 mongosh --quiet --eval '
@@ -51,6 +51,13 @@ db.createCollection("libros");
 sh.shardCollection(
   "booklibre.libros",
   { _id: "hashed" }
+);
+
+db.createCollection("libro_click_logs");
+
+sh.shardCollection(
+  "booklibre.libro_click_logs",
+  { libroId: "hashed" }
 );
 '
 

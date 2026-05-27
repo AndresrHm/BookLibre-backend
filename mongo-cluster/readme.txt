@@ -63,4 +63,16 @@ sh.shardCollection(
   { _id: "hashed" }
 )
 
+9. Creamos la colección de logs de clicks
+db.createCollection("libro_click_logs")
+
+show collections -> verificamos
+
+10. Creamos la shard key para los logs usando libroId
+
+sh.shardCollection(
+  "booklibre.libro_click_logs",
+  { libroId: "hashed" }
+)
+
 sh.status() -> verificamos que quedó hasheada
