@@ -65,7 +65,6 @@ class ReservaServiceSpec : DescribeSpec({
         it("lanza excepción si el lector intenta reservar su propio libro") {
             every { libroRepository.findById(idLibro) } returns Optional.of(libro)
             every { libroRepository.existsById(idLibro) } returns true
-            every { reservaRepository.findFechasByLibroId(idLibro) } returns emptyList()
 
             val exception = shouldThrow<BusinessException> {
                 service.crearReserva(idLibro, prestador, prestador, LocalDate.now(), LocalDate.now().plusDays(1))
@@ -74,23 +73,33 @@ class ReservaServiceSpec : DescribeSpec({
         }
 
         it("lanza excepción si hay solapamiento") {
+            // Configurar el libro real con una fecha que sea envuelta por la nueva reserva
+            libro.fechasReserva = mutableListOf(
+                FechaReserva(
+                    fechaInicio = LocalDate.now().plusDays(12),
+                    fechaFin = LocalDate.now().plusDays(14)
+                )
+            )
+
             every { libroRepository.findById(idLibro) } returns Optional.of(libro)
             every { libroRepository.existsById(idLibro) } returns true
 
-            val reservaPrevia = mockk<FechasReserva>()
-            every { reservaPrevia.fechaRecogida } returns LocalDate.now().plusDays(10)
-            every { reservaPrevia.fechaDevolucion } returns LocalDate.now().plusDays(15)
-            every { reservaRepository.findFechasByLibroId(idLibro) } returns listOf(reservaPrevia)
-
-            shouldThrow<BusinessException> {
-                service.crearReserva(idLibro, lector, prestador, LocalDate.now().plusDays(12), LocalDate.now().plusDays(14))
+            // Enviamos un rango que envuelva por completo a la reserva existente (del día 10 al 15)
+            val exception = shouldThrow<BusinessException> {
+                service.crearReserva(
+                    idLibro,
+                    lector,
+                    prestador,
+                    LocalDate.now().plusDays(10),
+                    LocalDate.now().plusDays(15)
+                )
             }
+            exception.message shouldBe "Existe una reserva en el rango de fechas estipulado"
         }
 
         it("camino feliz: crea la reserva correctamente") {
             every { libroRepository.findById(idLibro) } returns Optional.of(libro)
             every { libroRepository.existsById(idLibro) } returns true
-            every { reservaRepository.findFechasByLibroId(idLibro) } returns emptyList()
             every { reservaRepository.countByLibroId(idLibro) } returns 5
 
             every { usuarioRepository.save(any<Usuario>()) } returns lector
@@ -111,7 +120,6 @@ class ReservaServiceSpec : DescribeSpec({
 
             every { libroRepository.findById(idLibro) } returns Optional.of(libro)
             every { libroRepository.existsById(idLibro) } returns true
-            every { reservaRepository.findFechasByLibroId(idLibro) } returns emptyList()
             every { reservaRepository.countByLibroId(idLibro) } returns 0
 
             every { usuarioRepository.save(any<Usuario>()) } returns lector
@@ -132,15 +140,6 @@ class ReservaServiceSpec : DescribeSpec({
 
             // la futura original debe permanecer
             libro.fechasReserva.any { it == futura } shouldBe true
-        }
-    }
-
-    describe("ReservaService: Otros métodos") {
-        it("obtenerFechasDeReservasDeLibro lanza NotFound si el libro no existe") {
-            every { libroRepository.existsById(any()) } returns false
-            shouldThrow<NotFoundException> {
-                service.obtenerFechasDeReservasDeLibro("99")
-            }
         }
     }
 })

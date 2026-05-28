@@ -4,6 +4,7 @@ import FechasReserva
 import ar.edu.unsam.phm.errors.BusinessException
 import ar.edu.unsam.phm.errors.NotFoundException
 import ar.edu.unsam.phm.controller.ReservaType
+import ar.edu.unsam.phm.domain.FechaReserva
 import ar.edu.unsam.phm.domain.Libro
 import ar.edu.unsam.phm.domain.LibroReservaCount
 import ar.edu.unsam.phm.domain.Usuario
@@ -78,17 +79,18 @@ class ReservaService(
 
         if (libroPerteneceAUsuario(usuarioLector, libro))
             throw BusinessException(ErrorStrings.USUARIO_NO_PUEDE_RESERVAR_LIBRO_PROPIO)
-        val fechasDeReservas = obtenerFechasDeReservasDeLibro(libro.id)
-        val cantidadReservas = reservaRepository.countByLibroId(libro.id)
 
+        val fechasDeReservas = libro.fechasReserva
         if (haySolapamiento(fechaRecogida, fechaDevolucion, fechasDeReservas)
         ) {
             throw BusinessException(ErrorStrings.EXISTE_RESERVA_EN_RANGO)
         }
 
-        val reserva = Reserva(libro.id!!, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
-        usuarioLector.sumarKarma(reserva.darKarma(libro, cantidadReservas))
+        val cantidadReservas = reservaRepository.countByLibroId(libro.id)
 
+        val reserva = Reserva(libro.id, usuarioPrestador, usuarioLector, fechaRecogida, fechaDevolucion)
+
+        usuarioLector.sumarKarma(reserva.darKarma(libro, cantidadReservas))
         libro.limpiarFechasReserva()
         libro.agregarFechaReserva(fechaRecogida, fechaDevolucion)
 
@@ -97,17 +99,6 @@ class ReservaService(
         reservaRepository.save(reserva)
 
         return reserva
-    }
-
-    fun obtenerFechasDeReservasDeLibro(libroId: String): List<Pair<LocalDate, LocalDate>> {
-        if (!libroRepository.existsById(libroId)) {
-            throw NotFoundException(ErrorStrings.libroNoEncontradoPorId(libroId))
-        }
-
-        val reservas: List<FechasReserva> = reservaRepository.findFechasByLibroId(libroId)
-        return reservas.map {
-            it.fechaRecogida to it.fechaDevolucion
-        }
     }
 
     fun cantidadReservas(libroID: String): Int {
@@ -138,12 +129,10 @@ class ReservaService(
     private fun haySolapamiento(
         fechaRecogida: LocalDate,
         fechaDevolucion: LocalDate,
-        fechasDeReservas: List<Pair<LocalDate, LocalDate>>
+        fechasDeReservas: MutableList<FechaReserva>
     ): Boolean {
         return fechasDeReservas.any {
-            // first: Inicio de reserva existente
-            // second: Fin de reserva existente
-            fechaRecogida <= it.second && fechaDevolucion >= it.first
+            fechaRecogida <= it.fechaInicio && fechaDevolucion >= it.fechaFin
         }
     }
 }
