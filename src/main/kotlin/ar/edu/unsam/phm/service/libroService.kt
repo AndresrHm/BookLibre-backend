@@ -7,7 +7,6 @@ import ar.edu.unsam.phm.domain.PageResponse
 import ar.edu.unsam.phm.dto.*
 import ar.edu.unsam.phm.errors.ErrorStrings
 import ar.edu.unsam.phm.repository.LibroRepository
-import ar.edu.unsam.phm.repository.ReservaRepository
 import ar.edu.unsam.phm.repository.UsuarioRepository
 import ar.edu.unsam.phm.utils.sanitizarSearch
 import org.springframework.data.domain.Page
@@ -20,7 +19,6 @@ import java.time.LocalDate
 @Service
 class LibroService(
     var repositorioLibro: LibroRepository,
-    var repositorioReservas: ReservaRepository,
     var repositorioUsuario: UsuarioRepository,
 ) {
     fun crearLibro(nuevoLibro: Libro): Libro {
@@ -104,33 +102,27 @@ class LibroService(
         repositorioUsuario.findByIdOrNull(userId)
             ?: throw NotFoundException(ErrorStrings.usuarioNoExistePorId(userId))
 
-        val filtrosNormalizados = normalizarFechasPorDefecto(filtros)
-        val searchSanitizado = sanitizarSearch(filtrosNormalizados.search)
-
+        // Validar y obtener el rango de fechas que se debe usar para la consulta.
         validarPaginacion(page, size)
-        validarRangosFiltros(filtrosNormalizados)
+        validarRangosFiltros(filtros)
+
+        val (fechaDesde, fechaHasta) = rangoFechasParaConsulta(filtros, OrigenLibro.HOME)
+        val searchSanitizado = sanitizarSearch(filtros.search)
 
         val sort = sortHomePage(ordenHomePage)
         val pageable = PageRequest.of(page, size, sort)
 
-
-        val idsReservados: Set<String> = if (filtrosNormalizados.fechaDesde != null && filtrosNormalizados.fechaHasta != null) {
-            repositorioReservas.getLibrosReservadosEntreFechas(
-                filtrosNormalizados.fechaDesde,
-                filtrosNormalizados.fechaHasta
-            ).toSet()
-        } else emptySet()
-
         val resultado: Page<Libro> = repositorioLibro.buscarConFiltros(
             search = searchSanitizado,
-            isbn13 = filtrosNormalizados.isbn13,
-            paginasMin = filtrosNormalizados.paginasMin,
-            paginasMax = filtrosNormalizados.paginasMax,
-            generos = filtrosNormalizados.generos,
-            soloIdPropietario = filtrosNormalizados.usuarioPrestador?.id,
-            excluirIdPropietario = if (filtrosNormalizados.usuarioPrestador == null) userId else null,
-            excluirIds = idsReservados,
+            isbn13 = filtros.isbn13,
+            paginasMin = filtros.paginasMin,
+            paginasMax = filtros.paginasMax,
+            generos = filtros.generos,
+            soloIdPropietario = filtros.usuarioPrestador?.id,
+            excluirIdPropietario = if (filtros.usuarioPrestador == null) userId else null,
             pageable = pageable,
+            fechaDesde = fechaDesde,
+            fechaHasta = fechaHasta,
         )
 
         return PageResponse(
@@ -193,7 +185,8 @@ class LibroService(
 
     private fun estaReservadoHoy(libroId: String): Boolean {
         val hoy = LocalDate.now()
-        return libroId in repositorioReservas.getLibrosReservadosEntreFechas(hoy, hoy).toSet()
+        val libro = repositorioLibro.findByIdOrNull(libroId) ?: return false
+        return libro.fechasReserva.any { it.fechaInicio <= hoy && it.fechaFin >= hoy }
     }
 
     private fun sortHomePage(ordenHomePage: OrdenHomePage): Sort = when (ordenHomePage) {
@@ -241,9 +234,10 @@ class LibroService(
             generos = null,
             soloIdPropietario = propietarioId,
             excluirIdPropietario = null,
-            excluirIds = emptySet(),
             pageable = PageRequest.of(page, size, sortPerfil(orden, direccion)),
             disponibilidad = disponibilidad,
+            fechaDesde = null,
+            fechaHasta = null,
         )
 
         return PageResponse(
@@ -287,11 +281,15 @@ class LibroService(
     private fun entreFechas(fechaDesde: LocalDate?, fechaHasta: LocalDate?): Boolean =
         fechaDesde != null && fechaHasta != null && fechaDesde.isAfter(fechaHasta)
 
-    private fun normalizarFechasPorDefecto(filtros: FiltrosDeLibros): FiltrosDeLibros {
-        if (filtros.fechaDesde != null || filtros.fechaHasta != null) return filtros
-
-        val hoy = LocalDate.now()
-        return filtros.copy(fechaDesde = hoy, fechaHasta = hoy)
+    private fun rangoFechasParaConsulta(filtros: FiltrosDeLibros, origen: OrigenLibro): Pair<LocalDate?, LocalDate?> {
+        return if (origen == OrigenLibro.HOME) {
+            if (filtros.fechaDesde == null && filtros.fechaHasta == null) {
+                val hoy = LocalDate.now()
+                Pair(hoy, hoy)
+            } else Pair(filtros.fechaDesde, filtros.fechaHasta)
+        } else {
+            Pair(filtros.fechaDesde, filtros.fechaHasta)
+        }
     }
 
     private fun validarFlagDiff(flagDiff: OrigenLibro) {

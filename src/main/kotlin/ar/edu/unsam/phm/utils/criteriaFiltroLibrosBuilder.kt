@@ -13,8 +13,9 @@ data class LibroFiltrosMongo(
     val generos: List<Genero>?,
     val soloIdPropietario: Long?,
     val excluirIdPropietario: Long?,
-    val excluirIds: Set<String>,
     val disponibilidad: FiltroDisponibilidadPerfil? = null,
+    val fechaDesde: LocalDate? = null,
+    val fechaHasta: LocalDate? = null,
 )
 // Inspirados en el predicate usado para la entrega anterior, en este caso
 // no se puede usar tal funcionalidad, por lo que se uso un builder de Criteria
@@ -24,20 +25,24 @@ data class LibroFiltrosMongo(
 object CriterioFiltrosLibrosBuilder {
     fun build(filtros: LibroFiltrosMongo): Criteria {
         val parts = mutableListOf(Criteria.where("activo").`is`(true))
-
-        // Si se indicó un filtro de disponibilidad, filtramos según las fechas de reserva
-        filtros.disponibilidad?.let { dispo ->
-            val hoy = LocalDate.now()
-            val reservadoHoyCriteria = Criteria.where("fechasReserva").elemMatch(
-                Criteria.where("fechaInicio").lte(hoy).and("fechaFin").gte(hoy)
-            )
-
-            when (dispo) {
-                FiltroDisponibilidadPerfil.DISPONIBLES -> parts.add(Criteria.where("fechasReserva").not().elemMatch(
+        if (filtros.fechaDesde != null && filtros.fechaHasta != null) {
+            parts.add(Criteria.where("fechasReserva").not().elemMatch(
+                Criteria.where("fechaInicio").lte(filtros.fechaHasta).and("fechaFin").gte(filtros.fechaDesde)
+            ))
+        } else {
+            filtros.disponibilidad?.let { dispo ->
+                val hoy = LocalDate.now()
+                val reservadoHoyCriteria = Criteria.where("fechasReserva").elemMatch(
                     Criteria.where("fechaInicio").lte(hoy).and("fechaFin").gte(hoy)
-                ))
-                FiltroDisponibilidadPerfil.PRESTADOS -> parts.add(reservadoHoyCriteria)
-                else -> { /* TODOS -> no agregamos criterio */ }
+                )
+
+                when (dispo) {
+                    FiltroDisponibilidadPerfil.DISPONIBLES -> parts.add(Criteria.where("fechasReserva").not().elemMatch(
+                        Criteria.where("fechaInicio").lte(hoy).and("fechaFin").gte(hoy)
+                    ))
+                    FiltroDisponibilidadPerfil.PRESTADOS -> parts.add(reservadoHoyCriteria)
+                    else -> { /* TODOS -> no agregamos criterio */ }
+                }
             }
         }
 
@@ -52,7 +57,6 @@ object CriterioFiltrosLibrosBuilder {
         }
         filtros.soloIdPropietario?.let { parts.add(Criteria.where("idPropietario").`is`(it)) }
         filtros.excluirIdPropietario?.let { parts.add(Criteria.where("idPropietario").ne(it)) }
-        filtros.excluirIds.takeIf { it.isNotEmpty() }?.let { parts.add(Criteria.where("_id").nin(it)) }
 
         return Criteria().andOperator(*parts.toTypedArray())
     }

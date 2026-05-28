@@ -1,4 +1,5 @@
 #!/bin/bash
+export MSYS_NO_PATHCONV=1
 
 echo "========================================="
 echo "Inicializando Config Server Replica Set"

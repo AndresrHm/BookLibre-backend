@@ -30,14 +30,14 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioLibro = mockk<LibroRepository>()
             val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
-            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
+            val servicio = LibroService(repositorioLibro, repositorioUsuario)
 
             val disponible = crearLibro(id = "1", titulo = "Disponible", autor = "Autor A", idPropietario = 10)
 
             every {
                 repositorioLibro.buscarConFiltros(
                     any(), any(), any(), any(), any(),
-                    10L, null, emptySet(), any(), FiltroDisponibilidadPerfil.DISPONIBLES
+                    10L, null, any(), FiltroDisponibilidadPerfil.DISPONIBLES, any(), any()
                 )
             } returns PageImpl(listOf(disponible), PageRequest.of(0, 10), 1)
 
@@ -61,7 +61,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioLibro = mockk<LibroRepository>()
             val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
-            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
+            val servicio = LibroService(repositorioLibro, repositorioUsuario)
 
             val libroAutorZ = crearLibro(id = "1", titulo = "Mismo", autor = "Zulu", idPropietario = 5)
             val libroAutorA = crearLibro(id = "2", titulo = "Mismo", autor = "Alfa", idPropietario = 5)
@@ -70,7 +70,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             every {
                 repositorioLibro.buscarConFiltros(
                     any(), any(), any(), any(), any(),
-                    5L, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS
+                    5L, null, any(), FiltroDisponibilidadPerfil.TODOS, any(), any()
                 )
             } returns PageImpl(listOf(libroAutorA, libroAutorZ, libroTituloB), PageRequest.of(0, 10), 3)
 
@@ -93,7 +93,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioLibro = mockk<LibroRepository>()
             val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
-            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
+            val servicio = LibroService(repositorioLibro, repositorioUsuario)
 
             val disponible = crearLibro(id = "1", titulo = "Disponible", autor = "Autor A", idPropietario = 8)
             val prestado = crearLibro(id = "2", titulo = "Prestado", autor = "Autor B", idPropietario = 8)
@@ -101,7 +101,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             every {
                 repositorioLibro.buscarConFiltros(
                     any(), any(), any(), any(), any(),
-                    8L, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS
+                    8L, null, any(), FiltroDisponibilidadPerfil.TODOS, any(), any()
                 )
             } returns PageImpl(listOf(prestado, disponible), PageRequest.of(0, 10), 2)
 
@@ -124,7 +124,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             val repositorioLibro = mockk<LibroRepository>()
             val repositorioReservas = mockk<ReservaRepository>(relaxed = true)
             val repositorioUsuario = mockk<UsuarioRepository>(relaxed = true)
-            val servicio = LibroService(repositorioLibro, repositorioReservas, repositorioUsuario)
+            val servicio = LibroService(repositorioLibro, repositorioUsuario)
 
             val libroViejo = crearLibro(id = "1", titulo = "Viejo", autor = "Autor A", idPropietario = 3, fechaAgregado = LocalDate.of(2020, 1, 1))
             val libroMedio = crearLibro(id = "2", titulo = "Medio", autor = "Autor B", idPropietario = 3, fechaAgregado = LocalDate.of(2021, 1, 1))
@@ -133,7 +133,7 @@ class LibroRepositoryPerfilTest : DescribeSpec({
             every {
                 repositorioLibro.buscarConFiltros(
                     any(), any(), any(), any(), any(),
-                    3L, null, emptySet(), any(), FiltroDisponibilidadPerfil.TODOS
+                    3L, null, any(), FiltroDisponibilidadPerfil.TODOS, any(), any()
                 )
             } returns PageImpl(listOf(libroViejo, libroMedio, libroNuevo), PageRequest.of(0, 10), 3)
 
