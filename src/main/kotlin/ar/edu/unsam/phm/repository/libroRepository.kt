@@ -13,7 +13,6 @@ import ar.edu.unsam.phm.utils.CriterioFiltrosLibrosBuilder
 import ar.edu.unsam.phm.utils.LibroFiltrosMongo
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 
-
 interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCustom {
     fun deleteByIdPropietario(idPropietario: Long)
     fun findByActivoTrue(): List<Libro>
@@ -39,30 +38,6 @@ interface LibroRepositoryCustom {
 
 @Repository
 class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepositoryCustom {
-    private fun criterioFiltros(
-        search: String?,
-        isbn13: Long?,
-        paginasMin: Int?,
-        paginasMax: Int?,
-        generos: List<Genero>?,
-        soloIdPropietario: Long?,
-        excluirIdPropietario: Long?,
-        excluirIds: Set<String>,
-        disponibilidad: FiltroDisponibilidadPerfil,
-    ) = CriterioFiltrosLibrosBuilder.build(
-        LibroFiltrosMongo(
-            search = search,
-            isbn13 = isbn13,
-            paginasMin = paginasMin,
-            paginasMax = paginasMax,
-            generos = generos,
-            soloIdPropietario = soloIdPropietario,
-            excluirIdPropietario = excluirIdPropietario,
-            excluirIds = excluirIds,
-            disponibilidad = disponibilidad,
-        )
-    )
-
     override fun buscarConFiltros(
         search: String?,
         isbn13: Long?,
@@ -75,24 +50,23 @@ class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepos
         pageable: Pageable,
         disponibilidad: FiltroDisponibilidadPerfil,
     ): Page<Libro> {
-        val criteria = criterioFiltros(
-            search = search,
-            isbn13 = isbn13,
-            paginasMin = paginasMin,
-            paginasMax = paginasMax,
-            generos = generos,
-            soloIdPropietario = soloIdPropietario,
-            excluirIdPropietario = excluirIdPropietario,
-            excluirIds = excluirIds,
-            disponibilidad = disponibilidad,
+        val criteria = CriterioFiltrosLibrosBuilder.build(
+            LibroFiltrosMongo(
+                search = search,
+                isbn13 = isbn13,
+                paginasMin = paginasMin,
+                paginasMax = paginasMax,
+                generos = generos,
+                soloIdPropietario = soloIdPropietario,
+                excluirIdPropietario = excluirIdPropietario,
+                excluirIds = excluirIds,
+                disponibilidad = disponibilidad,
+            )
         )
-        val query = Query(criteria).with(pageable)
-        val countQuery = Query(criteria)
 
-        val libros = mongoTemplate.find(query, Libro::class.java)
-        val total = mongoTemplate.count(countQuery, Libro::class.java)
+        val libros = mongoTemplate.find(Query(criteria).with(pageable), Libro::class.java)
+        val total = mongoTemplate.count(Query(criteria), Libro::class.java)
 
         return PageImpl(libros, pageable, total)
     }
 }
-
