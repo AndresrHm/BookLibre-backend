@@ -377,8 +377,8 @@ private fun crearLibro(
     fechaPublicacion: LocalDate,
     estadoLibro: EstadoLibro,
     idPropietario: Int = 1,
-): ar.edu.unsam.phm.domain.Libro {
-    return ar.edu.unsam.phm.domain.Libro(
+): Libro {
+    return Libro(
         titulo = titulo,
         tipoLibro = tipoLibro,
         descripcion = descripcion,

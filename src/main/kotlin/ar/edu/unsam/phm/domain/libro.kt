@@ -73,7 +73,6 @@ class Libro(
 
     fun calificacionPromedio() = calificacion
 
-
     fun getFechaAsString(): String = fechaAgregado?.formatear() ?: ""
 
     fun tipoComoTexto(): String =
