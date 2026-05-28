@@ -19,7 +19,6 @@ class LibroFiltrosCriteriaBuilderTest : DescribeSpec({
                     generos = null,
                     soloIdPropietario = null,
                     excluirIdPropietario = null,
-                    excluirIds = emptySet(),
                 )
             )
 
@@ -27,6 +26,7 @@ class LibroFiltrosCriteriaBuilderTest : DescribeSpec({
 
             json shouldContain "\"activo\": true"
             json shouldBe "{\"\$and\": [{\"activo\": true}]}"
+
         }
 
         it("agrega criterios para filtros combinados") {
@@ -39,7 +39,6 @@ class LibroFiltrosCriteriaBuilderTest : DescribeSpec({
                     generos = listOf(Genero.CIENCIA_FICCION, Genero.DRAMA),
                     soloIdPropietario = 22,
                     excluirIdPropietario = 9,
-                    excluirIds = setOf("L1", "L2"),
                 )
             )
 
@@ -55,9 +54,6 @@ class LibroFiltrosCriteriaBuilderTest : DescribeSpec({
             json shouldContain "DRAMA"
             json shouldContain "\"idPropietario\": 22"
             json shouldContain "\"\$ne\": 9"
-            json shouldContain "\"_id\""
-            json shouldContain "L1"
-            json shouldContain "L2"
         }
 
         it("ignora search en blanco, generos vacios y excluirIds vacio") {
@@ -70,7 +66,6 @@ class LibroFiltrosCriteriaBuilderTest : DescribeSpec({
                     generos = emptyList(),
                     soloIdPropietario = null,
                     excluirIdPropietario = null,
-                    excluirIds = emptySet(),
                 )
             )
 
@@ -83,4 +78,3 @@ class LibroFiltrosCriteriaBuilderTest : DescribeSpec({
         }
     }
 })
-

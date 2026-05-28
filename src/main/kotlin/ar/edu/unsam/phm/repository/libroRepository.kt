@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository
 import ar.edu.unsam.phm.utils.CriterioFiltrosLibrosBuilder
 import ar.edu.unsam.phm.utils.LibroFiltrosMongo
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
+import java.time.LocalDate
 
 
 interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCustom {
@@ -31,38 +32,15 @@ interface LibroRepositoryCustom {
         generos: List<Genero>?,
         soloIdPropietario: Long?,
         excluirIdPropietario: Long?,
-        excluirIds: Set<String>,
         pageable: Pageable,
         disponibilidad: FiltroDisponibilidadPerfil = FiltroDisponibilidadPerfil.TODOS,
+        fechaDesde: LocalDate? = null,
+        fechaHasta: LocalDate? = null,
     ): Page<Libro>
 }
 
 @Repository
 class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepositoryCustom {
-    private fun criterioFiltros(
-        search: String?,
-        isbn13: Long?,
-        paginasMin: Int?,
-        paginasMax: Int?,
-        generos: List<Genero>?,
-        soloIdPropietario: Long?,
-        excluirIdPropietario: Long?,
-        excluirIds: Set<String>,
-        disponibilidad: FiltroDisponibilidadPerfil,
-    ) = CriterioFiltrosLibrosBuilder.build(
-        LibroFiltrosMongo(
-            search = search,
-            isbn13 = isbn13,
-            paginasMin = paginasMin,
-            paginasMax = paginasMax,
-            generos = generos,
-            soloIdPropietario = soloIdPropietario,
-            excluirIdPropietario = excluirIdPropietario,
-            excluirIds = excluirIds,
-            disponibilidad = disponibilidad,
-        )
-    )
-
     override fun buscarConFiltros(
         search: String?,
         isbn13: Long?,
@@ -71,11 +49,12 @@ class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepos
         generos: List<Genero>?,
         soloIdPropietario: Long?,
         excluirIdPropietario: Long?,
-        excluirIds: Set<String>,
         pageable: Pageable,
         disponibilidad: FiltroDisponibilidadPerfil,
+        fechaDesde: LocalDate?,
+        fechaHasta: LocalDate?,
     ): Page<Libro> {
-        val criteria = criterioFiltros(
+        val filtros = LibroFiltrosMongo(
             search = search,
             isbn13 = isbn13,
             paginasMin = paginasMin,
@@ -83,9 +62,11 @@ class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepos
             generos = generos,
             soloIdPropietario = soloIdPropietario,
             excluirIdPropietario = excluirIdPropietario,
-            excluirIds = excluirIds,
             disponibilidad = disponibilidad,
+            fechaDesde = fechaDesde,
+            fechaHasta = fechaHasta,
         )
+        val criteria = CriterioFiltrosLibrosBuilder.build(filtros)
         val query = Query(criteria).with(pageable)
         val countQuery = Query(criteria)
 
