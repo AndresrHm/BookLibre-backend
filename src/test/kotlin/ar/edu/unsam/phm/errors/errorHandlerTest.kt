@@ -57,6 +57,6 @@ class GlobalExceptionHandlerTest {
     fun `Cuando la excepcion no tiene mensaje devuelve el texto por defecto`() {
         mockMvc.perform(get("/null-message"))
             .andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.message").value("No se pudo conectar con el servidor."))
+            .andExpect(jsonPath("$.message").value("Ocurrió un error inesperado."))
     }
 }
