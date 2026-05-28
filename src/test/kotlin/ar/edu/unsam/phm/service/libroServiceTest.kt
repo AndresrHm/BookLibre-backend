@@ -153,8 +153,13 @@ class LibroServiceSpec : DescribeSpec({
     describe("LibroService: borrarLibro") {
 
         it("lanza excepción si el libro está prestado hoy") {
-            every { libroRepository.findById(idLibro) } returns Optional.of(libro)
-            every { reservaRepository.getLibrosReservadosEntreFechas(any(), any()) } returns listOf(idLibro)
+            val hoy = LocalDate.now()
+            val libroConReserva = libro.apply {
+                fechasReserva = mutableListOf(FechaReserva(fechaInicio = hoy, fechaFin = hoy))
+            }
+
+            every { libroRepository.findById(idLibro) } returns Optional.of(libroConReserva)
+            every { libroRepository.save(any<Libro>()) } returns libroConReserva
 
             val exception = shouldThrow<BusinessException> {
                     service.borrarLibro(idLibro, idUsuario)
