@@ -14,7 +14,6 @@ import ar.edu.unsam.phm.utils.LibroFiltrosMongo
 import ar.edu.unsam.phm.dto.FiltroDisponibilidadPerfil
 import java.time.LocalDate
 
-
 interface LibroRepository : MongoRepository<Libro, String>, LibroRepositoryCustom {
     fun deleteByIdPropietario(idPropietario: Long)
     fun findByActivoTrue(): List<Libro>
@@ -54,26 +53,23 @@ class LibroRepositoryImpl(private val mongoTemplate: MongoTemplate) : LibroRepos
         fechaDesde: LocalDate?,
         fechaHasta: LocalDate?,
     ): Page<Libro> {
-        val filtros = LibroFiltrosMongo(
-            search = search,
-            isbn13 = isbn13,
-            paginasMin = paginasMin,
-            paginasMax = paginasMax,
-            generos = generos,
-            soloIdPropietario = soloIdPropietario,
-            excluirIdPropietario = excluirIdPropietario,
-            disponibilidad = disponibilidad,
-            fechaDesde = fechaDesde,
-            fechaHasta = fechaHasta,
+        val criteria = CriterioFiltrosLibrosBuilder.build(
+            LibroFiltrosMongo(
+                search = search,
+                isbn13 = isbn13,
+                paginasMin = paginasMin,
+                paginasMax = paginasMax,
+                generos = generos,
+                soloIdPropietario = soloIdPropietario,
+                excluirIdPropietario = excluirIdPropietario,
+                excluirIds = excluirIds,
+                disponibilidad = disponibilidad,
+            )
         )
-        val criteria = CriterioFiltrosLibrosBuilder.build(filtros)
-        val query = Query(criteria).with(pageable)
-        val countQuery = Query(criteria)
 
-        val libros = mongoTemplate.find(query, Libro::class.java)
-        val total = mongoTemplate.count(countQuery, Libro::class.java)
+        val libros = mongoTemplate.find(Query(criteria).with(pageable), Libro::class.java)
+        val total = mongoTemplate.count(Query(criteria), Libro::class.java)
 
         return PageImpl(libros, pageable, total)
     }
 }
-

@@ -44,21 +44,37 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<Map<String, String>> {
 
+        val errorMessage = ex.message ?: ""
+        val isMongoConnError = listOf(
+            "Timed out while waiting for a server",
+            "FailedToSatisfyReadPreference",
+            "Could not find host matching read preference",
+            "Encountered non-retryable error",
+            "MongoServerError",
+            "Command failed with error 133"
+        ).any { errorMessage.contains(it, ignoreCase = true) }
+
+        val statusCode = if (isMongoConnError) {
+            HttpStatus.SERVICE_UNAVAILABLE
+        } else {
+            HttpStatus.BAD_REQUEST
+        }
+
+        val responseMessage = when {
+            isMongoConnError ->
+                "El servicio no está disponible. Por favor, intenta más tarde."
+
+            ex.message?.contains("Mongo") == true ->
+                "No se pudo conectar con el servidor."
+
+            else ->
+                ex.message ?: "Ocurrió un error inesperado."
+        }
+
         return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
+            .status(statusCode)
             .body(
-                mapOf(
-                    "message" to when {
-                        ex.message?.contains("Timed out while waiting for a server") == true ->
-                            "No se pudo conectar con el servidor."
-
-                        ex.message?.contains("Mongo") == true ->
-                            "No se pudo conectar con el servidor."
-
-                        else ->
-                            ex.message ?: "No se pudo conectar con el servidor."
-                    }
-                )
+                mapOf("message" to responseMessage)
             )
     }
 }

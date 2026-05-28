@@ -3,7 +3,6 @@ package ar.edu.unsam.phm.service
 import ar.edu.unsam.phm.domain.LibroClickLog
 import ar.edu.unsam.phm.repository.LibroClickLogRepository
 import ar.edu.unsam.phm.repository.LibroRepository
-import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -75,24 +74,46 @@ class LibroClickLogServiceTest : DescribeSpec({
 
             logs.size shouldBe 2
         }
+
+        it("devuelve una lista vacia de inmediato si el usuario no posee libros registrados") {
+            val usuarioSinLibrosId = 999L
+            every { libroRepository.findByIdPropietario(usuarioSinLibrosId) } returns emptyList()
+
+            val logs = service.obtenerLogsResumenClickLibroPorUsuario(usuarioSinLibrosId)
+
+            logs shouldBe emptyList()
+            verify(exactly = 0) { clickLogRepository.findByLibroIdIn(any()) }
+        }
+
+        it("realiza el distinct utilizando el id propio de mongo cuando este se encuentra presente") {
+            val usuarioId = 10L
+            every { libroRepository.findByIdPropietario(usuarioId) } returns listOf(
+                mockk { every { id } returns "libro-z" }
+            )
+            every { clickLogRepository.findByLibroIdIn(setOf("libro-z")) } returns listOf(
+                crearClickLog(id = "mongo-id-1", libroId = "libro-z", libroTitulo = "Z", usuarioId = 1L, propietarioId = usuarioId, timestamp = "2026-05-10T09:00:00Z"),
+                crearClickLog(id = "mongo-id-1", libroId = "libro-z", libroTitulo = "Z", usuarioId = 1L, propietarioId = usuarioId, timestamp = "2026-05-10T09:00:00Z")
+            )
+
+            val logs = service.obtenerLogsResumenClickLibroPorUsuario(usuarioId)
+
+            logs.size shouldBe 1
+        }
     }
 })
 
-
 private fun crearClickLog(
+    id: String? = null,
     libroId: String,
     libroTitulo: String,
     usuarioId: Long,
     propietarioId: Long?,
     timestamp: String,
 ): LibroClickLog = LibroClickLog(
+    id = id,
     libroId = libroId,
     libroTitulo = libroTitulo,
     usuarioId = usuarioId,
     libroPropietarioId = propietarioId,
-    clickTimestamp = timestamp,
+    clickTimestamp = timestamp
 )
-
-
-
-

@@ -76,4 +76,112 @@ class TokenUtilsTest {
         val hash = tokenUtils.hashToken("abc")
         assertNotNull(hash)
     }
+
+    @Test
+    fun `should throw when token is expired`() {
+        val now = Date()
+        val token = Jwts.builder()
+            .subject("123")
+            .issuedAt(Date(now.time - 100000))
+            .expiration(Date(now.time - 50000))
+            .claim("roles", emptyList<String>())
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        assertThrows(BusinessException::class.java) {
+            tokenUtils.getAuthentication(token)
+        }
+    }
+
+    @Test
+    fun `should throw when subject is null`() {
+        val token = Jwts.builder()
+            .issuedAt(Date())
+            .claim("roles", emptyList<String>())
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        assertThrows(BusinessException::class.java) {
+            tokenUtils.getAuthentication(token)
+        }
+    }
+
+    @Test
+    fun `should handle roles as plain strings list`() {
+        val roles = listOf("ROLE_USER")
+
+        val token = Jwts.builder()
+            .subject("123")
+            .claim("roles", roles)
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        val auth = tokenUtils.getAuthentication(token)
+
+        assertTrue(auth.authorities.any { it.authority == "ROLE_USER" })
+    }
+
+    @Test
+    fun `should handle roles as map with name fallback key`() {
+        val roles = listOf(mapOf("name" to "ROLE_GUEST"))
+
+        val token = Jwts.builder()
+            .subject("123")
+            .claim("roles", roles)
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        val auth = tokenUtils.getAuthentication(token)
+
+        assertTrue(auth.authorities.any { it.authority == "ROLE_GUEST" })
+    }
+
+    @Test
+    fun `should skip role when map structure lacks expected fields`() {
+        val roles = listOf(mapOf("invalidKey" to "ROLE_NONE"))
+
+        val token = Jwts.builder()
+            .subject("123")
+            .claim("roles", roles)
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        val auth = tokenUtils.getAuthentication(token)
+
+        assertTrue(auth.authorities.isEmpty())
+    }
+
+    @Test
+    fun `should return refresh token expiration days correctly`() {
+        assertEquals(7, tokenUtils.getRefreshTokenExpirationDays())
+    }
+
+    @Test
+    fun `should handle case when roles claim is not a list`() {
+        val token = Jwts.builder()
+            .subject("123")
+            .claim("roles", "NOT_A_LIST")
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        val auth = tokenUtils.getAuthentication(token)
+
+        assertEquals("123", auth.name)
+        assertTrue(auth.authorities.isEmpty())
+    }
+
+    @Test
+    fun `should handle mixed elements inside roles list`() {
+        val roles = listOf(12345)
+
+        val token = Jwts.builder()
+            .subject("123")
+            .claim("roles", roles)
+            .signWith(Keys.hmacShaKeyFor(tokenUtils.secretKey.toByteArray()))
+            .compact()
+
+        val auth = tokenUtils.getAuthentication(token)
+
+        assertTrue(auth.authorities.isEmpty())
+    }
 }
